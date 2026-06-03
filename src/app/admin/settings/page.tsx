@@ -551,7 +551,7 @@ export default function SettingsPage() {
       onConfirm: () => {
         setFormData(prev => ({
           ...prev,
-          team_members: prev.team_members.filter((_, i) => i !== index)
+          team_members: prev.team_members.filter((_: any, i: number) => i !== index)
         }))
         setConfirmModal(null)
       }
@@ -577,7 +577,7 @@ export default function SettingsPage() {
       onConfirm: () => {
         setFormData(prev => ({
           ...prev,
-          testimonials: prev.testimonials.filter((_, i) => i !== index)
+          testimonials: prev.testimonials.filter((_: any, i: number) => i !== index)
         }))
         setConfirmModal(null)
       }
