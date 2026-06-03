@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { LayoutDashboard, ShoppingBag, Settings, Users, BarChart3, LogOut, Package, CreditCard, Truck, Tag, Link2, Layout, Star, Menu, X, Scale, Wrench, ImageIcon, Lock } from 'lucide-react'
+import { LayoutDashboard, ShoppingBag, Settings, Users, LogOut, Package, CreditCard, Truck, Tag, Link2, Star, Menu, X } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAdminAuth } from '@/context/AdminAuthContext'
 
@@ -70,8 +70,6 @@ export default function AdminSidebar() {
       transition: 'color 0.2s'
     }
   }
-
-  const initials = store?.name ? store.name.substring(0, 2).toUpperCase() : 'JD'
 
   return (
     <>

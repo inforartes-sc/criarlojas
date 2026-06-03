@@ -16,7 +16,7 @@ export default function SettingsPage() {
 
   const isServicesOnly = () => ['lawyer', 'advocacia', 'advocacy', 'services', 'electrician'].includes(formData.layout_model)
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<any>({
     name: '',
     subdomain: '',
     custom_domain: '',
