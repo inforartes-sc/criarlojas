@@ -1,0 +1,344 @@
+"use client"
+
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useState } from 'react'
+import { LayoutDashboard, ShoppingBag, Settings, Users, BarChart3, LogOut, Package, CreditCard, Truck, Tag, Link2, Layout, Star, Menu, X, Scale, Wrench, ImageIcon, Lock } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { useAdminAuth } from '@/context/AdminAuthContext'
+
+export default function AdminSidebar() {
+  const pathname = usePathname()
+  const { store, logout } = useAdminAuth()
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
+  
+  const isServicesOnly = ['lawyer', 'advocacia', 'advocacy', 'services', 'electrician'].includes(store?.settings?.layout_model)
+  const isLawyerLayout = ['lawyer', 'advocacia', 'advocacy'].includes(store?.settings?.layout_model)
+  const isServicesModel = store?.settings?.layout_model === 'services'
+  const isElectricianLayout = store?.settings?.layout_model === 'electrician'
+
+  const menuItems = [
+    { icon: LayoutDashboard, label: 'Dashboard', href: '/admin' },
+    ...(isServicesModel ? [
+      { icon: Package, label: 'Serviços', href: '/admin/products' },
+      { icon: ShoppingBag, label: 'Peças', href: '/admin/parts' },
+    ] : [
+      { icon: Package, label: (isLawyerLayout || isElectricianLayout) ? 'Serviços' : 'Produtos', href: '/admin/products' },
+    ]),
+    { icon: LayoutDashboard, label: 'Categorias', href: '/admin/categories' },
+    { icon: ShoppingBag, label: 'Pedidos', href: '/admin/orders' },
+    { icon: Users, label: 'Clientes', href: '/admin/customers' },
+    { icon: Star, label: 'Avaliações', href: '/admin/reviews' },
+    { icon: CreditCard, label: 'Pagamentos', href: '/admin/payments' },
+    { icon: Truck, label: 'Envio / Frete', href: '/admin/shipping' },
+    { icon: Tag, label: 'Promoções', href: '/admin/promotions' },
+    { icon: Link2, label: 'Link da Bio', href: '/admin/bio-link' },
+    { icon: CreditCard, label: 'Meu Plano', href: '/admin/subscription' },
+    { icon: Settings, label: 'Configurações', href: '/admin/settings' },
+  ]
+
+  const filteredMenuItems = menuItems.filter(item => {
+    if (isLawyerLayout) {
+      const excludedLabels = ['Categorias', 'Pedidos', 'Clientes', 'Pagamentos', 'Envio / Frete', 'Promoções', 'Avaliações']
+      return !excludedLabels.includes(item.label)
+    }
+    if (isElectricianLayout) {
+      const excludedLabels = ['Pedidos', 'Envio / Frete', 'Clientes', 'Pagamentos', 'Promoções', 'Avaliações']
+      return !excludedLabels.includes(item.label)
+    }
+    return true
+  })
+
+  const handleLogout = () => {
+    toast.success('Você saiu do painel da loja com sucesso.')
+    setTimeout(() => {
+      logout()
+    }, 500)
+  }
+
+  const bottomItemStyle = (href: string) => {
+    const isActive = pathname === href || (href !== '/admin' && pathname?.startsWith(href))
+    return {
+      color: isActive ? '#6366f1' : '#94a3b8',
+      textDecoration: 'none',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: '0.5rem',
+      flex: 1,
+      transition: 'color 0.2s'
+    }
+  }
+
+  const initials = store?.name ? store.name.substring(0, 2).toUpperCase() : 'JD'
+
+  return (
+    <>
+      {/* Sidebar for Desktop */}
+      <aside className="admin-sidebar" style={{ 
+        width: '280px', 
+        height: '100vh', 
+        position: 'fixed',
+        left: 0,
+        top: 0,
+        backgroundColor: '#0f172a',
+        borderRight: '1px solid rgba(255,255,255,0.05)',
+        padding: '1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        zIndex: 100
+      }}>
+        <div className="sidebar-logo" style={{ marginBottom: '1.5rem' }}>
+          <div>
+            <h2 style={{ 
+              fontSize: '1.4rem', 
+              background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', 
+              WebkitBackgroundClip: 'text', 
+              WebkitTextFillColor: 'transparent',
+              fontWeight: 800,
+              margin: 0
+            }}>
+              Criar Lojas
+            </h2>
+            <span style={{ fontSize: '0.75rem', color: '#0ea5e9', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>
+              Painel Lojista
+            </span>
+          </div>
+        </div>
+
+        <nav style={{ flex: 1, overflowY: 'auto', marginBottom: '0.5rem' }} className="sidebar-nav">
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }} className="sidebar-menu-list">
+            {filteredMenuItems.map((item) => {
+              const isActive = pathname === item.href || (item.href !== '/admin' && pathname?.startsWith(item.href))
+              
+              return (
+                <li key={item.label} style={{ marginBottom: '0.2rem' }} className="menu-list-item">
+                  <Link href={item.href} style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    gap: '0.85rem',
+                    padding: '0.6rem 1rem',
+                    color: isActive ? '#ffffff' : '#94a3b8',
+                    backgroundColor: isActive ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
+                    textDecoration: 'none',
+                    borderRadius: '10px',
+                    transition: 'all 0.2s ease',
+                    fontSize: '0.95rem',
+                    fontWeight: isActive ? 600 : 500,
+                    border: isActive ? '1px solid rgba(99, 102, 241, 0.2)' : '1px solid transparent'
+                  }} className="nav-item">
+                    <item.icon size={20} style={{ color: isActive ? '#6366f1' : 'inherit' }} className="nav-icon" />
+                    <span className="nav-text">{item.label}</span>
+                  </Link>
+                </li>
+              )
+            })}
+          </ul>
+        </nav>
+
+        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }} className="sidebar-footer">
+          <button 
+            onClick={handleLogout}
+            style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: '0.85rem',
+              color: '#ef4444',
+              background: 'transparent',
+              border: 'none',
+              padding: '0.6rem 1rem',
+              borderRadius: '10px',
+              width: '100%',
+              textAlign: 'left',
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: '0.95rem',
+              transition: '0.2s'
+            }}
+            className="auth-btn-logout"
+          >
+            <LogOut size={20} />
+            <span className="nav-text">Sair do Painel</span>
+          </button>
+        </div>
+      </aside>
+
+      {/* Mobile Bottom Bar */}
+      <div className="mobile-bottom-bar" style={{
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        height: '65px',
+        backgroundColor: '#0f172a',
+        borderTop: '1px solid rgba(255, 255, 255, 0.08)',
+        boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.3)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        zIndex: 1000,
+        padding: '0 0.5rem'
+      }}>
+        <Link href="/admin" onClick={() => setShowMobileMenu(false)} style={bottomItemStyle('/admin')}>
+          <LayoutDashboard size={20} />
+          <span style={{ fontSize: '0.7rem', marginTop: '2px' }}>Dashboard</span>
+        </Link>
+        <Link href="/admin/orders" onClick={() => setShowMobileMenu(false)} style={bottomItemStyle('/admin/orders')}>
+          <ShoppingBag size={20} />
+          <span style={{ fontSize: '0.7rem', marginTop: '2px' }}>Pedidos</span>
+        </Link>
+        <Link href="/admin/customers" onClick={() => setShowMobileMenu(false)} style={bottomItemStyle('/admin/customers')}>
+          <Users size={20} />
+          <span style={{ fontSize: '0.7rem', marginTop: '2px' }}>Clientes</span>
+        </Link>
+        <button 
+          onClick={() => setShowMobileMenu(!showMobileMenu)} 
+          style={{
+            background: 'none',
+            border: 'none',
+            color: showMobileMenu ? '#6366f1' : '#94a3b8',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            padding: '0.5rem',
+            flex: 1
+          }}
+        >
+          <Menu size={20} />
+          <span style={{ fontSize: '0.7rem', marginTop: '2px' }}>Menu</span>
+        </button>
+      </div>
+
+      {/* Mobile Menu Overlay */}
+      {showMobileMenu && (
+        <div className="mobile-menu-overlay" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: '#0f172a',
+          zIndex: 9999,
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '1.5rem',
+          overflowY: 'auto'
+        }}>
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '1rem' }}>
+            <div>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'white', margin: 0 }}>Menu Principal</h2>
+              <span style={{ fontSize: '0.75rem', color: '#0ea5e9', fontWeight: 600 }}>{store?.name}</span>
+            </div>
+            <button onClick={() => setShowMobileMenu(false)} style={{
+              background: 'rgba(255,255,255,0.05)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              color: '#94a3b8',
+              borderRadius: '50%',
+              padding: '0.5rem',
+              display: 'flex',
+              cursor: 'pointer'
+            }}>
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Grid of Other Modules */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
+            gap: '1rem',
+            flex: 1
+          }}>
+            {filteredMenuItems
+              .filter(item => !['Dashboard', 'Pedidos', 'Clientes'].includes(item.label))
+              .map(item => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setShowMobileMenu(false)}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.02)',
+                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    borderRadius: '16px',
+                    padding: '1.25rem 1rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    textDecoration: 'none',
+                    color: 'white',
+                    transition: 'all 0.2s',
+                    textAlign: 'center'
+                  }}
+                  className="mobile-grid-item"
+                >
+                  <item.icon size={24} style={{ color: '#6366f1' }} />
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{item.label}</span>
+                </Link>
+              ))}
+          </div>
+
+          {/* Footer Logout */}
+          <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.5rem' }}>
+            <button
+              onClick={() => {
+                setShowMobileMenu(false)
+                handleLogout()
+              }}
+              style={{
+                width: '100%',
+                padding: '1rem',
+                background: 'rgba(239, 68, 68, 0.1)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                color: '#ef4444',
+                borderRadius: '12px',
+                fontWeight: 700,
+                fontSize: '0.95rem',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                cursor: 'pointer'
+              }}
+            >
+              <LogOut size={18} />
+              <span>Sair do Painel</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        .nav-item:hover {
+          background: rgba(255, 255, 255, 0.05) !important;
+          color: #ffffff !important;
+        }
+        .auth-btn-logout:hover {
+          background: rgba(239, 68, 68, 0.1) !important;
+        }
+        .mobile-grid-item:hover {
+          background: rgba(255, 255, 255, 0.05) !important;
+          border-color: rgba(99, 102, 241, 0.3) !important;
+        }
+
+        @media (min-width: 769px) {
+          .mobile-bottom-bar {
+            display: none !important;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .admin-sidebar {
+            display: none !important;
+          }
+        }
+      `}</style>
+    </>
+  )
+}
+
