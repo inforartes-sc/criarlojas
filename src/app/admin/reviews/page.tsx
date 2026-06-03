@@ -66,7 +66,20 @@ export default function ReviewsPage() {
       if (error) {
         throw error
       }
-      setReviews(data || [])
+      const formattedReviews: Review[] = (data || []).map((rev: any) => {
+        const prod = Array.isArray(rev.products) ? rev.products[0] : rev.products
+        return {
+          id: rev.id,
+          name: rev.name,
+          email: rev.email,
+          rating: rev.rating,
+          comment: rev.comment,
+          created_at: rev.created_at,
+          product_id: rev.product_id,
+          products: prod ? { name: prod.name } : undefined
+        }
+      })
+      setReviews(formattedReviews)
     } catch (error: any) {
       console.warn('Erro ao carregar avaliações do Supabase, tentando LocalStorage:', error)
       loadLocalReviewsFallback()
