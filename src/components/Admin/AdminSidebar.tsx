@@ -56,7 +56,7 @@ export default function AdminSidebar() {
     }, 500)
   }
 
-  const bottomItemStyle = (href: string) => {
+  const bottomItemStyle = (href: string): React.CSSProperties => {
     const isActive = pathname === href || (href !== '/admin' && pathname?.startsWith(href))
     return {
       color: isActive ? '#6366f1' : '#94a3b8',
