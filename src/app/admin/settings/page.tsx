@@ -1536,7 +1536,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
                 
-                {formData.testimonials.map((testimonial, index) => (
+                {formData.testimonials.map((testimonial: any, index: number) => (
                   <div key={index} style={{ padding: '1.5rem', border: '1px solid var(--border)', borderRadius: '12px', display: 'grid', gap: '1rem', backgroundColor: 'rgba(255,255,255,0.01)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <h5 style={{ fontWeight: 700, margin: 0 }}>Depoimento {index + 1}</h5>
