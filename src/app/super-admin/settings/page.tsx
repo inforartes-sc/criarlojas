@@ -121,29 +121,43 @@ export default function SuperAdminSettings() {
     setSaving(true)
     
     try {
+      const { data: dbData, error: fetchErr } = await supabase
+        .from('stores')
+        .select('settings')
+        .eq('subdomain', 'platform-settings')
+        .maybeSingle()
+
+      if (fetchErr) throw fetchErr
+      const currentSettings = dbData?.settings || {}
+
+      const mergedSettings = {
+        ...currentSettings,
+        ...settings,
+        plans // Preservar os planos
+      }
+
       if (recordId) {
-        const { error } = await supabase
+        const { data: updatedRows, error } = await supabase
           .from('stores')
           .update({
             name: 'Configurações da Plataforma',
-            settings: {
-              ...settings,
-              plans // Preservar os planos
-            }
+            settings: mergedSettings
           })
           .eq('id', recordId)
+          .select()
 
         if (error) throw error
+
+        if (!updatedRows || updatedRows.length === 0) {
+          throw new Error('Nenhuma linha foi alterada. O Supabase pode estar bloqueando a atualização via RLS (Row Level Security).')
+        }
       } else {
         const { data: upserted, error } = await supabase
           .from('stores')
           .upsert({
             name: 'Configurações da Plataforma',
             subdomain: 'platform-settings',
-            settings: {
-              ...settings,
-              plans
-            }
+            settings: mergedSettings
           }, { onConflict: 'subdomain' })
           .select()
           .single()
@@ -157,7 +171,7 @@ export default function SuperAdminSettings() {
       toast.success('Configurações globais da plataforma salvas e atualizadas com sucesso!')
     } catch (err: any) {
       console.error('Erro ao salvar configurações:', err)
-      toast.error('Erro ao salvar as configurações no banco de dados.')
+      toast.error('Erro ao salvar as configurações no banco de dados: ' + (err.message || 'Erro desconhecido'))
     } finally {
       setSaving(false)
     }

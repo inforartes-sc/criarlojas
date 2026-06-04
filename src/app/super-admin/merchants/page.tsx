@@ -142,7 +142,7 @@ export default function SuperAdminMerchants() {
                     <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
                       <button 
                         onClick={() => handleSendMail(m.email)}
-                        style={{ padding: '0.5rem 1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--foreground)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, fontSize: '0.85rem' }}
+                        style={{ padding: '0.5rem 1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--foreground)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 600, fontSize: '0.85rem', whiteSpace: 'nowrap' }}
                         className="btn-action"
                       >
                         <Mail size={16} />
@@ -152,7 +152,7 @@ export default function SuperAdminMerchants() {
                       <a 
                         href={getAbsoluteUrl(m.subdomain)} 
                         target="_blank" 
-                        style={{ padding: '0.5rem 1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '8px', color: '#10b981', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '0.85rem' }}
+                        style={{ padding: '0.5rem 1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '8px', color: '#10b981', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '0.85rem', whiteSpace: 'nowrap' }}
                         className="btn-action"
                       >
                         <ExternalLink size={16} />

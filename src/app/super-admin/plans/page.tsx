@@ -175,25 +175,40 @@ export default function SuperAdminPlans() {
     }
 
     try {
-      const { error } = await supabase
+      // Buscar configurações mais recentes do banco para não perder outros campos (como gatewayConfig)
+      const { data: dbData, error: fetchErr } = await supabase
+        .from('stores')
+        .select('settings')
+        .eq('subdomain', 'platform-settings')
+        .maybeSingle()
+
+      if (fetchErr) throw fetchErr
+      const currentSettings = dbData?.settings || {}
+
+      const { data: updatedRows, error } = await supabase
         .from('stores')
         .update({
           settings: {
-            ...globalSettings,
+            ...currentSettings,
             plans: updatedPlans
           }
         })
         .eq('id', recordId)
+        .select()
 
       if (error) throw error
 
+      if (!updatedRows || updatedRows.length === 0) {
+        throw new Error('Nenhuma linha foi alterada. O Supabase pode estar bloqueando a atualização via RLS.')
+      }
+
       setPlans(updatedPlans)
-      setGlobalSettings((prev: any) => ({ ...prev, plans: updatedPlans }))
+      setGlobalSettings((prev: any) => ({ ...prev, ...currentSettings, plans: updatedPlans }))
       toast.success(isCreating ? 'Novo plano comercial criado com sucesso!' : 'Todas as informações do card atualizadas com sucesso!')
       setShowEditModal(false)
     } catch (err: any) {
       console.error('Erro ao salvar plano:', err)
-      toast.error('Erro ao salvar o plano no banco de dados.')
+      toast.error('Erro ao salvar o plano no banco de dados: ' + (err.message || 'Erro desconhecido'))
     }
   }
 
@@ -203,25 +218,40 @@ export default function SuperAdminPlans() {
     const updatedPlans = plans.filter(p => p.id !== planId)
 
     try {
-      const { error } = await supabase
+      // Buscar configurações mais recentes do banco para não perder outros campos (como gatewayConfig)
+      const { data: dbData, error: fetchErr } = await supabase
+        .from('stores')
+        .select('settings')
+        .eq('subdomain', 'platform-settings')
+        .maybeSingle()
+
+      if (fetchErr) throw fetchErr
+      const currentSettings = dbData?.settings || {}
+
+      const { data: updatedRows, error } = await supabase
         .from('stores')
         .update({
           settings: {
-            ...globalSettings,
+            ...currentSettings,
             plans: updatedPlans
           }
         })
         .eq('id', recordId)
+        .select()
 
       if (error) throw error
 
+      if (!updatedRows || updatedRows.length === 0) {
+        throw new Error('Nenhuma linha foi alterada. O Supabase pode estar bloqueando a atualização via RLS.')
+      }
+
       setPlans(updatedPlans)
-      setGlobalSettings((prev: any) => ({ ...prev, plans: updatedPlans }))
+      setGlobalSettings((prev: any) => ({ ...prev, ...currentSettings, plans: updatedPlans }))
       toast.success('Plano removido com sucesso.')
       setShowEditModal(false)
     } catch (err: any) {
       console.error('Erro ao remover plano:', err)
-      toast.error('Erro ao remover o plano no banco de dados.')
+      toast.error('Erro ao remover o plano no banco de dados: ' + (err.message || 'Erro desconhecido'))
     }
   }
 

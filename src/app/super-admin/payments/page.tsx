@@ -60,7 +60,37 @@ export default function SuperAdminPayments() {
   useEffect(() => {
     fetchInvoices()
     fetchCustomInvoices()
+    fetchGatewayConfig()
   }, [])
+
+  const fetchGatewayConfig = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('stores')
+        .select('*')
+        .eq('subdomain', 'platform-settings')
+        .maybeSingle()
+
+      if (error) throw error
+
+      if (data) {
+        setRecordId(data.id)
+        const g = data.settings?.gatewayConfig || {}
+        const activeGw = g.activeGateway || 'asaas'
+        setGatewayConfig({
+          activeGateway: activeGw,
+          apiKey: g.apiKey || '',
+          webhookUrl: g.webhookUrl || `https://api.criarlojas.com.br/v1/webhooks/${activeGw}-billing`,
+          pixKey: g.pixKey || 'financeiro@criarlojas.com.br',
+          toleranceDays: g.toleranceDays !== undefined ? g.toleranceDays : 3,
+          autoBlock: g.autoBlock !== undefined ? g.autoBlock : true,
+          sandboxMode: g.sandboxMode !== undefined ? g.sandboxMode : false
+        })
+      }
+    } catch (err) {
+      console.error('Erro ao carregar configurações de gateway:', err)
+    }
+  }
 
   const fetchCustomInvoices = async () => {
     try {
@@ -278,10 +308,12 @@ export default function SuperAdminPayments() {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
 
+  const [recordId, setRecordId] = useState<string>('')
+
   // Estado das configurações do Gateway SaaS
   const [gatewayConfig, setGatewayConfig] = useState({
     activeGateway: 'asaas', // asaas, mercadopago, stripe, pagarme
-    apiKey: 'ak_live_589f8e9a8b123c456d789e012f345a67',
+    apiKey: '',
     webhookUrl: 'https://api.criarlojas.com.br/v1/webhooks/asaas-billing',
     pixKey: 'financeiro@criarlojas.com.br',
     toleranceDays: 3,
@@ -387,9 +419,69 @@ export default function SuperAdminPayments() {
   }
 
   // Ações de Gateway
-  const handleSaveGateway = (e: React.FormEvent) => {
+  const handleSaveGateway = async (e: React.FormEvent) => {
     e.preventDefault()
-    toast.success('Configurações da plataforma de pagamentos salvas com sucesso!')
+    try {
+      const { data, error: fetchErr } = await supabase
+        .from('stores')
+        .select('*')
+        .eq('subdomain', 'platform-settings')
+        .maybeSingle()
+
+      if (fetchErr) throw fetchErr
+
+      const currentSettings = data?.settings || {}
+      const targetRecordId = data?.id || recordId
+
+      const updatedSettings = {
+        ...currentSettings,
+        gatewayConfig: {
+          activeGateway: gatewayConfig.activeGateway,
+          apiKey: gatewayConfig.apiKey,
+          webhookUrl: gatewayConfig.webhookUrl,
+          pixKey: gatewayConfig.pixKey,
+          toleranceDays: gatewayConfig.toleranceDays,
+          autoBlock: gatewayConfig.autoBlock,
+          sandboxMode: gatewayConfig.sandboxMode
+        }
+      }
+
+      if (targetRecordId) {
+        const { data: updatedRows, error } = await supabase
+          .from('stores')
+          .update({
+            settings: updatedSettings
+          })
+          .eq('id', targetRecordId)
+          .select()
+
+        if (error) throw error
+
+        if (!updatedRows || updatedRows.length === 0) {
+          throw new Error('Nenhuma linha foi alterada. O Supabase pode estar bloqueando a atualização via RLS (Row Level Security) para usuários não autenticados. Verifique as políticas de segurança.')
+        }
+      } else {
+        const { data: inserted, error } = await supabase
+          .from('stores')
+          .insert({
+            name: 'Configurações da Plataforma',
+            subdomain: 'platform-settings',
+            settings: updatedSettings
+          })
+          .select()
+          .single()
+
+        if (error) throw error
+        if (inserted) {
+          setRecordId(inserted.id)
+        }
+      }
+
+      toast.success('Configurações da plataforma de pagamentos salvas com sucesso!')
+    } catch (err: any) {
+      console.error('Erro ao salvar configurações do gateway:', err)
+      toast.error('Erro ao salvar no banco de dados: ' + (err.message || 'Erro desconhecido'))
+    }
   }
 
   const handleTestConnection = () => {
@@ -905,7 +997,14 @@ export default function SuperAdminPayments() {
                         name="gatewaySelect" 
                         value={gw.id}
                         checked={gatewayConfig.activeGateway === gw.id}
-                        onChange={e => setGatewayConfig({ ...gatewayConfig, activeGateway: e.target.value })}
+                        onChange={e => {
+                          const val = e.target.value
+                          setGatewayConfig({ 
+                            ...gatewayConfig, 
+                            activeGateway: val,
+                            webhookUrl: `https://api.criarlojas.com.br/v1/webhooks/${val}-billing`
+                          })
+                        }}
                         style={{ marginTop: '0.25rem', accentColor: '#0ea5e9' }}
                       />
                       <div>
