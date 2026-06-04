@@ -345,8 +345,9 @@ export default function SubscriptionPage() {
 
   const s = store?.settings || {}
   const planCode = s.plan || 'pro'
-  const planName = planCode === 'premium' ? 'Premium Ilimitado' : planCode === 'pro' ? 'Plano Profissional' : 'Plano Básico'
-  const amountVal = planCode === 'premium' ? 299.00 : planCode === 'pro' ? 149.00 : 49.00
+  const matchedPlan = plansList.find((p: any) => p.id === planCode)
+  const planName = matchedPlan ? matchedPlan.name : (planCode === 'premium' ? 'Premium Ilimitado' : planCode === 'pro' ? 'Plano Profissional' : 'Plano Básico')
+  const amountVal = matchedPlan ? Number(matchedPlan.price) : (planCode === 'premium' ? 299.00 : planCode === 'pro' ? 149.00 : 49.00)
   const isPendingCancel = s.is_pending_cancellation === true
 
   return (
@@ -709,60 +710,60 @@ export default function SubscriptionPage() {
         const pixKey = gatewayConfig?.pixKey || 'financeiro@criarlojas.com.br'
         const isSandbox = gatewayConfig?.sandboxMode !== false // Padrão para sandbox se não configurado
         const pixCode = generatePixPayload(pixKey, selectedInvoice.amount)
-        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pixCode)}`
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(pixCode)}`
 
         return (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(9, 13, 22, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-            <div style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '28px', width: '100%', maxWidth: '520px', overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,0.6), 0 0 50px rgba(16, 185, 129, 0.15)', backdropFilter: 'blur(20px)' }}>
-              <div style={{ padding: '2rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.02)' }}>
+            <div style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '24px', width: '100%', maxWidth: '480px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 30px 60px rgba(0,0,0,0.6), 0 0 50px rgba(16, 185, 129, 0.15)', backdropFilter: 'blur(20px)' }}>
+              <div style={{ padding: '1.25rem 1.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.02)' }}>
                 <div>
-                  <h3 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, color: '#f8fafc', letterSpacing: '-0.5px' }}>Pagamento da Mensalidade</h3>
-                  <p style={{ color: 'var(--muted)', fontSize: '0.85rem', margin: '0.25rem 0 0 0', fontWeight: 600 }}>Fatura {selectedInvoice.id} • {selectedInvoice.month}</p>
+                  <h3 style={{ fontSize: '1.3rem', fontWeight: 900, margin: 0, color: '#f8fafc', letterSpacing: '-0.5px' }}>Pagamento da Mensalidade</h3>
+                  <p style={{ color: 'var(--muted)', fontSize: '0.8rem', margin: '0.2rem 0 0 0', fontWeight: 600 }}>Fatura {selectedInvoice.id} • {selectedInvoice.month}</p>
                 </div>
-                <button onClick={() => setShowPaymentModal(false)} style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#94a3b8', cursor: 'pointer', padding: '0.6rem', borderRadius: '50%', display: 'flex', transition: 'all 0.2s' }}>
-                  <X size={20} />
+                <button onClick={() => setShowPaymentModal(false)} style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#94a3b8', cursor: 'pointer', padding: '0.5rem', borderRadius: '50%', display: 'flex', transition: 'all 0.2s' }}>
+                  <X size={18} />
                 </button>
               </div>
 
-              <div style={{ padding: '2.5rem 2rem', textAlign: 'center' }}>
-                <div style={{ marginBottom: '2rem' }}>
-                  <span style={{ fontSize: '0.9rem', color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '0.25rem' }}>Valor a Pagar</span>
-                  <span style={{ fontSize: '2.8rem', fontWeight: 900, color: '#10b981' }}>R$ {selectedInvoice.amount.toFixed(2).replace('.', ',')}</span>
+              <div style={{ padding: '1.25rem 1.5rem 2.5rem 1.5rem', textAlign: 'center' }}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <span style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '0.15rem' }}>Valor a Pagar</span>
+                  <span style={{ fontSize: '2.4rem', fontWeight: 900, color: '#10b981' }}>R$ {selectedInvoice.amount.toFixed(2).replace('.', ',')}</span>
                 </div>
 
                 {isSandbox ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '1rem', borderRadius: '14px', marginBottom: '1.5rem', textAlign: 'left' }}>
-                    <AlertTriangle size={20} color="#f59e0b" style={{ flexShrink: 0 }} />
-                    <div style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 600, lineHeight: 1.4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '0.85rem', borderRadius: '12px', marginBottom: '1.25rem', textAlign: 'left' }}>
+                    <AlertTriangle size={18} color="#f59e0b" style={{ flexShrink: 0 }} />
+                    <div style={{ fontSize: '0.75rem', color: '#f59e0b', fontWeight: 600, lineHeight: 1.4 }}>
                       ⚠️ MODO HOMOLOGAÇÃO (SANDBOX): Esta é uma fatura de testes. Clique no botão de confirmação para simular a liquidação gratuita.
                     </div>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '1rem', borderRadius: '14px', marginBottom: '1.5rem', textAlign: 'left' }}>
-                    <ShieldCheck size={20} color="#10b981" style={{ flexShrink: 0 }} />
-                    <div style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 600, lineHeight: 1.4 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '0.85rem', borderRadius: '12px', marginBottom: '1.25rem', textAlign: 'left' }}>
+                    <ShieldCheck size={18} color="#10b981" style={{ flexShrink: 0 }} />
+                    <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600, lineHeight: 1.4 }}>
                       🔒 PAGAMENTO SEGURO VIA PIX: Escaneie o QR Code abaixo ou copie a chave para efetuar a transferência. O plano é liberado assim que você confirmar.
                     </div>
                   </div>
                 )}
 
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '20px', padding: '2rem 1.5rem', marginBottom: '2rem' }}>
-                  <div style={{ width: '180px', height: '180px', background: 'white', padding: '10px', borderRadius: '16px', margin: '0 auto 1.5rem auto', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.3)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1.25rem 1rem', marginBottom: '1.25rem' }}>
+                  <div style={{ width: '150px', height: '150px', background: 'white', padding: '8px', borderRadius: '12px', margin: '0 auto 1.25rem auto', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.3)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                     <img src={qrCodeUrl} style={{ width: '100%', height: '100%' }} alt="QR Code PIX" />
                   </div>
                   
-                  <span style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 600, display: 'block', marginBottom: '0.75rem' }}>Pix Copia e Cola / Chave Pix:</span>
+                  <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Pix Copia e Cola / Chave Pix:</span>
                   
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                    <span style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.85rem', color: '#0ea5e9', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'left', paddingRight: '0.5rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', padding: '0.75rem 0.85rem', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                    <span style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.8rem', color: '#0ea5e9', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'left', paddingRight: '0.5rem' }}>
                       {pixKey}
                     </span>
                     <button 
                       onClick={() => handleCopyPix(pixCode)}
-                      style={{ padding: '0.55rem 0.85rem', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, fontSize: '0.75rem', boxShadow: '0 4px 10px rgba(14, 165, 233, 0.3)', transition: 'all 0.2s' }}
+                      style={{ padding: '0.5rem 0.75rem', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 800, fontSize: '0.7rem', boxShadow: '0 4px 10px rgba(14, 165, 233, 0.3)', transition: 'all 0.2s' }}
                       title="Copiar PIX Copia e Cola"
                     >
-                      {copiedPix ? <Check size={14} /> : <Copy size={14} />}
+                      {copiedPix ? <Check size={12} /> : <Copy size={12} />}
                       <span>{copiedPix ? 'Copiado!' : 'Copiar'}</span>
                     </button>
                   </div>
@@ -771,9 +772,9 @@ export default function SubscriptionPage() {
                 <button
                   onClick={handleConfirmPayment}
                   disabled={processingPayment}
-                  style={{ width: '100%', padding: '1.25rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', borderRadius: '14px', fontWeight: 800, fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4)', transition: 'all 0.2s', letterSpacing: '0.5px' }}
+                  style={{ width: '100%', padding: '1rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4)', transition: 'all 0.2s', letterSpacing: '0.5px' }}
                 >
-                  {processingPayment ? <Loader2 className="animate-spin" size={22} /> : (isSandbox ? <Sparkles size={22} /> : <CheckCircle2 size={22} />)}
+                  {processingPayment ? <Loader2 className="animate-spin" size={20} /> : (isSandbox ? <Sparkles size={20} /> : <CheckCircle2 size={20} />)}
                   <span>{isSandbox ? 'Simular Pagamento (Homologação)' : 'Confirmar Pagamento Realizado'}</span>
                 </button>
               </div>
