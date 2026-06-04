@@ -41,8 +41,15 @@ import {
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
+import { getDomainSuffix, getAbsoluteUrl } from '@/lib/getDomainSuffix'
 
 export default function SaaSCommercialPortal() {
+  const [domainSuffix, setDomainSuffix] = useState('.localhost:3000')
+
+  useEffect(() => {
+    setDomainSuffix(getDomainSuffix())
+  }, [])
+
   // Ref e função para o Carrossel Horizontal de Vitrines
   const carouselRef = useRef<HTMLDivElement>(null)
   const scrollCarousel = (direction: 'left' | 'right') => {
@@ -497,7 +504,7 @@ export default function SaaSCommercialPortal() {
   const getWhatsappLink = () => {
     const cleanSub = leadData.subdomain.toLowerCase().replace(/[^a-z0-9]/g, '')
     const selectedStoreObj = demoStoresList.find(s => s.id === leadData.selectedModel) || { name: leadData.selectedModel }
-    const text = `Olá Admin Criar Lojas! Gostaria de solicitar a criação da minha loja virtual com setup assistido.%0A%0A*👤 Responsável:* ${leadData.name}%0A*📱 WhatsApp:* ${leadData.whatsapp}%0A*✉️ E-mail:* ${leadData.email}%0A%0A*🛍️ Nome da Loja:* ${leadData.storeName}%0A*🌐 Subdomínio Desejado:* ${cleanSub}.localhost:3000%0A*🎨 Cor Padrão Escolhida:* ${leadData.primaryColor}%0A%0A*📁 Vitrine Modelo:* ${selectedStoreObj.name} (${leadData.selectedModel})%0A*💎 Plano Escolhido:* ${leadData.selectedPlan}%0A*🛠️ Serviço VIP Concierge:* ${leadData.wantsConcierge ? 'SIM (Quero Setup VIP Chave na Mão)' : 'NÃO (Vou personalizar sozinho)'}%0A%0A*📝 Observações:* ${leadData.notes || 'Nenhuma'}`
+    const text = `Olá Admin Criar Lojas! Gostaria de solicitar a criação da minha loja virtual com setup assistido.%0A%0A*👤 Responsável:* ${leadData.name}%0A*📱 WhatsApp:* ${leadData.whatsapp}%0A*✉️ E-mail:* ${leadData.email}%0A%0A*🛍️ Nome da Loja:* ${leadData.storeName}%0A*🌐 Subdomínio Desejado:* ${cleanSub}${domainSuffix}%0A*🎨 Cor Padrão Escolhida:* ${leadData.primaryColor}%0A%0A*📁 Vitrine Modelo:* ${selectedStoreObj.name} (${leadData.selectedModel})%0A*💎 Plano Escolhido:* ${leadData.selectedPlan}%0A*🛠️ Serviço VIP Concierge:* ${leadData.wantsConcierge ? 'SIM (Quero Setup VIP Chave na Mão)' : 'NÃO (Vou personalizar sozinho)'}%0A%0A*📝 Observações:* ${leadData.notes || 'Nenhuma'}`
     const formattedPhone = formatWhatsappNumber(platformSettings.whatsappSupport)
     return `https://wa.me/${formattedPhone}?text=${text}`
   }
@@ -596,7 +603,7 @@ export default function SaaSCommercialPortal() {
           </div>
 
           <div className="saas-nav-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <a href="http://teste.localhost:3000/admin" style={{ color: '#0ea5e9', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 700, padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid rgba(14, 165, 233, 0.3)', transition: 'all 0.2s' }} className="login-btn">
+            <a href={getAbsoluteUrl('teste', '/admin')} style={{ color: '#0ea5e9', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 700, padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid rgba(14, 165, 233, 0.3)', transition: 'all 0.2s' }} className="login-btn">
               Login do Lojista
             </a>
             <button onClick={() => handleOpenLeadModal('modern', 'pro')} style={{ background: 'linear-gradient(135deg, #10b981, #0ea5e9)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '0.95rem', fontWeight: 800, padding: '0.65rem 1.5rem', borderRadius: '10px', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)', transition: 'all 0.2s' }} className="cta-btn">
@@ -770,7 +777,7 @@ export default function SaaSCommercialPortal() {
 
                   <div style={{ padding: '2rem 2rem 1rem 2rem' }}>
                     <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: '#f8fafc' }}>{store.name}</h3>
-                    <p style={{ color: '#0ea5e9', fontSize: '0.9rem', fontWeight: 600, marginBottom: '1rem' }}>{store.subdomain}.localhost:3000</p>
+                    <p style={{ color: '#0ea5e9', fontSize: '0.9rem', fontWeight: 600, marginBottom: '1rem' }}>{store.subdomain}{domainSuffix}</p>
                     <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>{store.desc}</p>
                   </div>
                 </div>
@@ -778,7 +785,7 @@ export default function SaaSCommercialPortal() {
                 <div style={{ padding: '0 2rem 2rem 2rem', display: 'grid', gap: '1rem' }}>
                   <div>
                     <a 
-                      href={`http://${store.subdomain}.localhost:3000`} 
+                      href={getAbsoluteUrl(store.subdomain)} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       style={{ width: '100%', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', color: '#cbd5e1', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 700, borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all 0.2s' }}
@@ -884,7 +891,7 @@ export default function SaaSCommercialPortal() {
 
                   <div style={{ padding: '2rem 2rem 1rem 2rem' }}>
                     <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: '#f8fafc' }}>{store.name}</h3>
-                    <p style={{ color: '#0ea5e9', fontSize: '0.9rem', fontWeight: 600, marginBottom: '1rem' }}>{store.subdomain}.localhost:3000</p>
+                    <p style={{ color: '#0ea5e9', fontSize: '0.9rem', fontWeight: 600, marginBottom: '1rem' }}>{store.subdomain}{domainSuffix}</p>
                     <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>{store.desc}</p>
                   </div>
                 </div>
@@ -892,7 +899,7 @@ export default function SaaSCommercialPortal() {
                 <div style={{ padding: '0 2rem 2rem 2rem', display: 'grid', gap: '1rem' }}>
                   <div>
                     <a 
-                      href={`http://${store.subdomain}.localhost:3000`} 
+                      href={getAbsoluteUrl(store.subdomain)} 
                       target="_blank" 
                       rel="noopener noreferrer"
                       style={{ width: '100%', padding: '0.85rem', background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', color: 'white', textDecoration: 'none', fontSize: '1rem', fontWeight: 800, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(14, 165, 233, 0.3)', transition: 'all 0.2s' }}
@@ -1442,7 +1449,7 @@ export default function SaaSCommercialPortal() {
                 </div>
                 <h3 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1.5rem' }}>Solicitação Recebida com Sucesso! 🎉</h3>
                 <p style={{ color: '#94a3b8', fontSize: '1.3rem', marginBottom: '4rem', lineHeight: 1.6, maxWidth: '850px', margin: '0 auto 4rem' }}>
-                  Nosso Master Admin já foi notificado no painel para criar a loja <strong>"{leadData.storeName}"</strong> no subdomínio <strong>{leadData.subdomain}.localhost:3000</strong> com a cor padrão escolhida. Em breve, entraremos em contato via WhatsApp para entregar os dados de acesso.
+                  Nosso Master Admin já foi notificado no painel para criar a loja <strong>"{leadData.storeName}"</strong> no subdomínio <strong>{leadData.subdomain}{domainSuffix}</strong> com a cor padrão escolhida. Em breve, entraremos em contato via WhatsApp para entregar os dados de acesso.
                 </p>
 
                 <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '500px', margin: '0 auto' }}>
@@ -1518,7 +1525,7 @@ export default function SaaSCommercialPortal() {
                               required
                             />
                             <span style={{ padding: '1.15rem 1.5rem', background: 'rgba(255, 255, 255, 0.03)', color: '#0ea5e9', fontWeight: 800, borderLeft: '1px solid rgba(255, 255, 255, 0.1)', fontSize: '1.05rem', whiteSpace: 'nowrap' }}>
-                              .localhost:3000
+                              {domainSuffix}
                             </span>
                           </div>
                           <div style={{ fontSize: '0.85rem', color: '#94a3b8', background: 'rgba(255, 255, 255, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginTop: '0.5rem' }}>

@@ -5,6 +5,7 @@ import { Save, Loader2, Palette, Globe, Store, Type, Layout, Image as ImageIcon,
 import { supabase } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
 import { useAdminAuth } from '@/context/AdminAuthContext'
+import { getDomainSuffix } from '@/lib/getDomainSuffix'
 
 export default function SettingsPage() {
   const { store: authStore } = useAdminAuth()
@@ -13,6 +14,11 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('nicho')
   const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null)
+  const [domainSuffix, setDomainSuffix] = useState('.localhost:3000')
+
+  useEffect(() => {
+    setDomainSuffix(getDomainSuffix())
+  }, [])
 
   const isServicesOnly = () => ['lawyer', 'advocacia', 'advocacy', 'services', 'electrician'].includes(formData.layout_model)
   
@@ -2367,7 +2373,7 @@ export default function SettingsPage() {
                 <label style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--muted)' }}>Subdomínio Padrão (Gratuito)</label>
                 <div style={{ display: 'flex', alignItems: 'center', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '8px', padding: '0.75rem 1rem' }}>
                   <span style={{ fontWeight: 700, color: 'var(--foreground)' }}>{formData.subdomain}</span>
-                  <span style={{ color: '#0ea5e9', fontWeight: 700 }}>.localhost:3000</span>
+                  <span style={{ color: '#0ea5e9', fontWeight: 700 }}>{domainSuffix}</span>
                 </div>
                 <span style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.25rem' }}>Este subdomínio estará sempre disponível para acesso direto à sua loja.</span>
               </div>

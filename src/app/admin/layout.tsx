@@ -6,6 +6,7 @@ import { Toaster } from 'react-hot-toast'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import { getStoreSubdomain } from '@/lib/getStoreSubdomain'
+import { getAbsoluteUrl } from '@/lib/getDomainSuffix'
 import { AdminAuthProvider, useAdminAuth } from '@/context/AdminAuthContext'
 
 export default function AdminLayout({
@@ -99,7 +100,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
           
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }} className="admin-header-actions">
             <a 
-              href={`http://${subdomain}.localhost:3000`}
+              href={getAbsoluteUrl(subdomain)}
               target="_blank" 
               style={{ 
                 textDecoration: 'none',

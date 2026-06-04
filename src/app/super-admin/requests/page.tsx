@@ -25,6 +25,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
+import { getDomainSuffix } from '@/lib/getDomainSuffix'
 
 export default function SuperAdminRequests() {
   const [requests, setRequests] = useState<any[]>([])
@@ -35,6 +36,11 @@ export default function SuperAdminRequests() {
   const [selectedRequest, setSelectedRequest] = useState<any>(null)
   const [showModal, setShowModal] = useState(false)
   const [activatingId, setActivatingId] = useState<string | null>(null)
+  const [domainSuffix, setDomainSuffix] = useState('.localhost:3000')
+
+  useEffect(() => {
+    setDomainSuffix(getDomainSuffix())
+  }, [])
 
   useEffect(() => {
     fetchRequests()
@@ -174,7 +180,7 @@ export default function SuperAdminRequests() {
     const s = req.settings || {}
     const phone = (s.whatsapp || s.phone || '').replace(/\D/g, '')
     const cleanSub = s.subdomain || req.subdomain.replace(/^req-/, '').replace(/-\d+$/, '')
-    const text = `Olá ${s.admin_user || 'Lojista'}! 🎉 Parabéns, sua loja virtual *${s.name || req.name}* foi APROVADA e ativada com sucesso na plataforma Criar Lojas!%0A%0A*🌐 URL da sua Loja:* http://${cleanSub}.localhost:3000%0A*🔐 Painel Administrativo:* http://${cleanSub}.localhost:3000/admin%0A*✉️ Usuário:* ${s.email}%0A*🔑 Senha temporária:* mudar123%0A%0ARecomendamos alterar sua senha no primeiro acesso. Boas vendas! 🚀`
+    const text = `Olá ${s.admin_user || 'Lojista'}! 🎉 Parabéns, sua loja virtual *${s.name || req.name}* foi APROVADA e ativada com sucesso na plataforma Criar Lojas!%0A%0A*🌐 URL da sua Loja:* http://${cleanSub}${domainSuffix}%0A*🔐 Painel Administrativo:* http://${cleanSub}${domainSuffix}/admin%0A*✉️ Usuário:* ${s.email}%0A*🔑 Senha temporária:* mudar123%0A%0ARecomendamos alterar sua senha no primeiro acesso. Boas vendas! 🚀`
     return `https://wa.me/${phone}?text=${text}`
   }
 
@@ -433,7 +439,7 @@ export default function SuperAdminRequests() {
                     <ExternalLink size={14} color="#0ea5e9" />
                     <span>Subdomínio Desejado</span>
                   </div>
-                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0ea5e9' }}>{selectedRequest.settings?.subdomain || selectedRequest.subdomain.replace(/^req-/, '').replace(/-\d+$/, '')}.localhost:3000</div>
+                  <div style={{ fontSize: '1.15rem', fontWeight: 800, color: '#0ea5e9' }}>{selectedRequest.settings?.subdomain || selectedRequest.subdomain.replace(/^req-/, '').replace(/-\d+$/, '')}{domainSuffix}</div>
                 </div>
 
                 <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>

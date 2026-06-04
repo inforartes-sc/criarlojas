@@ -29,10 +29,16 @@ import {
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
+import { getDomainSuffix } from '@/lib/getDomainSuffix'
 
 export default function SuperAdminPayments() {
   const [activeTab, setActiveTab] = useState<'invoices' | 'custom_invoices' | 'gateway'>('invoices')
   const [loading, setLoading] = useState(true)
+  const [domainSuffix, setDomainSuffix] = useState('.localhost:3000')
+
+  useEffect(() => {
+    setDomainSuffix(getDomainSuffix())
+  }, [])
   
   // Estado das faturas/mensalidades dos lojistas
   const [invoices, setInvoices] = useState<any[]>([])
@@ -358,12 +364,13 @@ export default function SuperAdminPayments() {
 
   const handleSendReminder = (inv: any) => {
     const phone = (inv.merchantPhone || '11999999999').replace(/\D/g, '')
+    const domainSuffix = getDomainSuffix()
     let text = ''
     
     if (inv.status === 'overdue') {
-      text = `⚠️ *AVISO IMPORTANTE: Fatura em Atraso* ⚠️%0A%0AOlá ${inv.merchantName}, constatamos que a fatura da sua loja virtual *${inv.storeName}* (vencida em ${inv.dueDate}) encontra-se pendente de pagamento em nosso sistema.%0A%0A*💎 Plano:* ${inv.plan}%0A*💰 Valor:* R$ ${inv.amount.toFixed(2)}%0A*🌐 Link da Fatura para Regularização:* http://${inv.subdomain}.localhost:3000/admin/billing/invoice/${inv.id}%0A%0AEvite a suspensão temporária dos serviços da sua loja virtual realizando a regularização o quanto antes. Caso já tenha efetuado o pagamento, por favor nos envie o comprovante. Estamos à disposição para ajudar! 🔒`
+      text = `⚠️ *AVISO IMPORTANTE: Fatura em Atraso* ⚠️%0A%0AOlá ${inv.merchantName}, constatamos que a fatura da sua loja virtual *${inv.storeName}* (vencida em ${inv.dueDate}) encontra-se pendente de pagamento em nosso sistema.%0A%0A*💎 Plano:* ${inv.plan}%0A*💰 Valor:* R$ ${inv.amount.toFixed(2)}%0A*🌐 Link da Fatura para Regularização:* http://${inv.subdomain}${domainSuffix}/admin/billing/invoice/${inv.id}%0A%0AEvite a suspensão temporária dos serviços da sua loja virtual realizando a regularização o quanto antes. Caso já tenha efetuado o pagamento, por favor nos envie o comprovante. Estamos à disposição para ajudar! 🔒`
     } else {
-      text = `Olá ${inv.merchantName}! Tudo bem?%0A%0APassando para lembrar que a fatura da sua loja virtual *${inv.storeName}* vence em breve (${inv.dueDate}).%0A%0A*💎 Plano:* ${inv.plan}%0A*💰 Valor:* R$ ${inv.amount.toFixed(2)}%0A*🌐 Link da Fatura:* http://${inv.subdomain}.localhost:3000/admin/billing/invoice/${inv.id}%0A%0APara manter sua loja online e usufruir de todos os recursos da plataforma Criar Lojas, realize o pagamento até a data de vencimento. Qualquer dúvida, estamos à disposição! 🚀`
+      text = `Olá ${inv.merchantName}! Tudo bem?%0A%0APassando para lembrar que a fatura da sua loja virtual *${inv.storeName}* vence em breve (${inv.dueDate}).%0A%0A*💎 Plano:* ${inv.plan}%0A*💰 Valor:* R$ ${inv.amount.toFixed(2)}%0A*🌐 Link da Fatura:* http://${inv.subdomain}${domainSuffix}/admin/billing/invoice/${inv.id}%0A%0APara manter sua loja online e usufruir de todos os recursos da plataforma Criar Lojas, realize o pagamento até a data de vencimento. Qualquer dúvida, estamos à disposição! 🚀`
     }
     
     const url = `https://wa.me/${phone}?text=${text}`

@@ -20,6 +20,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import { getDomainSuffix, getAbsoluteUrl } from '@/lib/getDomainSuffix'
 
 export default function SuperAdminDashboard() {
   const [loading, setLoading] = useState(true)
@@ -32,6 +33,11 @@ export default function SuperAdminDashboard() {
     activeStores: 0,
     totalCustomers: 0
   })
+  const [domainSuffix, setDomainSuffix] = useState('.localhost:3000')
+
+  useEffect(() => {
+    setDomainSuffix(getDomainSuffix())
+  }, [])
 
   // Dados calculados para o gráfico de GMV Global
   const [chartData, setChartData] = useState({
@@ -325,7 +331,7 @@ export default function SuperAdminDashboard() {
                       </div>
                     </div>
                   </td>
-                  <td style={{ fontWeight: 600, color: '#0ea5e9' }}>{store.subdomain}.localhost:3000</td>
+                  <td style={{ fontWeight: 600, color: '#0ea5e9' }}>{store.subdomain}{domainSuffix}</td>
                   <td style={{ textTransform: 'capitalize', color: 'var(--muted)', fontWeight: 600 }}>{store.settings?.store_mode || 'Loja Virtual'}</td>
                   <td style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>{new Date(store.created_at).toLocaleDateString()}</td>
                   <td>
@@ -335,7 +341,7 @@ export default function SuperAdminDashboard() {
                   </td>
                   <td style={{ textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-                      <a href={`http://${store.subdomain}.localhost:3000`} target="_blank" style={{ padding: '0.5rem 1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--foreground)', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }} className="btn-store-link">
+                      <a href={getAbsoluteUrl(store.subdomain)} target="_blank" style={{ padding: '0.5rem 1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--foreground)', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.5rem' }} className="btn-store-link">
                         <span>Acessar</span>
                         <ExternalLink size={14} />
                       </a>

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Users, Search, Mail, ExternalLink, ShieldCheck, Loader2, Store } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
+import { getAbsoluteUrl } from '@/lib/getDomainSuffix'
 
 export default function SuperAdminMerchants() {
   const [loading, setLoading] = useState(true)
@@ -149,7 +150,7 @@ export default function SuperAdminMerchants() {
                       </button>
 
                       <a 
-                        href={`http://${m.subdomain}.localhost:3000`} 
+                        href={getAbsoluteUrl(m.subdomain)} 
                         target="_blank" 
                         style={{ padding: '0.5rem 1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '8px', color: '#10b981', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '0.85rem' }}
                         className="btn-action"

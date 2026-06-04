@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Store, Search, Filter, ExternalLink, ShieldAlert, CheckCircle2, Lock, Unlock, Loader2, Eye, X, Plus, Sparkles, Copy, Edit, Trash2 } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
+import { getDomainSuffix, getAbsoluteUrl } from '@/lib/getDomainSuffix'
 
 export default function SuperAdminStores() {
   const [loading, setLoading] = useState(true)
@@ -12,6 +13,11 @@ export default function SuperAdminStores() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedStore, setSelectedStore] = useState<any>(null)
   const [showConfigModal, setShowConfigModal] = useState(false)
+  const [domainSuffix, setDomainSuffix] = useState('.localhost:3000')
+
+  useEffect(() => {
+    setDomainSuffix(getDomainSuffix())
+  }, [])
   const [updating, setUpdating] = useState(false)
   const [storeToDelete, setStoreToDelete] = useState<any>(null)
 
@@ -354,7 +360,7 @@ export default function SuperAdminStores() {
       if (insertErr) throw insertErr
 
       setStores(prev => [newStoreDataRes, ...prev])
-      toast.success(`Loja criada com sucesso! Acesse em ${cleanSubdomain}.localhost:3000`)
+      toast.success(`Loja criada com sucesso! Acesse em ${cleanSubdomain}${domainSuffix}`)
       setShowCreateModal(false)
       setNewStoreData({
         name: '',
@@ -566,7 +572,7 @@ export default function SuperAdminStores() {
                         </button>
 
                         <a 
-                          href={`http://${store.subdomain}.localhost:3000`}
+                          href={getAbsoluteUrl(store.subdomain)}
                           target="_blank"
                           rel="noopener noreferrer"
                           style={{ padding: '0.5rem 0.75rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '8px', color: 'var(--muted)', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600, fontSize: '0.8rem' }}
@@ -656,7 +662,7 @@ export default function SuperAdminStores() {
                       style={{ width: '100%', padding: '0.75rem 1rem', background: 'transparent', border: 'none', color: 'var(--foreground)', outline: 'none', fontWeight: 600 }}
                       required
                     />
-                    <span style={{ padding: '0 1rem', color: 'var(--muted)', fontSize: '0.85rem', fontWeight: 600, background: 'rgba(0,0,0,0.2)', height: '100%', display: 'flex', alignItems: 'center' }}>.localhost:3000</span>
+                    <span style={{ padding: '0 1rem', color: 'var(--muted)', fontSize: '0.85rem', fontWeight: 600, background: 'rgba(0,0,0,0.2)', height: '100%', display: 'flex', alignItems: 'center' }}>{domainSuffix}</span>
                   </div>
                 </div>
               </div>
@@ -848,7 +854,7 @@ export default function SuperAdminStores() {
               </div>
               <div>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: 'var(--foreground)' }}>{selectedStore.name}</h3>
-                <span style={{ fontSize: '0.85rem', color: '#0ea5e9', fontWeight: 600 }}>{selectedStore.subdomain}.localhost:3000</span>
+                <span style={{ fontSize: '0.85rem', color: '#0ea5e9', fontWeight: 600 }}>{selectedStore.subdomain}{getDomainSuffix()}</span>
               </div>
             </div>
 
@@ -929,7 +935,7 @@ export default function SuperAdminStores() {
                       style={{ width: '100%', padding: '0.75rem 1rem', background: 'transparent', border: 'none', color: 'var(--foreground)', outline: 'none', fontWeight: 600 }}
                       required
                     />
-                    <span style={{ padding: '0 1rem', color: 'var(--muted)', fontSize: '0.85rem', fontWeight: 600, background: 'rgba(0,0,0,0.2)', height: '100%', display: 'flex', alignItems: 'center' }}>.localhost:3000</span>
+                    <span style={{ padding: '0 1rem', color: 'var(--muted)', fontSize: '0.85rem', fontWeight: 600, background: 'rgba(0,0,0,0.2)', height: '100%', display: 'flex', alignItems: 'center' }}>{domainSuffix}</span>
                   </div>
                 </div>
               </div>
