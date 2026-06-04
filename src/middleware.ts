@@ -23,7 +23,11 @@ export function middleware(request: NextRequest) {
   const isMainDomain = 
     cleanHostname === 'localhost' || 
     cleanHostname === '127.0.0.1' || 
-    cleanHostname === 'suaplataforma.com.br'
+    cleanHostname === 'suaplataforma.com.br' ||
+    cleanHostname === 'sistemacriarlojas.vercel.app' ||
+    cleanHostname === 'www.sistemacriarlojas.vercel.app' ||
+    cleanHostname === 'criarlojas.com.br' ||
+    cleanHostname === 'www.criarlojas.com.br'
 
   if (isMainDomain) {
     return NextResponse.next()
