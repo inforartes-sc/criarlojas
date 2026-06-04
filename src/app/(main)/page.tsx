@@ -1429,8 +1429,8 @@ export default function SaaSCommercialPortal() {
 
       {/* MODAL DE SOLICITAÇÃO DE LOJA (LEAD FORM 100% DA TELA COM CAMPOS EMPILHADOS E ESPAÇOSOS) */}
       {showLeadModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(9, 13, 22, 0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '2rem' }}>
-          <div style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', width: '95vw', maxWidth: '1400px', padding: '4rem', position: 'relative', boxShadow: '0 25px 50px rgba(0,0,0,0.5)', maxHeight: '92vh', overflowY: 'auto' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(9, 13, 22, 0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} className="lead-modal-overlay">
+          <div className="lead-modal-content" style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', width: '95vw', maxWidth: '1400px', padding: '4rem', position: 'relative', boxShadow: '0 25px 50px rgba(0,0,0,0.5)', maxHeight: '92vh', overflowY: 'auto' }}>
             <button onClick={() => setShowLeadModal(false)} style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#94a3b8', cursor: 'pointer', padding: '0.75rem', borderRadius: '50%', display: 'flex', transition: 'all 0.2s' }} className="close-btn">
               <X size={24} />
             </button>
@@ -1466,8 +1466,8 @@ export default function SaaSCommercialPortal() {
               </div>
             ) : (
               <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '3.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '2rem' }}>
-                  <div style={{ width: '64px', height: '64px', borderRadius: '18px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 4px 25px rgba(16, 185, 129, 0.4)' }}>
+                <div className="modal-header-flex" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '3.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '2rem' }}>
+                  <div style={{ width: '64px', height: '64px', borderRadius: '18px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 4px 25px rgba(16, 185, 129, 0.4)', flexShrink: 0 }}>
                     <Store size={32} />
                   </div>
                   <div>
@@ -1478,13 +1478,13 @@ export default function SaaSCommercialPortal() {
 
                 <form onSubmit={handleLeadSubmit}>
                   {/* GRID PRINCIPAL EM 2 COLUNAS DE 100% DE LARGURA (MAX 1400PX) */}
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3.5rem', marginBottom: '3.5rem' }} className="modal-grid">
+                  <div className="modal-grid">
                     
                     {/* COLUNA DA ESQUERDA: DADOS DA LOJA E ESCOLHAS COMERCIAIS */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
                       
                       {/* 1. IDENTIDADE E DOMÍNIO DA LOJA */}
-                      <div style={{ background: 'rgba(9, 13, 22, 0.5)', padding: '3rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', gap: '2.25rem' }}>
+                      <div className="modal-panel" style={{ background: 'rgba(9, 13, 22, 0.5)', padding: '3rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', gap: '2.25rem' }}>
                         <h4 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '1.25rem' }}>
                           <ShoppingBag size={24} color="#10b981" />
                           <span>1. Identidade e Domínio da Loja</span>
@@ -1507,17 +1507,17 @@ export default function SaaSCommercialPortal() {
 
                         <div>
                           <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>Subdomínio Desejado</label>
-                          <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', overflow: 'hidden', marginBottom: '0.5rem' }}>
-                            <Globe size={22} style={{ marginLeft: '1.5rem', color: '#64748b' }} />
+                          <div className="subdomain-container">
+                            <Globe size={22} style={{ marginLeft: '1.5rem', color: '#64748b', flexShrink: 0 }} />
                             <input 
                               type="text" 
                               value={leadData.subdomain}
                               onChange={e => setLeadData({...leadData, subdomain: e.target.value})}
                               placeholder="minhaloja"
-                              style={{ flex: 1, padding: '1.15rem 0.5rem 1.15rem 0.75rem', background: 'transparent', border: 'none', color: '#f8fafc', outline: 'none', fontSize: '1.1rem', fontWeight: 700 }}
+                              style={{ flex: 1, padding: '1.15rem 0.5rem 1.15rem 0.75rem', background: 'transparent', border: 'none', color: '#f8fafc', outline: 'none', fontSize: '1.1rem', fontWeight: 700, minWidth: '80px' }}
                               required
                             />
-                            <span style={{ padding: '1.15rem 1.5rem', background: 'rgba(255, 255, 255, 0.03)', color: '#0ea5e9', fontWeight: 800, borderLeft: '1px solid rgba(255, 255, 255, 0.1)', fontSize: '1.05rem' }}>
+                            <span style={{ padding: '1.15rem 1.5rem', background: 'rgba(255, 255, 255, 0.03)', color: '#0ea5e9', fontWeight: 800, borderLeft: '1px solid rgba(255, 255, 255, 0.1)', fontSize: '1.05rem', whiteSpace: 'nowrap' }}>
                               .localhost:3000
                             </span>
                           </div>
@@ -1532,7 +1532,7 @@ export default function SaaSCommercialPortal() {
                           <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '1.25rem' }}>
                             Cor Padrão / Identidade Visual da Loja
                           </label>
-                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.25rem', marginBottom: '1.5rem' }}>
+                          <div className="color-presets-grid">
                             {colorPresets.map(preset => (
                               <button
                                 key={preset.hex}
@@ -1559,7 +1559,7 @@ export default function SaaSCommercialPortal() {
                             ))}
                           </div>
 
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '1rem 1.5rem', borderRadius: '14px' }}>
+                          <div className="custom-color-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '1rem 1.5rem', borderRadius: '14px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                               <Palette size={22} color="#94a3b8" />
                               <span style={{ fontSize: '1.05rem', color: '#cbd5e1', fontWeight: 600 }}>Cor Customizada:</span>
@@ -1578,7 +1578,7 @@ export default function SaaSCommercialPortal() {
                       </div>
 
                       {/* 3. ESCOLHAS COMERCIAIS */}
-                      <div style={{ background: 'rgba(9, 13, 22, 0.6)', padding: '3rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', gap: '2.25rem' }}>
+                      <div className="modal-panel" style={{ background: 'rgba(9, 13, 22, 0.6)', padding: '3rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', gap: '2.25rem' }}>
                         <h4 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '1.25rem' }}>
                           <Sparkles size={24} color="#f59e0b" />
                           <span>3. Pacote Comercial & Modelo</span>
@@ -1641,7 +1641,7 @@ export default function SaaSCommercialPortal() {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
                       
                       {/* 2. DADOS DO RESPONSÁVEL (TODOS OS CAMPOS 100% LARGOS E EMPILHADOS) */}
-                      <div style={{ background: 'rgba(9, 13, 22, 0.5)', padding: '3rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', gap: '2.25rem' }}>
+                      <div className="modal-panel" style={{ background: 'rgba(9, 13, 22, 0.5)', padding: '3rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', gap: '2.25rem' }}>
                         <h4 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '1.25rem' }}>
                           <User size={24} color="#0ea5e9" />
                           <span>2. Dados do Responsável / Lojista</span>
@@ -1694,7 +1694,7 @@ export default function SaaSCommercialPortal() {
                       </div>
 
                       {/* OBSERVAÇÕES */}
-                      <div style={{ background: 'rgba(9, 13, 22, 0.5)', padding: '3rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.05)', flex: 1, display: 'flex', flexDirection: 'column' }}>
+                      <div className="modal-panel" style={{ background: 'rgba(9, 13, 22, 0.5)', padding: '3rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.05)', flex: 1, display: 'flex', flexDirection: 'column' }}>
                         <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '1rem' }}>Observações / Algum pedido especial? (Opcional)</label>
                         <textarea 
                           value={leadData.notes}
@@ -1708,7 +1708,7 @@ export default function SaaSCommercialPortal() {
                   </div>
 
                   {/* BOTÕES DE AÇÃO DO MODAL */}
-                  <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'flex-end', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '2.5rem' }}>
+                  <div className="modal-actions-flex" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'flex-end', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '2.5rem' }}>
                     <button 
                       type="button" 
                       onClick={() => setShowLeadModal(false)}
@@ -1824,15 +1824,134 @@ export default function SaaSCommercialPortal() {
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
+        .modal-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 3.5rem;
+          margin-bottom: 3.5rem;
+        }
         @media (max-width: 1024px) {
           .modal-grid { grid-template-columns: 1fr !important; gap: 2rem !important; }
         }
+        .lead-modal-content {
+          padding: 4rem;
+        }
+        .domain-modal-content {
+          padding: 4rem;
+        }
+        .modal-panel {
+          padding: 3rem;
+          border-radius: 24px;
+        }
+        @media (max-width: 768px) {
+          .lead-modal-overlay {
+            padding: 0 !important;
+          }
+          .lead-modal-content, .domain-modal-content {
+            padding: 3rem 1.5rem 1.5rem 1.5rem !important;
+            border-radius: 0px !important;
+            width: 100vw !important;
+            max-width: 100vw !important;
+            height: 100vh !important;
+            max-height: 100vh !important;
+            margin: 0 !important;
+            border: none !important;
+          }
+          .modal-panel {
+            padding: 1.5rem !important;
+            border-radius: 16px !important;
+            gap: 1.5rem !important;
+          }
+          .close-btn {
+            top: 1rem !important;
+            right: 1rem !important;
+          }
+        }
+        .modal-grid-half {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 2rem;
+        }
+        .subdomain-container {
+          display: flex;
+          align-items: center;
+          background: rgba(15, 23, 42, 0.8);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 14px;
+          overflow: hidden;
+          margin-bottom: 0.5rem;
+        }
+        .color-presets-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1.25rem;
+          margin-bottom: 1.5rem;
+        }
+        @media (max-width: 640px) {
+          .modal-panel h4 {
+            flex-wrap: wrap !important;
+            font-size: 1.1rem !important;
+            gap: 0.5rem !important;
+          }
+          .modal-panel h4 span {
+            font-size: 1.1rem !important;
+          }
+          .modal-header-flex {
+            flex-direction: column;
+            align-items: flex-start !important;
+            gap: 1rem !important;
+          }
+          .modal-header-flex h3 {
+            font-size: 1.6rem !important;
+          }
+          .modal-grid-half {
+            grid-template-columns: 1fr !important;
+            gap: 1.25rem !important;
+          }
+          .modal-actions-flex {
+            flex-direction: column-reverse;
+            gap: 1rem !important;
+          }
+          .modal-actions-flex button, .modal-actions-flex a {
+            width: 100% !important;
+            padding: 1rem !important;
+            justify-content: center;
+          }
+          .color-presets-grid {
+            grid-template-columns: 1fr !important;
+            gap: 0.75rem !important;
+          }
+        }
+        @media (max-width: 480px) {
+          .subdomain-container {
+            flex-direction: column !important;
+            align-items: stretch !important;
+          }
+          .subdomain-container span {
+            border-left: none !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
+            text-align: center !important;
+            padding: 0.75rem !important;
+          }
+          .subdomain-container input {
+            padding: 0.75rem 1rem !important;
+            text-align: center !important;
+          }
+          .custom-color-row {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 1rem !important;
+          }
+          .custom-color-row > div {
+            justify-content: space-between !important;
+          }
+        }
       `}</style>
 
-      {/* MODAL DE SOLICITAÇÃO DE REGISTRO DE DOMÍNIO PRÓPRIO */}
+       {/* MODAL DE SOLICITAÇÃO DE REGISTRO DE DOMÍNIO PRÓPRIO */}
       {showDomainModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(9, 13, 22, 0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '2rem' }}>
-          <div style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(14, 165, 233, 0.3)', borderRadius: '24px', width: '95vw', maxWidth: '850px', padding: '4rem', position: 'relative', boxShadow: '0 25px 50px rgba(0,0,0,0.5)', maxHeight: '92vh', overflowY: 'auto' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(9, 13, 22, 0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} className="lead-modal-overlay">
+          <div className="domain-modal-content" style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(14, 165, 233, 0.3)', borderRadius: '24px', width: '95vw', maxWidth: '850px', padding: '4rem', position: 'relative', boxShadow: '0 25px 50px rgba(0,0,0,0.5)', maxHeight: '92vh', overflowY: 'auto' }}>
             <button onClick={() => setShowDomainModal(false)} style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#94a3b8', cursor: 'pointer', padding: '0.75rem', borderRadius: '50%', display: 'flex', transition: 'all 0.2s' }} className="close-btn">
               <X size={24} />
             </button>
@@ -1868,7 +1987,7 @@ export default function SaaSCommercialPortal() {
               </div>
             ) : (
               <>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '3rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '2rem' }}>
+                <div className="modal-header-flex" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '3rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '2rem' }}>
                   <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #0ea5e9, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 4px 20px rgba(14, 165, 233, 0.4)' }}>
                     <Globe size={28} />
                   </div>
@@ -1951,7 +2070,7 @@ export default function SaaSCommercialPortal() {
                     </div>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+                  <div className="modal-grid-half">
                     <div>
                       <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>WhatsApp (Para envio de valores)</label>
                       <div style={{ position: 'relative' }}>
@@ -1993,7 +2112,7 @@ export default function SaaSCommercialPortal() {
                     />
                   </div>
 
-                  <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'flex-end', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '2rem', marginTop: '1rem' }}>
+                  <div className="modal-actions-flex" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'flex-end', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '2rem', marginTop: '1rem' }}>
                     <button 
                       type="button" 
                       onClick={() => setShowDomainModal(false)}
