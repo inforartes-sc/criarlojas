@@ -21,6 +21,15 @@ async function getStoreData(domain: string) {
   return data
 }
 
+async function getPlatformSettings() {
+  const { data } = await supabase
+    .from('stores')
+    .select('settings')
+    .eq('subdomain', 'platform-settings')
+    .maybeSingle()
+  return data?.settings || {}
+}
+
 async function getProducts(storeId: string) {
   const { data } = await supabase
     .from('products')
@@ -44,7 +53,67 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
   const resolvedParams = await params
   const resolvedSearchParams = await searchParams
   const categoryFilter = resolvedSearchParams.category as string | undefined
-  const store = await getStoreData(resolvedParams.domain)
+  const [store, platformSettings] = await Promise.all([
+    getStoreData(resolvedParams.domain),
+    getPlatformSettings()
+  ])
+
+  if (platformSettings?.maintenanceMode) {
+    return (
+      <div style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+        color: '#f8fafc',
+        fontFamily: 'Inter, system-ui, sans-serif',
+        padding: '2rem',
+        textAlign: 'center'
+      }}>
+        <div style={{
+          maxWidth: '500px',
+          width: '100%',
+          padding: '3rem',
+          background: 'rgba(255, 255, 255, 0.03)',
+          backdropFilter: 'blur(16px)',
+          borderRadius: '24px',
+          border: '1px solid rgba(255, 255, 255, 0.08)',
+          boxShadow: '0 20px 50px rgba(0, 0, 0, 0.3)'
+        }}>
+          <div style={{
+            width: '80px',
+            height: '80px',
+            borderRadius: '50%',
+            background: 'rgba(245, 158, 11, 0.1)',
+            border: '2px solid #f59e0b',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            margin: '0 auto 2rem',
+            color: '#f59e0b',
+            animation: 'pulse 2s infinite'
+          }}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          </div>
+          <h2 style={{ fontSize: '2rem', fontWeight: 900, marginBottom: '1rem', letterSpacing: '-1px' }}>Manutenção Temporária</h2>
+          <p style={{ color: '#cbd5e1', fontSize: '1.05rem', lineHeight: '1.6', marginBottom: '2rem' }}>
+            Nossa plataforma está passando por uma manutenção programada para melhoria dos nossos serviços. Voltaremos a operar normalmente em breve!
+          </p>
+          <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+            Agradecemos a sua paciência e compreensão.
+          </div>
+        </div>
+        <style>{`
+          @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+            70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(245, 158, 11, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+          }
+        `}</style>
+      </div>
+    )
+  }
 
   if (!store) return <div style={{ textAlign: 'center', padding: '5rem' }}>Loja não encontrada</div>
 
