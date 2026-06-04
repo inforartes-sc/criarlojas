@@ -41,6 +41,50 @@ export default function SubscriptionPage() {
   const [copiedPix, setCopiedPix] = useState(false)
   const [selectedCustomInv, setSelectedCustomInv] = useState<any>(null)
   const [showCustomDetailsModal, setShowCustomDetailsModal] = useState(false)
+  const [gatewayConfig, setGatewayConfig] = useState<any>(null)
+
+  // Função para gerar o payload PIX Estático (padrão EMV BR Code) com CRC16
+  const generatePixPayload = (pixKey: string, amount: number) => {
+    const key = (pixKey || 'financeiro@criarlojas.com.br').trim()
+    const amt = amount.toFixed(2)
+    
+    const pixGui = 'br.gov.bcb.pix'
+    const pixKeyInfo = `01${String(key.length).padStart(2, '0')}${key}`
+    const merchantAccountInfo = `0014${pixGui}${pixKeyInfo}`
+    
+    const merchantName = 'Criar Lojas SaaS'
+    const merchantCity = 'SAO PAULO'
+    
+    let payload = '000201' // Payload Indicator
+    payload += '010211'   // Point of Initiation (11 = estático)
+    payload += `26${String(merchantAccountInfo.length).padStart(2, '0')}${merchantAccountInfo}`
+    payload += '52040000' // Merchant Category Code
+    payload += '5303986'  // Currency Code (BRL)
+    payload += `54${String(amt.length).padStart(2, '0')}${amt}` // Transaction Amount
+    payload += '5802BR'   // Country Code
+    payload += `59${String(merchantName.length).padStart(2, '0')}${merchantName}` // Merchant Name
+    payload += `60${String(merchantCity.length).padStart(2, '0')}${merchantCity}` // Merchant City
+    payload += '62070503***' // Additional Data Field
+    payload += '6304'      // CRC16 Indicator
+    
+    // Cálculo do CRC16 CCITT
+    let crc = 0xFFFF
+    for (let c = 0; c < payload.length; c++) {
+      let code = payload.charCodeAt(c)
+      crc ^= (code << 8)
+      for (let i = 0; i < 8; i++) {
+        if (crc & 0x8000) {
+          crc = (crc << 1) ^ 0x1021
+        } else {
+          crc = crc << 1
+        }
+      }
+    }
+    crc = crc & 0xFFFF
+    const crcHex = crc.toString(16).toUpperCase().padStart(4, '0')
+    
+    return payload + crcHex
+  }
 
   // Estado para o formulário de cancelamento
   const [cancelData, setCancelData] = useState({
@@ -84,6 +128,10 @@ export default function SubscriptionPage() {
         activePlans = platformData.settings.plans
       }
       setPlansList(activePlans)
+
+      if (platformData?.settings?.gatewayConfig) {
+        setGatewayConfig(platformData.settings.gatewayConfig)
+      }
 
       // Determina o plano atual
       const planCode = s.plan || 'pro'
@@ -279,10 +327,10 @@ export default function SubscriptionPage() {
     }
   }
 
-  const handleCopyPix = () => {
-    navigator.clipboard.writeText('financeiro@criarlojas.com.br')
+  const handleCopyPix = (pixCode: string) => {
+    navigator.clipboard.writeText(pixCode)
     setCopiedPix(true)
-    toast.success('Chave PIX copiada!')
+    toast.success('PIX Copia e Cola copiado!')
     setTimeout(() => setCopiedPix(false), 3000)
   }
 
@@ -657,56 +705,82 @@ export default function SubscriptionPage() {
       </div>
 
       {/* MODAL DE PAGAMENTO (PIX) */}
-      {showPaymentModal && selectedInvoice && (
-        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.75)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-          <div style={{ background: 'var(--card-bg)', border: '1px solid var(--border)', borderRadius: '24px', width: '100%', maxWidth: '520px', overflow: 'hidden', boxShadow: '0 25px 50px rgba(0,0,0,0.5)' }}>
-            <div style={{ padding: '2rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.02)' }}>
+      {showPaymentModal && selectedInvoice && (() => {
+        const pixKey = gatewayConfig?.pixKey || 'financeiro@criarlojas.com.br'
+        const isSandbox = gatewayConfig?.sandboxMode !== false // Padrão para sandbox se não configurado
+        const pixCode = generatePixPayload(pixKey, selectedInvoice.amount)
+        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pixCode)}`
 
-              <div>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: 'var(--foreground)' }}>Pagamento da Mensalidade</h3>
-                <p style={{ color: 'var(--muted)', fontSize: '0.85rem', margin: '0.25rem 0 0 0' }}>Fatura {selectedInvoice.id} • {selectedInvoice.month}</p>
-              </div>
-              <button onClick={() => setShowPaymentModal(false)} style={{ background: 'var(--input-bg)', border: '1px solid var(--border)', color: 'var(--muted)', cursor: 'pointer', padding: '0.5rem', borderRadius: '50%', display: 'flex' }}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <div style={{ padding: '2.5rem 2rem', textAlign: 'center' }}>
-              <div style={{ marginBottom: '2rem' }}>
-                <span style={{ fontSize: '0.9rem', color: 'var(--muted)', fontWeight: 600, display: 'block', marginBottom: '0.25rem' }}>Valor a Pagar</span>
-                <span style={{ fontSize: '2.5rem', fontWeight: 900, color: '#10b981' }}>R$ {selectedInvoice.amount.toFixed(2)}</span>
-              </div>
-
-              <div style={{ background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '16px', padding: '2rem', marginBottom: '2rem' }}>
-                <div style={{ width: '180px', height: '180px', background: 'white', padding: '10px', borderRadius: '12px', margin: '0 auto 1.5rem auto', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 8px 24px rgba(0,0,0,0.15)' }}>
-                  {/* QR Code Simulado Premium */}
-                  <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=00020126580014br.gov.bcb.pix0136financeiro@criarlojas.com.br5204000053039865802BR5915Criar Lojas SaaS6009SAO PAULO62070503INV6304D1B2" style={{ width: '100%', height: '100%' }} alt="QR Code PIX" />
+        return (
+          <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(9, 13, 22, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+            <div style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '28px', width: '100%', maxWidth: '520px', overflow: 'hidden', boxShadow: '0 30px 60px rgba(0,0,0,0.6), 0 0 50px rgba(16, 185, 129, 0.15)', backdropFilter: 'blur(20px)' }}>
+              <div style={{ padding: '2rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'rgba(255, 255, 255, 0.02)' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0, color: '#f8fafc', letterSpacing: '-0.5px' }}>Pagamento da Mensalidade</h3>
+                  <p style={{ color: 'var(--muted)', fontSize: '0.85rem', margin: '0.25rem 0 0 0', fontWeight: 600 }}>Fatura {selectedInvoice.id} • {selectedInvoice.month}</p>
                 </div>
-                <span style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 600, display: 'block', marginBottom: '0.75rem' }}>Escaneie o QR Code acima ou copie a chave PIX:</span>
-                
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,0,0,0.2)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
-                  <span style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.9rem', color: '#0ea5e9', fontWeight: 700, userSelect: 'all' }}>financeiro@criarlojas.com.br</span>
-                  <button 
-                    onClick={handleCopyPix}
-                    style={{ padding: '0.5rem', background: '#0ea5e9', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 700, fontSize: '0.8rem' }}
-                  >
-                    {copiedPix ? <Check size={16} /> : <Copy size={16} />}
-                  </button>
-                </div>
+                <button onClick={() => setShowPaymentModal(false)} style={{ background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#94a3b8', cursor: 'pointer', padding: '0.6rem', borderRadius: '50%', display: 'flex', transition: 'all 0.2s' }}>
+                  <X size={20} />
+                </button>
               </div>
 
-              <button
-                onClick={handleConfirmPayment}
-                disabled={processingPayment}
-                style={{ width: '100%', padding: '1.15rem', background: '#10b981', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '1.05rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 8px 20px rgba(16, 185, 129, 0.4)', transition: 'all 0.2s' }}
-              >
-                {processingPayment ? <Loader2 className="animate-spin" size={20} /> : <CheckCircle2 size={20} />}
-                <span>Simular Pagamento / Enviar Comprovante</span>
-              </button>
+              <div style={{ padding: '2.5rem 2rem', textAlign: 'center' }}>
+                <div style={{ marginBottom: '2rem' }}>
+                  <span style={{ fontSize: '0.9rem', color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '0.25rem' }}>Valor a Pagar</span>
+                  <span style={{ fontSize: '2.8rem', fontWeight: 900, color: '#10b981' }}>R$ {selectedInvoice.amount.toFixed(2).replace('.', ',')}</span>
+                </div>
+
+                {isSandbox ? (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '1rem', borderRadius: '14px', marginBottom: '1.5rem', textAlign: 'left' }}>
+                    <AlertTriangle size={20} color="#f59e0b" style={{ flexShrink: 0 }} />
+                    <div style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 600, lineHeight: 1.4 }}>
+                      ⚠️ MODO HOMOLOGAÇÃO (SANDBOX): Esta é uma fatura de testes. Clique no botão de confirmação para simular a liquidação gratuita.
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '1rem', borderRadius: '14px', marginBottom: '1.5rem', textAlign: 'left' }}>
+                    <ShieldCheck size={20} color="#10b981" style={{ flexShrink: 0 }} />
+                    <div style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 600, lineHeight: 1.4 }}>
+                      🔒 PAGAMENTO SEGURO VIA PIX: Escaneie o QR Code abaixo ou copie a chave para efetuar a transferência. O plano é liberado assim que você confirmar.
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '20px', padding: '2rem 1.5rem', marginBottom: '2rem' }}>
+                  <div style={{ width: '180px', height: '180px', background: 'white', padding: '10px', borderRadius: '16px', margin: '0 auto 1.5rem auto', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.3)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                    <img src={qrCodeUrl} style={{ width: '100%', height: '100%' }} alt="QR Code PIX" />
+                  </div>
+                  
+                  <span style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 600, display: 'block', marginBottom: '0.75rem' }}>Pix Copia e Cola / Chave Pix:</span>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', padding: '0.85rem 1rem', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                    <span style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.85rem', color: '#0ea5e9', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'left', paddingRight: '0.5rem' }}>
+                      {pixKey}
+                    </span>
+                    <button 
+                      onClick={() => handleCopyPix(pixCode)}
+                      style={{ padding: '0.55rem 0.85rem', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 800, fontSize: '0.75rem', boxShadow: '0 4px 10px rgba(14, 165, 233, 0.3)', transition: 'all 0.2s' }}
+                      title="Copiar PIX Copia e Cola"
+                    >
+                      {copiedPix ? <Check size={14} /> : <Copy size={14} />}
+                      <span>{copiedPix ? 'Copiado!' : 'Copiar'}</span>
+                    </button>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleConfirmPayment}
+                  disabled={processingPayment}
+                  style={{ width: '100%', padding: '1.25rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', borderRadius: '14px', fontWeight: 800, fontSize: '1.1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4)', transition: 'all 0.2s', letterSpacing: '0.5px' }}
+                >
+                  {processingPayment ? <Loader2 className="animate-spin" size={22} /> : (isSandbox ? <Sparkles size={22} /> : <CheckCircle2 size={22} />)}
+                  <span>{isSandbox ? 'Simular Pagamento (Homologação)' : 'Confirmar Pagamento Realizado'}</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* MODAL DE MUDANÇA DE PLANO (ESTILIZADO PREMIUM E VISÍVEL) */}
       {showPlanModal && (
