@@ -72,6 +72,10 @@ export async function POST(request: Request) {
       const data = await response.json()
 
       if (!response.ok) {
+        // Se o domínio não estiver cadastrado no projeto, consideramos a remoção um sucesso
+        if (response.status === 404 || data.error?.code === 'not_found') {
+          return NextResponse.json({ success: true, message: 'Domínio não estava cadastrado no projeto Vercel.' })
+        }
         throw new Error(data.error?.message || 'Erro ao remover domínio na Vercel')
       }
 
