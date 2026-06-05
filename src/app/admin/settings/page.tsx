@@ -2390,18 +2390,42 @@ export default function SettingsPage() {
                 <span style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.25rem' }}>Digite apenas o domínio sem www ou https:// (ex: minhaloja.com.br). Lembre-se de clicar em 'Salvar Tudo' no topo para aplicar.</span>
               </div>
 
-              <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '1.5rem', borderRadius: '12px', marginTop: '1rem' }}>
-                <h4 style={{ color: '#10b981', fontSize: '1.05rem', fontWeight: 800, margin: '0 0 0.75rem 0' }}>📌 Instruções de Apontamento DNS</h4>
-                <p style={{ color: 'var(--muted)', fontSize: '0.9rem', lineHeight: 1.5, margin: '0 0 1rem 0' }}>
-                  Para que o seu domínio próprio funcione corretamente, acesse o painel do seu registrador (Registro.br, GoDaddy, HostGator, Cloudflare) e adicione a seguinte entrada de DNS:
+              <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '1.5rem', borderRadius: '14px', marginTop: '1.25rem' }}>
+                <h4 style={{ color: '#10b981', fontSize: '1.1rem', fontWeight: 800, margin: '0 0 0.75rem 0', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  📌 Instruções de Apontamento DNS
+                </h4>
+                <p style={{ color: 'var(--muted)', fontSize: '0.85rem', lineHeight: 1.5, margin: '0 0 1.25rem 0' }}>
+                  Para que o seu domínio próprio funcione corretamente, acesse a zona de DNS do seu registrador (Registro.br, Cloudflare, GoDaddy) e adicione as duas seguintes entradas:
                 </p>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '1rem', background: 'var(--input-bg)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--border)', fontFamily: 'monospace', fontSize: '0.9rem' }}>
-                  <div><strong>TIPO:</strong> CNAME</div>
-                  <div><strong>NOME:</strong> @ (ou www)</div>
-                  <div><strong>DESTINO:</strong> cname.criarlojas.com.br</div>
+                
+                <div style={{ display: 'grid', gap: '1rem', marginBottom: '1.25rem' }}>
+                  {/* Entrada 1: CNAME */}
+                  <div style={{ background: 'var(--input-bg)', padding: '1rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase', marginBottom: '0.5rem' }}>1. Para o Subdomínio (Recomendado)</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '0.5rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>
+                      <div><strong>TIPO:</strong> CNAME</div>
+                      <div><strong>NOME:</strong> www</div>
+                      <div style={{ wordBreak: 'break-all' }}><strong>DESTINO:</strong> cname.vercel-dns.com</div>
+                    </div>
+                  </div>
+
+                  {/* Entrada 2: A Record */}
+                  <div style={{ background: 'var(--input-bg)', padding: '1rem', borderRadius: '10px', border: '1px solid var(--border)' }}>
+                    <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#0ea5e9', textTransform: 'uppercase', marginBottom: '0.5rem' }}>2. Para o Domínio Principal (Naked Domain)</div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '0.5rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>
+                      <div><strong>TIPO:</strong> A</div>
+                      <div><strong>NOME:</strong> @ <span style={{ color: 'var(--muted)', fontSize: '0.75rem' }}>(ou vazio)</span></div>
+                      <div><strong>DESTINO:</strong> 76.76.21.21</div>
+                    </div>
+                  </div>
                 </div>
-                <p style={{ color: 'var(--muted)', fontSize: '0.8rem', margin: '1rem 0 0 0' }}>
-                  ⏳ Nota: A propagação das alterações de DNS pode levar de 1 a 24 horas dependendo do seu provedor.
+
+                <div style={{ background: 'rgba(14, 165, 233, 0.1)', border: '1px solid rgba(14, 165, 233, 0.2)', padding: '0.85rem', borderRadius: '10px', fontSize: '0.8rem', color: '#0ea5e9', fontWeight: 600, lineHeight: 1.4 }}>
+                  🔒 Nota Importante: Após configurar as entradas acima, salve as alterações e solicite a ativação ao administrador da plataforma para gerar o certificado SSL (HTTPS) na hospedagem.
+                </div>
+                
+                <p style={{ color: 'var(--muted)', fontSize: '0.75rem', margin: '0.75rem 0 0 0' }}>
+                  ⏳ A propagação DNS pode levar de 1 a 24 horas para se espalhar por toda a internet.
                 </p>
               </div>
             </div>
