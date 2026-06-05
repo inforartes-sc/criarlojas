@@ -15,6 +15,7 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState('nicho')
   const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null)
   const [domainSuffix, setDomainSuffix] = useState('.localhost:3000')
+  const [initialCustomDomain, setInitialCustomDomain] = useState('')
 
   useEffect(() => {
     setDomainSuffix(getDomainSuffix())
@@ -393,6 +394,7 @@ export default function SettingsPage() {
           }
         ]
       })
+      setInitialCustomDomain(data.custom_domain || s.custom_domain || '')
     } catch (error: any) {
       console.error(error.message)
     } finally {
@@ -600,6 +602,48 @@ export default function SettingsPage() {
     e.preventDefault()
     setSaving(true)
     try {
+      // Se o domínio customizado mudou, atualizamos na Vercel
+      if (formData.custom_domain !== initialCustomDomain) {
+        if (formData.custom_domain) {
+          // Adiciona o novo domínio (e remove o antigo se houver)
+          const res = await fetch('/api/domains', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              domain: formData.custom_domain,
+              action: 'add',
+              oldDomain: initialCustomDomain
+            })
+          })
+          const resData = await res.json()
+          if (!res.ok) {
+            toast.error('Erro na Vercel: ' + (resData.error || 'Não foi possível registrar o domínio.'))
+            setSaving(false)
+            return
+          } else {
+            setInitialCustomDomain(formData.custom_domain)
+          }
+        } else if (initialCustomDomain) {
+          // Se o usuário removeu o domínio próprio
+          const res = await fetch('/api/domains', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              domain: initialCustomDomain,
+              action: 'remove'
+            })
+          })
+          const resData = await res.json()
+          if (!res.ok) {
+            toast.error('Erro na Vercel ao remover domínio: ' + (resData.error || 'Não foi possível remover.'))
+            setSaving(false)
+            return
+          } else {
+            setInitialCustomDomain('')
+          }
+        }
+      }
+
       const { error } = await supabase
         .from('stores')
         .update({
