@@ -42,6 +42,8 @@ export default function SubscriptionPage() {
   const [selectedCustomInv, setSelectedCustomInv] = useState<any>(null)
   const [showCustomDetailsModal, setShowCustomDetailsModal] = useState(false)
   const [gatewayConfig, setGatewayConfig] = useState<any>(null)
+  const [checkoutUrl, setCheckoutUrl] = useState('')
+  const [loadingCheckout, setLoadingCheckout] = useState(false)
 
   // Função para gerar o payload PIX Estático (padrão EMV BR Code) com CRC16
   const generatePixPayload = (pixKey: string, amount: number) => {
@@ -261,6 +263,40 @@ export default function SubscriptionPage() {
       toast.error('Erro ao registrar pagamento no banco de dados.')
     } finally {
       setProcessingPayment(false)
+    }
+  }
+
+  // Iniciar fluxo de checkout com a API do gateway (Mercado Pago ou Asaas)
+  const handleInitiatePayment = async (invoice: any) => {
+    setSelectedInvoice(invoice)
+    setShowPaymentModal(true)
+    setLoadingCheckout(true)
+    setCheckoutUrl('')
+    try {
+      const res = await fetch('/api/billing/create-charge', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invoiceId: invoice.id,
+          storeId: store.id,
+          amount: invoice.amount,
+          description: invoice.isCustom 
+            ? `Serviço Avulso - ${invoice.month}`
+            : `Mensalidade Plano ${planName} - Fatura ${invoice.id}`,
+          isCustom: !!invoice.isCustom
+        })
+      })
+      const data = await res.json()
+      if (res.ok && data.checkoutUrl) {
+        setCheckoutUrl(data.checkoutUrl)
+      } else {
+        toast.error(data.error || 'Erro ao gerar fatura no gateway.')
+      }
+    } catch (err: any) {
+      console.error(err)
+      toast.error('Erro de conexão ao gerar fatura.')
+    } finally {
+      setLoadingCheckout(false)
     }
   }
 
@@ -554,7 +590,7 @@ export default function SubscriptionPage() {
                       <span style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 600 }}>Fatura Quitada</span>
                     ) : (
                       <button
-                        onClick={() => { setSelectedInvoice(inv); setShowPaymentModal(true); }}
+                        onClick={() => handleInitiatePayment(inv)}
                         style={{ padding: '0.65rem 1.25rem', background: '#10b981', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)', transition: 'all 0.2s' }}
                         className="btn-pay"
                       >
@@ -630,15 +666,12 @@ export default function SubscriptionPage() {
                       <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', alignItems: 'center' }}>
                         {inv.status === 'pending' ? (
                           <button
-                            onClick={() => {
-                              setSelectedInvoice({
-                                id: inv.id,
-                                month: inv.title,
-                                amount: inv.amount,
-                                isCustom: true
-                              });
-                              setShowPaymentModal(true);
-                            }}
+                            onClick={() => handleInitiatePayment({
+                              id: inv.id,
+                              month: inv.title,
+                              amount: inv.amount,
+                              isCustom: true
+                            })}
                             style={{ padding: '0.65rem 1.25rem', background: '#a855f7', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 12px rgba(168, 85, 247, 0.3)', transition: 'all 0.2s' }}
                             className="btn-pay"
                           >
@@ -705,12 +738,10 @@ export default function SubscriptionPage() {
         )}
       </div>
 
-      {/* MODAL DE PAGAMENTO (PIX) */}
+      {/* MODAL DE PAGAMENTO (INTEGRAÇÃO AUTOMÁTICA MERCADO PAGO & ASAAS) */}
       {showPaymentModal && selectedInvoice && (() => {
-        const pixKey = gatewayConfig?.pixKey || 'financeiro@criarlojas.com.br'
-        const isSandbox = gatewayConfig?.sandboxMode !== false // Padrão para sandbox se não configurado
-        const pixCode = generatePixPayload(pixKey, selectedInvoice.amount)
-        const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(pixCode)}`
+        const isSandbox = gatewayConfig?.sandboxMode !== false
+        const activeGateway = gatewayConfig?.activeGateway || 'asaas'
 
         return (
           <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(9, 13, 22, 0.85)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
@@ -725,58 +756,69 @@ export default function SubscriptionPage() {
                 </button>
               </div>
 
-              <div style={{ padding: '1.25rem 1.5rem 2.5rem 1.5rem', textAlign: 'center' }}>
-                <div style={{ marginBottom: '1rem' }}>
+              <div style={{ padding: '1.5rem 1.5rem 2.5rem 1.5rem', textAlign: 'center' }}>
+                <div style={{ marginBottom: '1.25rem' }}>
                   <span style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px', display: 'block', marginBottom: '0.15rem' }}>Valor a Pagar</span>
                   <span style={{ fontSize: '2.4rem', fontWeight: 900, color: '#10b981' }}>R$ {selectedInvoice.amount.toFixed(2).replace('.', ',')}</span>
                 </div>
 
-                {isSandbox ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '0.85rem', borderRadius: '12px', marginBottom: '1.25rem', textAlign: 'left' }}>
-                    <AlertTriangle size={18} color="#f59e0b" style={{ flexShrink: 0 }} />
-                    <div style={{ fontSize: '0.75rem', color: '#f59e0b', fontWeight: 600, lineHeight: 1.4 }}>
-                      ⚠️ MODO HOMOLOGAÇÃO (SANDBOX): Esta é uma fatura de testes. Clique no botão de confirmação para simular a liquidação gratuita.
-                    </div>
+                {loadingCheckout ? (
+                  <div style={{ padding: '2rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                    <Loader2 className="animate-spin" size={32} style={{ color: '#0ea5e9' }} />
+                    <p style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 600 }}>Gerando fatura segura no {activeGateway === 'mercadopago' ? 'Mercado Pago' : 'Asaas'}...</p>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '0.85rem', borderRadius: '12px', marginBottom: '1.25rem', textAlign: 'left' }}>
-                    <ShieldCheck size={18} color="#10b981" style={{ flexShrink: 0 }} />
-                    <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600, lineHeight: 1.4 }}>
-                      🔒 PAGAMENTO SEGURO VIA PIX: Escaneie o QR Code abaixo ou copie a chave para efetuar a transferência. O plano é liberado assim que você confirmar.
-                    </div>
-                  </div>
+                  <>
+                    {isSandbox ? (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.2)', padding: '0.85rem', borderRadius: '12px', marginBottom: '1.5rem', textAlign: 'left' }}>
+                        <AlertTriangle size={18} color="#f59e0b" style={{ flexShrink: 0 }} />
+                        <div style={{ fontSize: '0.75rem', color: '#f59e0b', fontWeight: 600, lineHeight: 1.4 }}>
+                          ⚠️ MODO TESTES (SANDBOX): Checkout em ambiente de simulação. Ao concluir o pagamento, o gateway notificará nossa plataforma para ativação imediata.
+                        </div>
+                      </div>
+                    ) : (
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '0.85rem', borderRadius: '12px', marginBottom: '1.5rem', textAlign: 'left' }}>
+                        <ShieldCheck size={18} color="#10b981" style={{ flexShrink: 0 }} />
+                        <div style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 600, lineHeight: 1.4 }}>
+                          🔒 PAGAMENTO SEGURO: Fatura integrada via {activeGateway === 'mercadopago' ? 'Mercado Pago' : 'Asaas'}. Pague via Pix, Boleto ou Cartão com confirmação e baixa instantânea.
+                        </div>
+                      </div>
+                    )}
+
+                    {checkoutUrl ? (
+                      <div style={{ display: 'grid', gap: '1rem', marginTop: '1rem' }}>
+                        <a
+                          href={checkoutUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          style={{ width: '100%', padding: '1.25rem', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '1.1rem', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 8px 25px rgba(14, 165, 233, 0.4)', transition: 'all 0.2s', letterSpacing: '0.5px' }}
+                        >
+                          <ExternalLink size={20} />
+                          <span>Pagar Fatura Agora</span>
+                        </a>
+                        <p style={{ fontSize: '0.8rem', color: 'var(--muted)', margin: '0.5rem 0' }}>
+                          O link acima abrirá o checkout oficial do gateway em uma nova guia.
+                        </p>
+                      </div>
+                    ) : (
+                      <div style={{ padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '10px', color: '#ef4444', fontSize: '0.85rem', fontWeight: 600 }}>
+                        Falha ao carregar o link de faturamento seguro. Entre em contato com o suporte técnico.
+                      </div>
+                    )}
+
+                    {/* Botão de simulação manual para desenvolvedores e administradores */}
+                    {isSandbox && (
+                      <button
+                        onClick={handleConfirmPayment}
+                        disabled={processingPayment}
+                        style={{ marginTop: '2rem', width: '100%', padding: '0.85rem', background: 'rgba(255,255,255,0.05)', color: 'var(--foreground)', border: '1px solid var(--border)', borderRadius: '12px', fontWeight: 700, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all 0.2s' }}
+                      >
+                        {processingPayment ? <Loader2 className="animate-spin" size={16} /> : <CheckCircle2 size={16} />}
+                        <span>Simular Confirmação Interna</span>
+                      </button>
+                    )}
+                  </>
                 )}
-
-                <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '1.25rem 1rem', marginBottom: '1.25rem' }}>
-                  <div style={{ width: '150px', height: '150px', background: 'white', padding: '8px', borderRadius: '12px', margin: '0 auto 1.25rem auto', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 25px rgba(0,0,0,0.3)', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                    <img src={qrCodeUrl} style={{ width: '100%', height: '100%' }} alt="QR Code PIX" />
-                  </div>
-                  
-                  <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Pix Copia e Cola / Chave Pix:</span>
-                  
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(0,0,0,0.3)', padding: '0.75rem 0.85rem', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                    <span style={{ flex: 1, fontFamily: 'monospace', fontSize: '0.8rem', color: '#0ea5e9', fontWeight: 700, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'left', paddingRight: '0.5rem' }}>
-                      {pixKey}
-                    </span>
-                    <button 
-                      onClick={() => handleCopyPix(pixCode)}
-                      style={{ padding: '0.5rem 0.75rem', background: 'linear-gradient(135deg, #0ea5e9, #2563eb)', color: 'white', border: 'none', borderRadius: '6px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 800, fontSize: '0.7rem', boxShadow: '0 4px 10px rgba(14, 165, 233, 0.3)', transition: 'all 0.2s' }}
-                      title="Copiar PIX Copia e Cola"
-                    >
-                      {copiedPix ? <Check size={12} /> : <Copy size={12} />}
-                      <span>{copiedPix ? 'Copiado!' : 'Copiar'}</span>
-                    </button>
-                  </div>
-                </div>
-
-                <button
-                  onClick={handleConfirmPayment}
-                  disabled={processingPayment}
-                  style={{ width: '100%', padding: '1rem', background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4)', transition: 'all 0.2s', letterSpacing: '0.5px' }}
-                >
-                  {processingPayment ? <Loader2 className="animate-spin" size={20} /> : (isSandbox ? <Sparkles size={20} /> : <CheckCircle2 size={20} />)}
-                  <span>{isSandbox ? 'Simular Pagamento (Homologação)' : 'Confirmar Pagamento Realizado'}</span>
-                </button>
               </div>
             </div>
           </div>
