@@ -10,13 +10,28 @@ import ProductCard from '@/components/Storefront/ProductCard'
 import StoreFooter from '@/components/Storefront/StoreFooter'
 import ProductReviews from '@/components/Storefront/ProductReviews'
 
-async function getProductData(slug: string) {
+export const dynamic = 'force-dynamic'
+
+async function getProductData(domain: string, slug: string) {
+  const subdomainOnly = domain.split('.')[0]
   const decodedSlug = decodeURIComponent(slug)
+
+  // Encontrar o ID da loja pelo domínio
+  const { data: store, error: storeError } = await supabase
+    .from('stores')
+    .select('id')
+    .or(`subdomain.eq.${subdomainOnly},subdomain.eq.${domain},custom_domain.eq.${domain}`)
+    .single()
+
+  if (storeError || !store) return null
+
+  // Buscar o produto isolado por loja e slug
   const { data, error } = await supabase
     .from('products')
     .select('*, stores(*)')
+    .eq('store_id', store.id)
     .eq('slug', decodedSlug)
-    .single()
+    .maybeSingle()
 
   if (error || !data) return null
   return data
@@ -73,7 +88,7 @@ export default async function ProductPage({
   params: Promise<{ domain: string, slug: string }> 
 }) {
   const resolvedParams = await params
-  const product = await getProductData(resolvedParams.slug)
+  const product = await getProductData(resolvedParams.domain, resolvedParams.slug)
 
   const isLocalSubpath = !resolvedParams.domain.includes('.') && resolvedParams.domain !== 'localhost'
   const homePath = isLocalSubpath ? `/stores/${resolvedParams.domain}` : '/'

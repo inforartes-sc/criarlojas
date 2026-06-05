@@ -68,6 +68,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   const { store } = useAdminAuth()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [productId, setProductId] = useState('')
 
   const isPartMode = pathname?.includes('/admin/parts/')
@@ -252,8 +253,11 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     toast.success('Combinações geradas com sucesso!')
   }
 
-  const handleDelete = async () => {
-    if (!confirm(L.confirmDelete)) return
+  const handleDelete = () => {
+    setShowDeleteModal(true)
+  }
+
+  const executeDelete = async () => {
     if (!store) return
     setSaving(true)
     try {
@@ -786,6 +790,76 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         </div>
 
       </form>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.4)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '2rem'
+        }}>
+          <div className="glass-card" style={{
+            maxWidth: '400px',
+            width: '100%',
+            padding: '2.5rem',
+            position: 'relative',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: '1.5rem'
+          }}>
+            <div style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              color: '#ef4444',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Trash2 size={30} />
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: 'var(--foreground)' }}>Excluir {L.singular}</h2>
+              <p style={{ color: 'var(--muted)', fontSize: '0.975rem', lineHeight: 1.5, margin: 0 }}>
+                {L.confirmDelete}
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', width: '100%', marginTop: '0.5rem' }}>
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                className="btn-secondary"
+                style={{ flex: 1, padding: '0.875rem', cursor: 'pointer' }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  setShowDeleteModal(false)
+                  await executeDelete()
+                }}
+                className="btn-danger"
+                style={{ flex: 1, padding: '0.875rem', justifyContent: 'center', cursor: 'pointer' }}
+              >
+                Excluir
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .form-group { display: flex; flex-direction: column; gap: 0.5rem; }

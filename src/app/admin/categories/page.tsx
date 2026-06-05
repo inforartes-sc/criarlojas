@@ -11,6 +11,7 @@ export default function CategoriesPage() {
   const [saving, setSaving] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [categories, setCategories] = useState<any[]>([])
+  const [deleteId, setDeleteId] = useState<string | null>(null)
   
   const [formData, setFormData] = useState({
     id: null,
@@ -91,13 +92,18 @@ export default function CategoriesPage() {
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Excluir esta categoria?')) return
-    if (!store) return
+  const handleDelete = (id: string) => {
+    setDeleteId(id)
+  }
+
+  const executeDelete = async () => {
+    if (!deleteId || !store) return
+    const idToDelete = deleteId
+    setDeleteId(null)
     await supabase
       .from('categories')
       .delete()
-      .eq('id', id)
+      .eq('id', idToDelete)
       .eq('store_id', store.id)
     fetchData()
   }
@@ -162,6 +168,83 @@ export default function CategoriesPage() {
                 {saving ? <Loader2 className="animate-spin" size={20} /> : (formData.id ? 'Salvar Alterações' : 'Criar Categoria')}
               </button>
             </form>
+          </div>
+        </div>
+      {/* Modal de Confirmação de Exclusão */}
+      {deleteId && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.4)',
+          backdropFilter: 'blur(8px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '2rem'
+        }}>
+          <div className="glass-card" style={{
+            maxWidth: '400px',
+            width: '100%',
+            padding: '2.5rem',
+            position: 'relative',
+            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            textAlign: 'center',
+            gap: '1.5rem'
+          }}>
+            <div style={{
+              width: '60px',
+              height: '60px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(239, 68, 68, 0.1)',
+              color: '#ef4444',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              <Trash2 size={30} />
+            </div>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+              <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: 'var(--foreground)' }}>Excluir Categoria</h2>
+              <p style={{ color: 'var(--muted)', fontSize: '0.975rem', lineHeight: 1.5, margin: 0 }}>
+                Tem certeza que deseja excluir esta categoria?
+              </p>
+            </div>
+
+            <div style={{ display: 'flex', gap: '1rem', width: '100%', marginTop: '0.5rem' }}>
+              <button
+                type="button"
+                onClick={() => setDeleteId(null)}
+                className="btn-secondary"
+                style={{ flex: 1, padding: '0.875rem', cursor: 'pointer' }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={executeDelete}
+                className="btn-danger"
+                style={{
+                  flex: 1,
+                  padding: '0.875rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              >
+                Excluir
+              </button>
+            </div>
           </div>
         </div>
       )}
