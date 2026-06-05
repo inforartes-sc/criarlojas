@@ -26,14 +26,30 @@ async function getProductData(domain: string, slug: string) {
   if (storeError || !store) return null
 
   // Buscar o produto isolado por loja e slug
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('products')
     .select('*, stores(*)')
     .eq('store_id', store.id)
     .eq('slug', decodedSlug)
     .maybeSingle()
 
-  if (error || !data) return null
+  if (error || !data) {
+    // Fallback: buscar todos os produtos da loja e comparar pelo slug gerado a partir do nome
+    const { data: allProducts } = await supabase
+      .from('products')
+      .select('*, stores(*)')
+      .eq('store_id', store.id)
+    
+    if (allProducts) {
+      const slugify = (text: string) => text.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "")
+      const found = allProducts.find(p => slugify(p.name) === decodedSlug)
+      if (found) {
+        data = found
+      }
+    }
+  }
+
+  if (!data) return null
   return data
 }
 

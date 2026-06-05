@@ -305,6 +305,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
 
       const updatePayload: any = {
         name: formData.name,
+        slug: formData.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
         price: parseFloat(formData.price) || 0,
         short_description: formData.short_description,
         description: formData.description,

@@ -859,7 +859,7 @@ export default function SettingsPage() {
   if (loading) return <div style={{ padding: '5rem', textAlign: 'center' }}><Loader2 className="animate-spin" /></div>
 
   return (
-    <div className="settings-page-container" style={{ maxWidth: '1000px', width: '100%', margin: '0 auto', padding: '0 1rem' }}>
+    <div className="settings-page-container" style={{ maxWidth: '1200px', width: '100%', margin: '0 auto', padding: '0 1rem' }}>
       <style>{`
         @media (max-width: 768px) {
           .settings-header {
@@ -2634,7 +2634,7 @@ export default function SettingsPage() {
         .btn-save-settings:active { transform: translateY(0); }
         .form-group { display: flex; flex-direction: column; gap: 0.5rem; }
         label { font-size: 0.875rem; font-weight: 500; color: var(--muted); }
-        input, textarea { background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; color: var(--foreground); outline: none; }
+        input, textarea, select { width: 100%; background: var(--input-bg); border: 1px solid var(--border); border-radius: 8px; padding: 0.75rem 1rem; color: var(--foreground); outline: none; }
         input:focus { border-color: var(--primary); }
         .animate-spin { animation: spin 1s linear infinite; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
