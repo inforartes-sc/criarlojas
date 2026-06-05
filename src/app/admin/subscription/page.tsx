@@ -136,7 +136,7 @@ export default function SubscriptionPage() {
       }
 
       // Determina o plano atual
-      const planCode = s.plan || 'pro'
+      const planCode = data.plan || s.plan || 'pro'
       const matchedPlan = activePlans.find((p: any) => p.id === planCode)
 
       const planName = matchedPlan ? matchedPlan.name : (planCode === 'premium' ? 'Premium Ilimitado' : planCode === 'pro' ? 'Plano Profissional' : 'Plano Básico')
@@ -380,7 +380,7 @@ export default function SubscriptionPage() {
   }
 
   const s = store?.settings || {}
-  const planCode = s.plan || 'pro'
+  const planCode = store?.plan || s.plan || 'pro'
   const matchedPlan = plansList.find((p: any) => p.id === planCode)
   const planName = matchedPlan ? matchedPlan.name : (planCode === 'premium' ? 'Premium Ilimitado' : planCode === 'pro' ? 'Plano Profissional' : 'Plano Básico')
   const amountVal = matchedPlan ? Number(matchedPlan.price) : (planCode === 'premium' ? 299.00 : planCode === 'pro' ? 149.00 : 49.00)

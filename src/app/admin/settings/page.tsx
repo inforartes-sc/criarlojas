@@ -644,12 +644,26 @@ export default function SettingsPage() {
         }
       }
 
+      // 1. Carrega as configurações atuais do banco para fazer o merge e evitar perda de propriedades (ex: paid_invoices, plan, etc.)
+      const { data: currentStore, error: fetchError } = await supabase
+        .from('stores')
+        .select('settings')
+        .eq('id', storeId)
+        .single()
+
+      if (fetchError) throw fetchError
+
+      const mergedSettings = {
+        ...(currentStore?.settings || {}),
+        ...formData
+      }
+
       const { error } = await supabase
         .from('stores')
         .update({
           name: formData.name,
           custom_domain: formData.custom_domain || null,
-          settings: { ...formData }
+          settings: mergedSettings
         })
         .eq('id', storeId)
       if (error) throw error

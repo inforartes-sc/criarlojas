@@ -289,7 +289,7 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
               <div style={{ width: '36px' }} />
             )}
           </div>
-          <h4 className="product-name" style={{ fontSize: featured ? '2rem' : '1.1rem', margin: '0.6rem 0', fontWeight: 900, color: titleColor, letterSpacing: '-0.5px', minHeight: featured ? '4rem' : '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{product.name}</h4>
+          <h4 className="product-name" style={{ fontSize: featured ? '2rem' : '1.1rem', margin: '0.6rem 0', fontWeight: 900, color: titleColor, letterSpacing: '-0.5px', minHeight: featured ? '4rem' : '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', whiteSpace: 'normal', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{product.name}</h4>
           
           {reviewsData && reviewsData.count > 0 ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', marginBottom: '0.75rem', fontSize: '0.85rem' }}>
