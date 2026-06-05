@@ -170,6 +170,7 @@ export default function CategoriesPage() {
             </form>
           </div>
         </div>
+      )}
       {/* Modal de Confirmação de Exclusão */}
       {deleteId && (
         <div style={{
