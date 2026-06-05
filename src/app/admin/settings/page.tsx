@@ -2459,7 +2459,7 @@ export default function SettingsPage() {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '0.5rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>
                       <div><strong>TIPO:</strong> A</div>
                       <div><strong>NOME:</strong> @ <span style={{ color: 'var(--muted)', fontSize: '0.75rem' }}>(ou vazio)</span></div>
-                      <div><strong>DESTINO:</strong> 76.76.21.21</div>
+                      <div><strong>DESTINO:</strong> 216.198.79.1</div>
                     </div>
                   </div>
                 </div>
