@@ -521,6 +521,7 @@ export default function SuperAdminStores() {
                 isDemo: false,
                 billingEnabled: true,
                 cloneFromSettings: null,
+                cloneFromStoreId: null,
                 niche: 'Moda & Acessórios Premium',
                 description: 'Loja virtual premium configurada com alta conversão.'
               })
