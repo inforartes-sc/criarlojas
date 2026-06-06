@@ -77,6 +77,9 @@ const migrations: { label: string; sql: string }[] = [
   { label: 'orders.order_number', sql: `ALTER TABLE orders ADD COLUMN IF NOT EXISTS order_number TEXT` },
   { label: 'orders.payment_method', sql: `ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method TEXT` },
   { label: 'orders.payment_status', sql: `ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_status TEXT` },
+  { label: 'custom_invoices.create_table', sql: `CREATE TABLE IF NOT EXISTS custom_invoices (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), store_id UUID REFERENCES stores(id) ON DELETE CASCADE, title TEXT NOT NULL, description TEXT, amount NUMERIC(10,2) NOT NULL, due_date DATE NOT NULL, status TEXT NOT NULL DEFAULT 'pending', payment_method TEXT, paid_at TIMESTAMP WITH TIME ZONE, created_at TIMESTAMP WITH TIME ZONE DEFAULT now())` },
+  { label: 'custom_invoices.rls', sql: `ALTER TABLE custom_invoices ENABLE ROW LEVEL SECURITY` },
+  { label: 'custom_invoices.policy', sql: `DROP POLICY IF EXISTS "Permitir tudo para todos" ON custom_invoices; CREATE POLICY "Permitir tudo para todos" ON custom_invoices FOR ALL USING (true) WITH CHECK (true);` },
   { label: 'pgrst.reload', sql: `NOTIFY pgrst, 'reload schema'` },
 ]
 

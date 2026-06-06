@@ -37,14 +37,27 @@ export default function AdminSidebar() {
     { icon: Settings, label: 'Configurações', href: '/admin/settings' },
   ]
 
+  const plan = store?.settings?.plan || 'basic'
+
   const filteredMenuItems = menuItems.filter(item => {
     if (isLawyerLayout) {
       const excludedLabels = ['Categorias', 'Pedidos', 'Clientes', 'Pagamentos', 'Envio / Frete', 'Promoções', 'Avaliações']
-      return !excludedLabels.includes(item.label)
+      if (excludedLabels.includes(item.label)) return false
     }
     if (isElectricianLayout) {
       const excludedLabels = ['Pedidos', 'Envio / Frete', 'Clientes', 'Pagamentos', 'Promoções', 'Avaliações']
-      return !excludedLabels.includes(item.label)
+      if (excludedLabels.includes(item.label)) return false
+    }
+    
+    // Restrições de planos:
+    // Plano Básico: oculta Avaliações, Pagamentos, Envio / Frete, Promoções
+    // Plano Pro: oculta Avaliações, Promoções
+    if (plan === 'basic') {
+      const basicExcluded = ['Avaliações', 'Pagamentos', 'Envio / Frete', 'Promoções']
+      if (basicExcluded.includes(item.label)) return false
+    } else if (plan === 'pro') {
+      const proExcluded = ['Avaliações', 'Promoções']
+      if (proExcluded.includes(item.label)) return false
     }
     return true
   })

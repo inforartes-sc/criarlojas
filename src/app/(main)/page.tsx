@@ -193,6 +193,7 @@ export default function SaaSCommercialPortal() {
   })
   const [isSubmittingLead, setIsSubmittingLead] = useState(false)
   const [leadSubmitted, setLeadSubmitted] = useState(false)
+  const [showComparison, setShowComparison] = useState(false)
 
   // Função para abrir o modal pré-selecionando modelo ou plano
   const handleOpenLeadModal = (modelKey: string = 'modern', planKey: string = 'pro', concierge: boolean = false) => {
@@ -239,32 +240,32 @@ export default function SaaSCommercialPortal() {
     {
       id: 'basic',
       name: 'Plano Básico',
-      priceMonthly: 49.00,
-      priceAnnual: 39.20, // 20% OFF
-      desc: 'Ideal para quem está começando a sua primeira loja virtual com baixo investimento.',
-      features: ['Até 50 produtos cadastrados', 'Taxa de transação de 2.0%', 'Suporte via E-mail', 'Certificado SSL Grátis', 'Gateway Mercado Pago', 'Checkout Transparente'],
+      priceMonthly: 29.90,
+      priceAnnual: 23.92, // 20% OFF
+      desc: 'Ideal para quem deseja vender pelo catálogo do WhatsApp de forma rápida.',
+      features: ['Catálogo online no WhatsApp', 'Produtos cadastrados ilimitados', 'Domínio personalizado ou grátis', 'Certificado SSL incluso', '[-] Checkout integrado na loja', '[-] Cupons de Desconto e Pixels', '[-] Avaliações de Produtos (Reviews)', '[-] Campanhas de Promoções'],
       popular: false,
       buttonText: 'Contratar Plano Básico'
     },
     {
       id: 'pro',
       name: 'Plano Profissional',
-      priceMonthly: 149.00,
-      priceAnnual: 119.20, // 20% OFF
-      desc: 'Perfeito para lojistas em expansão com alto volume de vendas e tráfego pago.',
-      features: ['Até 500 produtos cadastrados', 'Taxa de transação de 1.0%', 'Suporte Prioritário WhatsApp', 'Todos os Gateways de Pagamento', 'Integração de Frete Avançada', 'Recuperação de Carrinho Abandonado', 'Vitrine Personalizada'],
+      priceMonthly: 34.90,
+      priceAnnual: 27.92, // 20% OFF
+      desc: 'Loja virtual completa com checkout integrado, pagamento e frete.',
+      features: ['Loja com Checkout Integrado', 'Integração Correios e Melhor Envio', 'Mercado Pago e outros gateways', 'Produtos cadastrados ilimitados', 'Domínio personalizado ou grátis', 'Certificado SSL incluso', '[-] Cupons de Desconto e Pixels', '[-] Avaliações de Produtos (Reviews)'],
       popular: true,
       buttonText: 'Contratar Plano Pro'
     },
     {
       id: 'premium',
-      name: 'Premium Ilimitado',
-      priceMonthly: 299.00,
-      priceAnnual: 239.20, // 20% OFF
-      desc: 'Para redes de lojas, grandes marcas e operações de e-commerce escaláveis.',
-      features: ['Produtos e Variações Ilimitadas', 'Taxa de transação ZERO (0%)', 'Suporte VIP 24/7 Dedicado', 'Gerente de Contas Exclusivo', 'Acesso Antecipado a Novas Features', 'Servidor Dedicado de Alta Performance', 'Multi-Lojas e Filiais'],
+      name: 'Plano Premium',
+      priceMonthly: 47.90,
+      priceAnnual: 38.32, // 20% OFF
+      desc: 'Tudo do Pro mais ferramentas completas de marketing e reviews para decolar.',
+      features: ['Tudo do Plano Pro incluso', 'Cupons de Desconto ilimitados', 'Pixels (Facebook, Google, etc)', 'Avaliações de Clientes (Reviews)', 'Campanhas de Promoções', 'Suporte Prioritário VIP', 'Produtos cadastrados ilimitados'],
       popular: false,
-      buttonText: 'Contratar Premium VIP'
+      buttonText: 'Contratar Plano Premium'
     }
   ]
 
@@ -1188,6 +1189,159 @@ export default function SaaSCommercialPortal() {
                   </div>
                 )
               })
+            )}
+          </div>
+
+          {/* Tabela Comparativa de Planos */}
+          <div style={{ marginTop: '6rem' }}>
+            <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+              <h3 style={{ fontSize: '2rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.75rem' }}>
+                Compare os Recursos dos Planos
+              </h3>
+              <p style={{ color: '#94a3b8', fontSize: '1.05rem', marginBottom: '1.5rem' }}>
+                Veja detalhadamente o que está incluso em cada uma das opções abaixo.
+              </p>
+              
+              <button 
+                onClick={() => setShowComparison(!showComparison)}
+                style={{ padding: '0.8rem 2.2rem', background: 'rgba(255, 255, 255, 0.05)', color: '#e2e8f0', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '30px', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
+                className="comparison-toggle-btn"
+              >
+                <span>{showComparison ? 'Ocultar Comparação Completa' : 'Ver Comparação Completa'}</span>
+                {showComparison ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+              </button>
+            </div>
+
+            {showComparison && (
+              <div style={{ overflowX: 'auto', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.5rem' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                      <th style={{ padding: '1.5rem 1rem', fontSize: '1.1rem', fontWeight: 800, color: '#f8fafc', width: '40%' }}>Recurso / Funcionalidade</th>
+                      <th style={{ padding: '1.5rem 1rem', fontSize: '1.1rem', fontWeight: 800, color: '#94a3b8', textAlign: 'center', width: '20%' }}>Básico</th>
+                      <th style={{ padding: '1.5rem 1rem', fontSize: '1.1rem', fontWeight: 800, color: '#10b981', textAlign: 'center', width: '20%' }}>Profissional (Pro)</th>
+                      <th style={{ padding: '1.5rem 1rem', fontSize: '1.1rem', fontWeight: 800, color: '#0ea5e9', textAlign: 'center', width: '20%' }}>Premium</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {/* Categoria: Geral / Vendas */}
+                    <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                      <td colSpan={4} style={{ padding: '1rem', fontWeight: 800, color: '#cbd5e1', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Vendas e Estrutura</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Catálogo via WhatsApp</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Checkout Transparente na Loja</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Produtos Cadastrados</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#e2e8f0', fontWeight: 600 }}>Ilimitado</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#e2e8f0', fontWeight: 600 }}>Ilimitado</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#e2e8f0', fontWeight: 600 }}>Ilimitado</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Domínio Próprio ou Subdomínio Grátis</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Link da Bio (Vitrine Integrada)</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Loja do Instagram (Integração Sacolinha)</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Taxa de Transação (Comissão)</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: 600, fontSize: '0.9rem' }}>Não aplicável (sem checkout)</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: 600, fontSize: '0.9rem' }}>1,75% por venda</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: 600, fontSize: '0.9rem' }}>1,25% por venda</td>
+                    </tr>
+
+                    {/* Categoria: Logística / Pagamento */}
+                    <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                      <td colSpan={4} style={{ padding: '1rem', fontWeight: 800, color: '#cbd5e1', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Logística e Integrações</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Cálculo Automático de Frete</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Correios e Melhor Envio</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Mercado Pago / Gateways</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+
+                    {/* Categoria: Marketing */}
+                    <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                      <td colSpan={4} style={{ padding: '1rem', fontWeight: 800, color: '#cbd5e1', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Marketing e Conversão</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Cupons de Desconto</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Pixels (Facebook, Google, etc)</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Módulo de Avaliações (Reviews)</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Campanhas de Promoções (Ofertas)</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+
+                    {/* Categoria: Suporte */}
+                    <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                      <td colSpan={4} style={{ padding: '1rem', fontWeight: 800, color: '#cbd5e1', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Segurança e Suporte</td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Certificado SSL Seguro</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+                    <tr>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Suporte Técnico</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: 600 }}>WhatsApp</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: 600 }}>WhatsApp</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: 600 }}>WhatsApp VIP</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             )}
           </div>
         </div>

@@ -70,7 +70,7 @@ export default function AdminProductList({ tipo }: Props) {
         <Link href={`${baseHref}/new`} style={{ textDecoration: 'none' }} className="mobile-full-width">
           <button style={{ padding: '0.75rem 1.5rem', backgroundColor: 'var(--primary)', color: 'white', display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', width: '100%', justifyContent: 'center' }}>
             <Plus size={20} />
-            <span>Nova {labelSingular}</span>
+            <span>{labelSingular === 'Peça' ? 'Nova' : 'Novo'} {labelSingular}</span>
           </button>
         </Link>
       </div>
@@ -90,6 +90,10 @@ export default function AdminProductList({ tipo }: Props) {
           </div>
         ) : (
           <div style={{ overflowX: 'auto', width: '100%' }}>
+            <div style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--muted)', fontSize: '0.9rem', fontWeight: 600 }}>
+              <ShoppingBag size={16} color="var(--primary)" />
+              <span>Total: {products.length} {products.length === 1 ? labelSingular.toLowerCase() : labelPlural.toLowerCase()} cadastrado{products.length === 1 ? '' : 's'}</span>
+            </div>
             <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '600px' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid var(--border)', textAlign: 'left', color: 'var(--muted)', fontSize: '0.875rem' }}>

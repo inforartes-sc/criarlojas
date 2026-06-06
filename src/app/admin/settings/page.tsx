@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import Link from 'next/link'
 import { Save, Loader2, Palette, Globe, Store, Type, Layout, Image as ImageIcon, Upload, X, Lock, ShoppingBag, Scale, Truck, ShieldCheck, RefreshCw, CreditCard, Heart, Star, Zap, Package, Headphones, Award, Shield, Clock, ThumbsUp, CheckCircle, Smile, TrendingUp, DollarSign, Phone, MessageSquare, Users, ShoppingCart, Gift, Tag, Percent, Wallet, Banknote, PiggyBank, Gem, Leaf, Box, Sparkles, Wrench } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
@@ -10,6 +11,7 @@ import { getDomainSuffix } from '@/lib/getDomainSuffix'
 export default function SettingsPage() {
   const { store: authStore } = useAdminAuth()
   const storeId = authStore?.id || ''
+  const plan = authStore?.settings?.plan || 'basic'
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('nicho')
@@ -1026,17 +1028,38 @@ export default function SettingsPage() {
               <div className="form-group" style={{ marginTop: '1rem' }}>
                 <label>Modo de Funcionamento</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem', border: formData.store_mode === 'loja' ? '2px solid var(--primary)' : '1px solid var(--border)', borderRadius: '12px', cursor: 'pointer', backgroundColor: formData.store_mode === 'loja' ? 'rgba(99, 102, 241, 0.05)' : 'transparent' }}>
-                    <input type="radio" name="store_mode" checked={formData.store_mode === 'loja'} onChange={() => setFormData({...formData, store_mode: 'loja'})} />
+                  <label 
+                    onClick={() => {
+                      if (plan === 'basic') {
+                        toast.error('O Modo Loja Virtual requer upgrade para o Plano Profissional ou Premium.')
+                      }
+                    }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem', border: formData.store_mode === 'loja' ? '2px solid var(--primary)' : '1px solid var(--border)', borderRadius: '12px', cursor: plan === 'basic' ? 'not-allowed' : 'pointer', backgroundColor: formData.store_mode === 'loja' ? 'rgba(99, 102, 241, 0.05)' : 'transparent', opacity: plan === 'basic' ? 0.6 : 1 }}
+                  >
+                    <input 
+                      type="radio" 
+                      name="store_mode" 
+                      disabled={plan === 'basic'}
+                      checked={plan !== 'basic' && formData.store_mode === 'loja'} 
+                      onChange={() => setFormData({...formData, store_mode: 'loja'})} 
+                    />
                     <div>
-                      <div style={{ fontWeight: 700 }}>Loja Virtual Completa</div>
+                      <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <span>Loja Virtual Completa</span>
+                        {plan === 'basic' && <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.5rem', background: '#ef4444', color: 'white', borderRadius: '4px' }}>PRO / PREMIUM</span>}
+                      </div>
                       <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Carrinho, checkout e layout completo com banners.</div>
                     </div>
                   </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem', border: formData.store_mode === 'catalogo' ? '2px solid var(--primary)' : '1px solid var(--border)', borderRadius: '12px', cursor: 'pointer', backgroundColor: formData.store_mode === 'catalogo' ? 'rgba(99, 102, 241, 0.05)' : 'transparent' }}>
-                    <input type="radio" name="store_mode" checked={formData.store_mode === 'catalogo'} onChange={() => setFormData({...formData, store_mode: 'catalogo'})} />
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem', border: (plan === 'basic' || formData.store_mode === 'catalogo') ? '2px solid var(--primary)' : '1px solid var(--border)', borderRadius: '12px', cursor: 'pointer', backgroundColor: (plan === 'basic' || formData.store_mode === 'catalogo') ? 'rgba(99, 102, 241, 0.05)' : 'transparent' }}>
+                    <input 
+                      type="radio" 
+                      name="store_mode" 
+                      checked={plan === 'basic' || formData.store_mode === 'catalogo'} 
+                      onChange={() => setFormData({...formData, store_mode: 'catalogo'})} 
+                    />
                     <div>
-                      <div style={{ fontWeight: 700 }}>Catálogo Digital</div>
+                      <div style={{ fontWeight: 700 }}>Catálogo Digital (Pedidos via WhatsApp)</div>
                       <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Vitrine direta e botão de comprar pelo WhatsApp.</div>
                     </div>
                   </label>
@@ -2490,8 +2513,22 @@ export default function SettingsPage() {
           )}
 
           {activeTab === 'integracoes' && (
-            <div className="glass-card" style={{ padding: '2.5rem', display: 'grid', gap: '3rem' }}>
-              {/* SEÇÃO 1: PIXELS E TRACKING */}
+            plan !== 'premium' ? (
+              <div className="glass-card" style={{ padding: '3.5rem 2.5rem', textAlign: 'center', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', color: '#6366f1' }}>
+                  <Sparkles size={32} />
+                </div>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginBottom: '0.75rem' }}>Recurso Exclusivo do Plano Premium</h2>
+                <p style={{ color: 'var(--muted)', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '2rem' }}>
+                  A configuração de Pixels de Rastreamento (Google Tag Manager, Google Analytics, Google Ads e Facebook Pixel) não está ativa no seu plano atual (<strong>{plan === 'pro' ? 'Profissional' : 'Básico'}</strong>). Faça um upgrade agora mesmo para mensurar suas conversões e criar campanhas de anúncios profissionais!
+                </p>
+                <Link href="/admin/subscription" style={{ display: 'inline-block', padding: '0.85rem 2rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)', transition: '0.2s' }}>
+                  Ver Planos & Fazer Upgrade
+                </Link>
+              </div>
+            ) : (
+              <div className="glass-card" style={{ padding: '2.5rem', display: 'grid', gap: '3rem' }}>
+                {/* SEÇÃO 1: PIXELS E TRACKING */}
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem', marginBottom: '2rem' }}>
                   <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -2622,10 +2659,11 @@ export default function SettingsPage() {
                     </div>
                   </div>
                 </div>
-              </div>
             </div>
           </div>
-          )}
+        </div>
+      )
+    )}
         </div>
       </div>
 

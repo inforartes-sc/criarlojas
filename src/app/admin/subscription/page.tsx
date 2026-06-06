@@ -1062,69 +1062,69 @@ export default function SubscriptionPage() {
       {/* Modal de Detalhes da Cobrança Avulsa (Visualização Premium do Lojista) */}
       {showCustomDetailsModal && selectedCustomInv && (
         <div style={{ position: 'fixed', inset: 0, background: 'rgba(9, 13, 22, 0.8)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '2rem' }}>
-          <div className="glass-card" style={{ maxWidth: '600px', width: '100%', padding: '2.5rem', position: 'relative', borderRadius: '16px', border: '1px solid var(--border)', background: 'var(--card-bg)' }}>
-            <button onClick={() => setShowCustomDetailsModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'var(--input-bg)', border: '1px solid var(--border)', color: 'var(--muted)', cursor: 'pointer', padding: '0.5rem', borderRadius: '50%', display: 'flex' }}>
+          <div className="glass-card" style={{ maxWidth: '600px', width: '100%', padding: '2.5rem', position: 'relative', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.15)', background: '#1e293b', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.5)' }}>
+            <button onClick={() => setShowCustomDetailsModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.15)', color: '#94a3b8', cursor: 'pointer', padding: '0.5rem', borderRadius: '50%', display: 'flex' }}>
               <X size={20} />
             </button>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
-              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(168, 85, 247, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a855f7' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '1.5rem' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(168, 85, 247, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#a855f7' }}>
                 <FileText size={26} />
               </div>
               <div>
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: 'var(--foreground)' }}>Fatura {selectedCustomInv.id}</h3>
-                <p style={{ color: 'var(--muted)', fontSize: '0.85rem', margin: '0.25rem 0 0 0' }}>Detalhamento de Serviço Adicional/Avulso</p>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: '#f8fafc', wordBreak: 'break-all' }}>Fatura {selectedCustomInv.id}</h3>
+                <p style={{ color: '#94a3b8', fontSize: '0.85rem', margin: '0.25rem 0 0 0' }}>Detalhamento de Serviço Adicional/Avulso</p>
               </div>
             </div>
 
             {/* Recibo Estilizado */}
-            <div id="print-custom-invoice-merchant" style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid var(--border)', borderRadius: '12px', padding: '2rem', marginBottom: '2rem', display: 'grid', gap: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed var(--border)', paddingBottom: '1rem' }}>
+            <div id="print-custom-invoice-merchant" style={{ background: 'rgba(0, 0, 0, 0.2)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '12px', padding: '2rem', marginBottom: '2rem', display: 'grid', gap: '1rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', borderBottom: '1px dashed rgba(255, 255, 255, 0.1)', paddingBottom: '1rem' }}>
                 <div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Emitente</span>
-                  <span style={{ fontWeight: 800, color: 'var(--foreground)', fontSize: '0.95rem' }}>Criar Lojas SaaS</span>
+                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Emitente</span>
+                  <span style={{ fontWeight: 800, color: '#f8fafc', fontSize: '0.95rem' }}>Criar Lojas SaaS</span>
                 </div>
                 <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Loja Beneficiária</span>
-                  <span style={{ fontWeight: 800, color: 'var(--foreground)', fontSize: '0.95rem' }}>{store?.name || 'Sua Loja'}</span>
-                  <span style={{ fontSize: '0.8rem', color: 'var(--muted)', display: 'block' }}>{store?.subdomain || 'subdominio'}</span>
+                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Loja Beneficiária</span>
+                  <span style={{ fontWeight: 800, color: '#f8fafc', fontSize: '0.95rem' }}>{store?.name || 'Sua Loja'}</span>
+                  <span style={{ fontSize: '0.8rem', color: '#94a3b8', display: 'block' }}>{store?.subdomain || 'subdominio'}</span>
                 </div>
               </div>
 
               <div>
-                <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Serviço Contratado</span>
-                <span style={{ fontWeight: 800, color: 'var(--foreground)', fontSize: '1.1rem', display: 'block', marginTop: '0.25rem' }}>{selectedCustomInv.title}</span>
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Serviço Contratado</span>
+                <span style={{ fontWeight: 800, color: '#e2e8f0', fontSize: '1.1rem', display: 'block', marginTop: '0.25rem' }}>{selectedCustomInv.title}</span>
                 {selectedCustomInv.description && (
-                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.4 }}>
+                  <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.4 }}>
                     {selectedCustomInv.description}
                   </p>
                 )}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1rem' }}>
                 <div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Data de Emissão</span>
-                  <span style={{ fontWeight: 700, color: 'var(--foreground)', fontSize: '0.9rem' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Data de Emissão</span>
+                  <span style={{ fontWeight: 700, color: '#cbd5e1', fontSize: '0.9rem' }}>
                     {selectedCustomInv.created_at ? new Date(selectedCustomInv.created_at).toLocaleDateString('pt-BR') : '-'}
                   </span>
                 </div>
                 <div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Vencimento</span>
-                  <span style={{ fontWeight: 700, color: 'var(--foreground)', fontSize: '0.9rem' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Vencimento</span>
+                  <span style={{ fontWeight: 700, color: '#cbd5e1', fontSize: '0.9rem' }}>
                     {selectedCustomInv.due_date ? new Date(selectedCustomInv.due_date + 'T12:00:00').toLocaleDateString('pt-BR') : '-'}
                   </span>
                 </div>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', borderTop: '1px solid var(--border)', paddingTop: '1rem' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1rem' }}>
                 <div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Status</span>
+                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Status</span>
                   <span style={{ fontWeight: 800, color: selectedCustomInv.status === 'paid' ? '#10b981' : selectedCustomInv.status === 'pending' ? '#f59e0b' : '#ef4444', textTransform: 'uppercase', fontSize: '0.9rem' }}>
                     {selectedCustomInv.status === 'paid' ? 'Pago (Compensado)' : selectedCustomInv.status === 'pending' ? 'Pendente' : 'Cancelado'}
                   </span>
                 </div>
                 <div>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Valor Total</span>
+                  <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>Valor Total</span>
                   <span style={{ fontWeight: 900, color: '#a855f7', fontSize: '1.25rem' }}>
                     R$ {Number(selectedCustomInv.amount).toFixed(2).replace('.', ',')}
                   </span>
@@ -1134,10 +1134,10 @@ export default function SubscriptionPage() {
               {selectedCustomInv.status === 'paid' && (
                 <div style={{ background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '1rem', borderRadius: '8px', display: 'grid', gap: '0.25rem', marginTop: '0.5rem' }}>
                   <span style={{ fontSize: '0.75rem', color: '#10b981', fontWeight: 700, textTransform: 'uppercase' }}>Informações do Pagamento</span>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--foreground)', fontWeight: 600 }}>
+                  <span style={{ fontSize: '0.85rem', color: '#cbd5e1', fontWeight: 600 }}>
                     Pago em: {selectedCustomInv.paid_at ? new Date(selectedCustomInv.paid_at).toLocaleString('pt-BR') : '-'}
                   </span>
-                  <span style={{ fontSize: '0.85rem', color: 'var(--muted)' }}>
+                  <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
                     Meio de Pagamento: {selectedCustomInv.payment_method || 'PIX'}
                   </span>
                 </div>
@@ -1198,7 +1198,7 @@ export default function SubscriptionPage() {
               )}
               <button 
                 onClick={() => setShowCustomDetailsModal(false)}
-                style={{ padding: '0.75rem 2rem', background: 'var(--input-bg)', color: 'var(--foreground)', border: '1px solid var(--border)', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}
+                style={{ padding: '0.75rem 2rem', background: 'rgba(255, 255, 255, 0.05)', color: '#f8fafc', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}
               >
                 Fechar
               </button>

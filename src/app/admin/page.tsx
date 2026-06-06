@@ -99,14 +99,17 @@ export default function AdminDashboard() {
       // 3. Buscar Produtos para Alerta de Estoque (verificando variações)
       const { data: productsData, error: prodErr } = await supabase
         .from('products')
-        .select('name, stock_quantity, category')
+        .select('name, stock_quantity, category, has_variations, variation_skus')
         .eq('store_id', store.id)
 
       if (prodErr) console.error('Erro produtos:', prodErr)
       
       const allProds = productsData || []
       const calculatedProds = allProds.map(p => {
-        const currentStock = p.stock_quantity || 0
+        let currentStock = p.stock_quantity || 0
+        if (p.has_variations && p.variation_skus && p.variation_skus.length > 0) {
+          currentStock = p.variation_skus.reduce((sum: number, v: any) => sum + (parseInt(v.stock_quantity) || 0), 0)
+        }
         return {
           name: p.name,
           category: p.category,

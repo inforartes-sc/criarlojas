@@ -136,7 +136,9 @@ export default async function ProductPage({
   const normalPriceColor = settings.normal_price_color || '#bbbbbb'
   const defaultPriceColor = settings.default_price_color || '#000000'
   
-  const storeMode = settings.store_mode || 'loja'
+  const plan = store?.settings?.plan || 'basic'
+  const isPremium = plan === 'premium'
+  const storeMode = plan === 'basic' ? 'catalogo' : (settings.store_mode || 'loja')
   const storeWhatsapp = settings.whatsapp || ''
 
   const benefits = settings.benefits || [
@@ -407,7 +409,7 @@ export default async function ProductPage({
         )}
 
         {/* Avaliações do Produto */}
-        {layoutModel !== 'lawyer' && layoutModel !== 'advocacia' && layoutModel !== 'landing-page' && (
+        {isPremium && layoutModel !== 'lawyer' && layoutModel !== 'advocacia' && layoutModel !== 'landing-page' && (
           <ProductReviews
             productId={product.id}
             storeId={store.id}
