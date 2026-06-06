@@ -138,7 +138,13 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
   }
 
   const newArrivals = allProductsRaw.slice(0, 4) // Mantém as novidades originais mesmo com filtro
-  const flashDeals = allProducts.filter(p => p.sale_price).slice(0, 4)
+  const flashDeals = allProducts.filter(p => {
+    if (p.sale_price) return true
+    if (p.has_variations && p.variation_skus?.length > 0) {
+      return p.variation_skus.some((v: any) => v.sale_price && parseFloat(v.sale_price) > 0)
+    }
+    return false
+  }).slice(0, 4)
   const featuredProducts = allProductsRaw.filter(p => p.is_featured)
   const settings = store.settings || {}
 
@@ -230,13 +236,26 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
 
   return (
     <div style={{ 
-      backgroundColor: isDark ? '#0a0a0a' : '#f4f5f7', 
+      backgroundColor: settings.body_bg_color || (isDark ? '#0a0a0a' : '#f4f5f7'), 
       color: isDark ? '#f8fafc' : '#111', 
       minHeight: '100vh', 
       fontFamily: `${fontFamily}, system-ui, sans-serif` 
     }}>
       {/* Injeção de CSS Dinâmico para Hover e Variantes */}
       <style>{`
+        body { background-color: ${settings.body_bg_color || (isDark ? '#0a0a0a' : '#f4f5f7')} !important; }
+        .product-card-wrapper {
+          ${settings.card_bg_color ? `background-color: ${settings.card_bg_color} !important;` : ''}
+          ${settings.card_bg_color ? `padding: 1.25rem !important; border-radius: 16px !important; border: 1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'} !important;` : ''}
+        }
+        ${settings.body_bg_color && !isDark ? `
+          body, .product-name, h1, h2, h3, h4, h5, h6 {
+            color: #1e293b !important;
+          }
+          p, span {
+            color: #475569 !important;
+          }
+        ` : ''}
         .btn-buy-dynamic {
           background-color: ${buttonVariant === 'filled' ? buttonColor : 'transparent'} !important;
           color: ${buttonVariant === 'filled' ? buttonTextColor : buttonColor} !important;
@@ -289,7 +308,7 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
           grid-template-columns: repeat(4, 1fr);
           gap: 2rem;
           padding: 1.5rem 3rem;
-          background-color: ${isDark ? 'rgba(255,255,255,0.03)' : '#f9fafb'};
+          background-color: ${settings.benefits_bg_color || (isDark ? 'rgba(255,255,255,0.03)' : '#f9fafb')} !important;
           border-radius: 16px;
           border: ${isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #eaeaea'};
         }

@@ -11,8 +11,22 @@ import { supabase } from '@/lib/supabase'
 export default function ProductCard({ product, buttonRadius, salePriceColor, normalPriceColor, defaultPriceColor, featured, layoutModel, storeMode, storeWhatsapp, isCampaign, campaignBgColor, primaryColor: propPrimaryColor, themeMode }: any) {
   const primaryColor = propPrimaryColor || '#0284c7'
   const isDark = themeMode === 'dark' || layoutModel === 'tech'
-  const priceParts = parseFloat(product.price).toFixed(2).split('.')
-  const salePrice = product.sale_price ? parseFloat(product.sale_price).toFixed(2).split('.') : null
+  let displayPrice = parseFloat(product.price || 0)
+  let displaySalePrice = product.sale_price ? parseFloat(product.sale_price) : null
+
+  if (product.has_variations && product.variation_skus?.length > 0) {
+    const minPrice = Math.min(...product.variation_skus.map((v: any) => parseFloat(v.price) || 0))
+    const salePrices = product.variation_skus
+      .map((v: any) => parseFloat(v.sale_price))
+      .filter((p: number) => !isNaN(p) && p > 0)
+    const minSalePrice = salePrices.length > 0 ? Math.min(...salePrices) : null
+
+    displayPrice = minPrice
+    displaySalePrice = minSalePrice
+  }
+
+  const priceParts = displayPrice.toFixed(2).split('.')
+  const salePrice = displaySalePrice ? displaySalePrice.toFixed(2).split('.') : null
   const [isHovered, setIsHovered] = useState(false)
   const [isFavorited, setIsFavorited] = useState(false)
   const [reviewsData, setReviewsData] = useState<{ average: number, count: number } | null>(null)
@@ -74,7 +88,7 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
   const handleQuickFavorite = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    const currentPrice = product?.sale_price ? parseFloat(product.sale_price) : parseFloat(product?.price || 0)
+    const currentPrice = displaySalePrice ? displaySalePrice : displayPrice
     const added = toggleFavorite({
       productId: product.id,
       name: product.name,
@@ -94,7 +108,7 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
       toast.error('Produto esgotado!')
       return
     }
-    const currentPrice = product?.sale_price ? parseFloat(product.sale_price) : parseFloat(product?.price || 0)
+    const currentPrice = displaySalePrice ? displaySalePrice : displayPrice
     const item = {
       productId: product.id,
       name: product.name,
@@ -202,7 +216,7 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
       <div className="product-card-wrapper" style={{ display: 'flex', flexDirection: 'column', textAlign: 'center', height: '100%' }}>
         <Link href={`/product/${product.slug}`} style={{ textDecoration: 'none', color: isDark ? '#fff' : 'inherit', flex: 1, display: 'flex', flexDirection: 'column' }}>
           <div style={{ aspectRatio: featured ? '16/9' : '1/1', backgroundColor: '#f1f5f9', marginBottom: '0.75rem', borderRadius: '16px', backgroundImage: `url(${product.images?.[0] || 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=400&q=80'})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden', transition: 'box-shadow 0.2s ease' }}>
-            {product.sale_price && <div style={{ position: 'absolute', top: '20px', left: '20px', backgroundColor: salePriceColor, color: '#fff', padding: '6px 14px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 900, letterSpacing: '1px' }}>OFERTA</div>}
+            {displaySalePrice && <div style={{ position: 'absolute', top: '20px', left: '20px', backgroundColor: salePriceColor, color: '#fff', padding: '6px 14px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 900, letterSpacing: '1px' }}>OFERTA</div>}
 
           </div>
           {/* Linha da Categoria com Ícones nas Extremidades */}
@@ -321,7 +335,7 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
 
           <div className="product-price-row" style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '0.75rem', marginBottom: '2rem', marginTop: 'auto', flexWrap: 'wrap' }}>
             {salePrice ? (
-              <><span className="product-old-price" style={{ fontSize: featured ? '1rem' : '0.85rem', color: oldPriceColor, textDecoration: 'line-through', fontWeight: 600 }}>R$ {parseFloat(product.price).toFixed(2).replace('.', ',')}</span><div style={{ display: 'flex', alignItems: 'baseline', color: activeSalePriceColor }}><span className="product-price-prefix" style={{ fontSize: featured ? '1.2rem' : '0.8rem', fontWeight: 800 }}>R$</span><span className="product-price-main" style={{ fontSize: featured ? '2.5rem' : '1.5rem', fontWeight: 950 }}>{salePrice[0]}</span><span className="product-price-cents" style={{ fontSize: featured ? '1.2rem' : '0.9rem', fontWeight: 800 }}>,{salePrice[1]}</span></div></>
+              <><span className="product-old-price" style={{ fontSize: featured ? '1rem' : '0.85rem', color: oldPriceColor, textDecoration: 'line-through', fontWeight: 600 }}>R$ {displayPrice.toFixed(2).replace('.', ',')}</span><div style={{ display: 'flex', alignItems: 'baseline', color: activeSalePriceColor }}><span className="product-price-prefix" style={{ fontSize: featured ? '1.2rem' : '0.8rem', fontWeight: 800 }}>R$</span><span className="product-price-main" style={{ fontSize: featured ? '2.5rem' : '1.5rem', fontWeight: 950 }}>{salePrice[0]}</span><span className="product-price-cents" style={{ fontSize: featured ? '1.2rem' : '0.9rem', fontWeight: 800 }}>,{salePrice[1]}</span></div></>
             ) : (
               <div style={{ display: 'flex', alignItems: 'baseline', color: activeDefaultPriceColor }}><span className="product-price-prefix" style={{ fontSize: featured ? '1.2rem' : '0.8rem', fontWeight: 800 }}>R$</span><span className="product-price-main" style={{ fontSize: featured ? '2.5rem' : '1.5rem', fontWeight: 950 }}>{priceParts[0]}</span><span className="product-price-cents" style={{ fontSize: featured ? '1.2rem' : '0.9rem', fontWeight: 800 }}>,{priceParts[1]}</span></div>
             )}

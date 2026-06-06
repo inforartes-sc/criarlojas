@@ -307,6 +307,16 @@ export default function LawyerStorefrontClient({
           --accent-gold-light: ${primaryColor}1f;
           --accent-gold-border: ${primaryColor}40;
           --radius-sm: ${buttonRadius};
+          ${settings.body_bg_color ? `--bg-dark: ${settings.body_bg_color} !important;` : ''}
+          ${settings.body_bg_color ? `--bg-glass: ${settings.body_bg_color} !important;` : ''}
+          ${settings.card_bg_color ? `--bg-card: ${settings.card_bg_color} !important;` : ''}
+          ${settings.card_bg_color ? `--bg-card-hover: ${settings.card_bg_color} !important;` : ''}
+          ${!isDark ? `
+            --text-primary: #1e293b !important;
+            --text-secondary: #475569 !important;
+            --text-muted: #64748b !important;
+            --border-glass: rgba(0, 0, 0, 0.08) !important;
+          ` : ''}
         }
         .btn-gold-primary {
           background-color: ${buttonColor} !important;
@@ -337,6 +347,32 @@ export default function LawyerStorefrontClient({
         .lawyer-whatsapp-float:hover {
           transform: scale(1.1) rotate(5deg) !important;
           filter: brightness(1.1);
+        }
+        .lawyer-cta .btn-gold-primary {
+          background-color: ${settings.cta_button_bg_color || '#25D366'} !important;
+          color: ${settings.cta_button_text_color || '#ffffff'} !important;
+          border-color: ${settings.cta_button_bg_color || '#25D366'} !important;
+        }
+        .lawyer-cta .btn-gold-primary:hover {
+          background-color: ${settings.cta_button_bg_color || '#25D366'} !important;
+          color: ${settings.cta_button_text_color || '#ffffff'} !important;
+          border-color: ${settings.cta_button_bg_color || '#25D366'} !important;
+          filter: brightness(0.9);
+        }
+        .lawyer-cta .btn-gold-secondary {
+          color: ${settings.cta_button_2_text_color || primaryColor} !important;
+          border-color: ${settings.cta_button_2_text_color || (primaryColor + '40')} !important;
+        }
+        .lawyer-cta .btn-gold-secondary:hover {
+          background-color: ${settings.cta_button_2_text_color ? (settings.cta_button_2_text_color + '14') : (primaryColor + '14')} !important;
+          border-color: ${settings.cta_button_2_text_color || primaryColor} !important;
+          color: ${settings.cta_button_2_text_color || '#ffffff'} !important;
+        }
+        .lawyer-cta-title {
+          color: ${settings.cta_title_color || '#ffffff'} !important;
+        }
+        .lawyer-cta-desc {
+          color: ${settings.cta_desc_color || 'var(--text-secondary)'} !important;
         }
         @media (max-width: 768px) {
           .lawyer-cta-buttons {
@@ -534,33 +570,43 @@ export default function LawyerStorefrontClient({
       {/* 2.5 BENEFITS */}
       <section style={{ padding: '3rem 2rem', backgroundColor: 'var(--bg-dark)' }}>
         <div className="lawyer-container">
-          <div style={{ maxWidth: '1400px', margin: '0 auto', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem', padding: '1.5rem 3rem', backgroundColor: '#13272b', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.06)' }}>
+          <div style={{ 
+            maxWidth: '1400px', 
+            margin: '0 auto', 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(4, 1fr)', 
+            gap: '2rem', 
+            padding: '1.5rem 3rem', 
+            backgroundColor: settings.benefits_bg_color || '#13272b', 
+            borderRadius: '16px', 
+            border: settings.benefits_bg_color ? '1px solid var(--accent-gold-border)' : '1px solid rgba(255,255,255,0.06)' 
+          }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
               <div style={{ color: primaryColor }}><BenefitIcon name={benefits[0]?.icon} color={primaryColor} /></div>
               <div>
-                <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.3rem', color: '#f2efeb' }}>{benefits[0]?.title || 'Entrega Rápida'}</p>
-                <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.4 }}>{benefits[0]?.subtitle || 'Calcule o prazo no checkout'}</p>
+                <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.3rem', color: settings.benefits_bg_color ? 'var(--text-primary)' : '#f2efeb' }}>{benefits[0]?.title || 'Entrega Rápida'}</p>
+                <p style={{ fontSize: '0.85rem', color: settings.benefits_bg_color ? 'var(--text-secondary)' : '#94a3b8', lineHeight: 1.4 }}>{benefits[0]?.subtitle || 'Calcule o prazo no checkout'}</p>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
               <div style={{ color: primaryColor }}><BenefitIcon name={benefits[1]?.icon} color={primaryColor} /></div>
               <div>
-                <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.3rem', color: '#f2efeb' }}>{benefits[1]?.title || 'Compra Segura'}</p>
-                <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.4 }}>{benefits[1]?.subtitle || 'Ambiente 100% protegido'}</p>
+                <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.3rem', color: settings.benefits_bg_color ? 'var(--text-primary)' : '#f2efeb' }}>{benefits[1]?.title || 'Compra Segura'}</p>
+                <p style={{ fontSize: '0.85rem', color: settings.benefits_bg_color ? 'var(--text-secondary)' : '#94a3b8', lineHeight: 1.4 }}>{benefits[1]?.subtitle || 'Ambiente 100% protegido'}</p>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
               <div style={{ color: primaryColor }}><BenefitIcon name={benefits[2]?.icon} color={primaryColor} /></div>
               <div>
-                <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.3rem', color: '#f2efeb' }}>{benefits[2]?.title || 'Troca Fácil'}</p>
-                <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.4 }}>{benefits[2]?.subtitle || '7 dias para devolução'}</p>
+                <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.3rem', color: settings.benefits_bg_color ? 'var(--text-primary)' : '#f2efeb' }}>{benefits[2]?.title || 'Troca Fácil'}</p>
+                <p style={{ fontSize: '0.85rem', color: settings.benefits_bg_color ? 'var(--text-secondary)' : '#94a3b8', lineHeight: 1.4 }}>{benefits[2]?.subtitle || '7 dias para devolução'}</p>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
               <div style={{ color: primaryColor }}><BenefitIcon name={benefits[3]?.icon} color={primaryColor} /></div>
               <div>
-                <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.3rem', color: '#f2efeb' }}>{benefits[3]?.title || 'Pagamento Facilitado'}</p>
-                <p style={{ fontSize: '0.85rem', color: '#94a3b8', lineHeight: 1.4 }}>{benefits[3]?.subtitle || 'Em até 12x no cartão'}</p>
+                <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.3rem', color: settings.benefits_bg_color ? 'var(--text-primary)' : '#f2efeb' }}>{benefits[3]?.title || 'Pagamento Facilitado'}</p>
+                <p style={{ fontSize: '0.85rem', color: settings.benefits_bg_color ? 'var(--text-secondary)' : '#94a3b8', lineHeight: 1.4 }}>{benefits[3]?.subtitle || 'Em até 12x no cartão'}</p>
               </div>
             </div>
           </div>
@@ -585,7 +631,7 @@ export default function LawyerStorefrontClient({
       </section>
 
       {/* 4. PRACTICE AREAS (SERVICES) */}
-      <section id="areas" className="lawyer-section" style={{ backgroundColor: 'rgb(8, 14, 25)' }}>
+      <section id="areas" className="lawyer-section" style={{ backgroundColor: settings.body_bg_color ? 'var(--bg-card)' : 'rgb(8, 14, 25)' }}>
         <div className="lawyer-container">
           <div className="lawyer-section-header reveal active">
             <span className="lawyer-section-tag">Áreas de Prática</span>
@@ -616,7 +662,7 @@ export default function LawyerStorefrontClient({
                     {service.description || 'Defesa especializada com representação robusta, acompanhamento integral do processo e relatórios de progresso.'}
                   </p>
                   
-                  {service.price && (
+                  {service.price > 0 && (
                     <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column' }}>
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Honorários sob consulta a partir de</span>
                       <span style={{ fontSize: '1.4rem', fontWeight: 700, color: primaryColor }}>
@@ -632,7 +678,7 @@ export default function LawyerStorefrontClient({
                       style={{ width: '100%', padding: '0.85rem' }}
                     >
                       <MessageSquare size={16} />
-                      <span>Agendar Análise de Caso</span>
+                      <span>Agendar Análise</span>
                     </button>
                   </div>
                 </div>
@@ -700,7 +746,7 @@ export default function LawyerStorefrontClient({
       </section>
 
       {/* 6. CORP JURÍDICO (TEAM) */}
-      <section id="equipe" className="lawyer-section" style={{ backgroundColor: 'rgb(8, 14, 25)' }}>
+      <section id="equipe" className="lawyer-section" style={{ backgroundColor: settings.body_bg_color ? 'var(--bg-card)' : 'rgb(8, 14, 25)' }}>
         <div className="lawyer-container">
           <div className="lawyer-section-header reveal active">
             <span className="lawyer-section-tag">{settings.team_tag || "Corpo Jurídico"}</span>
@@ -803,7 +849,11 @@ export default function LawyerStorefrontClient({
               <a 
                 href="#areas"
                 className="btn-gold-secondary"
-                style={{ padding: '1rem 2.5rem' }}
+                style={{ 
+                  padding: '1rem 2.5rem',
+                  color: settings.cta_button_2_text_color || undefined,
+                  borderColor: settings.cta_button_2_text_color || undefined
+                }}
                 onClick={(e) => {
                   e.preventDefault()
                   document.getElementById('areas')?.scrollIntoView({ behavior: 'smooth' })

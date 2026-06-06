@@ -115,8 +115,12 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
   const iconColor = settings.header_icon_color || (layoutModel === 'tech' ? '#ffffff' : (layoutModel === 'office' ? '#334155' : '#000000'))
   const topBarBg = settings.top_bar_bg_color || '#000000'
   const topBarText = settings.top_bar_text_color || '#ffffff'
-  const isServicesLayout = layoutModel === 'services' || layoutModel === 'aura' || layoutModel === 'lawyer' || layoutModel === 'advocacia' || layoutModel === 'advocacy'
-  const isApenasServico = ['lawyer', 'advocacia', 'advocacy'].includes(layoutModel)
+  const isServicesLayout = layoutModel === 'services' || layoutModel === 'aura' || layoutModel === 'lawyer' || layoutModel === 'advocacia' || layoutModel === 'advocacy' || layoutModel === 'electrician'
+  const isApenasServico = ['lawyer', 'advocacia', 'advocacy', 'electrician'].includes(layoutModel)
+  const secondaryColor = settings.secondary_color || primaryColor
+  const whatsappBtnBg = settings.header_whatsapp_btn_bg || secondaryColor
+  const whatsappBtnTextColor = settings.header_whatsapp_btn_text_color || primaryColor
+  const whatsappBtnText = settings.header_whatsapp_btn_text || 'Falar com Especialista'
   
   const isDefaultLinks = !settings.header_links || 
     (Array.isArray(settings.header_links) && 
@@ -744,10 +748,45 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
               <div className="desktop-only-icons" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 {!isCatalogo && (
                   <>
-                    <div style={{ cursor: 'pointer' }} onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')} title="WhatsApp">
-                      <WhatsappIcon size={20} color={iconColor} />
-                    </div>
-                    {layoutModel !== 'lawyer' && layoutModel !== 'advocacia' && layoutModel !== 'advocacy' && (
+                    {isApenasServico ? (
+                      <button
+                        onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          backgroundColor: whatsappBtnBg,
+                          color: whatsappBtnTextColor,
+                          border: 'none',
+                          padding: '0.55rem 1.1rem',
+                          borderRadius: '20px',
+                          fontSize: '0.85rem',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease',
+                          boxShadow: `0 4px 12px ${whatsappBtnBg}33`,
+                          whiteSpace: 'nowrap'
+                        }}
+                        onMouseOver={(e) => {
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                          e.currentTarget.style.boxShadow = `0 6px 16px ${whatsappBtnBg}55`;
+                          e.currentTarget.style.filter = 'brightness(1.1)';
+                        }}
+                        onMouseOut={(e) => {
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = `0 4px 12px ${whatsappBtnBg}33`;
+                          e.currentTarget.style.filter = 'none';
+                        }}
+                      >
+                        <WhatsappIcon size={16} color={whatsappBtnTextColor} />
+                        <span>{whatsappBtnText}</span>
+                      </button>
+                    ) : (
+                      <div style={{ cursor: 'pointer' }} onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')} title="WhatsApp">
+                        <WhatsappIcon size={20} color={iconColor} />
+                      </div>
+                    )}
+                    {!isApenasServico && (
                       <div style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsCartOpen(true)}>
                         <ShoppingCart size={20} color={iconColor} />
                         {totalItems > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: primaryColor, color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '50%', fontWeight: 800 }}>{totalItems}</span>}
@@ -758,16 +797,18 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
               </div>
               {!isCatalogo && (
                 <>
-                  {layoutModel !== 'lawyer' && layoutModel !== 'advocacia' && layoutModel !== 'advocacy' && (
-                    <div className="mobile-only-favorites" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsFavoritesOpen(true)} title="Favoritos">
-                      <Heart size={20} color={iconColor} />
-                      {totalFavorites > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: '#ef4444', color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '50%', fontWeight: 800 }}>{totalFavorites}</span>}
-                    </div>
+                  {!isApenasServico && (
+                    <>
+                      <div className="mobile-only-favorites" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsFavoritesOpen(true)} title="Favoritos">
+                        <Heart size={20} color={iconColor} />
+                        {totalFavorites > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: '#ef4444', color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '50%', fontWeight: 800 }}>{totalFavorites}</span>}
+                      </div>
+                      <div className="mobile-only-cart" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsCartOpen(true)}>
+                        <ShoppingCart size={20} color={iconColor} />
+                        {totalItems > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: primaryColor, color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '50%', fontWeight: 800 }}>{totalItems}</span>}
+                      </div>
+                    </>
                   )}
-                  <div className="mobile-only-cart" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsCartOpen(true)}>
-                    <ShoppingCart size={20} color={iconColor} />
-                    {totalItems > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: primaryColor, color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '50%', fontWeight: 800 }}>{totalItems}</span>}
-                  </div>
                 </>
               )}
               <Menu size={22} color={iconColor} className="mobile-menu-trigger" style={{ cursor: 'pointer' }} onClick={() => setIsMenuOpen(true)} />
@@ -870,10 +911,45 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                 <div className="desktop-only-icons" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                   {!isCatalogo && (
                     <>
-                      <div style={{ cursor: 'pointer' }} onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')} title="WhatsApp">
-                        <WhatsappIcon size={22} color={iconColor} />
-                      </div>
-                      {layoutModel !== 'lawyer' && layoutModel !== 'advocacia' && layoutModel !== 'advocacy' && (
+                      {isApenasServico ? (
+                        <button
+                          onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            backgroundColor: whatsappBtnBg,
+                            color: whatsappBtnTextColor,
+                            border: 'none',
+                            padding: '0.55rem 1.1rem',
+                            borderRadius: '20px',
+                            fontSize: '0.85rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease',
+                            boxShadow: `0 4px 12px ${whatsappBtnBg}33`,
+                            whiteSpace: 'nowrap'
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                            e.currentTarget.style.boxShadow = `0 6px 16px ${whatsappBtnBg}55`;
+                            e.currentTarget.style.filter = 'brightness(1.1)';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = `0 4px 12px ${whatsappBtnBg}33`;
+                            e.currentTarget.style.filter = 'none';
+                          }}
+                        >
+                          <WhatsappIcon size={16} color={whatsappBtnTextColor} />
+                          <span>{whatsappBtnText}</span>
+                        </button>
+                      ) : (
+                        <div style={{ cursor: 'pointer' }} onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')} title="WhatsApp">
+                          <WhatsappIcon size={22} color={iconColor} />
+                        </div>
+                      )}
+                      {!isApenasServico && (
                         <>
                           <div style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/account'} title="Minha Conta">
                             <User size={22} color={iconColor} />
@@ -894,16 +970,18 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                 </div>
                 {!isCatalogo && (
                   <>
-                    {layoutModel !== 'lawyer' && layoutModel !== 'advocacia' && layoutModel !== 'advocacy' && (
-                      <div className="mobile-only-favorites" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsFavoritesOpen(true)} title="Favoritos">
-                        <Heart size={22} color={iconColor} />
-                        {totalFavorites > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: '#ef4444', color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '50%', fontWeight: 800 }}>{totalFavorites}</span>}
-                      </div>
+                    {!isApenasServico && (
+                      <>
+                        <div className="mobile-only-favorites" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsFavoritesOpen(true)} title="Favoritos">
+                          <Heart size={22} color={iconColor} />
+                          {totalFavorites > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: '#ef4444', color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '50%', fontWeight: 800 }}>{totalFavorites}</span>}
+                        </div>
+                        <div className="mobile-only-cart" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsCartOpen(true)}>
+                          <ShoppingCart size={22} color={iconColor} />
+                          {totalItems > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: primaryColor, color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '50%', fontWeight: 800 }}>{totalItems}</span>}
+                        </div>
+                      </>
                     )}
-                    <div className="mobile-only-cart" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsCartOpen(true)}>
-                      <ShoppingCart size={22} color={iconColor} />
-                      {totalItems > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: primaryColor, color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '50%', fontWeight: 800 }}>{totalItems}</span>}
-                    </div>
                   </>
                 )}
                 <Menu size={24} color={iconColor} className="mobile-menu-trigger" style={{ cursor: 'pointer' }} onClick={() => setIsMenuOpen(true)} />
@@ -927,10 +1005,45 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                 <div className="desktop-only-icons" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                   {!isCatalogo && (
                     <>
-                      <div style={{ cursor: 'pointer' }} onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')} title="WhatsApp">
-                        <WhatsappIcon size={22} color={iconColor} />
-                      </div>
-                      {layoutModel !== 'lawyer' && layoutModel !== 'advocacia' && layoutModel !== 'advocacy' && (
+                      {isApenasServico ? (
+                        <button
+                          onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            backgroundColor: whatsappBtnBg,
+                            color: whatsappBtnTextColor,
+                            border: 'none',
+                            padding: '0.55rem 1.1rem',
+                            borderRadius: '20px',
+                            fontSize: '0.85rem',
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease',
+                            boxShadow: `0 4px 12px ${whatsappBtnBg}33`,
+                            whiteSpace: 'nowrap'
+                          }}
+                          onMouseOver={(e) => {
+                            e.currentTarget.style.transform = 'translateY(-2px)';
+                            e.currentTarget.style.boxShadow = `0 6px 16px ${whatsappBtnBg}55`;
+                            e.currentTarget.style.filter = 'brightness(1.1)';
+                          }}
+                          onMouseOut={(e) => {
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = `0 4px 12px ${whatsappBtnBg}33`;
+                            e.currentTarget.style.filter = 'none';
+                          }}
+                        >
+                          <WhatsappIcon size={16} color={whatsappBtnTextColor} />
+                          <span>{whatsappBtnText}</span>
+                        </button>
+                      ) : (
+                        <div style={{ cursor: 'pointer' }} onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')} title="WhatsApp">
+                          <WhatsappIcon size={22} color={iconColor} />
+                        </div>
+                      )}
+                      {!isApenasServico && (
                         <>
                           <div style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/account'} title="Minha Conta">
                             <User size={22} color={iconColor} />
@@ -951,21 +1064,21 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                 </div>
                 {!isCatalogo && (
                   <>
-                    {layoutModel !== 'lawyer' && layoutModel !== 'advocacia' && layoutModel !== 'advocacy' && (
-                      <div className="mobile-only-favorites" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsFavoritesOpen(true)} title="Favoritos">
-                        <Heart size={22} color={iconColor} />
-                        {totalFavorites > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: '#ef4444', color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '50%', fontWeight: 800 }}>{totalFavorites}</span>}
-                      </div>
+                    {!isApenasServico && (
+                      <>
+                        <div className="mobile-only-favorites" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsFavoritesOpen(true)} title="Favoritos">
+                          <Heart size={22} color={iconColor} />
+                          {totalFavorites > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: '#ef4444', color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '50%', fontWeight: 800 }}>{totalFavorites}</span>}
+                        </div>
+                        <div className="mobile-only-cart" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsCartOpen(true)}>
+                          <ShoppingCart size={22} color={iconColor} />
+                          {totalItems > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: primaryColor, color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '50%', fontWeight: 800 }}>{totalItems}</span>}
+                        </div>
+                      </>
                     )}
-                    <div className="mobile-only-cart" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsCartOpen(true)}>
-                      <ShoppingCart size={22} color={iconColor} />
-                      {totalItems > 0 && <span style={{ position: 'absolute', top: '-8px', right: '-8px', backgroundColor: primaryColor, color: 'white', fontSize: '0.65rem', padding: '2px 6px', borderRadius: '50%', fontWeight: 800 }}>{totalItems}</span>}
-                    </div>
                   </>
                 )}
-                {!isApenasServico && (
-                  <Menu size={24} color={iconColor} className="mobile-menu-trigger" style={{ cursor: 'pointer' }} onClick={() => setIsMenuOpen(true)} />
-                )}
+                <Menu size={24} color={iconColor} className="mobile-menu-trigger" style={{ cursor: 'pointer' }} onClick={() => setIsMenuOpen(true)} />
               </div>
             </>
           )}
@@ -1009,7 +1122,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
           </div>
           <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto' }}>
             {headerLinks.map((link: any, i: number) => renderMobileHeaderLink(link, i))}
-            {layoutModel !== 'lawyer' && layoutModel !== 'advocacia' && layoutModel !== 'advocacy' && (
+            {!isApenasServico && (
               <>
                 <div style={{ margin: '1rem 0', height: '1px', backgroundColor: '#eee' }} />
                 <h3 style={{ fontSize: '0.85rem', color: '#666', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>Categorias</h3>

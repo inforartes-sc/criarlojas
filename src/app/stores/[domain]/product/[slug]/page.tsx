@@ -154,8 +154,22 @@ export default async function ProductPage({
 
   const relatedProducts = await getRelatedProducts(store.id, product.id, product.category)
 
-  const priceParts = parseFloat(product.price).toFixed(2).split('.')
-  const salePrice = product.sale_price ? parseFloat(product.sale_price).toFixed(2).split('.') : null
+  let displayPrice = parseFloat(product.price || 0)
+  let displaySalePrice = product.sale_price ? parseFloat(product.sale_price) : null
+
+  if (product.has_variations && product.variation_skus?.length > 0) {
+    const minPrice = Math.min(...product.variation_skus.map((v: any) => parseFloat(v.price) || 0))
+    const salePrices = product.variation_skus
+      .map((v: any) => parseFloat(v.sale_price))
+      .filter((p: number) => !isNaN(p) && p > 0)
+    const minSalePrice = salePrices.length > 0 ? Math.min(...salePrices) : null
+
+    displayPrice = minPrice
+    displaySalePrice = minSalePrice
+  }
+
+  const priceParts = displayPrice.toFixed(2).split('.')
+  const salePrice = displaySalePrice ? displaySalePrice.toFixed(2).split('.') : null
 
   return (
     <div style={{ backgroundColor: isDark ? '#0a0a0a' : '#f4f5f7', color: isDark ? '#f8fafc' : '#1a1a1a', minHeight: '100vh', fontFamily: `${fontFamily}, system-ui, sans-serif` }}>
@@ -327,7 +341,7 @@ export default async function ProductPage({
         </div>
 
         {/* Benefícios (Full Width) */}
-        <div className="product-benefits-grid" style={{ marginTop: '4rem', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem', padding: '1.5rem 3rem', backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : '#f9fafb', borderRadius: '16px', border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #eaeaea' }}>
+        <div className="product-benefits-grid" style={{ marginTop: '4rem', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2rem', padding: '1.5rem 3rem', backgroundColor: settings.benefits_bg_color || (isDark ? 'rgba(255,255,255,0.03)' : '#f9fafb'), borderRadius: '16px', border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #eaeaea' }}>
           <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
             <div style={{ color: primaryColor }}><BenefitIcon name={benefits[0]?.icon} color={primaryColor} /></div>
             <div>

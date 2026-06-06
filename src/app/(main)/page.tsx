@@ -312,15 +312,6 @@ export default function SaaSCommercialPortal() {
   // Vitrines / Lojas Modelo para Demonstração
   const initialDemoStores = [
     {
-      id: 'fashion',
-      name: 'Naila Shop Mix',
-      subdomain: 'teste',
-      niche: 'Moda & Acessórios Premium',
-      img: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80',
-      color: '#0ea5e9',
-      desc: 'Layout focado em apelo visual, lookbooks e alta conversão para o nicho de moda.'
-    },
-    {
       id: 'tech',
       name: 'TechStore Prime',
       subdomain: 'tech',
@@ -339,6 +330,7 @@ export default function SaaSCommercialPortal() {
       desc: 'Design minimalista e sofisticado, ideal para marcas conceituais e produtos premium.'
     }
   ]
+
 
   const [demoStoresList, setDemoStoresList] = useState(initialDemoStores)
 
@@ -443,7 +435,7 @@ export default function SaaSCommercialPortal() {
     },
     {
       q: 'Posso conectar meu próprio domínio personalizado?',
-      a: 'Sim! Você pode usar nosso subdomínio gratuito (ex: sualoja.suaplataforma.com.br) ou apontar seu próprio domínio próprio (ex: www.sualoja.com.br) diretamente no painel de configurações da sua loja após a entrega.'
+      a: 'Sim! Você pode usar nosso subdomínio gratuito (ex: sualoja.criarlojas.com.br) ou apontar seu próprio domínio (ex: www.sualoja.com.br) diretamente no painel de configurações da sua loja após a entrega.'
     },
     {
       q: 'Quais gateways de pagamento estão disponíveis?',
@@ -1529,7 +1521,7 @@ export default function SaaSCommercialPortal() {
                 style={{ padding: '1.35rem 3.5rem', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '1.15rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 8px 25px rgba(16, 185, 129, 0.5)', transition: 'all 0.2s' }}
                 className="cta-btn"
               >
-                <span>Falar com Especialista & Solicitar Loja</span>
+                <span>Solicitar Loja</span>
                 <ArrowRight size={22} />
               </button>
 
@@ -1537,7 +1529,7 @@ export default function SaaSCommercialPortal() {
                 href={`https://wa.me/${formatWhatsappNumber(platformSettings.whatsappSupport)}?text=${encodeURIComponent('Olá! Gostaria de entender mais sobre a plataforma Criar Lojas e solicitar a minha loja modelo.')}`}
                 target="_blank" 
                 rel="noopener noreferrer"
-                style={{ padding: '1.35rem 2.5rem', background: 'rgba(255, 255, 255, 0.05)', color: '#cbd5e1', textDecoration: 'none', fontSize: '1.15rem', fontWeight: 700, borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', transition: 'all 0.2s' }}
+                style={{ padding: '1.35rem 2.5rem', background: 'rgba(255, 255, 255, 0.05)', color: '#cbd5e1', textDecoration: 'none', fontSize: '1.15rem', fontWeight: 700, borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
                 className="btn-admin"
               >
                 <Phone size={20} color="#10b981" />
@@ -2367,6 +2359,70 @@ export default function SaaSCommercialPortal() {
       )}
 
       <style>{`
+        /* Efeitos de Hover interativos nos botões */
+        .login-btn, .cta-btn, .hero-btn, .demo-btn, .btn-admin, .scroll-top-btn, .whatsapp-floating-btn, .no-scrollbar button, button[type="submit"] {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+
+        .login-btn:hover {
+          background-color: rgba(14, 165, 233, 0.1) !important;
+          color: #38bdf8 !important;
+          border-color: #0ea5e9 !important;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
+        }
+
+        .cta-btn:hover {
+          transform: translateY(-2px);
+          filter: brightness(1.15);
+          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4) !important;
+        }
+
+        .hero-btn:hover {
+          transform: translateY(-3px);
+          filter: brightness(1.15);
+          box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5) !important;
+        }
+
+        .demo-btn:hover {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+          border-color: rgba(255, 255, 255, 0.2) !important;
+          transform: translateY(-3px);
+        }
+
+        .btn-admin:hover {
+          background-color: rgba(255, 255, 255, 0.12) !important;
+          border-color: rgba(255, 255, 255, 0.25) !important;
+          color: #ffffff !important;
+          transform: translateY(-2px);
+        }
+
+        .no-scrollbar button:hover {
+          transform: translateY(-2px);
+          filter: brightness(1.15);
+          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
+        }
+
+        button[type="submit"]:hover {
+          filter: brightness(1.15);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3) !important;
+        }
+
+        .scroll-top-btn:hover {
+          background: #10b981 !important;
+          color: #ffffff !important;
+          border-color: #10b981 !important;
+          transform: translateY(-5px) scale(1.1) !important;
+          box-shadow: 0 12px 28px rgba(16, 185, 129, 0.4) !important;
+        }
+
+        .whatsapp-floating-btn:hover {
+          transform: scale(1.1) rotate(5deg) !important;
+          filter: brightness(1.1);
+          box-shadow: 0 12px 28px rgba(37, 211, 102, 0.6) !important;
+        }
+
         @keyframes skeleton-pulse {
           0%, 100% { opacity: 0.6; }
           50% { opacity: 0.25; }

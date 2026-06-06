@@ -314,6 +314,16 @@ export default function ServicesStorefrontClient({
           --secondary-color: ${secondaryColor};
           --radius-md: ${settings.button_style === 'pill' ? '16px' : settings.button_style === 'sharp' ? '0px' : '12px'};
           --radius-lg: ${settings.button_style === 'pill' ? '24px' : settings.button_style === 'sharp' ? '0px' : '16px'};
+          ${settings.body_bg_color ? `--bg-dark: ${settings.body_bg_color} !important;` : ''}
+          ${settings.body_bg_color ? `--bg-glass: ${settings.body_bg_color} !important;` : ''}
+          ${settings.card_bg_color ? `--bg-card: ${settings.card_bg_color} !important;` : ''}
+          ${settings.card_bg_color ? `--bg-card-hover: ${settings.card_bg_color} !important;` : ''}
+          ${!isDark ? `
+            --text-primary: #1e293b !important;
+            --text-secondary: #475569 !important;
+            --text-muted: #64748b !important;
+            --border-glass: rgba(0, 0, 0, 0.08) !important;
+          ` : ''}
         }
         /* Feature Cards - cores dinâmicas baseadas na paleta do lojista */
         .feature-card.feat-sky {
@@ -403,7 +413,7 @@ export default function ServicesStorefrontClient({
           grid-template-columns: repeat(4, 1fr);
           gap: 2rem;
           padding: 1.5rem 3rem;
-          background-color: #f9fafb;
+          background-color: ${settings.benefits_bg_color || '#f9fafb'} !important;
           border-radius: 16px;
           border: 1px solid #eaeaea;
         }

@@ -40,6 +40,10 @@ export default function SettingsPage() {
     cta_desc_color: '#ffffff',
     cta_button_bg_color: '#25D366',
     cta_button_text_color: '#ffffff',
+    cta_button_2_text_color: '',
+    body_bg_color: '',
+    card_bg_color: '',
+    benefits_bg_color: '',
     button_color: '#000000',
     button_text_color: '#ffffff',
     button_hover_color: '#333333',
@@ -49,6 +53,9 @@ export default function SettingsPage() {
     default_price_color: '#000000',
     header_bg_color: '#ffffff',
     header_icon_color: '#000000',
+    header_whatsapp_btn_text: 'Falar com Especialista',
+    header_whatsapp_btn_bg: '',
+    header_whatsapp_btn_text_color: '',
     header_links: [
       { label: 'Home', url: '/' },
       { label: 'Produtos', url: '?view=produtos' },
@@ -220,6 +227,10 @@ export default function SettingsPage() {
         cta_desc_color: s.cta_desc_color || '#ffffff',
         cta_button_bg_color: s.cta_button_bg_color || '#25D366',
         cta_button_text_color: s.cta_button_text_color || '#ffffff',
+        cta_button_2_text_color: s.cta_button_2_text_color || '',
+        body_bg_color: s.body_bg_color || '',
+        card_bg_color: s.card_bg_color || '',
+        benefits_bg_color: s.benefits_bg_color || '',
         button_color: s.button_color || '#000000',
         button_text_color: s.button_text_color || '#ffffff',
         button_hover_color: s.button_hover_color || '#333333',
@@ -229,6 +240,9 @@ export default function SettingsPage() {
         default_price_color: s.default_price_color || '#000000',
         header_bg_color: s.header_bg_color || '#ffffff',
         header_icon_color: s.header_icon_color || '#000000',
+        header_whatsapp_btn_text: s.header_whatsapp_btn_text || 'Falar com Especialista',
+        header_whatsapp_btn_bg: s.header_whatsapp_btn_bg || '',
+        header_whatsapp_btn_text_color: s.header_whatsapp_btn_text_color || '',
         header_links: s.header_links || [
           { label: 'Home', url: '/' },
           { label: 'Produtos', url: '?view=produtos' },
@@ -1078,6 +1092,8 @@ export default function SettingsPage() {
                 </div>
               </div>
 
+
+
               {/* 1. SEÇÃO HERO / APRESENTAÇÃO */}
               <div style={{ display: 'grid', gap: '1.5rem' }}>
                 <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>1. Seção Inicial (Apresentação / Hero)</h4>
@@ -1390,6 +1406,42 @@ export default function SettingsPage() {
                     <label>Texto do Botão 2 (Áreas de Atuação)</label>
                     <input type="text" value={formData.cta_btn_text_2} onChange={e => setFormData({...formData, cta_btn_text_2: e.target.value})} placeholder="Ex: Ver Áreas de Atuação" />
                   </div>
+                </div>
+
+                <div style={{ background: 'rgba(99,102,241,0.06)', borderRadius: '12px', padding: '1.25rem', border: '1px solid rgba(99,102,241,0.15)', marginTop: '0.5rem', display: 'grid', gap: '1rem' }}>
+                  <p style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>🎨 Cores da Chamada (CTA)</p>
+                  
+                  {/* Fundo do CTA */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '1rem 1.25rem', background: formData.cta_use_gradient ? 'rgba(99,102,241,0.06)' : 'transparent', border: formData.cta_use_gradient ? '1px solid rgba(99,102,241,0.25)' : '1px solid var(--border)', borderRadius: '12px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <div style={{ width: '36px', height: '20px', borderRadius: '40px', background: formData.cta_use_gradient ? 'linear-gradient(90deg, ' + formData.primary_color + ', ' + formData.secondary_color + ')' : '#e2e8f0', position: 'relative', transition: 'background 0.3s', flexShrink: 0 }}>
+                          <div style={{ position: 'absolute', top: '2px', left: formData.cta_use_gradient ? '18px' : '2px', width: '16px', height: '16px', borderRadius: '50%', background: '#fff', boxShadow: '0 1px 4px rgba(0,0,0,0.2)', transition: 'left 0.2s' }} />
+                        </div>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--foreground)' }}>Usar Gradiente no Fundo do CTA</div>
+                          <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.15rem' }}>Aplica um degradê entre a Cor Primária e Secundária</div>
+                        </div>
+                      </div>
+                      <input type="checkbox" checked={formData.cta_use_gradient} onChange={e => setFormData({...formData, cta_use_gradient: e.target.checked})} style={{ display: 'none' }} />
+                    </label>
+
+                    {!formData.cta_use_gradient && (
+                      <ColorInput label="Cor de Fundo da Seção CTA" value={formData.cta_bg_color} onChange={(v:any) => setFormData({...formData, cta_bg_color: v})} />
+                    )}
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                    <ColorInput label="Cor do Título" value={formData.cta_title_color} onChange={(v:any) => setFormData({...formData, cta_title_color: v})} />
+                    <ColorInput label="Cor da Descrição" value={formData.cta_desc_color} onChange={(v:any) => setFormData({...formData, cta_desc_color: v})} />
+                  </div>
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
+                    <ColorInput label="Fundo do Botão 1 (WhatsApp)" value={formData.cta_button_bg_color} onChange={(v:any) => setFormData({...formData, cta_button_bg_color: v})} />
+                    <ColorInput label="Texto do Botão 1 (WhatsApp)" value={formData.cta_button_text_color} onChange={(v:any) => setFormData({...formData, cta_button_text_color: v})} />
+                  </div>
+
+                  <ColorInput label="Texto e Borda do Botão 2 (Áreas de Atuação)" value={formData.cta_button_2_text_color} onChange={(v:any) => setFormData({...formData, cta_button_2_text_color: v})} />
                 </div>
               </div>
             </div>
@@ -1740,6 +1792,12 @@ export default function SettingsPage() {
                 </div>
               </div>
 
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem', marginTop: '0.5rem' }}>
+                <ColorInput label="Cor de Fundo da Página" value={formData.body_bg_color} onChange={(v:any) => setFormData({...formData, body_bg_color: v})} />
+                <ColorInput label="Cor de Fundo dos Cards" value={formData.card_bg_color} onChange={(v:any) => setFormData({...formData, card_bg_color: v})} />
+                <ColorInput label="Fundo dos Cards de Benefícios" value={formData.benefits_bg_color} onChange={(v:any) => setFormData({...formData, benefits_bg_color: v})} />
+              </div>
+
               <div style={{ display: 'grid', gap: '1rem' }}>
                 <div style={{ background: 'rgba(99,102,241,0.06)', borderRadius: '12px', padding: '1.25rem', border: '1px solid rgba(99,102,241,0.15)' }}>
                   <p style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1rem' }}>🎨 Paleta de Cores da Loja</p>
@@ -1889,6 +1947,33 @@ export default function SettingsPage() {
                 <ColorInput label="Fundo do Menu (Cabeçalho)" value={formData.header_bg_color} onChange={(v:any) => setFormData({...formData, header_bg_color: v})} />
                 <ColorInput label="Cor dos Ícones e Links" value={formData.header_icon_color} onChange={(v:any) => setFormData({...formData, header_icon_color: v})} />
               </div>
+
+              {isServicesOnly() && (
+                <div style={{ borderTop: '1px solid var(--border)', paddingTop: '2rem', display: 'grid', gap: '1.5rem' }}>
+                  <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '0.5rem' }}>Botão de Contato (Cabeçalho)</h4>
+                  <div className="form-group">
+                    <label>Texto do Botão</label>
+                    <input 
+                      type="text" 
+                      value={formData.header_whatsapp_btn_text} 
+                      onChange={e => setFormData({...formData, header_whatsapp_btn_text: e.target.value})} 
+                      placeholder="Ex: Falar com Especialista" 
+                    />
+                  </div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                    <ColorInput 
+                      label="Fundo do Botão (Deixe vazio para cor secundária)" 
+                      value={formData.header_whatsapp_btn_bg} 
+                      onChange={(v:any) => setFormData({...formData, header_whatsapp_btn_bg: v})} 
+                    />
+                    <ColorInput 
+                      label="Texto e Ícone (Deixe vazio para cor primária)" 
+                      value={formData.header_whatsapp_btn_text_color} 
+                      onChange={(v:any) => setFormData({...formData, header_whatsapp_btn_text_color: v})} 
+                    />
+                  </div>
+                </div>
+              )}
 
               <div style={{ borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
                 <h4 style={{ fontSize: '1rem', fontWeight: 700, marginBottom: '1rem' }}>Links do Menu (Cabeçalho)</h4>
@@ -2731,8 +2816,8 @@ function ColorInput({ label, value, onChange }: any) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
       <label>{label}</label>
       <div style={{ display: 'flex', gap: '1rem' }}>
-        <input type="color" value={value} onChange={e => onChange(e.target.value)} style={{ width: '50px', height: '50px', border: 'none', borderRadius: '8px', cursor: 'pointer' }} />
-        <input type="text" value={value} onChange={e => onChange(e.target.value)} style={{ flex: 1, fontFamily: 'monospace' }} />
+        <input type="color" value={value || '#000000'} onChange={e => onChange(e.target.value)} style={{ width: '50px', height: '50px', border: 'none', borderRadius: '8px', cursor: 'pointer' }} />
+        <input type="text" value={value || ''} onChange={e => onChange(e.target.value)} style={{ flex: 1, fontFamily: 'monospace' }} placeholder="Deixe em branco para usar o padrão" />
       </div>
     </div>
   )

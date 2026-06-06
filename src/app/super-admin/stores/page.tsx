@@ -175,6 +175,7 @@ export default function SuperAdminStores() {
     isDemo: false,
     billingEnabled: true,
     cloneFromSettings: null as any,
+    cloneFromStoreId: null as string | null,
     niche: 'Moda & Acessórios Premium',
     description: 'Loja virtual premium configurada com alta conversão.'
   })
@@ -244,11 +245,12 @@ export default function SuperAdminStores() {
       isDemo: false,
       billingEnabled: s.billing_enabled !== false,
       cloneFromSettings: s,
+      cloneFromStoreId: store.id,
       niche: s.niche || 'Moda & Acessórios Premium',
       description: s.description || 'Loja virtual premium configurada com alta conversão.'
     })
     setShowCreateModal(true)
-    toast.success(`Clonando layout e cores de ${store.name}!`)
+    toast.success(`Clonando layout, cores, produtos e banners de ${store.name}!`)
   }
 
   const handleCreateStore = async (e: React.FormEvent) => {
@@ -281,65 +283,66 @@ export default function SuperAdminStores() {
       const baseSettings = newStoreData.cloneFromSettings || {}
 
       const initialSettings = {
-        name: newStoreData.name,
-        email: newStoreData.email,
-        phone: newStoreData.whatsapp,
-        whatsapp: newStoreData.whatsapp,
-        address: baseSettings.address || "Rua Principal, 100",
-        benefits: baseSettings.benefits || [
+        address: "Rua Principal, 100",
+        benefits: [
           { title: "Entrega Rápida", subtitle: "Calcule o prazo no checkout" },
           { title: "Compra Segura", subtitle: "Ambiente 100% protegido" },
           { title: "Troca Fácil", subtitle: "7 dias para devolução" },
           { title: "Pagamento Facilitado", subtitle: "Em até 12x no cartão" }
         ],
-        facebook: baseSettings.facebook || "#",
-        instagram: baseSettings.instagram || "#",
-        subdomain: cleanSubdomain,
-        hero_style: baseSettings.hero_style || "split",
+        facebook: "#",
+        instagram: "#",
+        hero_style: "split",
         hero_title: "BEM-VINDO À " + newStoreData.name.toUpperCase(),
         promotions: {
           coupons: [],
           active_campaign: { active: false }
         },
-        store_mode: baseSettings.store_mode || "loja",
-        description: newStoreData.description || baseSettings.description || "Loja virtual premium configurada com sucesso!",
-        niche: newStoreData.niche || baseSettings.niche || "Moda & Acessórios Premium",
-        font_family: baseSettings.font_family || "Inter",
-        button_color: newStoreData.primaryColor,
-        button_style: baseSettings.button_style || "pill",
-        footer_links: baseSettings.footer_links || [
+        store_mode: "loja",
+        description: newStoreData.description || "Loja virtual premium configurada com sucesso!",
+        niche: newStoreData.niche || "Moda & Acessórios Premium",
+        font_family: "Inter",
+        button_style: "pill",
+        footer_links: [
           { url: "?view=produtos", label: "Produtos" },
           { url: "#colecao-premium", label: "Destaques" }
         ],
-        header_links: baseSettings.header_links || [
+        header_links: [
           { url: "/", label: "Home" },
           { url: "?view=produtos", label: "Produtos" }
         ],
-        header_style: baseSettings.header_style || "center_menu",
+        header_style: "center_menu",
+        hero_bg_color: "#141414",
+        hero_subtitle: "As melhores peças com os melhores preços.",
+        button_variant: "filled",
+        show_hero_text: true,
+        footer_bg_color: "#171717",
+        header_bg_color: "#bab5b5",
+        hero_title_color: "#f5f5f5",
+        sale_price_color: "#e60000",
+        top_bar_bg_color: "#000000",
+        button_text_color: "#ffffff",
+        flash_deals_title: "Ofertas do Dia",
+        footer_text_color: "#ffffff",
+        header_icon_color: "#171716",
+        show_new_arrivals: true,
+        button_hover_color: "#030303",
+        footer_description: "Loja virtual premium desenvolvida na plataforma Criar Lojas.",
+        new_arrivals_title: "Novidades",
+        normal_price_color: "#bbbbbb",
+        top_bar_text_color: "#ffffff",
+        default_price_color: "#000000",
+        hero_subtitle_color: "#d10000",
+        top_bar_announcement: "FRETE GRÁTIS PARA TODO O BRASIL EM COMPRAS ACIMA DE R$ 299",
+        ...baseSettings,
+        name: newStoreData.name,
+        email: newStoreData.email,
+        phone: newStoreData.whatsapp,
+        whatsapp: newStoreData.whatsapp,
+        subdomain: cleanSubdomain,
         layout_model: newStoreData.layoutModel,
-        hero_bg_color: baseSettings.hero_bg_color || "#141414",
-        hero_subtitle: baseSettings.hero_subtitle || "As melhores peças com os melhores preços.",
         primary_color: newStoreData.primaryColor,
-        button_variant: baseSettings.button_variant || "filled",
-        show_hero_text: baseSettings.show_hero_text !== undefined ? baseSettings.show_hero_text : true,
-        footer_bg_color: baseSettings.footer_bg_color || "#171717",
-        header_bg_color: baseSettings.header_bg_color || "#bab5b5",
-        hero_title_color: baseSettings.hero_title_color || "#f5f5f5",
-        sale_price_color: baseSettings.sale_price_color || "#e60000",
-        top_bar_bg_color: baseSettings.top_bar_bg_color || "#000000",
-        button_text_color: baseSettings.button_text_color || "#ffffff",
-        flash_deals_title: baseSettings.flash_deals_title || "Ofertas do Dia",
-        footer_text_color: baseSettings.footer_text_color || "#ffffff",
-        header_icon_color: baseSettings.header_icon_color || "#171716",
-        show_new_arrivals: baseSettings.show_new_arrivals !== undefined ? baseSettings.show_new_arrivals : true,
-        button_hover_color: baseSettings.button_hover_color || "#030303",
-        footer_description: baseSettings.footer_description || "Loja virtual premium desenvolvida na plataforma Criar Lojas.",
-        new_arrivals_title: baseSettings.new_arrivals_title || "Novidades",
-        normal_price_color: baseSettings.normal_price_color || "#bbbbbb",
-        top_bar_text_color: baseSettings.top_bar_text_color || "#ffffff",
-        default_price_color: baseSettings.default_price_color || "#000000",
-        hero_subtitle_color: baseSettings.hero_subtitle_color || "#d10000",
-        top_bar_announcement: baseSettings.top_bar_announcement || "FRETE GRÁTIS PARA TODO O BRASIL EM COMPRAS ACIMA DE R$ 299",
+        button_color: newStoreData.primaryColor,
         active: true,
         is_demo: newStoreData.isDemo,
         billing_enabled: newStoreData.billingEnabled,
@@ -359,6 +362,57 @@ export default function SuperAdminStores() {
 
       if (insertErr) throw insertErr
 
+      // Clonar Produtos e Categorias se houver um cloneFromStoreId definido
+      if (newStoreData.cloneFromStoreId) {
+        // 1. Buscar e clonar Categorias
+        const { data: originalCategories } = await supabase
+          .from('categories')
+          .select('*')
+          .eq('store_id', newStoreData.cloneFromStoreId)
+
+        if (originalCategories && originalCategories.length > 0) {
+          const categoriesToInsert = originalCategories.map(cat => ({
+            name: cat.name,
+            image_url: cat.image_url,
+            store_id: newStoreDataRes.id
+          }))
+          await supabase.from('categories').insert(categoriesToInsert)
+        }
+
+        // 2. Buscar e clonar Produtos
+        const { data: originalProducts } = await supabase
+          .from('products')
+          .select('*')
+          .eq('store_id', newStoreData.cloneFromStoreId)
+
+        if (originalProducts && originalProducts.length > 0) {
+          const productsToInsert = originalProducts.map(prod => ({
+            store_id: newStoreDataRes.id,
+            name: prod.name,
+            slug: prod.slug,
+            price: prod.price,
+            short_description: prod.short_description,
+            description: prod.description,
+            stock_quantity: prod.stock_quantity,
+            sku: prod.sku,
+            category: prod.category,
+            sale_price: prod.sale_price,
+            weight: prod.weight,
+            length: prod.length,
+            width: prod.width,
+            height: prod.height,
+            is_active: prod.is_active,
+            is_featured: prod.is_featured,
+            is_service: prod.is_service,
+            images: prod.images,
+            has_variations: prod.has_variations,
+            variation_options: prod.variation_options,
+            variation_skus: prod.variation_skus
+          }))
+          await supabase.from('products').insert(productsToInsert)
+        }
+      }
+
       setStores(prev => [newStoreDataRes, ...prev])
       toast.success(`Loja criada com sucesso! Acesse em ${cleanSubdomain}${domainSuffix}`)
       setShowCreateModal(false)
@@ -375,16 +429,18 @@ export default function SuperAdminStores() {
         isDemo: false,
         billingEnabled: true,
         cloneFromSettings: null,
+        cloneFromStoreId: null,
         niche: 'Moda & Acessórios Premium',
         description: 'Loja virtual premium configurada com alta conversão.'
       })
     } catch (error: any) {
-      console.error('Erro ao criar loja:', error.message)
+      console.error('Erro ao criar/clonar loja:', error.message)
       toast.error('Erro ao cadastrar nova loja no banco de dados.')
     } finally {
       setCreatingStore(false)
     }
   }
+
 
   const filteredStores = stores.filter(store => {
     const matchesSearch = !searchTerm || 

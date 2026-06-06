@@ -67,8 +67,12 @@ export default function ProductActions({
     }
   }, [currentSkuObj])
 
-  const currentPrice = currentSkuObj ? currentSkuObj.price : (product?.sale_price ? parseFloat(product.sale_price) : parseFloat(product?.price || 0))
-  const originalPrice = currentSkuObj ? null : (product?.sale_price ? parseFloat(product.price) : null)
+  const currentPrice = currentSkuObj 
+    ? (currentSkuObj.sale_price ? parseFloat(currentSkuObj.sale_price) : parseFloat(currentSkuObj.price || 0))
+    : (product?.sale_price ? parseFloat(product.sale_price) : parseFloat(product?.price || 0))
+  const originalPrice = currentSkuObj 
+    ? (currentSkuObj.sale_price ? parseFloat(currentSkuObj.price) : null)
+    : (product?.sale_price ? parseFloat(product.price) : null)
   const currentStock = product?.has_variations && currentSkuObj ? (parseInt(currentSkuObj.stock_quantity) || 0) : (parseInt(product?.stock_quantity) || 0)
   
   const priceParts = currentPrice.toFixed(2).split('.')

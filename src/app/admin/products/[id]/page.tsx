@@ -680,7 +680,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
             </div>
             <div style={{ display: 'grid', gap: '1rem' }}>
               {variationSkus.map((skuObj, skuIdx) => (
-                <div key={skuIdx} style={{ display: 'grid', gridTemplateColumns: '1.5fr 1.2fr 1fr 1fr 2fr auto', gap: '1.5rem', alignItems: 'flex-end', background: 'var(--background)', padding: '1.5rem', border: '1px solid var(--border)', borderRadius: '12px' }}>
+                <div key={skuIdx} style={{ display: 'grid', gridTemplateColumns: '1.5fr 1.2fr 1fr 1fr 1fr 2fr auto', gap: '1.5rem', alignItems: 'flex-end', background: 'var(--background)', padding: '1.5rem', border: '1px solid var(--border)', borderRadius: '12px' }}>
                   <div className="form-group" style={{ height: '45px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                     <label style={{ fontSize: '0.75rem', color: 'var(--muted)', marginBottom: '0.25rem' }}>Variação</label>
                     <div style={{ fontWeight: 800, fontSize: '1rem' }}>
@@ -711,6 +711,20 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                         newS[skuIdx].price = parseFloat(e.target.value) || 0
                         setVariationSkus(newS)
                       }}
+                    />
+                  </div>
+                  <div className="form-group" style={{ justifyContent: 'flex-end' }}>
+                    <label style={{ lineHeight: 1.2, marginBottom: '0.25rem' }}>Promocional (R$)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={skuObj.sale_price || ''}
+                      onChange={e => {
+                        const newS = [...variationSkus]
+                        newS[skuIdx].sale_price = e.target.value ? parseFloat(e.target.value) : null
+                        setVariationSkus(newS)
+                      }}
+                      placeholder="Sem desc."
                     />
                   </div>
                   <div className="form-group" style={{ justifyContent: 'flex-end' }}>
