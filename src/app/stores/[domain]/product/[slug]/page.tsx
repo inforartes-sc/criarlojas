@@ -9,6 +9,7 @@ import ProductShareActions from '@/components/Storefront/ProductShareActions'
 import ProductCard from '@/components/Storefront/ProductCard'
 import StoreFooter from '@/components/Storefront/StoreFooter'
 import ProductReviews from '@/components/Storefront/ProductReviews'
+import ProductShippingCalculator from '@/components/Storefront/ProductShippingCalculator'
 
 export const dynamic = 'force-dynamic'
 
@@ -281,26 +282,17 @@ export default async function ProductPage({
             {storeMode !== 'catalogo' && layoutModel !== 'lawyer' && layoutModel !== 'advocacia' && layoutModel !== 'advocacy' && (
               <div className="product-extra-widgets-grid" style={{ marginTop: '1.5rem', marginBottom: '0.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 {/* Calcular Frete */}
-                <div style={{ padding: '1.25rem', backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : '#f9fafb', borderRadius: '12px', border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #eaeaea', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                  <div>
-                    <p style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: '0.75rem', color: isDark ? '#fff' : '#111', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Truck size={18} color={primaryColor} /> Calcular Frete
-                    </p>
-                    <div style={{ display: 'flex', gap: '0.4rem' }}>
-                      <input 
-                        type="text" 
-                        placeholder="00000-000" 
-                        style={{ width: '100%', minWidth: 0, padding: '0.7rem 0.8rem', borderRadius: buttonRadius, border: '1px solid #ddd', outline: 'none', fontSize: '0.85rem', backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#fff', color: isDark ? '#fff' : '#000' }} 
-                      />
-                      <button 
-                        style={{ padding: '0.7rem 1rem', backgroundColor: isDark ? '#fff' : '#111', color: isDark ? '#000' : '#fff', border: 'none', borderRadius: buttonRadius, fontWeight: 700, cursor: 'pointer', fontSize: '0.85rem' }}
-                      >
-                        OK
-                      </button>
-                    </div>
-                  </div>
-                  <Link href="https://buscacepinter.correios.com.br/app/endereco/index.php" target="_blank" style={{ fontSize: '0.75rem', color: primaryColor, textDecoration: 'underline', display: 'inline-block', marginTop: '0.75rem', fontWeight: 600 }}>Não sei meu CEP</Link>
-                </div>
+                <ProductShippingCalculator 
+                  storeId={store.id}
+                  productPrice={displayPrice}
+                  productWeight={parseFloat(product.weight || 0)}
+                  productLength={parseFloat(product.length || 0)}
+                  productWidth={parseFloat(product.width || 0)}
+                  productHeight={parseFloat(product.height || 0)}
+                  buttonRadius={buttonRadius}
+                  primaryColor={primaryColor}
+                  isDark={isDark}
+                />
 
                 {/* Cupom de Desconto */}
                 <div style={{ padding: '1.25rem', backgroundColor: isDark ? 'rgba(255,255,255,0.03)' : '#f9fafb', borderRadius: '12px', border: isDark ? '1px solid rgba(255,255,255,0.1)' : '1px solid #eaeaea', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>

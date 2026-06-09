@@ -7,6 +7,7 @@ import toast from 'react-hot-toast'
 import { getCart, updateQuantity, removeFromCart, CartItem } from '@/lib/cartStore'
 import StoreHeader from './StoreHeader'
 import StoreFooter from './StoreFooter'
+import { calculateShippingAction } from '@/app/actions/shipping'
 
 interface CartClientProps {
   store: any
@@ -28,6 +29,7 @@ export default function CartClient({ store, categories }: CartClientProps) {
   const [cepInput, setCepInput] = useState('')
   const [shippingOptions, setShippingOptions] = useState<any[]>([])
   const [selectedShippingMethod, setSelectedShippingMethod] = useState<any>(null)
+  const [calculatingShipping, setCalculatingShipping] = useState(false)
 
   useEffect(() => {
     setCartItems(getCart())
@@ -65,27 +67,41 @@ export default function CartClient({ store, categories }: CartClientProps) {
   const shippingCost = selectedShippingMethod ? selectedShippingMethod.cost : baseShippingCost
   const finalTotal = Math.max(0, subtotal - discountAmount + (subtotal > 0 ? shippingCost : 0))
 
-  const handleCalculateShipping = () => {
+  const handleCalculateShipping = async () => {
     if (!cepInput.trim() || cepInput.replace(/\D/g, '').length !== 8) {
       return toast.error('Digite um CEP válido com 8 dígitos.')
     }
 
-    if (settings.free_shipping_threshold && subtotal >= settings.free_shipping_threshold) {
-      const freeOption = { id: 'free', label: 'Frete Grátis', cost: 0, deadline: '3 a 5 dias úteis' }
-      setShippingOptions([freeOption])
-      setSelectedShippingMethod(freeOption)
-      toast.success('Parabéns! Você ganhou Frete Grátis!')
-      return
-    }
+    setCalculatingShipping(true)
+    try {
+      const formattedItems = cartItems.map(item => ({
+        price: item.price,
+        quantity: item.quantity,
+        weight: (item as any).weight,
+        length: (item as any).length,
+        width: (item as any).width,
+        height: (item as any).height
+      }))
 
-    const fixedCost = settings.fixed_shipping_cost || 15
-    const options = [
-      { id: 'pac', label: 'Entrega Padrão (PAC)', cost: fixedCost, deadline: '5 a 8 dias úteis' },
-      { id: 'sedex', label: 'Entrega Expressa (Sedex)', cost: fixedCost + 18.50, deadline: '2 a 3 dias úteis' }
-    ]
-    setShippingOptions(options)
-    setSelectedShippingMethod(options[0])
-    toast.success('Opções de frete calculadas para o CEP ' + cepInput)
+      const res = await calculateShippingAction({
+        storeId: store.id,
+        cep: cepInput,
+        items: formattedItems
+      })
+
+      if (res.success && res.options) {
+        setShippingOptions(res.options)
+        setSelectedShippingMethod(res.options[0])
+        toast.success('Opções de frete calculadas com sucesso!')
+      } else {
+        toast.error(res.error || 'Erro ao calcular frete.')
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error('Erro na conexão com o servidor de frete.')
+    } finally {
+      setCalculatingShipping(false)
+    }
   }
 
   const handleApplyCoupon = () => {
@@ -259,9 +275,10 @@ export default function CartClient({ store, categories }: CartClientProps) {
                 <button 
                   type="button" 
                   onClick={handleCalculateShipping} 
-                  style={{ padding: '0.85rem 1.5rem', backgroundColor: '#0f172a', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}
+                  disabled={calculatingShipping}
+                  style={{ padding: '0.85rem 1.5rem', backgroundColor: '#0f172a', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: calculatingShipping ? 'default' : 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', opacity: calculatingShipping ? 0.7 : 1 }}
                 >
-                  Calcular
+                  {calculatingShipping ? 'Calculando...' : 'Calcular'}
                 </button>
               </div>
 

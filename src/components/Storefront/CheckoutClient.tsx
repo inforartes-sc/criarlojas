@@ -10,6 +10,7 @@ import { processCheckoutAction } from '@/app/actions/checkout'
 import { loginCustomerAction, updateCustomerPasswordAction, registerCustomerAction } from '@/app/actions/auth'
 import StoreHeader from './StoreHeader'
 import StoreFooter from './StoreFooter'
+import { calculateShippingAction } from '@/app/actions/shipping'
 
 interface CheckoutClientProps {
   store: any
@@ -64,6 +65,53 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
   const [couponCode, setCouponCode] = useState('')
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null)
 
+  // Shipping Calculation State
+  const [shippingOptions, setShippingOptions] = useState<any[]>([])
+  const [selectedShippingMethod, setSelectedShippingMethod] = useState<any>(null)
+  const [calculatingShipping, setCalculatingShipping] = useState(false)
+
+  useEffect(() => {
+    const cleanCep = formData.cep.replace(/\D/g, '')
+    if (cleanCep.length === 8) {
+      calculateShipping(cleanCep)
+    } else {
+      setShippingOptions([])
+      setSelectedShippingMethod(null)
+    }
+  }, [formData.cep])
+
+  const calculateShipping = async (cep: string) => {
+    setCalculatingShipping(true)
+    try {
+      const formattedItems = cartItems.map(item => ({
+        price: item.price,
+        quantity: item.quantity,
+        weight: (item as any).weight,
+        length: (item as any).length,
+        width: (item as any).width,
+        height: (item as any).height
+      }))
+
+      const res = await calculateShippingAction({
+        storeId: store.id,
+        cep,
+        items: formattedItems
+      })
+
+      if (res.success && res.options) {
+        setShippingOptions(res.options)
+        setSelectedShippingMethod(res.options[0])
+      } else {
+        toast.error(res.error || 'Erro ao calcular frete.')
+      }
+    } catch (err) {
+      console.error(err)
+      toast.error('Erro ao calcular opções de frete.')
+    } finally {
+      setCalculatingShipping(false)
+    }
+  }
+
   useEffect(() => {
     setCartItems(getCart())
     const savedUser = localStorage.getItem('store_current_user')
@@ -112,7 +160,9 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
     pixDiscount = (subtotal - discountAmount) * (settings.pix_discount_percentage / 100)
   }
 
-  const shippingCost = settings.free_shipping_threshold && subtotal >= settings.free_shipping_threshold ? 0 : (settings.fixed_shipping_cost || 15)
+  const shippingCost = selectedShippingMethod 
+    ? selectedShippingMethod.cost 
+    : (settings.free_shipping_threshold && subtotal >= settings.free_shipping_threshold ? 0 : (settings.fixed_shipping_cost || 15))
   const finalTotal = Math.max(0, subtotal - discountAmount - pixDiscount + shippingCost)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -629,6 +679,40 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
                     </div>
                   </div>
                 </div>
+
+                {/* Seleção de Frete */}
+                {shippingOptions.length > 0 && (
+                  <div style={{ marginTop: '2rem', borderTop: '1px solid #f1f5f9', paddingTop: '2rem' }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <Truck size={20} color={primaryColor} /> Modalidade de Envio
+                    </h3>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                      {shippingOptions.map(option => {
+                        const isSelected = selectedShippingMethod?.id === option.id
+                        return (
+                          <div 
+                            key={option.id}
+                            onClick={() => setSelectedShippingMethod(option)}
+                            style={{ padding: '1.2rem', borderRadius: '14px', border: isSelected ? `2px solid ${primaryColor}` : '1px solid #e2e8f0', backgroundColor: isSelected ? `${primaryColor}08` : '#f8fafc', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', transition: 'all 0.2s ease' }}
+                          >
+                            <div>
+                              <div style={{ fontWeight: 800, color: isSelected ? primaryColor : '#0f172a', fontSize: '0.95rem', marginBottom: '0.2rem' }}>{option.label}</div>
+                              <div style={{ fontSize: '0.8rem', color: '#64748b' }}>Prazo estimado: {option.deadline}</div>
+                            </div>
+                            <div style={{ fontWeight: 900, fontSize: '1.1rem', color: option.cost === 0 ? '#10b981' : '#0f172a' }}>
+                              {option.cost === 0 ? 'Grátis' : `R$ ${option.cost.toFixed(2).replace('.', ',')}`}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+                {calculatingShipping && (
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '1.5rem', color: '#64748b', fontSize: '0.9rem', fontWeight: 600 }}>
+                    <Loader2 className="animate-spin" size={16} /> Calculando opções de frete...
+                  </div>
+                )}
               </div>
 
               {/* 2. FORMA DE PAGAMENTO */}

@@ -41,6 +41,22 @@ export function getAbsoluteUrl(subdomain: string, path: string = ''): string {
     return `http://${subdomain}.localhost:3000${path}`
   }
   const protocol = window.location.protocol
+  const host = window.location.host
+  const cleanHost = host.split(':')[0]
+
+  // Check if we are currently on a custom domain
+  const mainDomains = [
+    'criarlojas.com.br',
+    'sistemacriarlojas.vercel.app',
+    'localhost',
+    '127.0.0.1'
+  ]
+  const isCustomDomain = !mainDomains.some(domain => cleanHost === domain || cleanHost.endsWith('.' + domain))
+
+  if (isCustomDomain) {
+    return `${protocol}//${host}${path}`
+  }
+
   const fullDomain = getFullDomain(subdomain)
   return `${protocol}//${fullDomain}${path}`
 }
