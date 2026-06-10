@@ -73,7 +73,7 @@ export async function calculateShippingAction({
           Quantity: item.quantity
         }))
 
-        const response = await fetch('https://api.frenet.com.br/shipping/info', {
+        const response = await fetch('https://api.frenet.com.br/shipping/quote', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
