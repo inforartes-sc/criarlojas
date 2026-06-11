@@ -60,6 +60,7 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
   const [authPhone, setAuthPhone] = useState('')
   const [authLoading, setAuthLoading] = useState(false)
   const [currentUser, setCurrentUser] = useState<any>(null)
+  const [abandonedCartId, setAbandonedCartId] = useState<string | null>(null)
 
   // Coupon State
   const [couponCode, setCouponCode] = useState('')
@@ -196,8 +197,6 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
     ? selectedShippingMethod.cost 
     : (settings.free_shipping_threshold && subtotal >= settings.free_shipping_threshold ? 0 : (settings.fixed_shipping_cost || 15))
   const finalTotal = Math.max(0, subtotal - discountAmount - pixDiscount + shippingCost)
-
-  const [abandonedCartId, setAbandonedCartId] = useState<string | null>(null)
 
   const saveAbandonedCartDraft = async (updatedData = formData) => {
     if ((updatedData.name || updatedData.phone || updatedData.email) && cartItems.length > 0) {
