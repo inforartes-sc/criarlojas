@@ -31,6 +31,17 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [favoriteItems, setFavoriteItems] = useState<FavoriteItem[]>([])
 
+  const handleWhatsappClick = () => {
+    if (!settings.whatsapp) {
+      alert('WhatsApp não configurado pelo lojista.')
+      return
+    }
+    const cleanPhone = settings.whatsapp.replace(/\D/g, '')
+    const formattedPhone = cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`
+    const text = encodeURIComponent(`Olá! Acessei o site da ${store.name || 'loja'} e gostaria de falar com um especialista.`)
+    window.open(`https://wa.me/${formattedPhone}?text=${text}`, '_blank')
+  }
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const path = window.location.pathname
@@ -393,7 +404,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
               <div className="desktop-only-icons" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                 {!isCatalogo && (
                   <>
-                    <div style={{ cursor: 'pointer' }} onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g,'')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')} title="WhatsApp">
+                    <div style={{ cursor: 'pointer' }} onClick={handleWhatsappClick} title="WhatsApp">
                       <WhatsappIcon size={22} color={iconColor} />
                     </div>
                     <div style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/account'} title="Minha Conta">
@@ -514,7 +525,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
               <div className="desktop-only-icons" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                 {!isCatalogo && (
                   <>
-                    <div style={{ cursor: 'pointer' }} onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g,'')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')} title="WhatsApp">
+                    <div style={{ cursor: 'pointer' }} onClick={handleWhatsappClick} title="WhatsApp">
                       <WhatsappIcon size={20} color={iconColor} />
                     </div>
                     <div style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/account'} title="Minha Conta">
@@ -628,7 +639,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                   <Menu size={24} color={iconColor} style={{ cursor: 'pointer' }} onClick={() => setIsMenuOpen(true)} />
                 ) : (
                   <>
-                    <div style={{ cursor: 'pointer' }} onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g,'')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')} title="WhatsApp">
+                    <div style={{ cursor: 'pointer' }} onClick={handleWhatsappClick} title="WhatsApp">
                       <WhatsappIcon size={20} color={iconColor} />
                     </div>
                     <div style={{ cursor: 'pointer' }} onClick={() => window.location.href = '/account'} title="Minha Conta">
@@ -750,7 +761,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                   <>
                     {isApenasServico ? (
                       <button
-                        onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')}
+                        onClick={handleWhatsappClick}
                         style={{
                           display: 'flex',
                           alignItems: 'center',
@@ -782,7 +793,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                         <span>{whatsappBtnText}</span>
                       </button>
                     ) : (
-                      <div style={{ cursor: 'pointer' }} onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')} title="WhatsApp">
+                      <div style={{ cursor: 'pointer' }} onClick={handleWhatsappClick} title="WhatsApp">
                         <WhatsappIcon size={20} color={iconColor} />
                       </div>
                     )}
@@ -913,7 +924,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                     <>
                       {isApenasServico ? (
                         <button
-                          onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')}
+                          onClick={handleWhatsappClick}
                           style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -945,7 +956,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                           <span>{whatsappBtnText}</span>
                         </button>
                       ) : (
-                        <div style={{ cursor: 'pointer' }} onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')} title="WhatsApp">
+                        <div style={{ cursor: 'pointer' }} onClick={handleWhatsappClick} title="WhatsApp">
                           <WhatsappIcon size={22} color={iconColor} />
                         </div>
                       )}
@@ -1007,7 +1018,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                     <>
                       {isApenasServico ? (
                         <button
-                          onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')}
+                          onClick={handleWhatsappClick}
                           style={{
                             display: 'flex',
                             alignItems: 'center',
@@ -1039,7 +1050,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                           <span>{whatsappBtnText}</span>
                         </button>
                       ) : (
-                        <div style={{ cursor: 'pointer' }} onClick={() => settings.whatsapp ? window.open(`https://wa.me/${settings.whatsapp.replace(/\D/g, '')}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')} title="WhatsApp">
+                        <div style={{ cursor: 'pointer' }} onClick={handleWhatsappClick} title="WhatsApp">
                           <WhatsappIcon size={22} color={iconColor} />
                         </div>
                       )}

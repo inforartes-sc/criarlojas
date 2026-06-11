@@ -243,7 +243,7 @@ export default function SaaSCommercialPortal() {
       priceMonthly: 29.90,
       priceAnnual: 23.92, // 20% OFF
       desc: 'Ideal para quem deseja vender pelo catálogo do WhatsApp de forma rápida.',
-      features: ['Catálogo online no WhatsApp', 'Produtos cadastrados ilimitados', 'Domínio personalizado ou grátis', 'Certificado SSL incluso', '[-] Checkout integrado na loja', '[-] Cupons de Desconto e Pixels', '[-] Avaliações de Produtos (Reviews)', '[-] Campanhas de Promoções'],
+      features: ['Catálogo online no WhatsApp', 'Produtos cadastrados ilimitados', 'Domínio personalizado ou grátis', 'Certificado SSL incluso', '[-] Checkout integrado na loja', '[-] Cupons de Desconto e Pixels', '[-] Avaliações de Produtos (Reviews)', '[-] Campanhas de Promoções', '[-] Botão do WhatsApp Personalizado'],
       popular: false,
       buttonText: 'Contratar Plano Básico'
     },
@@ -253,7 +253,7 @@ export default function SaaSCommercialPortal() {
       priceMonthly: 34.90,
       priceAnnual: 27.92, // 20% OFF
       desc: 'Loja virtual completa com checkout integrado, pagamento e frete.',
-      features: ['Loja com Checkout Integrado', 'Integração Correios e Melhor Envio', 'Mercado Pago e outros gateways', 'Produtos cadastrados ilimitados', 'Domínio personalizado ou grátis', 'Certificado SSL incluso', '[-] Cupons de Desconto e Pixels', '[-] Avaliações de Produtos (Reviews)'],
+      features: ['Loja com Checkout Integrado', 'Integração Correios e Melhor Envio', 'Mercado Pago e outros gateways', 'Produtos cadastrados ilimitados', 'Domínio personalizado ou grátis', 'Certificado SSL incluso', 'Botão do WhatsApp Personalizado', '[-] Cupons de Desconto e Pixels', '[-] Avaliações de Produtos (Reviews)'],
       popular: true,
       buttonText: 'Contratar Plano Pro'
     },
@@ -263,7 +263,7 @@ export default function SaaSCommercialPortal() {
       priceMonthly: 47.90,
       priceAnnual: 38.32, // 20% OFF
       desc: 'Tudo do Pro mais ferramentas completas de marketing e reviews para decolar.',
-      features: ['Tudo do Plano Pro incluso', 'Cupons de Desconto ilimitados', 'Pixels (Facebook, Google, etc)', 'Avaliações de Clientes (Reviews)', 'Campanhas de Promoções', 'Suporte Prioritário VIP', 'Produtos cadastrados ilimitados'],
+      features: ['Tudo do Plano Pro incluso', 'Cupons de Desconto ilimitados', 'Pixels (Facebook, Google, etc)', 'Avaliações de Clientes (Reviews)', 'Campanhas de Promoções', 'Suporte Prioritário VIP', 'Produtos cadastrados ilimitados', 'Botão do WhatsApp Personalizado'],
       popular: false,
       buttonText: 'Contratar Plano Premium'
     }
@@ -284,13 +284,19 @@ export default function SaaSCommercialPortal() {
         if (data && data.settings && data.settings.plans && Array.isArray(data.settings.plans)) {
           const dbPlans = data.settings.plans.map((p: any) => {
             const price = Number(p.price || 0)
+            const features = p.features || []
+            const hasFeature = features.some((f: any) => typeof f === 'string' && f.includes('Botão do WhatsApp Personalizado'));
+            const updatedFeatures = hasFeature ? features : [
+              ...features,
+              p.id === 'basic' ? '[-] Botão do WhatsApp Personalizado' : 'Botão do WhatsApp Personalizado'
+            ];
             return {
               id: p.id,
               name: p.name,
               priceMonthly: price,
               priceAnnual: Number((price * 0.8).toFixed(2)),
               desc: p.desc || '',
-              features: p.features || [],
+              features: updatedFeatures,
               popular: p.popular || false,
               buttonText: p.buttonText || `Contratar ${p.name}`
             }
@@ -1312,6 +1318,12 @@ export default function SaaSCommercialPortal() {
                       <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Campanhas de Promoções (Ofertas)</td>
                       <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
                       <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Botão do WhatsApp Personalizado</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
                       <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
                     </tr>
 

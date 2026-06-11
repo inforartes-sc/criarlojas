@@ -80,6 +80,17 @@ const migrations: { label: string; sql: string }[] = [
   { label: 'custom_invoices.create_table', sql: `CREATE TABLE IF NOT EXISTS custom_invoices (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), store_id UUID REFERENCES stores(id) ON DELETE CASCADE, title TEXT NOT NULL, description TEXT, amount NUMERIC(10,2) NOT NULL, due_date DATE NOT NULL, status TEXT NOT NULL DEFAULT 'pending', payment_method TEXT, paid_at TIMESTAMP WITH TIME ZONE, created_at TIMESTAMP WITH TIME ZONE DEFAULT now())` },
   { label: 'custom_invoices.rls', sql: `ALTER TABLE custom_invoices ENABLE ROW LEVEL SECURITY` },
   { label: 'custom_invoices.policy', sql: `DROP POLICY IF EXISTS "Permitir tudo para todos" ON custom_invoices; CREATE POLICY "Permitir tudo para todos" ON custom_invoices FOR ALL USING (true) WITH CHECK (true);` },
+  { label: 'service_clients.create_table', sql: `CREATE TABLE IF NOT EXISTS service_clients (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), store_id UUID REFERENCES stores(id) ON DELETE CASCADE, name TEXT NOT NULL, email TEXT, phone TEXT, document TEXT, address TEXT, created_at TIMESTAMP WITH TIME ZONE DEFAULT now())` },
+  { label: 'service_clients.rls', sql: `ALTER TABLE service_clients ENABLE ROW LEVEL SECURITY` },
+  { label: 'service_clients.policy', sql: `DROP POLICY IF EXISTS "Permitir tudo para todos" ON service_clients; CREATE POLICY "Permitir tudo para todos" ON service_clients FOR ALL USING (true) WITH CHECK (true);` },
+  { label: 'custom_invoices.add_client_id', sql: `ALTER TABLE custom_invoices ADD COLUMN IF NOT EXISTS client_id UUID REFERENCES service_clients(id) ON DELETE SET NULL` },
+  { label: 'financial_entries.create_table', sql: `CREATE TABLE IF NOT EXISTS financial_entries (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), store_id UUID REFERENCES stores(id) ON DELETE CASCADE, type TEXT NOT NULL, description TEXT NOT NULL, amount NUMERIC(10,2) NOT NULL, due_date DATE NOT NULL, status TEXT NOT NULL DEFAULT 'pending', category TEXT, client_id UUID REFERENCES service_clients(id) ON DELETE SET NULL, payment_method TEXT, paid_at TIMESTAMP WITH TIME ZONE, created_at TIMESTAMP WITH TIME ZONE DEFAULT now())` },
+  { label: 'financial_entries.rls', sql: `ALTER TABLE financial_entries ENABLE ROW LEVEL SECURITY` },
+  { label: 'financial_entries.policy', sql: `DROP POLICY IF EXISTS "Permitir tudo para todos" ON financial_entries; CREATE POLICY "Permitir tudo para todos" ON financial_entries FOR ALL USING (true) WITH CHECK (true);` },
+  { label: 'financial_entries.add_invoice_id', sql: `ALTER TABLE financial_entries ADD COLUMN IF NOT EXISTS invoice_id UUID REFERENCES custom_invoices(id) ON DELETE CASCADE` },
+  { label: 'abandoned_carts.create_table', sql: `CREATE TABLE IF NOT EXISTS abandoned_carts (id UUID PRIMARY KEY DEFAULT gen_random_uuid(), store_id UUID REFERENCES stores(id) ON DELETE CASCADE, customer_name TEXT, customer_phone TEXT, customer_email TEXT, items JSONB DEFAULT '[]'::jsonb, total_amount NUMERIC(10,2), recovered BOOLEAN DEFAULT false, created_at TIMESTAMP WITH TIME ZONE DEFAULT now())` },
+  { label: 'abandoned_carts.rls', sql: `ALTER TABLE abandoned_carts ENABLE ROW LEVEL SECURITY` },
+  { label: 'abandoned_carts.policy', sql: `DROP POLICY IF EXISTS "Permitir tudo para todos" ON abandoned_carts; CREATE POLICY "Permitir tudo para todos" ON abandoned_carts FOR ALL USING (true) WITH CHECK (true);` },
   { label: 'pgrst.reload', sql: `NOTIFY pgrst, 'reload schema'` },
 ]
 

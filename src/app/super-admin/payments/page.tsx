@@ -103,6 +103,7 @@ export default function SuperAdminPayments() {
       const { data, error } = await supabase
         .from('custom_invoices')
         .select('*, stores(name, subdomain, settings)')
+        .is('client_id', null)
         .order('created_at', { ascending: false })
 
       if (error) {

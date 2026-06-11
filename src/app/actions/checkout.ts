@@ -11,7 +11,8 @@ export async function processCheckoutAction({
   paymentMethod,
   finalTotal,
   cartItems,
-  appliedCouponCode
+  appliedCouponCode,
+  abandonedCartId
 }: {
   storeId: string
   name: string
@@ -22,6 +23,7 @@ export async function processCheckoutAction({
   finalTotal: number
   cartItems: any[]
   appliedCouponCode: string | null
+  abandonedCartId?: string | null
 }) {
   const supabase = getAdminSupabase()
 
@@ -108,9 +110,68 @@ export async function processCheckoutAction({
       }
     }
 
+    // 5. Mark abandoned cart as recovered if applicable
+    if (abandonedCartId) {
+      await supabase.from('abandoned_carts').update({ recovered: true }).eq('id', abandonedCartId)
+    }
+
     return { success: true, order: orderObj }
   } catch (error: any) {
     console.error('Server Action Checkout Error:', error)
     return { success: false, error: error.message || 'Erro desconhecido ao processar pedido' }
+  }
+}
+
+export async function saveAbandonedCartAction({
+  id,
+  storeId,
+  name,
+  email,
+  phone,
+  cartItems,
+  totalAmount
+}: {
+  id?: string | null
+  storeId: string
+  name: string
+  email: string
+  phone: string
+  cartItems: any[]
+  totalAmount: number
+}) {
+  const supabase = getAdminSupabase()
+  try {
+    const cartData = {
+      customer_name: name.trim(),
+      customer_email: email.trim(),
+      customer_phone: phone.trim(),
+      items: cartItems,
+      total_amount: totalAmount,
+    }
+
+    if (id) {
+      const { data, error } = await supabase
+        .from('abandoned_carts')
+        .update(cartData)
+        .eq('id', id)
+        .select()
+        .single()
+      if (error) throw error
+      return { success: true, id: data.id }
+    } else {
+      const { data, error } = await supabase
+        .from('abandoned_carts')
+        .insert({
+          store_id: storeId,
+          ...cartData
+        })
+        .select()
+        .single()
+      if (error) throw error
+      return { success: true, id: data.id }
+    }
+  } catch (error: any) {
+    console.error('Error saving abandoned cart:', error)
+    return { success: false, error: error.message }
   }
 }

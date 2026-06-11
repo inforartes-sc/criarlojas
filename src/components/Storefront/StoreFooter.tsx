@@ -139,6 +139,13 @@ export default function StoreFooter({ store, settings, primaryColor, buttonRadiu
 
         <div style={{ borderTop: `1px solid ${settings.footer_text_color ? settings.footer_text_color + '22' : '#222'}`, paddingTop: '2rem', display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap', gap: '2rem', color: settings.footer_text_color ? settings.footer_text_color + '88' : '#555', fontSize: '0.75rem', textAlign: 'center' }}>
           <span>© {new Date().getFullYear()} {store.name}. Todos os direitos reservados.</span>
+          {settings.show_doc_in_footer && (settings.cnpj || settings.cpf) && (
+            <span>
+              {settings.cnpj && `CNPJ: ${settings.cnpj}`}
+              {settings.cnpj && settings.cpf && ' | '}
+              {settings.cpf && `CPF: ${settings.cpf}`}
+            </span>
+          )}
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <ShieldCheck size={18} />
             <span>Pagamento 100% Seguro</span>

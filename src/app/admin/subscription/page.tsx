@@ -180,6 +180,7 @@ export default function SubscriptionPage() {
         .from('custom_invoices')
         .select('*')
         .eq('store_id', authStore.id)
+        .is('client_id', null)
         .order('created_at', { ascending: false })
 
       if (customError) {

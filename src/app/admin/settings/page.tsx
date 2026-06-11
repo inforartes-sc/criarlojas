@@ -11,7 +11,7 @@ import { getDomainSuffix } from '@/lib/getDomainSuffix'
 export default function SettingsPage() {
   const { store: authStore } = useAdminAuth()
   const storeId = authStore?.id || ''
-  const plan = authStore?.settings?.plan || 'basic'
+  const plan = authStore?.plan || authStore?.settings?.plan || 'basic'
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState('nicho')
@@ -110,14 +110,19 @@ export default function SettingsPage() {
     instagram: '',
     facebook: '',
     phone: '',
-    email: '',
     address: '',
+    cnpj: '',
+    cpf: '',
+    show_doc_in_footer: false,
     admin_user: '',
     admin_password: '',
     gtm_id: '',
     ga_id: '',
     google_ads_id: '',
     fb_pixel_id: '',
+    whatsapp_floating_enabled: true,
+    whatsapp_floating_title: 'Suporte WhatsApp',
+    whatsapp_agents: [],
     // Modelo Advocacia fields
     hero_badge: 'Advocacia & Assessoria Jurídica',
     services_title: 'Nossas Especialidades Jurídicas',
@@ -299,12 +304,18 @@ export default function SettingsPage() {
         phone: s.phone || '',
         email: s.email || '',
         address: s.address || '',
+        cnpj: s.cnpj || '',
+        cpf: s.cpf || '',
+        show_doc_in_footer: s.show_doc_in_footer !== undefined ? s.show_doc_in_footer : false,
         admin_user: s.admin_user || data.email || '',
         admin_password: s.admin_password || 'senha123',
         gtm_id: s.gtm_id || '',
         ga_id: s.ga_id || '',
         google_ads_id: s.google_ads_id || '',
         fb_pixel_id: s.fb_pixel_id || '',
+        whatsapp_floating_enabled: s.whatsapp_floating_enabled !== undefined ? s.whatsapp_floating_enabled : true,
+        whatsapp_floating_title: s.whatsapp_floating_title || 'Suporte WhatsApp',
+        whatsapp_agents: s.whatsapp_agents || [],
         // Modelo Advocacia loaders
         hero_badge: s.hero_badge || 'Advocacia & Assessoria Jurídica',
         services_title: s.services_title || 'Nossas Especialidades Jurídicas',
@@ -968,6 +979,7 @@ export default function SettingsPage() {
             { id: 'banner', label: 'Banner Hero', icon: ImageIcon },
             { id: 'secoes', label: 'Seções da Home', icon: Layout },
             { id: 'rodape', label: 'Rodapé', icon: Layout },
+            { id: 'whatsapp_floating', label: 'Botão do WhatsApp', icon: MessageSquare },
             { id: 'layout', label: 'Estrutura', icon: Layout },
             { id: 'dominios', label: 'Domínios & Roteamento', icon: Globe },
             { id: 'seguranca', label: 'Segurança & Acesso', icon: Lock },
@@ -2382,6 +2394,23 @@ export default function SettingsPage() {
                     <input type="text" placeholder="Rua Exemplo, 123 - Cidade/UF" value={formData.address} onChange={e => setFormData({...formData, address: e.target.value})} />
                   </div>
                 </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginTop: '1.5rem' }}>
+                  <div className="form-group">
+                    <label>CNPJ da Loja (Opcional)</label>
+                    <input type="text" placeholder="00.000.000/0000-00" value={formData.cnpj || ''} onChange={e => setFormData({...formData, cnpj: e.target.value})} />
+                  </div>
+                  <div className="form-group">
+                    <label>CPF do Lojista (Opcional)</label>
+                    <input type="text" placeholder="000.000.000-00" value={formData.cpf || ''} onChange={e => setFormData({...formData, cpf: e.target.value})} />
+                  </div>
+                </div>
+                <div style={{ marginTop: '1.5rem', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Exibir Documento (CNPJ/CPF) no Rodapé</span>
+                  <label className="switch">
+                    <input type="checkbox" checked={formData.show_doc_in_footer || false} onChange={e => setFormData({...formData, show_doc_in_footer: e.target.checked})} />
+                    <span className="slider round"></span>
+                  </label>
+                </div>
               </div>
 
               <div style={{ borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
@@ -2431,6 +2460,113 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
+          )}
+
+          {activeTab === 'whatsapp_floating' && (
+            plan === 'basic' ? (
+              <div className="glass-card" style={{ padding: '3.5rem 2.5rem', textAlign: 'center', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', color: '#6366f1' }}>
+                  <Sparkles size={32} />
+                </div>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginBottom: '0.75rem' }}>Recurso Exclusivo do Plano Profissional / Premium</h2>
+                <p style={{ color: 'var(--muted)', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '2rem' }}>
+                  A personalização do Botão do WhatsApp (suporte a múltiplos atendentes e títulos personalizados) não está ativa no seu plano atual (<strong>Básico</strong>). Faça um upgrade agora mesmo para estruturar sua equipe de atendimento e turbinar suas conversões!
+                </p>
+                <Link href="/admin/subscription" style={{ display: 'inline-block', padding: '0.85rem 2rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)', transition: '0.2s' }}>
+                  Ver Planos & Fazer Upgrade
+                </Link>
+              </div>
+            ) : (
+              <div className="glass-card" style={{ padding: '2.5rem', display: 'grid', gap: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>Botão do WhatsApp Flutuante</h3>
+                    <p style={{ color: 'var(--muted)', fontSize: '0.85rem', margin: '0.25rem 0 0 0' }}>Configure o botão do WhatsApp com suporte a múltiplos atendentes.</p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Ativar Botão Flutuante</span>
+                    <label className="switch">
+                      <input type="checkbox" checked={formData.whatsapp_floating_enabled !== undefined ? formData.whatsapp_floating_enabled : true} onChange={e => setFormData({...formData, whatsapp_floating_enabled: e.target.checked})} />
+                      <span className="slider round"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Título da Caixa de Atendimento (Ex: Suporte WhatsApp)</label>
+                  <input type="text" placeholder="Suporte WhatsApp" value={formData.whatsapp_floating_title || ''} onChange={e => setFormData({...formData, whatsapp_floating_title: e.target.value})} />
+                </div>
+
+                <div style={{ borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
+                  <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>Atendentes / Contatos</h4>
+                  <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>Se você adicionar mais de um atendente, o botão flutuante abrirá uma lista para o cliente escolher com quem falar. Cada atendente pode ter um número diferente.</p>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    {(formData.whatsapp_agents || []).map((agent: any, index: number) => (
+                      <div key={index} style={{ display: 'flex', gap: '1rem', alignItems: 'center', padding: '1rem', border: '1px solid var(--border)', borderRadius: '12px', background: 'rgba(255,255,255,0.01)' }}>
+                        <div className="form-group" style={{ flex: 2 }}>
+                          <label>Nome do Atendente</label>
+                          <input 
+                            type="text" 
+                            placeholder="Ex: João Silva" 
+                            value={agent.name || ''} 
+                            onChange={(e) => {
+                              const newAgents = [...formData.whatsapp_agents];
+                              newAgents[index].name = e.target.value;
+                              setFormData({...formData, whatsapp_agents: newAgents});
+                            }} 
+                          />
+                        </div>
+                        <div className="form-group" style={{ flex: 2 }}>
+                          <label>Número do WhatsApp (com DDD)</label>
+                          <input 
+                            type="text" 
+                            placeholder="Ex: 11999999999" 
+                            value={agent.phone || ''} 
+                            onChange={(e) => {
+                              const newAgents = [...formData.whatsapp_agents];
+                              newAgents[index].phone = e.target.value;
+                              setFormData({...formData, whatsapp_agents: newAgents});
+                            }} 
+                          />
+                        </div>
+                        <div className="form-group" style={{ flex: 2 }}>
+                          <label>Departamento / Cargo (Opcional)</label>
+                          <input 
+                            type="text" 
+                            placeholder="Ex: Vendas, Suporte Técnico" 
+                            value={agent.role || ''} 
+                            onChange={(e) => {
+                              const newAgents = [...formData.whatsapp_agents];
+                              newAgents[index].role = e.target.value;
+                              setFormData({...formData, whatsapp_agents: newAgents});
+                            }} 
+                          />
+                        </div>
+                        <button 
+                          type="button"
+                          onClick={() => {
+                            const newAgents = formData.whatsapp_agents.filter((_: any, i: number) => i !== index);
+                            setFormData({...formData, whatsapp_agents: newAgents});
+                          }}
+                          style={{ padding: '0.75rem', background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', borderRadius: '8px', cursor: 'pointer', marginTop: '1.4rem' }}
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                    ))}
+                    
+                    <button 
+                      type="button"
+                      onClick={() => setFormData({...formData, whatsapp_agents: [...(formData.whatsapp_agents || []), { name: '', phone: '', role: '' }]})}
+                      style={{ padding: '0.75rem', border: '1px dashed var(--border)', background: 'transparent', borderRadius: '8px', cursor: 'pointer', color: 'var(--muted)', fontWeight: 600 }}
+                    >
+                      + Adicionar Novo Atendente
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )
           )}
 
           {activeTab === 'layout' && (

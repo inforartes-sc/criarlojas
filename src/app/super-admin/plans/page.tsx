@@ -37,7 +37,7 @@ export default function SuperAdminPlans() {
           price: 29.90,
           billingCycle: 'mensal',
           desc: 'Ideal para quem está começando a sua primeira loja virtual com baixo investimento (Catálogo Digital via WhatsApp).',
-          features: ['Até 50 produtos cadastrados', 'Taxa de transação de 2.0%', 'Suporte via E-mail', 'Certificado SSL Grátis', '[-] Carrinho de Compras & Checkout', '[-] Integração de Envio Correios/Melhor Envio'],
+          features: ['Até 50 produtos cadastrados', 'Taxa de transação de 2.0%', 'Suporte via E-mail', 'Certificado SSL Grátis', '[-] Carrinho de Compras & Checkout', '[-] Integração de Envio Correios/Melhor Envio', '[-] Botão do WhatsApp Personalizado'],
           active: true,
           subscribers: 0,
           popular: false,
@@ -50,7 +50,7 @@ export default function SuperAdminPlans() {
           price: 34.90,
           billingCycle: 'mensal',
           desc: 'Perfeito para lojistas em expansão com alto volume de vendas, checkout e frete integrado.',
-          features: ['Até 500 produtos cadastrados', 'Taxa de transação de 1.0%', 'Suporte Prioritário WhatsApp', 'Checkout Transparente e Carrinho', 'Gateways Mercado Pago & Asaas', 'Cálculo de Frete Integrado', '[-] Cupons de Desconto & Pixels'],
+          features: ['Até 500 produtos cadastrados', 'Taxa de transação de 1.0%', 'Suporte Prioritário WhatsApp', 'Checkout Transparente e Carrinho', 'Gateways Mercado Pago & Asaas', 'Cálculo de Frete Integrado', 'Botão do WhatsApp Personalizado', '[-] Cupons de Desconto & Pixels'],
           active: true,
           subscribers: 0,
           popular: true,
@@ -63,7 +63,7 @@ export default function SuperAdminPlans() {
           price: 47.90,
           billingCycle: 'mensal',
           desc: 'Para marcas e operações completas que exigem cupons, pixels, reviews e promoções.',
-          features: ['Produtos e Variações Ilimitadas', 'Taxa de transação ZERO (0%)', 'Suporte VIP 24/7 Dedicado', 'Cupons de Desconto', 'Avaliação de Produtos (Reviews)', 'Pixels de Rastreamento (Meta/Google)', 'Campanhas de Promoções'],
+          features: ['Produtos e Variações Ilimitadas', 'Taxa de transação ZERO (0%)', 'Suporte VIP 24/7 Dedicado', 'Cupons de Desconto', 'Avaliação de Produtos (Reviews)', 'Pixels de Rastreamento (Meta/Google)', 'Campanhas de Promoções', 'Botão do WhatsApp Personalizado'],
           active: true,
           subscribers: 0,
           popular: false,
@@ -89,7 +89,21 @@ export default function SuperAdminPlans() {
           setGlobalSettings(updatedSettings)
           setPlans(defaultPlans)
         } else {
-          setPlans(s.plans)
+          const updatedPlans = s.plans.map((p: any) => {
+            const features = p.features || []
+            const hasFeature = features.some((f: any) => typeof f === 'string' && f.includes('Botão do WhatsApp Personalizado'));
+            if (!hasFeature) {
+              return {
+                ...p,
+                features: [
+                  ...features,
+                  p.id === 'basic' ? '[-] Botão do WhatsApp Personalizado' : 'Botão do WhatsApp Personalizado'
+                ]
+              };
+            }
+            return p;
+          });
+          setPlans(updatedPlans)
         }
       } else {
         const newSettings = {
@@ -394,7 +408,8 @@ export default function SuperAdminPlans() {
                     { name: 'Cupons de Desconto Personalizados', basic: false, pro: false, premium: true },
                     { name: 'Avaliação de Produtos (Reviews de Clientes)', basic: false, pro: false, premium: true },
                     { name: 'Campanhas de Promoção & Banner Superior', basic: false, pro: false, premium: true },
-                    { name: 'Pixels de Rastreamento (Meta, Google, TikTok)', basic: false, pro: false, premium: true }
+                    { name: 'Pixels de Rastreamento (Meta, Google, TikTok)', basic: false, pro: false, premium: true },
+                    { name: 'Botão do WhatsApp Personalizado', basic: false, pro: true, premium: true }
                   ]
                 },
                 {

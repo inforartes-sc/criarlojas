@@ -88,7 +88,7 @@ export default async function ProdutosPage({
     )
   }
 
-  const uniqueCategories = [...new Set(physicalProducts.map((p: any) => p.category).filter(Boolean))]
+  const uniqueCategories = Array.from(new Set(physicalProducts.map((p: any) => p.category).filter(Boolean)))
 
   return (
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', fontFamily: 'var(--font-body, "Plus Jakarta Sans", Inter, system-ui, sans-serif)' }}>
