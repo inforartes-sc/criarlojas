@@ -6,7 +6,7 @@ import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { getCart, clearCart, updateQuantity, removeFromCart, CartItem } from '@/lib/cartStore'
 import { supabase } from '@/lib/supabase'
-import { processCheckoutAction } from '@/app/actions/checkout'
+import { processCheckoutAction, saveAbandonedCartAction } from '@/app/actions/checkout'
 import { loginCustomerAction, updateCustomerPasswordAction, registerCustomerAction } from '@/app/actions/auth'
 import StoreHeader from './StoreHeader'
 import StoreFooter from './StoreFooter'
@@ -113,7 +113,39 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
   }
 
   useEffect(() => {
-    setCartItems(getCart())
+    const queryParams = new URLSearchParams(window.location.search)
+    const cartParam = queryParams.get('cart')
+
+    if (cartParam) {
+      supabase
+        .from('abandoned_carts')
+        .select('*')
+        .eq('id', cartParam)
+        .single()
+        .then(({ data, error }) => {
+          if (error) {
+            console.error(error)
+            setCartItems(getCart())
+            return
+          }
+          if (data && data.items && Array.isArray(data.items)) {
+            setCartItems(data.items)
+            setAbandonedCartId(data.id)
+            setFormData(prev => ({
+              ...prev,
+              name: data.customer_name || prev.name,
+              email: data.customer_email || prev.email,
+              phone: data.customer_phone || prev.phone
+            }))
+            setAuthStep('checkout')
+          } else {
+            setCartItems(getCart())
+          }
+        })
+    } else {
+      setCartItems(getCart())
+    }
+
     const savedUser = localStorage.getItem('store_current_user')
     if (savedUser) {
       try {
@@ -121,9 +153,9 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
         setCurrentUser(parsed)
         setFormData(prev => ({
           ...prev,
-          name: parsed.name || '',
-          email: parsed.email || '',
-          phone: parsed.phone || ''
+          name: parsed.name || prev.name || '',
+          email: parsed.email || prev.email || '',
+          phone: parsed.phone || prev.phone || ''
         }))
         setAuthStep('checkout')
       } catch (e) {
@@ -164,6 +196,39 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
     ? selectedShippingMethod.cost 
     : (settings.free_shipping_threshold && subtotal >= settings.free_shipping_threshold ? 0 : (settings.fixed_shipping_cost || 15))
   const finalTotal = Math.max(0, subtotal - discountAmount - pixDiscount + shippingCost)
+
+  const [abandonedCartId, setAbandonedCartId] = useState<string | null>(null)
+
+  const saveAbandonedCartDraft = async (updatedData = formData) => {
+    if ((updatedData.name || updatedData.phone || updatedData.email) && cartItems.length > 0) {
+      try {
+        const result = await saveAbandonedCartAction({
+          id: abandonedCartId,
+          storeId: store.id,
+          name: updatedData.name,
+          email: updatedData.email,
+          phone: updatedData.phone,
+          cartItems: cartItems.map(item => ({
+            productId: item.productId,
+            name: item.name,
+            quantity: item.quantity,
+            price: item.price,
+            image: item.image || ''
+          })),
+          totalAmount: finalTotal
+        })
+        if (result.success && result.id) {
+          setAbandonedCartId(result.id)
+        }
+      } catch (err) {
+        console.error('Erro ao salvar rascunho de carrinho abandonado:', err)
+      }
+    }
+  }
+
+  const handleInputBlur = () => {
+    saveAbandonedCartDraft()
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -226,13 +291,15 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
 
         localStorage.setItem('store_current_user', JSON.stringify(customer))
         setCurrentUser(customer)
-        setFormData(prev => ({
-          ...prev,
+        const updated = {
+          ...formData,
           name: customer.name || '',
           email: customer.email || '',
           phone: customer.phone || ''
-        }))
+        }
+        setFormData(updated)
         setAuthStep('checkout')
+        saveAbandonedCartDraft(updated)
         toast.success(`Bem-vindo de volta, ${customer.name || 'Cliente'}!`)
       } else {
         toast.error('E-mail não encontrado. Por favor, faça seu cadastro abaixo.')
@@ -284,13 +351,15 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
 
       localStorage.setItem('store_current_user', JSON.stringify(customer))
       setCurrentUser(customer)
-      setFormData(prev => ({
-        ...prev,
+      const updated = {
+        ...formData,
         name: customer.name || '',
         email: customer.email || '',
         phone: customer.phone || ''
-      }))
+      }
+      setFormData(updated)
       setAuthStep('checkout')
+      saveAbandonedCartDraft(updated)
     } catch (err: any) {
       console.error('Register error:', err.message || err)
       toast.error(err.message || 'Erro ao realizar cadastro. Tente novamente.')
@@ -331,7 +400,8 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
         paymentMethod,
         finalTotal,
         cartItems,
-        appliedCouponCode: appliedCoupon ? appliedCoupon.code : null
+        appliedCouponCode: appliedCoupon ? appliedCoupon.code : null,
+        abandonedCartId
       })
 
       if (!result.success) {
@@ -631,18 +701,18 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>Nome Completo *</label>
-                      <input type="text" name="name" required value={formData.name} onChange={handleInputChange} placeholder="Digite seu nome completo" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', outline: 'none', fontSize: '0.95rem', fontWeight: 600, color: '#0f172a' }} />
+                      <input type="text" name="name" required value={formData.name} onChange={handleInputChange} onBlur={handleInputBlur} placeholder="Digite seu nome completo" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', outline: 'none', fontSize: '0.95rem', fontWeight: 600, color: '#0f172a' }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>E-mail *</label>
-                      <input type="email" name="email" required value={formData.email} onChange={handleInputChange} placeholder="seunome@email.com" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', outline: 'none', fontSize: '0.95rem', fontWeight: 600, color: '#0f172a' }} />
+                      <input type="email" name="email" required value={formData.email} onChange={handleInputChange} onBlur={handleInputBlur} placeholder="seunome@email.com" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', outline: 'none', fontSize: '0.95rem', fontWeight: 600, color: '#0f172a' }} />
                     </div>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                     <div>
                       <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>WhatsApp / Telefone *</label>
-                      <input type="tel" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="(11) 99999-9999" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', outline: 'none', fontSize: '0.95rem', fontWeight: 600, color: '#0f172a' }} />
+                      <input type="tel" name="phone" required value={formData.phone} onChange={handleInputChange} onBlur={handleInputBlur} placeholder="(11) 99999-9999" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#f8fafc', outline: 'none', fontSize: '0.95rem', fontWeight: 600, color: '#0f172a' }} />
                     </div>
                     <div>
                       <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>CEP *</label>
