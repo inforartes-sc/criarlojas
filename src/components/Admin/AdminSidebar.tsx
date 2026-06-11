@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { LayoutDashboard, ShoppingBag, Settings, Users, LogOut, Package, CreditCard, Truck, Tag, Link2, Star, Menu, X } from 'lucide-react'
+import { LayoutDashboard, ShoppingBag, Settings, Users, LogOut, Package, CreditCard, Truck, Tag, Link2, Star, Menu, X, DollarSign, Crown } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAdminAuth } from '@/context/AdminAuthContext'
 
@@ -12,7 +12,7 @@ export default function AdminSidebar() {
   const { store, logout } = useAdminAuth()
   const [showMobileMenu, setShowMobileMenu] = useState(false)
   
-  const isServicesOnly = ['lawyer', 'advocacia', 'advocacy', 'services', 'electrician'].includes(store?.settings?.layout_model)
+  const isServicesOnly = ['lawyer', 'advocacia', 'advocacy', 'services', 'electrician', 'aura'].includes(store?.settings?.layout_model)
   const isLawyerLayout = ['lawyer', 'advocacia', 'advocacy'].includes(store?.settings?.layout_model)
   const isServicesModel = store?.settings?.layout_model === 'services'
   const isElectricianLayout = store?.settings?.layout_model === 'electrician'
@@ -27,7 +27,11 @@ export default function AdminSidebar() {
     ]),
     { icon: LayoutDashboard, label: 'Categorias', href: '/admin/categories' },
     { icon: ShoppingBag, label: 'Pedidos', href: '/admin/orders' },
+    { icon: ShoppingBag, label: 'Carrinhos Abandonados', href: '/admin/abandoned-carts' },
     { icon: Users, label: 'Clientes', href: '/admin/customers' },
+    ...(isServicesOnly ? [
+      { icon: DollarSign, label: 'Financeiro', href: '/admin/financial' },
+    ] : []),
     { icon: Star, label: 'Avaliações', href: '/admin/reviews' },
     { icon: CreditCard, label: 'Pagamentos', href: '/admin/payments' },
     { icon: Truck, label: 'Envio / Frete', href: '/admin/shipping' },
@@ -41,19 +45,21 @@ export default function AdminSidebar() {
 
   const filteredMenuItems = menuItems.filter(item => {
     if (isLawyerLayout) {
-      const excludedLabels = ['Categorias', 'Pedidos', 'Clientes', 'Pagamentos', 'Envio / Frete', 'Promoções', 'Avaliações']
+      // Removed 'Pagamentos' so lawyers can configure Pix and Mercado Pago
+      const excludedLabels = ['Categorias', 'Pedidos', 'Envio / Frete', 'Promoções', 'Avaliações', 'Carrinhos Abandonados']
       if (excludedLabels.includes(item.label)) return false
     }
     if (isElectricianLayout) {
-      const excludedLabels = ['Pedidos', 'Envio / Frete', 'Clientes', 'Pagamentos', 'Promoções', 'Avaliações']
+      // Removed 'Pagamentos' so electricians can configure payments
+      const excludedLabels = ['Pedidos', 'Envio / Frete', 'Promoções', 'Avaliações', 'Carrinhos Abandonados']
       if (excludedLabels.includes(item.label)) return false
     }
     
     // Restrições de planos:
-    // Plano Básico: oculta Avaliações, Pagamentos, Envio / Frete, Promoções
+    // Plano Básico: oculta Avaliações, Pagamentos, Envio / Frete, Promoções, Carrinhos Abandonados
     // Plano Pro: oculta Avaliações, Promoções
     if (plan === 'basic') {
-      const basicExcluded = ['Avaliações', 'Pagamentos', 'Envio / Frete', 'Promoções']
+      const basicExcluded = ['Avaliações', 'Pagamentos', 'Envio / Frete', 'Promoções', 'Carrinhos Abandonados']
       if (basicExcluded.includes(item.label)) return false
     } else if (plan === 'pro') {
       const proExcluded = ['Avaliações', 'Promoções']
@@ -115,6 +121,9 @@ export default function AdminSidebar() {
             <span style={{ fontSize: '0.75rem', color: '#0ea5e9', fontWeight: 700, letterSpacing: '1px', textTransform: 'uppercase' }}>
               Painel Lojista
             </span>
+            <div style={{ marginTop: '0.35rem', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
+              Modelo: <strong style={{ color: '#6366f1', textTransform: 'capitalize' }}>{store?.settings?.layout_model || 'não definido'}</strong>
+            </div>
           </div>
         </div>
 
@@ -141,6 +150,9 @@ export default function AdminSidebar() {
                   }} className="nav-item">
                     <item.icon size={20} style={{ color: isActive ? '#6366f1' : 'inherit' }} className="nav-icon" />
                     <span className="nav-text">{item.label}</span>
+                    {item.label === 'Carrinhos Abandonados' && plan === 'pro' && (
+                      <Crown size={14} style={{ color: '#fbbf24', marginLeft: 'auto' }} />
+                    )}
                   </Link>
                 </li>
               )
@@ -289,7 +301,12 @@ export default function AdminSidebar() {
                   className="mobile-grid-item"
                 >
                   <item.icon size={24} style={{ color: '#6366f1' }} />
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>{item.label}</span>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    {item.label}
+                    {item.label === 'Carrinhos Abandonados' && plan === 'pro' && (
+                      <Crown size={12} style={{ color: '#fbbf24' }} />
+                    )}
+                  </span>
                 </Link>
               ))}
           </div>
