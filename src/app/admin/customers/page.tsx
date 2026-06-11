@@ -925,7 +925,7 @@ export default function UnifiedCustomersPage() {
                   <ChevronLeft size={18} /> Voltar ao histórico
                 </button>
 
-                <div style={{ display: 'flex', justifycontent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
                   <div>
                     <span style={{ fontSize: '0.8rem', color: 'var(--muted)', textTransform: 'uppercase', fontWeight: 700 }}>Detalhes do Pedido</span>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
