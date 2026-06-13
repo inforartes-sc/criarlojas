@@ -37,7 +37,7 @@ export default function SuperAdminPlans() {
           price: 29.90,
           billingCycle: 'mensal',
           desc: 'Ideal para quem está começando a sua primeira loja virtual com baixo investimento (Catálogo Digital via WhatsApp).',
-          features: ['Até 50 produtos cadastrados', 'Taxa de transação de 2.0%', 'Suporte via E-mail', 'Certificado SSL Grátis', '[-] Carrinho de Compras & Checkout', '[-] Integração de Envio Correios/Melhor Envio', '[-] Botão do WhatsApp Personalizado'],
+          features: ['Até 50 produtos cadastrados', 'Taxa de transação de 2.0%', 'Suporte via E-mail', 'Certificado SSL Grátis', '[-] Carrinho de Compras & Checkout', '[-] Integração de Envio Correios/Melhor Envio', '[-] Botão do WhatsApp Personalizado', '[-] Recuperação de Carrinho Abandonado'],
           active: true,
           subscribers: 0,
           popular: false,
@@ -50,7 +50,7 @@ export default function SuperAdminPlans() {
           price: 34.90,
           billingCycle: 'mensal',
           desc: 'Perfeito para lojistas em expansão com alto volume de vendas, checkout e frete integrado.',
-          features: ['Até 500 produtos cadastrados', 'Taxa de transação de 1.0%', 'Suporte Prioritário WhatsApp', 'Checkout Transparente e Carrinho', 'Gateways Mercado Pago & Asaas', 'Cálculo de Frete Integrado', 'Botão do WhatsApp Personalizado', '[-] Cupons de Desconto & Pixels'],
+          features: ['Até 500 produtos cadastrados', 'Taxa de transação de 1.0%', 'Suporte Prioritário WhatsApp', 'Checkout Transparente e Carrinho', 'Gateways Mercado Pago & Asaas', 'Cálculo de Frete Integrado', 'Botão do WhatsApp Personalizado', '[-] Cupons de Desconto & Pixels', '[-] Recuperação de Carrinho Abandonado'],
           active: true,
           subscribers: 0,
           popular: true,
@@ -63,7 +63,7 @@ export default function SuperAdminPlans() {
           price: 47.90,
           billingCycle: 'mensal',
           desc: 'Para marcas e operações completas que exigem cupons, pixels, reviews e promoções.',
-          features: ['Produtos e Variações Ilimitadas', 'Taxa de transação ZERO (0%)', 'Suporte VIP 24/7 Dedicado', 'Cupons de Desconto', 'Avaliação de Produtos (Reviews)', 'Pixels de Rastreamento (Meta/Google)', 'Campanhas de Promoções', 'Botão do WhatsApp Personalizado'],
+          features: ['Produtos e Variações Ilimitadas', 'Taxa de transação ZERO (0%)', 'Suporte VIP 24/7 Dedicado', 'Cupons de Desconto', 'Avaliação de Produtos (Reviews)', 'Pixels de Rastreamento (Meta/Google)', 'Campanhas de Promoções', 'Botão do WhatsApp Personalizado', 'Recuperação de Carrinho Abandonado'],
           active: true,
           subscribers: 0,
           popular: false,
@@ -90,18 +90,22 @@ export default function SuperAdminPlans() {
           setPlans(defaultPlans)
         } else {
           const updatedPlans = s.plans.map((p: any) => {
-            const features = p.features || []
-            const hasFeature = features.some((f: any) => typeof f === 'string' && f.includes('Botão do WhatsApp Personalizado'));
-            if (!hasFeature) {
-              return {
-                ...p,
-                features: [
-                  ...features,
-                  p.id === 'basic' ? '[-] Botão do WhatsApp Personalizado' : 'Botão do WhatsApp Personalizado'
-                ]
-              };
+            let features = p.features || []
+            const hasWhatsapp = features.some((f: any) => typeof f === 'string' && f.includes('Botão do WhatsApp Personalizado'));
+            if (!hasWhatsapp) {
+              features = [
+                ...features,
+                p.id === 'basic' ? '[-] Botão do WhatsApp Personalizado' : 'Botão do WhatsApp Personalizado'
+              ]
             }
-            return p;
+            const hasCart = features.some((f: any) => typeof f === 'string' && f.includes('Carrinho Abandonado'));
+            if (!hasCart) {
+              features = [
+                ...features,
+                p.id === 'premium' ? 'Recuperação de Carrinho Abandonado' : '[-] Recuperação de Carrinho Abandonado'
+              ]
+            }
+            return { ...p, features };
           });
           setPlans(updatedPlans)
         }
@@ -391,63 +395,62 @@ export default function SuperAdminPlans() {
                 <th style={{ padding: '1.25rem 1rem', fontWeight: 800, color: '#0ea5e9', fontSize: '1rem', textAlign: 'center', width: '22%' }}>Premium <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: 'var(--muted)', marginTop: '0.25rem' }}>R$ 47,90/mês</span></th>
               </tr>
             </thead>
-            <tbody style={{ fontSize: '0.95rem' }}>
-              {[
-                {
-                  cat: 'Vendas & Checkout',
-                  items: [
-                    { name: 'Catálogo Digital (Pedidos via WhatsApp)', basic: true, pro: true, premium: true },
-                    { name: 'Carrinho de Compras & Checkout Online', basic: false, pro: true, premium: true },
-                    { name: 'Integração de Gateways (Mercado Pago, Asaas)', basic: false, pro: true, premium: true },
-                    { name: 'Cálculo de Envio & Frete (Correios/Melhor Envio)', basic: false, pro: true, premium: true }
-                  ]
-                },
-                {
-                  cat: 'Marketing & Conversão',
-                  items: [
-                    { name: 'Cupons de Desconto Personalizados', basic: false, pro: false, premium: true },
-                    { name: 'Avaliação de Produtos (Reviews de Clientes)', basic: false, pro: false, premium: true },
-                    { name: 'Campanhas de Promoção & Banner Superior', basic: false, pro: false, premium: true },
-                    { name: 'Pixels de Rastreamento (Meta, Google, TikTok)', basic: false, pro: false, premium: true },
-                    { name: 'Botão do WhatsApp Personalizado', basic: false, pro: true, premium: true }
-                  ]
-                },
-                {
-                  cat: 'Limites & Taxas',
-                  items: [
-                    { name: 'Cadastro de Produtos', basic: 'Até 50', pro: 'Até 500', premium: 'Ilimitado' },
-                    { name: 'Taxa de Transação da Plataforma', basic: '2.0% de comissão', pro: '1.0% de comissão', premium: 'Taxa Zero (0.0%)' },
-                    { name: 'Suporte Técnico', basic: 'E-mail', pro: 'WhatsApp Prioritário', premium: 'WhatsApp VIP 24/7' }
-                  ]
-                }
-              ].map((category, idx) => (
-                <optgroup key={idx} label={category.cat} style={{ display: 'table-row-group' }}>
-                  <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                    <td colSpan={4} style={{ padding: '0.75rem 1rem', fontWeight: 800, color: '#10b981', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid var(--border)' }}>
-                      {category.cat}
-                    </td>
+            {[
+              {
+                cat: 'Vendas & Checkout',
+                items: [
+                  { name: 'Catálogo Digital (Pedidos via WhatsApp)', basic: true, pro: true, premium: true },
+                  { name: 'Carrinho de Compras & Checkout Online', basic: false, pro: true, premium: true },
+                  { name: 'Integração de Gateways (Mercado Pago, Asaas)', basic: false, pro: true, premium: true },
+                  { name: 'Cálculo de Envio & Frete (Correios/Melhor Envio)', basic: false, pro: true, premium: true }
+                ]
+              },
+              {
+                cat: 'Marketing & Conversão',
+                items: [
+                  { name: 'Cupons de Desconto Personalizados', basic: false, pro: false, premium: true },
+                  { name: 'Avaliação de Produtos (Reviews de Clientes)', basic: false, pro: false, premium: true },
+                  { name: 'Campanhas de Promoção & Banner Superior', basic: false, pro: false, premium: true },
+                  { name: 'Pixels de Rastreamento (Meta, Google, TikTok)', basic: false, pro: false, premium: true },
+                  { name: 'Botão do WhatsApp Personalizado', basic: false, pro: true, premium: true },
+                  { name: 'Recuperação de Carrinho Abandonado', basic: false, pro: false, premium: true }
+                ]
+              },
+              {
+                cat: 'Limites & Taxas',
+                items: [
+                  { name: 'Cadastro de Produtos', basic: 'Até 50', pro: 'Até 500', premium: 'Ilimitado' },
+                  { name: 'Taxa de Transação da Plataforma', basic: '2.0% de comissão', pro: '1.0% de comissão', premium: 'Taxa Zero (0.0%)' },
+                  { name: 'Suporte Técnico', basic: 'E-mail', pro: 'WhatsApp Prioritário', premium: 'WhatsApp VIP 24/7' }
+                ]
+              }
+            ].map((category, idx) => (
+              <tbody key={idx} style={{ fontSize: '0.95rem' }}>
+                <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                  <td colSpan={4} style={{ padding: '0.75rem 1rem', fontWeight: 800, color: '#10b981', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid var(--border)' }}>
+                    {category.cat}
+                  </td>
+                </tr>
+                {category.items.map((item, itemIdx) => (
+                  <tr key={itemIdx} style={{ borderBottom: '1px solid var(--border)' }} className="table-row-hover">
+                    <td style={{ padding: '1rem', fontWeight: 600, color: 'var(--foreground)' }}>{item.name}</td>
+                    {[item.basic, item.pro, item.premium].map((val, valIdx) => (
+                      <td key={valIdx} style={{ padding: '1rem', textAlign: 'center' }}>
+                        {typeof val === 'boolean' ? (
+                          <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%', background: val ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: val ? '#10b981' : '#ef4444' }}>
+                            {val ? <Check size={14} strokeWidth={3} /> : <X size={14} strokeWidth={3} />}
+                          </div>
+                        ) : (
+                          <span style={{ fontWeight: 700, color: valIdx === 0 ? 'var(--foreground)' : valIdx === 1 ? '#10b981' : '#0ea5e9' }}>
+                            {val}
+                          </span>
+                        )}
+                      </td>
+                    ))}
                   </tr>
-                  {category.items.map((item, itemIdx) => (
-                    <tr key={itemIdx} style={{ borderBottom: '1px solid var(--border)' }} className="table-row-hover">
-                      <td style={{ padding: '1rem', fontWeight: 600, color: 'var(--foreground)' }}>{item.name}</td>
-                      {[item.basic, item.pro, item.premium].map((val, valIdx) => (
-                        <td key={valIdx} style={{ padding: '1rem', textAlign: 'center' }}>
-                          {typeof val === 'boolean' ? (
-                            <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%', background: val ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: val ? '#10b981' : '#ef4444' }}>
-                              {val ? <Check size={14} strokeWidth={3} /> : <X size={14} strokeWidth={3} />}
-                            </div>
-                          ) : (
-                            <span style={{ fontWeight: 700, color: valIdx === 0 ? 'var(--foreground)' : valIdx === 1 ? '#10b981' : '#0ea5e9' }}>
-                              {val}
-                            </span>
-                          )}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </optgroup>
-              ))}
-            </tbody>
+                ))}
+              </tbody>
+            ))}
           </table>
         </div>
       </section>
