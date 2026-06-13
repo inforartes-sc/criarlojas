@@ -59,6 +59,7 @@ async function runSQL(sql: string): Promise<{ ok: boolean; error?: string }> {
 
 const migrations: { label: string; sql: string }[] = [
   { label: 'products.is_service', sql: `ALTER TABLE products ADD COLUMN IF NOT EXISTS is_service BOOLEAN DEFAULT false` },
+  { label: 'products.hide_price', sql: `ALTER TABLE products ADD COLUMN IF NOT EXISTS hide_price BOOLEAN DEFAULT false` },
   { label: 'products.weight', sql: `ALTER TABLE products ADD COLUMN IF NOT EXISTS weight NUMERIC(10,3)` },
   { label: 'products.length', sql: `ALTER TABLE products ADD COLUMN IF NOT EXISTS length NUMERIC(10,2)` },
   { label: 'products.width', sql: `ALTER TABLE products ADD COLUMN IF NOT EXISTS width NUMERIC(10,2)` },

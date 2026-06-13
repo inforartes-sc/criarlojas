@@ -84,6 +84,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   const [categories, setCategories] = useState<any[]>([])
   const [hasVariations, setHasVariations] = useState(false)
 
+  const [hidePrice, setHidePrice] = useState(false)
   const L = {
     singular: isLawyerLayout ? 'Serviço' : (isPartMode ? 'Peça' : 'Produto'),
     plural: isLawyerLayout ? 'Serviços' : (isPartMode ? 'Peças' : 'Produtos'),
@@ -148,7 +149,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         short_description: data.short_description || '',
         description: data.description || '',
         stock_quantity: data.stock_quantity.toString(),
-        sku: data.sku || '',
+        sku: (data.sku || '').replace('#hide_price', ''),
         category: data.category || '',
         sale_price: data.sale_price?.toString() || '',
         weight: data.weight?.toString() || '',
@@ -158,6 +159,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         is_active: data.is_active ?? true,
         is_featured: data.is_featured ?? false
       })
+      setHidePrice(data.hide_price === true || data.hide_price === 'true' || data.sku?.includes('#hide_price'))
       setHasVariations(data.has_variations ?? false)
       const loadedOpts = data.variation_options || []
       setVariationOptions(loadedOpts.length > 0 ? loadedOpts.map((o: any) => ({ name: o.name, valuesString: (o.values || []).join(', ') })) : [
@@ -310,7 +312,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         short_description: formData.short_description,
         description: formData.description,
         stock_quantity: hasVariations ? 0 : (parseInt(formData.stock_quantity) || 0),
-        sku: formData.sku,
+        sku: isServicesOnly ? `${(formData.sku || `serv-${Date.now()}`).replace('#hide_price', '')}${hidePrice ? '#hide_price' : ''}` : formData.sku,
         category: formData.category,
         sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
         weight: formData.weight ? parseFloat(formData.weight) : null,
@@ -440,7 +442,20 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
 
                 <div style={{ display: isServicesOnly ? 'block' : 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
-                    <label>{L.priceLabel}</label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <label style={{ margin: 0 }}>{L.priceLabel}</label>
+                      {isServicesOnly && (
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                          <input
+                            type="checkbox"
+                            checked={hidePrice}
+                            onChange={(e) => setHidePrice(e.target.checked)}
+                            style={{ margin: 0, cursor: 'pointer' }}
+                          />
+                          Ocultar preço no site
+                        </label>
+                      )}
+                    </div>
                     <input
                       type="number"
                       step="0.01"

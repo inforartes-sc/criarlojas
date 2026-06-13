@@ -12,6 +12,8 @@ export default function FinancialPage() {
   const [loading, setLoading] = useState(true)
   const [entries, setEntries] = useState<any[]>([])
   const [clients, setClients] = useState<any[]>([])
+  const [services, setServices] = useState<any[]>([])
+  const [selectedServices, setSelectedServices] = useState<any[]>([])
   
   // Abas e Filtros
   const [activeTab, setActiveTab] = useState<'receivable' | 'payable'>('receivable')
@@ -56,6 +58,18 @@ export default function FinancialPage() {
       if (clientsErr) throw clientsErr
       setClients(clientsData || [])
 
+      // 1.5 Fetch active services
+      const { data: servicesData, error: servicesErr } = await supabase
+        .from('products')
+        .select('id, name, price')
+        .eq('store_id', store.id)
+        .eq('is_service', true)
+        .eq('is_active', true)
+        .order('name', { ascending: true })
+
+      if (servicesErr) throw servicesErr
+      setServices(servicesData || [])
+
       // 2. Fetch financial entries
       const { data: entriesData, error: entriesErr } = await supabase
         .from('financial_entries')
@@ -86,11 +100,23 @@ export default function FinancialPage() {
       payment_method: '',
       invoice_description: ''
     })
+    setSelectedServices([])
     setShowAddEditModal(true)
   }
 
   const handleOpenEdit = (entry: any, e: React.MouseEvent) => {
     e.stopPropagation()
+    let restoredServices = []
+    let userNotes = entry.custom_invoices?.description || ''
+    if (userNotes.includes('---SERVICES_JSON---')) {
+      const parts = userNotes.split('---SERVICES_JSON---')
+      try {
+        restoredServices = JSON.parse(parts[1])
+      } catch (e) {}
+      const rawTextBeforeJson = parts[0]
+      const notesMatch = rawTextBeforeJson.split('\n\n')
+      userNotes = notesMatch.slice(1).join('\n\n').trim()
+    }
     setForm({
       id: entry.id,
       type: entry.type,
@@ -101,8 +127,9 @@ export default function FinancialPage() {
       category: entry.category || '',
       client_id: entry.client_id || '',
       payment_method: entry.payment_method || '',
-      invoice_description: entry.custom_invoices?.description || ''
+      invoice_description: userNotes
     })
+    setSelectedServices(restoredServices)
     setShowAddEditModal(true)
   }
 
@@ -128,11 +155,17 @@ export default function FinancialPage() {
           existingInvoiceId = currentEntry?.invoice_id
         }
 
+        let finalDescription = form.invoice_description.trim() || `Lançamento financeiro: ${form.description.trim()}`
+        if (selectedServices.length > 0) {
+          const servicesText = selectedServices.map(s => `- ${s.name}: R$ ${Number(s.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`).join('\n')
+          finalDescription = `Serviços:\n${servicesText}\n\n${form.invoice_description.trim()}\n\n---SERVICES_JSON---${JSON.stringify(selectedServices)}`
+        }
+
         const invoicePayload = {
           store_id: store.id,
           client_id: form.client_id,
           title: form.description.trim(),
-          description: form.invoice_description.trim() || `Lançamento financeiro: ${form.description.trim()}`,
+          description: finalDescription,
           amount: parseFloat(form.amount),
           due_date: form.due_date,
           status: form.status,
@@ -550,8 +583,8 @@ export default function FinancialPage() {
 
       {/* Modal Lançamento (Receita / Despesa) */}
       {showAddEditModal && (
-        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
-          <div className="glass-card modal-content" style={{ maxWidth: '500px', width: '100%', padding: '2rem', position: 'relative' }}>
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', zIndex: 1000, padding: '2rem 1rem', overflowY: 'auto' }}>
+          <div className="glass-card modal-content" style={{ maxWidth: '700px', width: '100%', padding: '2rem', position: 'relative', margin: 'auto' }}>
             <button onClick={() => setShowAddEditModal(false)} style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'rgba(0,0,0,0.05)', border: 'none', color: 'var(--muted)', cursor: 'pointer', padding: '0.5rem', borderRadius: '50%', display: 'flex' }}><X size={20} /></button>
             
             <h2 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: form.type === 'receivable' ? '#10b981' : '#ef4444' }}>
@@ -624,6 +657,74 @@ export default function FinancialPage() {
               {form.type === 'receivable' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--muted)' }}>Adicionar Serviços do Site à Fatura</label>
+                    <select 
+                      value="" 
+                      onChange={e => {
+                        const val = e.target.value
+                        if (!val) return
+                        const svc = services.find(s => s.id === val)
+                        if (svc) {
+                          const updated = [...selectedServices, { id: svc.id, name: svc.name, price: svc.price }]
+                          setSelectedServices(updated)
+                          const totalAmt = updated.reduce((sum, item) => sum + parseFloat(item.price || 0), 0)
+                          let newDesc = form.description
+                          if (!newDesc.trim() || newDesc.startsWith('Serviço: ') || newDesc.startsWith('Fatura de Serviços')) {
+                            if (updated.length === 1) {
+                              newDesc = `Serviço: ${updated[0].name}`
+                            } else {
+                              newDesc = `Fatura de Serviços (${updated.length} itens)`
+                            }
+                          }
+                          setForm({ ...form, amount: totalAmt.toFixed(2), description: newDesc })
+                        }
+                      }}
+                      style={{ width: '100%', padding: '0.75rem 1rem', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--input-bg)', color: 'var(--foreground)', outline: 'none' }}
+                    >
+                      <option value="" style={{color:'#000'}}>Escolha um serviço para adicionar...</option>
+                      {services.map(s => (
+                        <option key={s.id} value={s.id} style={{color:'#000'}}>{s.name} - R$ {Number(s.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {selectedServices.length > 0 && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', backgroundColor: 'rgba(255,255,255,0.02)', padding: '1rem', border: '1px solid var(--border)', borderRadius: '8px' }}>
+                      <span style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)' }}>Serviços Selecionados:</span>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                        {selectedServices.map((item, idx) => (
+                          <div key={`${item.id}-${idx}`} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem', padding: '0.25rem 0' }}>
+                            <span style={{ fontWeight: 600 }}>{item.name}</span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                              <span style={{ fontWeight: 800, color: '#10b981' }}>R$ {Number(item.price).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                              <button 
+                                type="button" 
+                                onClick={() => {
+                                  const updated = selectedServices.filter((_, i) => i !== idx)
+                                  setSelectedServices(updated)
+                                  const totalAmt = updated.reduce((sum, item) => sum + parseFloat(item.price || 0), 0)
+                                  let newDesc = form.description
+                                  if (updated.length === 0) {
+                                    newDesc = ''
+                                  } else if (updated.length === 1) {
+                                    newDesc = `Serviço: ${updated[0].name}`
+                                  } else {
+                                    newDesc = `Fatura de Serviços (${updated.length} itens)`
+                                  }
+                                  setForm({ ...form, amount: totalAmt > 0 ? totalAmt.toFixed(2) : '', description: newDesc })
+                                }}
+                                style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', display: 'flex', padding: '0.2rem' }}
+                              >
+                                <X size={14} />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <label style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--muted)' }}>Vincular a um Cliente de Serviço (Opcional)</label>
                     <select 
                       value={form.client_id} 
@@ -693,7 +794,7 @@ export default function FinancialPage() {
           }
           .modal-content {
             padding: 1.5rem !important;
-            max-height: 95vh !important;
+            max-height: none !important;
           }
         }
       `}</style>

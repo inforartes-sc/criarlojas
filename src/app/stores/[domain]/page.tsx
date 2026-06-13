@@ -443,8 +443,14 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
           .whatsapp-floating-btn {
             width: 52px !important;
             height: 52px !important;
+            bottom: 1.25rem !important;
+            right: 1rem !important;
+          }
+          .back-to-top-floating {
             bottom: 5rem !important;
             right: 1rem !important;
+            width: 44px !important;
+            height: 44px !important;
           }
         }
 

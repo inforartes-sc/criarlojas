@@ -784,7 +784,7 @@ export default function ServicesStorefrontClient({
                     <p className="service-desc">{service.description || 'Serviço especializado com técnicos certificados e garantia inclusa.'}</p>
                     {(() => {
                       const parsedPrice = parseFloat(String(service.price || '').replace(',', '.'));
-                      return !isNaN(parsedPrice) && parsedPrice > 0 ? (
+                      return !isNaN(parsedPrice) && parsedPrice > 0 && service.hide_price !== true && service.hide_price !== 'true' && !service.sku?.includes('#hide_price') ? (
                         <div style={{ marginBottom: '1.25rem' }}>
                           <span style={{ fontSize: '0.85rem', color: '#64748b', display: 'block' }}>A partir de</span>
                           <span style={{ fontSize: '1.5rem', fontWeight: 800, color: primaryColor }}>

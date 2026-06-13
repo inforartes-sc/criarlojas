@@ -116,6 +116,7 @@ export default function NewProduct() {
   }
 
   const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [hidePrice, setHidePrice] = useState(false)
   const [newCategory, setNewCategory] = useState({ name: '', image_url: '' })
 
   useEffect(() => {
@@ -277,7 +278,7 @@ export default function NewProduct() {
           short_description: formData.short_description,
           description: formData.description,
           stock_quantity: isServicesOnly ? 9999 : (hasVariations ? variationSkus.reduce((sum, v) => sum + (parseInt(v.stock_quantity) || 0), 0) : parseInt(formData.stock_quantity)),
-          sku: isServicesOnly ? `serv-${Date.now()}` : formData.sku,
+          sku: isServicesOnly ? `serv-${Date.now()}${hidePrice ? '#hide_price' : ''}` : formData.sku,
           category: formData.category,
           sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
           weight: formData.weight ? parseFloat(formData.weight) : null,
@@ -401,7 +402,20 @@ export default function NewProduct() {
 
                 <div style={{ display: isServicesOnly ? 'block' : 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <div className="form-group">
-                    <label>{L.priceLabel}</label>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                      <label style={{ margin: 0 }}>{L.priceLabel}</label>
+                      {isServicesOnly && (
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                          <input
+                            type="checkbox"
+                            checked={hidePrice}
+                            onChange={(e) => setHidePrice(e.target.checked)}
+                            style={{ margin: 0, cursor: 'pointer' }}
+                          />
+                          Ocultar preço no site
+                        </label>
+                      )}
+                    </div>
                     <input
                       type="number"
                       step="0.01"

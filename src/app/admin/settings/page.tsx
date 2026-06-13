@@ -196,7 +196,8 @@ export default function SettingsPage() {
       { name: 'Roberto Camargo', role: 'Diretor Executivo na Vanguarda Tech', text: 'A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.', avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80' },
       { name: 'Heloísa Albuquerque', role: 'Arquiteta e Sócia do Studio H+A', text: 'Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicada e focada em resolver tudo de forma amigável.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80' },
       { name: 'Carlos Mendes', role: 'Diretor do Grupo Mendes & Cia', text: 'Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80' }
-    ]
+    ],
+    team_layout: 'multiple'
   })
 
   useEffect(() => {
@@ -419,7 +420,8 @@ export default function SettingsPage() {
             text: s.testimonial_3 || 'Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.',
             avatar: s.testimonial_3_avatar || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80'
           }
-        ]
+        ],
+        team_layout: s.team_layout || 'multiple'
       })
       setInitialCustomDomain(data.custom_domain || s.custom_domain || '')
     } catch (error: any) {
@@ -1268,6 +1270,25 @@ export default function SettingsPage() {
                   <div className="form-group">
                     <label>Subtítulo / Descrição da Seção de Equipe</label>
                     <input type="text" value={formData.team_subtitle} onChange={e => setFormData({...formData, team_subtitle: e.target.value})} placeholder="Ex: Conheça os especialistas dedicados..." />
+                  </div>
+                  <div className="form-group">
+                    <label>Layout de Exibição dos Advogados</label>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '0.5rem' }}>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', border: (formData.team_layout || 'multiple') === 'multiple' ? '2px solid var(--primary)' : '1px solid var(--border)', borderRadius: '12px', cursor: 'pointer', backgroundColor: (formData.team_layout || 'multiple') === 'multiple' ? 'rgba(99, 102, 241, 0.05)' : 'transparent' }}>
+                        <input type="radio" name="team_layout" checked={(formData.team_layout || 'multiple') === 'multiple'} onChange={() => setFormData({...formData, team_layout: 'multiple'})} style={{ cursor: 'pointer' }} />
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--foreground)' }}>Múltiplos Advogados (Padrão)</div>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.15rem' }}>Exibe a lista de advogados cadastrados em formato de cards (grade).</div>
+                        </div>
+                      </label>
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', border: formData.team_layout === 'individual' ? '2px solid var(--primary)' : '1px solid var(--border)', borderRadius: '12px', cursor: 'pointer', backgroundColor: formData.team_layout === 'individual' ? 'rgba(99, 102, 241, 0.05)' : 'transparent' }}>
+                        <input type="radio" name="team_layout" checked={formData.team_layout === 'individual'} onChange={() => setFormData({...formData, team_layout: 'individual'})} style={{ cursor: 'pointer' }} />
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '0.9rem', color: 'var(--foreground)' }}>Advogado Individual (Escritório de um único profissional)</div>
+                          <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.15rem' }}>Exibe apenas o 1º advogado cadastrado com foto expandida de um lado e biografia do outro.</div>
+                        </div>
+                      </label>
+                    </div>
                   </div>
                 </div>
                 

@@ -155,8 +155,8 @@ export default function StoreFooter({ store, settings, primaryColor, buttonRadiu
       <style>{`
         .back-to-top-floating {
           position: fixed;
-          bottom: 30px;
-          right: 30px;
+          bottom: 104px;
+          right: 32px;
           width: 50px;
           height: 50px;
           background-color: ${primaryColor} !important;
@@ -177,6 +177,14 @@ export default function StoreFooter({ store, settings, primaryColor, buttonRadiu
           transform: translateY(-5px);
           box-shadow: 0 15px 30px rgba(0,0,0,0.3);
           filter: brightness(1.1);
+        }
+        @media (max-width: 768px) {
+          .back-to-top-floating {
+            bottom: 80px !important;
+            right: 16px !important;
+            width: 44px !important;
+            height: 44px !important;
+          }
         }
       `}</style>
 

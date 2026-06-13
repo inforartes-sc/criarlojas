@@ -216,7 +216,11 @@ export default function FaturaClientPage({ params }: FaturaClientPageProps) {
           </div>
 
           <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#0f172a', margin: '0 0 0.5rem' }}>{invoice.title}</h2>
-          {invoice.description && <p style={{ color: '#64748b', fontSize: '0.95rem', margin: '0 0 2rem', lineHeight: 1.5 }}>{invoice.description}</p>}
+          {invoice.description && (
+            <p style={{ color: '#64748b', fontSize: '0.95rem', margin: '0 0 2rem', lineHeight: 1.5, whiteSpace: 'pre-line' }}>
+              {invoice.description.split('---SERVICES_JSON---')[0].trim()}
+            </p>
+          )}
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0', padding: '1.5rem 0', marginBottom: '2rem' }}>
             <div>

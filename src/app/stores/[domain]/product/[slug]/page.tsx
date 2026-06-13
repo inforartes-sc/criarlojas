@@ -265,7 +265,7 @@ export default async function ProductPage({
                 {product.category || 'NOVIDADE'}
               </span>
               <h1 style={{ fontSize: '2rem', fontWeight: 900, margin: '1rem 0 1rem 0', lineHeight: 1.2, letterSpacing: '-0.5px', color: isDark ? '#fff' : 'inherit' }}>{product.name}</h1>
-              <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '0.5rem', fontWeight: 500, letterSpacing: '0.5px' }}>SKU: {product.sku || product.id.slice(0,8).toUpperCase()}</p>
+              <p style={{ fontSize: '0.8rem', color: '#888', marginBottom: '0.5rem', fontWeight: 500, letterSpacing: '0.5px' }}>SKU: {product.sku?.replace('#hide_price', '') || product.id.slice(0,8).toUpperCase()}</p>
               
             </div>
 

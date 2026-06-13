@@ -392,6 +392,68 @@ export default function LawyerStorefrontClient({
             align-items: center !important;
           }
         }
+
+        .lawyer-benefits-section {
+          padding: 3rem 2rem;
+        }
+        .lawyer-benefits-grid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 2.5rem 2rem;
+          padding: 2.25rem 3.5rem;
+          background-color: ${settings.benefits_bg_color || '#efece6'} !important;
+          border-radius: 24px !important;
+          border: none !important;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
+          width: 100%;
+        }
+        .lawyer-benefits-grid .benefit-title {
+          font-family: var(--font-body), sans-serif !important;
+          font-weight: 700 !important;
+          font-size: 1.15rem !important;
+          color: #1e293b !important;
+          margin-bottom: 0.25rem !important;
+          line-height: 1.3 !important;
+        }
+        .lawyer-benefits-grid .benefit-subtitle {
+          font-family: var(--font-body), sans-serif !important;
+          font-weight: 400 !important;
+          font-size: 0.95rem !important;
+          color: #64748b !important;
+          line-height: 1.4 !important;
+        }
+        @media (max-width: 991px) {
+          .lawyer-benefits-section {
+            padding: 2rem 1.5rem !important;
+          }
+          .lawyer-benefits-section .lawyer-container {
+            padding: 0 0.5rem !important;
+          }
+          .lawyer-benefits-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 2rem 1.5rem !important;
+            padding: 2rem 2.25rem !important;
+          }
+        }
+        @media (max-width: 576px) {
+          .lawyer-benefits-section {
+            padding: 1.5rem 0.75rem !important;
+          }
+          .lawyer-benefits-section .lawyer-container {
+            padding: 0 0.25rem !important;
+          }
+          .lawyer-benefits-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 1.5rem 0.75rem !important;
+            padding: 1.5rem 1rem !important;
+          }
+          .lawyer-benefits-grid .benefit-title {
+            font-size: 1.05rem !important;
+          }
+          .lawyer-benefits-grid .benefit-subtitle {
+            font-size: 0.85rem !important;
+          }
+        }
       `}</style>
 
       {/* 1. HEADER */}
@@ -569,45 +631,38 @@ export default function LawyerStorefrontClient({
       )}
 
       {/* 2.5 BENEFITS */}
-      <section style={{ padding: '3rem 2rem', backgroundColor: 'var(--bg-dark)' }}>
+      <section className="lawyer-benefits-section" style={{ backgroundColor: 'var(--bg-dark)' }}>
         <div className="lawyer-container">
-          <div style={{ 
+          <div className="lawyer-benefits-grid" style={{ 
             maxWidth: '1400px', 
-            margin: '0 auto', 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(4, 1fr)', 
-            gap: '2rem', 
-            padding: '1.5rem 3rem', 
-            backgroundColor: settings.benefits_bg_color || '#13272b', 
-            borderRadius: '16px', 
-            border: settings.benefits_bg_color ? '1px solid var(--accent-gold-border)' : '1px solid rgba(255,255,255,0.06)' 
+            margin: '0 auto'
           }}>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
               <div style={{ color: primaryColor }}><BenefitIcon name={benefits[0]?.icon} color={primaryColor} /></div>
               <div>
-                <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.3rem', color: settings.benefits_bg_color ? 'var(--text-primary)' : '#f2efeb' }}>{benefits[0]?.title || 'Entrega Rápida'}</p>
-                <p style={{ fontSize: '0.85rem', color: settings.benefits_bg_color ? 'var(--text-secondary)' : '#94a3b8', lineHeight: 1.4 }}>{benefits[0]?.subtitle || 'Calcule o prazo no checkout'}</p>
+                <p className="benefit-title">{benefits[0]?.title || 'Entrega Rápida'}</p>
+                <p className="benefit-subtitle">{benefits[0]?.subtitle || 'Calcule o prazo no checkout'}</p>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
               <div style={{ color: primaryColor }}><BenefitIcon name={benefits[1]?.icon} color={primaryColor} /></div>
               <div>
-                <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.3rem', color: settings.benefits_bg_color ? 'var(--text-primary)' : '#f2efeb' }}>{benefits[1]?.title || 'Compra Segura'}</p>
-                <p style={{ fontSize: '0.85rem', color: settings.benefits_bg_color ? 'var(--text-secondary)' : '#94a3b8', lineHeight: 1.4 }}>{benefits[1]?.subtitle || 'Ambiente 100% protegido'}</p>
+                <p className="benefit-title">{benefits[1]?.title || 'Compra Segura'}</p>
+                <p className="benefit-subtitle">{benefits[1]?.subtitle || 'Ambiente 100% protegido'}</p>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
               <div style={{ color: primaryColor }}><BenefitIcon name={benefits[2]?.icon} color={primaryColor} /></div>
               <div>
-                <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.3rem', color: settings.benefits_bg_color ? 'var(--text-primary)' : '#f2efeb' }}>{benefits[2]?.title || 'Troca Fácil'}</p>
-                <p style={{ fontSize: '0.85rem', color: settings.benefits_bg_color ? 'var(--text-secondary)' : '#94a3b8', lineHeight: 1.4 }}>{benefits[2]?.subtitle || '7 dias para devolução'}</p>
+                <p className="benefit-title">{benefits[2]?.title || 'Troca Fácil'}</p>
+                <p className="benefit-subtitle">{benefits[2]?.subtitle || '7 dias para devolução'}</p>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
               <div style={{ color: primaryColor }}><BenefitIcon name={benefits[3]?.icon} color={primaryColor} /></div>
               <div>
-                <p style={{ fontWeight: 700, fontSize: '1rem', marginBottom: '0.3rem', color: settings.benefits_bg_color ? 'var(--text-primary)' : '#f2efeb' }}>{benefits[3]?.title || 'Pagamento Facilitado'}</p>
-                <p style={{ fontSize: '0.85rem', color: settings.benefits_bg_color ? 'var(--text-secondary)' : '#94a3b8', lineHeight: 1.4 }}>{benefits[3]?.subtitle || 'Em até 12x no cartão'}</p>
+                <p className="benefit-title">{benefits[3]?.title || 'Pagamento Facilitado'}</p>
+                <p className="benefit-subtitle">{benefits[3]?.subtitle || 'Em até 12x no cartão'}</p>
               </div>
             </div>
           </div>
@@ -663,7 +718,7 @@ export default function LawyerStorefrontClient({
                     {service.description || 'Defesa especializada com representação robusta, acompanhamento integral do processo e relatórios de progresso.'}
                   </p>
                   
-                  {service.price > 0 && (
+                  {service.price > 0 && service.hide_price !== true && service.hide_price !== 'true' && !service.sku?.includes('#hide_price') && (
                     <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column' }}>
                       <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>Honorários sob consulta a partir de</span>
                       <span style={{ fontSize: '1.4rem', fontWeight: 700, color: primaryColor }}>
@@ -758,21 +813,52 @@ export default function LawyerStorefrontClient({
             </p>
           </div>
 
-          <div className="lawyer-team-grid">
-            {teamList.map((member: any) => (
-              <div key={member.id} className="lawyer-team-card reveal active">
-                <div className="lawyer-team-img-container">
-                  <img src={member.avatar} alt={member.name} className="lawyer-team-img" />
-                </div>
-                <div className="lawyer-team-info">
-                  <h3 className="lawyer-team-name">{member.name}</h3>
-                  <span className="lawyer-team-role">{member.role}</span>
-                  <div className="gold-separator" style={{ width: '40px', margin: '0.75rem auto' }}></div>
-                  <p className="lawyer-team-desc">{member.desc}</p>
+          {settings.team_layout === 'individual' && teamList.length > 0 ? (
+            <div className="lawyer-about-grid" style={{ alignItems: 'center' }}>
+              {/* LEFT COLUMN: LARGE PHOTO */}
+              <div className="lawyer-about-visual reveal active">
+                <div className="lawyer-about-frame" style={{ maxWidth: '440px', padding: '12px', border: '1px solid var(--accent-gold-border)' }}>
+                  <img 
+                    src={teamList[0].avatar} 
+                    alt={teamList[0].name} 
+                    className="lawyer-about-img"
+                    style={{ borderRadius: 'var(--radius-card)', width: '100%', aspectRatio: '1 / 1', objectFit: 'cover' }}
+                  />
                 </div>
               </div>
-            ))}
-          </div>
+              
+              {/* RIGHT COLUMN: BIOGRAPHY / DETAILS */}
+              <div className="lawyer-about-content reveal active" style={{ textAlign: 'left' }}>
+                <span className="lawyer-team-role" style={{ fontSize: '0.95rem', letterSpacing: '0.15em', marginBottom: '0.5rem', display: 'inline-block' }}>
+                  {teamList[0].role}
+                </span>
+                <h3 className="lawyer-team-name" style={{ fontSize: '2.5rem', fontWeight: 600, color: '#ffffff', marginBottom: '1.25rem', fontFamily: 'var(--font-title)' }}>
+                  {teamList[0].name}
+                </h3>
+                <div className="gold-separator-left"></div>
+                
+                <p className="lawyer-about-text" style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', lineHeight: 1.8, marginTop: '1.5rem' }}>
+                  {teamList[0].desc}
+                </p>
+              </div>
+            </div>
+          ) : (
+            <div className="lawyer-team-grid">
+              {teamList.map((member: any) => (
+                <div key={member.id} className="lawyer-team-card reveal active">
+                  <div className="lawyer-team-img-container">
+                    <img src={member.avatar} alt={member.name} className="lawyer-team-img" />
+                  </div>
+                  <div className="lawyer-team-info">
+                    <h3 className="lawyer-team-name">{member.name}</h3>
+                    <span className="lawyer-team-role">{member.role}</span>
+                    <div className="gold-separator" style={{ width: '40px', margin: '0.75rem auto' }}></div>
+                    <p className="lawyer-team-desc">{member.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

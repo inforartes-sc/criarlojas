@@ -334,7 +334,9 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
           )}
 
           <div className="product-price-row" style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: '0.75rem', marginBottom: '2rem', marginTop: 'auto', flexWrap: 'wrap' }}>
-            {salePrice ? (
+            {product.hide_price === true || product.hide_price === 'true' || product.sku?.includes('#hide_price') ? (
+              <span style={{ fontSize: '1.2rem', fontWeight: 800, color: primaryColor }}>Sob Consulta</span>
+            ) : salePrice ? (
               <><span className="product-old-price" style={{ fontSize: featured ? '1rem' : '0.85rem', color: oldPriceColor, textDecoration: 'line-through', fontWeight: 600 }}>R$ {displayPrice.toFixed(2).replace('.', ',')}</span><div style={{ display: 'flex', alignItems: 'baseline', color: activeSalePriceColor }}><span className="product-price-prefix" style={{ fontSize: featured ? '1.2rem' : '0.8rem', fontWeight: 800 }}>R$</span><span className="product-price-main" style={{ fontSize: featured ? '2.5rem' : '1.5rem', fontWeight: 950 }}>{salePrice[0]}</span><span className="product-price-cents" style={{ fontSize: featured ? '1.2rem' : '0.9rem', fontWeight: 800 }}>,{salePrice[1]}</span></div></>
             ) : (
               <div style={{ display: 'flex', alignItems: 'baseline', color: activeDefaultPriceColor }}><span className="product-price-prefix" style={{ fontSize: featured ? '1.2rem' : '0.8rem', fontWeight: 800 }}>R$</span><span className="product-price-main" style={{ fontSize: featured ? '2.5rem' : '1.5rem', fontWeight: 950 }}>{priceParts[0]}</span><span className="product-price-cents" style={{ fontSize: featured ? '1.2rem' : '0.9rem', fontWeight: 800 }}>,{priceParts[1]}</span></div>

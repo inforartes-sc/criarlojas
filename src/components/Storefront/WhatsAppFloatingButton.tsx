@@ -39,7 +39,7 @@ export default function WhatsAppFloatingButton({ settings }: { settings: any }) 
         onClick={handleOpenDirect}
         style={{
           position: 'fixed',
-          bottom: '6.5rem',
+          bottom: '2rem',
           right: '2rem',
           background: '#25D366',
           color: 'white',
@@ -80,7 +80,7 @@ export default function WhatsAppFloatingButton({ settings }: { settings: any }) 
   }
 
   return (
-    <div style={{ position: 'fixed', bottom: '6.5rem', right: '2rem', zIndex: 9999 }}>
+    <div className="whatsapp-floating-wrapper" style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 9999 }}>
       {/* Agents Popup Card */}
       {isOpen && (
         <div style={{
@@ -228,6 +228,22 @@ export default function WhatsAppFloatingButton({ settings }: { settings: any }) 
         .whatsapp-agent-item:hover {
           background-color: ${settings.theme_mode === 'dark' ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.02)'} !important;
           transform: translateX(4px);
+        }
+        .whatsapp-floating-wrapper {
+          bottom: 2rem !important;
+          right: 2rem !important;
+        }
+        @media (max-width: 768px) {
+          .whatsapp-floating-wrapper {
+            bottom: 20px !important;
+            right: 16px !important;
+          }
+          .whatsapp-floating-btn {
+            width: 52px !important;
+            height: 52px !important;
+            bottom: 20px !important;
+            right: 16px !important;
+          }
         }
       `}</style>
     </div>

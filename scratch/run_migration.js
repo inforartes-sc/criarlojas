@@ -10,8 +10,9 @@ const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 
 async function run() {
   const sql = `
-    ALTER TABLE financial_entries ADD COLUMN IF NOT EXISTS invoice_id UUID REFERENCES custom_invoices(id) ON DELETE CASCADE;
-    NOTIFY pgrst, 'reload schema';
+    SELECT column_name, data_type 
+    FROM information_schema.columns 
+    WHERE table_name = 'custom_invoices' OR table_name = 'financial_entries';
   `;
 
   console.log('Running SQL migration on Supabase...');
