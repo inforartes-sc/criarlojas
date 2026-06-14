@@ -662,6 +662,27 @@ export default function SaaSCommercialPortal() {
           <a href="#vitrine" onClick={() => setShowMobileMenu(false)} style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Lojas Modelo</a>
           <a href="#calculadora" onClick={() => setShowMobileMenu(false)} style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Calculadora de ROI</a>
           <a href="#precos" onClick={() => setShowMobileMenu(false)} style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Planos</a>
+          <button 
+            onClick={() => { setShowMobileMenu(false); handleOpenLeadModal('modern', 'pro'); }}
+            style={{ 
+              background: 'linear-gradient(135deg, #10b981, #0ea5e9)', 
+              color: 'white', 
+              border: 'none', 
+              cursor: 'pointer', 
+              fontSize: '1rem', 
+              fontWeight: 800, 
+              padding: '0.85rem', 
+              borderRadius: '10px', 
+              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)', 
+              transition: 'all 0.2s',
+              marginTop: '0.5rem',
+              width: '100%',
+              display: 'block',
+              textAlign: 'center'
+            }}
+          >
+            Solicitar Minha Loja
+          </button>
         </div>
       )}
 
@@ -2516,8 +2537,7 @@ export default function SaaSCommercialPortal() {
             display: none !important;
           }
           .saas-nav-actions .cta-btn {
-            padding: 0.5rem 1rem !important;
-            font-size: 0.85rem !important;
+            display: none !important;
           }
           .mobile-menu-toggle {
             display: inline-flex !important;
