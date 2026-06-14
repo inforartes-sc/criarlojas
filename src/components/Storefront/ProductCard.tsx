@@ -28,6 +28,7 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
   const priceParts = displayPrice.toFixed(2).split('.')
   const salePrice = displaySalePrice ? displaySalePrice.toFixed(2).split('.') : null
   const [isHovered, setIsHovered] = useState(false)
+  const [isCardHovered, setIsCardHovered] = useState(false)
   const [isFavorited, setIsFavorited] = useState(false)
   const [reviewsData, setReviewsData] = useState<{ average: number, count: number } | null>(null)
 
@@ -134,7 +135,7 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
 
   // Cores dinâmicas baseadas no contraste da campanha ou no layout padrão
   const titleColor = isCampaign ? (isDarkBg ? '#ffffff' : '#1a1a1a') : (isDark ? '#fff' : '#1a1a1a')
-  const categoryColor = isCampaign ? (isDarkBg ? 'rgba(255, 255, 255, 0.75)' : '#666666') : (isDark ? '#94a3b8' : '#bbb')
+  const categoryColor = isCampaign ? (isDarkBg ? 'rgba(255, 255, 255, 0.75)' : '#666666') : (isDark ? '#94a3b8' : '#64748b')
   const oldPriceColor = isCampaign ? (isDarkBg ? 'rgba(255, 255, 255, 0.75)' : normalPriceColor) : normalPriceColor
   const activeDefaultPriceColor = isCampaign ? (isDarkBg ? '#facc15' : defaultPriceColor) : defaultPriceColor
   const activeSalePriceColor = isCampaign ? (isDarkBg ? '#facc15' : salePriceColor) : salePriceColor
@@ -215,9 +216,45 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
       `}</style>
       <div className="product-card-wrapper" style={{ display: 'flex', flexDirection: 'column', textAlign: 'center', height: '100%' }}>
         <Link href={`/product/${product.slug}`} style={{ textDecoration: 'none', color: isDark ? '#fff' : 'inherit', flex: 1, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ aspectRatio: featured ? '16/9' : '1/1', backgroundColor: '#f1f5f9', marginBottom: '0.75rem', borderRadius: '16px', backgroundImage: `url(${product.images?.[0] || 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=400&q=80'})`, backgroundSize: 'cover', backgroundPosition: 'center', position: 'relative', border: '1px solid rgba(0,0,0,0.08)', boxShadow: '0 4px 20px rgba(0,0,0,0.08)', overflow: 'hidden', transition: 'box-shadow 0.2s ease' }}>
-            {displaySalePrice && <div style={{ position: 'absolute', top: '20px', left: '20px', backgroundColor: salePriceColor, color: '#fff', padding: '6px 14px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 900, letterSpacing: '1px' }}>OFERTA</div>}
-
+          <div 
+            onMouseEnter={() => setIsCardHovered(true)}
+            onMouseLeave={() => setIsCardHovered(false)}
+            style={{ 
+              aspectRatio: featured ? '16/9' : '1/1', 
+              backgroundColor: '#f1f5f9', 
+              marginBottom: '0.75rem', 
+              borderRadius: '16px', 
+              position: 'relative', 
+              border: '1px solid rgba(0,0,0,0.08)', 
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)', 
+              overflow: 'hidden', 
+              transition: 'box-shadow 0.2s ease' 
+            }}
+          >
+            {/* Primary Image */}
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundImage: `url(${product.images?.[0] || 'https://images.unsplash.com/photo-1585771724684-38269d6639fd?auto=format&fit=crop&w=400&q=80'})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              transition: 'opacity 0.4s ease',
+              opacity: (isCardHovered && product.images?.length > 1) ? 0 : 1
+            }} />
+            
+            {/* Secondary Image on Hover */}
+            {product.images?.length > 1 && (
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                backgroundImage: `url(${product.images[1]})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                transition: 'opacity 0.4s ease',
+                opacity: isCardHovered ? 1 : 0
+              }} />
+            )}
+            {displaySalePrice && <div style={{ position: 'absolute', top: '20px', left: '20px', backgroundColor: salePriceColor, color: '#fff', padding: '6px 14px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 900, letterSpacing: '1px', zIndex: 2 }}>OFERTA</div>}
           </div>
           {/* Linha da Categoria com Ícones nas Extremidades */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', margin: '0.25rem 0', padding: '0 0.25rem' }}>

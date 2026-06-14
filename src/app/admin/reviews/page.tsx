@@ -83,49 +83,11 @@ export default function ReviewsPage() {
       })
       setReviews(formattedReviews)
     } catch (error: any) {
-      console.warn('Erro ao carregar avaliações do Supabase, tentando LocalStorage:', error)
-      loadLocalReviewsFallback()
+      console.warn('Erro ao carregar avaliações do Supabase:', error)
+      setReviews([])
+      toast.error('Erro ao carregar as avaliações do banco de dados.')
     } finally {
       setLoading(false)
-    }
-  }
-
-  const loadLocalReviewsFallback = async () => {
-    if (!store) return
-    try {
-      const { data: storeProducts } = await supabase
-        .from('products')
-        .select('id, name')
-        .eq('store_id', store.id)
-
-      if (!storeProducts) {
-        setReviews([])
-        return
-      }
-
-      const allLocalReviews: Review[] = []
-      
-      storeProducts.forEach(prod => {
-        const localData = localStorage.getItem(`reviews_${prod.id}`)
-        if (localData) {
-          try {
-            const parsed = JSON.parse(localData)
-            parsed.forEach((rev: any) => {
-              allLocalReviews.push({
-                ...rev,
-                products: { name: prod.name }
-              })
-            });
-          } catch (e) {
-            console.error(e)
-          }
-        }
-      })
-
-      allLocalReviews.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-      setReviews(allLocalReviews)
-    } catch (e) {
-      console.error('Erro no fallback local de avaliações:', e)
     }
   }
 
@@ -150,38 +112,8 @@ export default function ReviewsPage() {
       setShowEditForm(false)
       fetchReviews()
     } catch (error: any) {
-      console.warn('Erro ao atualizar no Supabase, tentando localmente:', error)
-      
-      const targetReviewIndex = reviews.findIndex(r => r.id === formData.id)
-      if (targetReviewIndex !== -1) {
-        const updated = [...reviews]
-        const prodId = updated[targetReviewIndex].product_id
-        
-        updated[targetReviewIndex] = {
-          ...updated[targetReviewIndex],
-          name: formData.name,
-          rating: formData.rating,
-          comment: formData.comment
-        }
-        
-        const productLocalReviews = updated.filter(r => r.product_id === prodId).map(r => ({
-          id: r.id,
-          name: r.name,
-          email: r.email,
-          rating: r.rating,
-          comment: r.comment,
-          created_at: r.created_at,
-          product_id: r.product_id,
-          store_id: store.id
-        }))
-        
-        localStorage.setItem(`reviews_${prodId}`, JSON.stringify(productLocalReviews))
-        setReviews(updated)
-        toast.success('Avaliação atualizada localmente!')
-        setShowEditForm(false)
-      } else {
-        toast.error('Erro ao atualizar: ' + error.message)
-      }
+      console.error('Erro ao atualizar no Supabase:', error)
+      toast.error('Erro ao salvar as alterações no banco de dados.')
     } finally {
       setSaving(false)
     }
@@ -202,18 +134,8 @@ export default function ReviewsPage() {
       toast.success('Avaliação excluída com sucesso!')
       fetchReviews()
     } catch (error: any) {
-      console.warn('Erro ao deletar no Supabase, removendo localmente:', error)
-      
-      const prodId = reviewToDelete.product_id
-      const localData = localStorage.getItem(`reviews_${prodId}`)
-      if (localData) {
-        const parsed = JSON.parse(localData)
-        const filtered = parsed.filter((r: any) => r.id !== reviewToDelete.id)
-        localStorage.setItem(`reviews_${prodId}`, JSON.stringify(filtered))
-      }
-      
-      setReviews(reviews.filter(r => r.id !== reviewToDelete.id))
-      toast.success('Avaliação removida localmente!')
+      console.error('Erro ao deletar no Supabase:', error)
+      toast.error('Erro ao remover a avaliação do banco de dados.')
     } finally {
       setSaving(false)
       setReviewToDelete(null)

@@ -37,7 +37,6 @@ export default function ProductReviews({
   const [email, setEmail] = useState('')
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
-  const [usingFallback, setUsingFallback] = useState(false)
 
   useEffect(() => {
     fetchReviews()
@@ -52,57 +51,36 @@ export default function ProductReviews({
         .select('*')
         .eq('product_id', productId)
         .order('created_at', { ascending: false })
+        .limit(20) // Limita a 20 registros para não sobrecarregar o banco de dados
 
       if (error) {
-        // Se a tabela não existir, cai no fallback do LocalStorage
-        if (error.code === 'PGRST116' || error.message.includes('relation "product_reviews" does not exist')) {
-          setUsingFallback(true)
-          loadLocalReviews()
-          return
-        }
         throw error
       }
 
       setReviews(data || [])
     } catch (err: any) {
-      console.warn('Erro ao carregar avaliações do Supabase, usando LocalStorage:', err)
-      setUsingFallback(true)
-      loadLocalReviews()
+      console.warn('Erro ao carregar avaliações do Supabase:', err)
+      // Fallback estático em memória caso a tabela não exista ou ocorra erro
+      setReviews([
+        {
+          id: 'mock-1',
+          name: 'Carlos Oliveira',
+          email: 'carlos@exemplo.com',
+          rating: 5,
+          comment: 'Excelente produto! Superou todas as minhas expectativas. A entrega foi super rápida e o atendimento da loja é nota 10.',
+          created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
+        },
+        {
+          id: 'mock-2',
+          name: 'Mariana Souza',
+          email: 'mariana@exemplo.com',
+          rating: 4,
+          comment: 'Gostei muito do produto, material de boa qualidade. Chegou bem embalado. Apenas o prazo de entrega que atrasou um dia, mas valeu a pena.',
+          created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+        }
+      ])
     } finally {
       setLoading(false)
-    }
-  }
-
-  const loadLocalReviews = () => {
-    try {
-      const localData = localStorage.getItem(`reviews_${productId}`)
-      if (localData) {
-        setReviews(JSON.parse(localData))
-      } else {
-        // Mock inicial elegante para não ficar vazio
-        const mockReviews: Review[] = [
-          {
-            id: 'mock-1',
-            name: 'Carlos Oliveira',
-            email: 'carlos@exemplo.com',
-            rating: 5,
-            comment: 'Excelente produto! Superou todas as minhas expectativas. A entrega foi super rápida e o atendimento da loja é nota 10.',
-            created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString()
-          },
-          {
-            id: 'mock-2',
-            name: 'Mariana Souza',
-            email: 'mariana@exemplo.com',
-            rating: 4,
-            comment: 'Gostei muito do produto, material de boa qualidade. Chegou bem embalado. Apenas o prazo de entrega que atrasou um dia, mas valeu a pena.',
-            created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-          }
-        ]
-        setReviews(mockReviews)
-        localStorage.setItem(`reviews_${productId}`, JSON.stringify(mockReviews))
-      }
-    } catch (e) {
-      console.error(e)
     }
   }
 
@@ -128,46 +106,22 @@ export default function ProductReviews({
     }
 
     try {
-      if (usingFallback) {
-        // Salva localmente
-        const localReview: Review = {
-          id: `rev_${Date.now()}`,
-          ...newReview,
-          created_at: new Date().toISOString()
-        }
-        const updatedReviews = [localReview, ...reviews]
-        setReviews(updatedReviews)
-        localStorage.setItem(`reviews_${productId}`, JSON.stringify(updatedReviews))
+      // Tenta salvar no Supabase
+      const { data, error } = await supabase
+        .from('product_reviews')
+        .insert(newReview)
+        .select()
+
+      if (error) throw error
+
+      if (data && data[0]) {
+        setReviews([data[0], ...reviews])
         toast.success('Avaliação enviada com sucesso!')
         resetForm()
-      } else {
-        // Tenta salvar no Supabase
-        const { data, error } = await supabase
-          .from('product_reviews')
-          .insert(newReview)
-          .select()
-
-        if (error) throw error
-
-        if (data && data[0]) {
-          setReviews([data[0], ...reviews])
-          toast.success('Avaliação enviada com sucesso!')
-          resetForm()
-        }
       }
     } catch (err: any) {
       console.error('Erro ao enviar avaliação:', err)
-      // Tenta fallback caso dê erro no Supabase
-      const localReview: Review = {
-        id: `rev_${Date.now()}`,
-        ...newReview,
-        created_at: new Date().toISOString()
-      }
-      const updatedReviews = [localReview, ...reviews]
-      setReviews(updatedReviews)
-      localStorage.setItem(`reviews_${productId}`, JSON.stringify(updatedReviews))
-      toast.success('Avaliação salva localmente no navegador!')
-      resetForm()
+      toast.error('Erro ao enviar avaliação ao banco de dados: ' + (err.message || 'Erro de conexão'))
     } finally {
       setSubmitting(false)
     }
@@ -243,13 +197,6 @@ export default function ProductReviews({
               )
             })}
           </div>
-
-          {usingFallback && (
-            <div style={{ padding: '0.75rem 1rem', background: 'rgba(14, 165, 233, 0.1)', border: '1px solid rgba(14, 165, 233, 0.2)', borderRadius: '10px', display: 'flex', gap: '0.5rem', alignItems: 'center', fontSize: '0.75rem', color: '#0ea5e9', fontWeight: 600 }}>
-              <AlertCircle size={16} />
-              <span>Modo offline ativo (salvamento no navegador)</span>
-            </div>
-          )}
         </div>
 
         {/* Lado Direito: Formulário de Envio e Lista de Avaliações */}

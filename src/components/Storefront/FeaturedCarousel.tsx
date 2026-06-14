@@ -28,48 +28,50 @@ export default function FeaturedCarousel({ products, primaryColor }: { products:
         borderRadius: '24px', 
         overflow: 'hidden', 
         position: 'relative',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.1)'
+        boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
+        border: `3px solid ${primaryColor}22`
       }}>
-        {products.map((product, index) => (
-          <Link 
-            key={product.id} 
-            href={`/product/${product.slug}`}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              width: '100%',
-              height: '100%',
-              opacity: index === currentIndex ? 1 : 0,
-              visibility: index === currentIndex ? 'visible' : 'hidden',
-              transition: 'all 0.8s ease-in-out',
-              textDecoration: 'none'
-            }}
-          >
-            <img 
-              src={product.images?.[0]} 
-              alt={product.name}
-              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-            />
-            
-            {/* Overlay com nome do produto na base */}
-            <div style={{
-              position: 'absolute',
-              bottom: 0,
-              left: 0,
-              right: 0,
-              padding: '3rem 2rem 2rem',
-              background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
-              color: 'white',
-              transform: index === currentIndex ? 'translateY(0)' : 'translateY(20px)',
-              transition: 'all 0.8s ease-out 0.2s',
-              opacity: index === currentIndex ? 1 : 0
-            }}>
-              <h4 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0 }}>{product.name}</h4>
-              <p style={{ fontSize: '0.9rem', opacity: 0.8, marginTop: '0.5rem' }}>Ver detalhes do produto</p>
-            </div>
-          </Link>
-        ))}
+        <div style={{
+          display: 'flex',
+          width: `${products.length * 100}%`,
+          height: '100%',
+          transform: `translateX(-${currentIndex * (100 / products.length)}%)`,
+          transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}>
+          {products.map((product) => (
+            <Link 
+              key={product.id} 
+              href={`/product/${product.slug}`}
+              style={{
+                width: `${100 / products.length}%`,
+                height: '100%',
+                display: 'block',
+                position: 'relative',
+                flexShrink: 0,
+                textDecoration: 'none'
+              }}
+            >
+              <img 
+                src={product.images?.[0]} 
+                alt={product.name}
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+              />
+              
+              {/* Overlay com nome do produto na base - Estilo Glassmorphism Premium */}
+              <div className="glass-featured-badge" style={{
+                position: 'absolute',
+                bottom: '20px',
+                left: '20px',
+                right: '20px',
+                padding: '1.25rem 1.5rem',
+                borderRadius: '16px'
+              }}>
+                <h4 className="glass-featured-title" style={{ fontSize: '1.2rem', fontWeight: 900, margin: 0 }}>{product.name}</h4>
+                <p style={{ fontSize: '0.8rem', fontWeight: 700, color: primaryColor, marginTop: '0.25rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Ver detalhes →</p>
+              </div>
+            </Link>
+          ))}
+        </div>
       </div>
 
       {/* Controles de Navegação */}
@@ -95,6 +97,19 @@ export default function FeaturedCarousel({ products, primaryColor }: { products:
       </div>
 
       <style>{`
+        .carousel-main {
+          box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08), 0 0 30px ${primaryColor}15 !important;
+        }
+        .glass-featured-badge {
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1px solid rgba(255, 255, 255, 0.5);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+        .glass-featured-title {
+          color: #0f172a;
+        }
         .nav-btn {
           background: white;
           border: 1px solid #eee;

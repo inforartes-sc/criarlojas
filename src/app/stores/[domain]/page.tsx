@@ -11,6 +11,7 @@ import { supabase } from '@/lib/supabase'
 import ServicesStorefrontClient from '@/components/Storefront/ServicesStorefrontClient'
 import LawyerStorefrontClient from '@/components/Storefront/LawyerStorefrontClient'
 import WhatsAppFloatingButton from '@/components/Storefront/WhatsAppFloatingButton'
+import OfferPopup from '@/components/Storefront/OfferPopup'
 
 async function getStoreData(domain: string) {
   const subdomainOnly = domain.split('.')[0]
@@ -159,7 +160,7 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
   const buttonHoverVariant = settings.button_hover_variant || 'filled'
   
   const salePriceColor = settings.sale_price_color || '#ef4444'
-  const normalPriceColor = settings.normal_price_color || '#bbbbbb'
+  const normalPriceColor = settings.normal_price_color || '#888888'
   const defaultPriceColor = settings.default_price_color || '#000000'
   const headerBg = settings.header_bg_color || '#ffffff'
   const topBarBg = settings.top_bar_bg_color || '#000000'
@@ -176,8 +177,8 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
   const layoutModel = settings.layout_model || 'modern'
   const themeMode = settings.theme_mode || (layoutModel === 'tech' ? 'dark' : 'light')
   const isDark = themeMode === 'dark'
-  const heroBgColor = settings.hero_bg_color || (isDark ? '#0a0a0a' : layoutModel === 'fashion' ? '#f8f8f8' : 'transparent')
-  const splitBgColor = settings.hero_bg_color && settings.hero_bg_color !== 'transparent' ? settings.hero_bg_color : (isDark ? '#0a0a0a' : '#ffffff')
+  const heroBgColor = settings.hero_bg_color || (settings.body_bg_color || (isDark ? '#0a0a0a' : layoutModel === 'fashion' ? '#f8f8f8' : 'transparent'))
+  const splitBgColor = settings.hero_bg_color && settings.hero_bg_color !== 'transparent' ? settings.hero_bg_color : (settings.body_bg_color || (isDark ? '#0a0a0a' : '#f1f5f9e6'))
   const heroTitleColor = settings.hero_title_color || (isDark ? '#ffffff' : '#111111')
   const heroSubtitleColor = settings.hero_subtitle_color || (isDark ? '#cbd5e1' : '#555555')
   
@@ -237,26 +238,19 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
 
   return (
     <div style={{ 
-      backgroundColor: settings.body_bg_color || (isDark ? '#0a0a0a' : '#f4f5f7'), 
+      backgroundColor: settings.body_bg_color || (isDark ? '#0a0a0a' : '#f1f5f9e6'), 
       color: isDark ? '#f8fafc' : '#111', 
       minHeight: '100vh', 
       fontFamily: `${fontFamily}, system-ui, sans-serif` 
     }}>
       {/* Injeção de CSS Dinâmico para Hover e Variantes */}
       <style>{`
-        body { background-color: ${settings.body_bg_color || (isDark ? '#0a0a0a' : '#f4f5f7')} !important; }
+        body { background-color: ${settings.body_bg_color || (isDark ? '#0a0a0a' : '#f1f5f9e6')} !important; }
         .product-card-wrapper {
           ${settings.card_bg_color ? `background-color: ${settings.card_bg_color} !important;` : ''}
           ${settings.card_bg_color ? `padding: 1.25rem !important; border-radius: 16px !important; border: 1px solid ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.05)'} !important;` : ''}
         }
-        ${settings.body_bg_color && !isDark ? `
-          body, .product-name, h1, h2, h3, h4, h5, h6 {
-            color: #1e293b !important;
-          }
-          p, span {
-            color: #475569 !important;
-          }
-        ` : ''}
+
         .btn-buy-dynamic {
           background-color: ${buttonVariant === 'filled' ? buttonColor : 'transparent'} !important;
           color: ${buttonVariant === 'filled' ? buttonTextColor : buttonColor} !important;
@@ -279,8 +273,7 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
         .category-card:hover .category-img-container { box-shadow: 0 12px 25px rgba(0,0,0,0.08); border-color: ${primaryColor} !important; }
         .category-card img { transition: transform 0.5s ease; }
         .category-card:hover .category-title { color: ${primaryColor} !important; }
-        body { background-color: ${isDark ? '#0a0a0a' : '#f4f5f7'} !important; }
-         section { background-color: ${isDark ? '#0a0a0a' : '#ffffff'}; color: ${isDark ? '#f8fafc' : '#111'}; }
+         section { background-color: ${settings.body_bg_color || (isDark ? '#0a0a0a' : '#f1f5f9e6')}; color: ${isDark ? '#f8fafc' : '#111'}; }
          .glass-card { background-color: ${isDark ? '#0a0a0a' : '#ffffff'} !important; color: ${isDark ? '#f8fafc' : '#111'} !important; }
         .product-card { 
           border-color: ${isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.06)'} !important; 
@@ -359,6 +352,18 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
         }
 
         @media (max-width: 768px) {
+          ${settings.hero_image_mobile_url ? `
+            .hero-full {
+              background-image: ${showHeroText ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${settings.hero_image_mobile_url})` : `url(${settings.hero_image_mobile_url})`} !important;
+            }
+            .hero-left {
+              background-image: linear-gradient(0deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${settings.hero_image_mobile_url}) !important;
+            }
+            .hero-split-img-card {
+              background-image: url(${settings.hero_image_mobile_url}) !important;
+            }
+          ` : ''}
+
           /* Grids → 2 colunas */
           .products-grid-4,
           .products-grid-4-wide {
@@ -411,9 +416,11 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
 
           /* Categorias */
           .categories-row {
-            gap: 1.5rem !important;
-            justify-content: flex-start !important;
-            padding-left: 0.5rem !important;
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 2rem 1rem !important;
+            justify-items: center !important;
+            padding-left: 0 !important;
           }
 
           /* Seção de novidades e all products: padding menor */
@@ -511,14 +518,14 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
                       </div>
                     )}
                     {/* Image Card side (Right) */}
-                    <div style={{ 
+                    <div className="hero-split-img" style={{ 
                       display: 'flex', 
                       alignItems: 'center', 
                       justifyContent: 'center', 
                       width: '100%', 
                       height: '100%' 
                     }}>
-                      <div style={{ 
+                      <div className="hero-split-img-card" style={{ 
                         width: '100%', 
                         height: '55vh',
                         backgroundImage: `url(${heroBgImage})`, 
@@ -698,7 +705,7 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
             <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
               <div className="categories-row">
                 {categories.map(cat => (
-                  <Link key={cat.id} href={`?category=${cat.name}#produtos`} className="category-card" style={{ textDecoration: 'none', textAlign: 'center', cursor: 'pointer', minWidth: '110px' }}>
+                  <Link key={cat.id} href={`?category=${cat.name}#produtos`} className="category-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', textAlign: 'center', cursor: 'pointer', minWidth: '110px' }}>
                     <div className="category-img-container" style={{ width: layoutModel === 'fashion' ? '140px' : '110px', height: layoutModel === 'fashion' ? '140px' : '110px', borderRadius: buttonRadius, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#fff', border: '1px solid rgba(0,0,0,0.05)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
                       {cat.image_url ? <img src={cat.image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <ShoppingBag size={28} color="#999" />}
                     </div>
@@ -752,7 +759,7 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
 
         {/* 3.5. NEW ARRIVALS (NOVIDADES) */}
         {showNewArrivals && newArrivals.length > 0 && (
-          <section className="section-pad-sm" style={{ backgroundColor: isDark ? 'transparent' : '#fafafa' }}>
+          <section className="section-pad-sm" style={{ backgroundColor: settings.body_bg_color || (isDark ? 'transparent' : '#e2e8f0') }}>
             <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
               <div className="section-header-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '4rem' }}>
                 <div>
@@ -812,7 +819,7 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
         </section>
         {/* 6. COLEÇÃO PREMIUM (PERMANENTE NO FINAL) */}
         {!isCatalogo && featuredProducts.length > 0 && (
-          <section id="colecao-premium" className="premium-section" style={{ padding: '8rem 2rem', backgroundColor: isDark ? 'transparent' : '#fafafa' }}>
+          <section id="colecao-premium" className="premium-section" style={{ padding: '8rem 2rem', backgroundColor: settings.body_bg_color || (isDark ? 'transparent' : '#fafafa') }}>
             <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
               <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
                 <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.8rem', color: primaryColor, marginBottom: '1rem' }}>
@@ -835,6 +842,7 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
       </main>
 
       <WhatsAppFloatingButton settings={settings} />
+      <OfferPopup settings={settings} />
     </div>
   )
 }

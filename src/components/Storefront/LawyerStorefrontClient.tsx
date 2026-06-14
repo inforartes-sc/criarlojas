@@ -6,6 +6,7 @@ import BenefitIcon from '@/components/BenefitIcon'
 import StoreHeader from './StoreHeader'
 import StoreFooter from './StoreFooter'
 import WhatsAppFloatingButton from './WhatsAppFloatingButton'
+import OfferPopup from './OfferPopup'
 
 interface LawyerStorefrontClientProps {
   store: any
@@ -376,6 +377,18 @@ export default function LawyerStorefrontClient({
           color: ${settings.cta_desc_color || 'var(--text-secondary)'} !important;
         }
         @media (max-width: 768px) {
+          ${settings.hero_image_mobile_url ? `
+            .lawyer-hero-full {
+              background-image: ${showHeroText ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${settings.hero_image_mobile_url})` : `url(${settings.hero_image_mobile_url})`} !important;
+            }
+            .lawyer-hero-left {
+              background-image: linear-gradient(0deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${settings.hero_image_mobile_url}) !important;
+            }
+            .lawyer-hero-split-img-card {
+              background-image: url(${settings.hero_image_mobile_url}) !important;
+            }
+          ` : ''}
+
           .lawyer-cta-buttons {
             display: flex !important;
             flex-direction: column !important;
@@ -498,14 +511,14 @@ export default function LawyerStorefrontClient({
               </div>
             )}
             {/* Image Card side (Right) */}
-            <div style={{ 
+            <div className="hero-split-img" style={{ 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center', 
               width: '100%', 
               height: '100%' 
             }}>
-              <div style={{ 
+              <div className="lawyer-hero-split-img-card" style={{ 
                 width: '100%', 
                 height: '55vh',
                 backgroundImage: `url(${settings.hero_image_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=600'})`, 
@@ -518,7 +531,7 @@ export default function LawyerStorefrontClient({
             </div>
           </section>
         ) : heroStyle === 'left-aligned' ? (
-          <section id="home" style={{ 
+          <section id="home" className="lawyer-hero-left" style={{ 
             height: '80vh', 
             display: 'flex', 
             alignItems: 'center', 
@@ -590,7 +603,7 @@ export default function LawyerStorefrontClient({
           </section>
         ) : (
           // Default "full" / full width banner
-          <section id="home" style={{ 
+          <section id="home" className="lawyer-hero-full" style={{ 
             height: '80vh', 
             display: 'flex', 
             alignItems: 'center', 
@@ -1130,6 +1143,9 @@ export default function LawyerStorefrontClient({
 
       {/* FLOATING WHATSAPP BUTTON */}
       <WhatsAppFloatingButton settings={settings} />
+
+      {/* PROMOTIONAL POP-UP */}
+      <OfferPopup settings={settings} />
     </div>
   )
 }

@@ -11,6 +11,7 @@ import StoreFooter from '@/components/Storefront/StoreFooter'
 import ProductReviews from '@/components/Storefront/ProductReviews'
 import ProductShippingCalculator from '@/components/Storefront/ProductShippingCalculator'
 import WhatsAppFloatingButton from '@/components/Storefront/WhatsAppFloatingButton'
+import OfferPopup from '@/components/Storefront/OfferPopup'
 
 export const dynamic = 'force-dynamic'
 
@@ -461,6 +462,7 @@ export default async function ProductPage({
       {/* FOOTER (RODAPÉ COM BOTÃO VOLTAR AO TOPO) */}
       <StoreFooter store={store} settings={settings} primaryColor={primaryColor} buttonRadius={buttonRadius} />
       <WhatsAppFloatingButton settings={settings} />
+      <OfferPopup settings={settings} />
     </div>
   )
 }

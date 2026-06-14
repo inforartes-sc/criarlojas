@@ -91,6 +91,7 @@ export default function SettingsPage() {
     show_new_arrivals: true,
     new_arrivals_title: 'Novidades',
     hero_image_url: '',
+    hero_image_mobile_url: '',
     hero_bg_color: '#ffffff',
     hero_title_color: '#111111',
     hero_subtitle_color: '#555555',
@@ -123,6 +124,8 @@ export default function SettingsPage() {
     whatsapp_floating_enabled: true,
     whatsapp_floating_title: 'Suporte WhatsApp',
     whatsapp_agents: [],
+    whatsapp_hours_enabled: false,
+    whatsapp_hours_text: '',
     // Modelo Advocacia fields
     hero_badge: 'Advocacia & Assessoria Jurídica',
     services_title: 'Nossas Especialidades Jurídicas',
@@ -197,7 +200,18 @@ export default function SettingsPage() {
       { name: 'Heloísa Albuquerque', role: 'Arquiteta e Sócia do Studio H+A', text: 'Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicada e focada em resolver tudo de forma amigável.', avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80' },
       { name: 'Carlos Mendes', role: 'Diretor do Grupo Mendes & Cia', text: 'Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80' }
     ],
-    team_layout: 'multiple'
+    team_layout: 'multiple',
+    brands: [],
+    brands_title: '',
+    brands_subtitle: '',
+    offer_popup_enabled: false,
+    offer_popup_title: '',
+    offer_popup_subtitle: '',
+    offer_popup_image_url: '',
+    offer_popup_button_text: '',
+    offer_popup_button_link: '',
+    offer_popup_delay: 5,
+    offer_popup_layout: 'split'
   })
 
   useEffect(() => {
@@ -284,6 +298,7 @@ export default function SettingsPage() {
         show_new_arrivals: s.show_new_arrivals !== undefined ? s.show_new_arrivals : true,
         new_arrivals_title: s.new_arrivals_title || 'Novidades',
         hero_image_url: s.hero_image_url || '',
+        hero_image_mobile_url: s.hero_image_mobile_url || '',
         hero_bg_color: s.hero_bg_color || '#ffffff',
         hero_title_color: s.hero_title_color || '#111111',
         hero_subtitle_color: s.hero_subtitle_color || '#555555',
@@ -317,6 +332,8 @@ export default function SettingsPage() {
         whatsapp_floating_enabled: s.whatsapp_floating_enabled !== undefined ? s.whatsapp_floating_enabled : true,
         whatsapp_floating_title: s.whatsapp_floating_title || 'Suporte WhatsApp',
         whatsapp_agents: s.whatsapp_agents || [],
+        whatsapp_hours_enabled: s.whatsapp_hours_enabled !== undefined ? s.whatsapp_hours_enabled : false,
+        whatsapp_hours_text: s.whatsapp_hours_text || '',
         // Modelo Advocacia loaders
         hero_badge: s.hero_badge || 'Advocacia & Assessoria Jurídica',
         services_title: s.services_title || 'Nossas Especialidades Jurídicas',
@@ -421,7 +438,18 @@ export default function SettingsPage() {
             avatar: s.testimonial_3_avatar || 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80'
           }
         ],
-        team_layout: s.team_layout || 'multiple'
+        team_layout: s.team_layout || 'multiple',
+        brands: s.brands || [],
+        brands_title: s.brands_title || '',
+        brands_subtitle: s.brands_subtitle || '',
+        offer_popup_enabled: s.offer_popup_enabled !== undefined ? s.offer_popup_enabled : false,
+        offer_popup_title: s.offer_popup_title || '',
+        offer_popup_subtitle: s.offer_popup_subtitle || '',
+        offer_popup_image_url: s.offer_popup_image_url || '',
+        offer_popup_button_text: s.offer_popup_button_text || '',
+        offer_popup_button_link: s.offer_popup_button_link || '',
+        offer_popup_delay: s.offer_popup_delay !== undefined ? s.offer_popup_delay : 5,
+        offer_popup_layout: s.offer_popup_layout || 'split'
       })
       setInitialCustomDomain(data.custom_domain || s.custom_domain || '')
     } catch (error: any) {
@@ -573,6 +601,48 @@ export default function SettingsPage() {
     } finally {
       setSaving(false)
     }
+  }
+
+  const handleBrandLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setSaving(true)
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `brand-${index}-${Date.now()}.${fileExt}`
+      const filePath = `${storeId}/${fileName}`
+      const { error: uploadError } = await supabase.storage.from('store-assets').upload(filePath, file)
+      if (uploadError) throw uploadError
+      const { data: { publicUrl } } = supabase.storage.from('store-assets').getPublicUrl(filePath)
+      const updated = [...formData.brands]
+      updated[index] = { ...updated[index], logo_url: publicUrl }
+      setFormData(prev => ({ ...prev, brands: updated }))
+      toast.success('Logo da marca enviado!')
+    } catch (error: any) {
+      toast.error('Erro no upload: ' + error.message)
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const addBrand = () => {
+    setFormData(prev => ({
+      ...prev,
+      brands: [...(prev.brands || []), { name: '', logo_url: '' }]
+    }))
+  }
+
+  const removeBrand = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      brands: (prev.brands || []).filter((_: any, i: number) => i !== index)
+    }))
+  }
+
+  const updateBrand = (index: number, field: string, value: string) => {
+    const updated = [...formData.brands]
+    updated[index] = { ...updated[index], [field]: value }
+    setFormData(prev => ({ ...prev, brands: updated }))
   }
 
   const addTeamMember = () => {
@@ -982,6 +1052,7 @@ export default function SettingsPage() {
             { id: 'secoes', label: 'Seções da Home', icon: Layout },
             { id: 'rodape', label: 'Rodapé', icon: Layout },
             { id: 'whatsapp_floating', label: 'Botão do WhatsApp', icon: MessageSquare },
+            { id: 'pop_up', label: 'Pop-up de Oferta', icon: Sparkles },
             { id: 'layout', label: 'Estrutura', icon: Layout },
             { id: 'dominios', label: 'Domínios & Roteamento', icon: Globe },
             { id: 'seguranca', label: 'Segurança & Acesso', icon: Lock },
@@ -1776,9 +1847,67 @@ export default function SettingsPage() {
                 </button>
               </div>
 
-              {/* 5. CHAMADA PARA AÇÃO (CTA) */}
+              {/* 5. MARCAS QUE TRABALHAMOS */}
+              <div style={{ display: 'grid', gap: '2rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>5. Marcas que Trabalhamos</h4>
+                
+                <div style={{ display: 'grid', gap: '1rem' }}>
+                  <div className="form-group">
+                    <label>Título da Seção de Marcas</label>
+                    <input type="text" value={formData.brands_title || ''} onChange={e => setFormData({...formData, brands_title: e.target.value})} placeholder="Ex: Marcas que Trabalhamos!" />
+                  </div>
+                  <div className="form-group">
+                    <label>Subtítulo da Seção de Marcas</label>
+                    <input type="text" value={formData.brands_subtitle || ''} onChange={e => setFormData({...formData, brands_subtitle: e.target.value})} placeholder="Ex: Oferecemos assistência técnica especializada..." />
+                  </div>
+                </div>
+
+                {(formData.brands || []).map((brand: any, index: number) => (
+                  <div key={index} style={{ padding: '1.5rem', border: '1px solid var(--border)', borderRadius: '12px', display: 'grid', gap: '1rem', backgroundColor: 'rgba(255,255,255,0.01)' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <h5 style={{ fontWeight: 700, margin: 0 }}>Marca {index + 1}</h5>
+                      <button
+                        type="button"
+                        onClick={() => removeBrand(index)}
+                        style={{ background: 'rgba(239, 68, 68, 0.1)', color: '#ef4444', border: 'none', borderRadius: '8px', cursor: 'pointer', padding: '0.5rem', display: 'flex' }}
+                      >
+                        <X size={16} />
+                      </button>
+                    </div>
+
+                    <div className="form-group">
+                      <label>Logo da Marca</label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+                        <div style={{ width: '120px', height: '60px', borderRadius: '8px', border: '2px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: '#ffffff', padding: '5px' }}>
+                          {brand.logo_url ? <img src={brand.logo_url} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <ImageIcon size={24} color="var(--muted)" />}
+                        </div>
+                        <label className="btn-secondary" style={{ cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', padding: '0.5rem 1rem', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                          <Upload size={16} />
+                          Fazer Upload
+                          <input type="file" hidden accept="image/*" onChange={(e) => handleBrandLogoUpload(e, index)} />
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label>Nome da Marca</label>
+                      <input type="text" value={brand.name} onChange={e => updateBrand(index, 'name', e.target.value)} placeholder="Ex: Brastemp" />
+                    </div>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={addBrand}
+                  style={{ padding: '0.75rem', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', border: '1px dashed var(--primary)', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.9rem', width: '100%' }}
+                >
+                  + Adicionar Marca
+                </button>
+              </div>
+
+              {/* 6. CHAMADA PARA AÇÃO (CTA) */}
               <div style={{ display: 'grid', gap: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
-                <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>5. Chamada para Ação (CTA Final)</h4>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 700, color: 'var(--primary)', margin: 0 }}>6. Chamada para Ação (CTA Final)</h4>
                 <div className="form-group">
                   <label>Título da Chamada</label>
                   <input type="text" value={formData.cta_title} onChange={e => setFormData({...formData, cta_title: e.target.value})} placeholder="Ex: Pronto para Climatizar o Seu Espaço?" />
@@ -2090,24 +2219,61 @@ export default function SettingsPage() {
                 </div>
               </div>
               
-              <div className="form-group">
-                <label>Imagem de Fundo do Banner</label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  <div style={{ width: '100%', height: '200px', borderRadius: '12px', border: '2px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.02)', position: 'relative' }}>
-                    {formData.hero_image_url ? (
-                      <img src={formData.hero_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <div style={{ textAlign: 'center', color: 'var(--muted)' }}>
-                        <ImageIcon size={32} style={{ margin: '0 auto 0.5rem' }} />
-                        <span style={{ fontSize: '0.875rem' }}>Nenhuma imagem selecionada</span>
-                      </div>
-                    )}
+              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem' }}>
+                <div className="form-group">
+                  <label>Imagem de Fundo do Banner (Computador)</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ width: '100%', height: '180px', borderRadius: '12px', border: '2px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.02)', position: 'relative' }}>
+                      {formData.hero_image_url ? (
+                        <img src={formData.hero_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ textAlign: 'center', color: 'var(--muted)' }}>
+                          <ImageIcon size={32} style={{ margin: '0 auto 0.5rem' }} />
+                          <span style={{ fontSize: '0.875rem' }}>Nenhuma imagem selecionada</span>
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <label className="btn-secondary" style={{ cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', padding: '0.75rem 1.25rem', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                        <Upload size={16} />
+                        Upload Computador
+                        <input type="file" hidden accept="image/*" onChange={handleHeroImageUpload} />
+                      </label>
+                      {formData.hero_image_url && (
+                        <button onClick={() => setFormData({...formData, hero_image_url: ''})} style={{ padding: '0.75rem 1rem', border: '1px solid #ef4444', borderRadius: '8px', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>
+                          <X size={16} />
+                        </button>
+                      )}
+                    </div>
                   </div>
-                  <label className="btn-secondary" style={{ cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', padding: '0.75rem 1.5rem', border: '1px solid var(--border)', borderRadius: '8px', alignSelf: 'flex-start' }}>
-                    <Upload size={18} />
-                    Fazer Upload de Imagem
-                    <input type="file" hidden accept="image/*" onChange={handleHeroImageUpload} />
-                  </label>
+                </div>
+
+                <div className="form-group">
+                  <label>Imagem do Banner (Celular / Mobile)</label>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div style={{ width: '100%', height: '180px', borderRadius: '12px', border: '2px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.02)', position: 'relative' }}>
+                      {formData.hero_image_mobile_url ? (
+                        <img src={formData.hero_image_mobile_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <div style={{ textAlign: 'center', color: 'var(--muted)' }}>
+                          <ImageIcon size={32} style={{ margin: '0 auto 0.5rem' }} />
+                          <span style={{ fontSize: '0.875rem' }}>Nenhuma imagem selecionada</span>
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <label className="btn-secondary" style={{ cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', padding: '0.75rem 1.25rem', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.85rem' }}>
+                        <Upload size={16} />
+                        Upload Celular
+                        <input type="file" hidden accept="image/*" onChange={(e) => handleGenericImageUpload(e, 'hero_image_mobile_url')} />
+                      </label>
+                      {formData.hero_image_mobile_url && (
+                        <button onClick={() => setFormData({...formData, hero_image_mobile_url: ''})} style={{ padding: '0.75rem 1rem', border: '1px solid #ef4444', borderRadius: '8px', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>
+                          <X size={16} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -2518,6 +2684,21 @@ export default function SettingsPage() {
                   <input type="text" placeholder="Suporte WhatsApp" value={formData.whatsapp_floating_title || ''} onChange={e => setFormData({...formData, whatsapp_floating_title: e.target.value})} />
                 </div>
 
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginTop: '1rem' }}>
+                  <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Exibir Horário de Funcionamento</span>
+                  <label className="switch">
+                    <input type="checkbox" checked={formData.whatsapp_hours_enabled || false} onChange={e => setFormData({...formData, whatsapp_hours_enabled: e.target.checked})} />
+                    <span className="slider round"></span>
+                  </label>
+                </div>
+
+                {formData.whatsapp_hours_enabled && (
+                  <div className="form-group" style={{ marginTop: '1rem' }}>
+                    <label>Horário de Funcionamento (Opcional - Ex: Seg. a Sex. das 08h às 18h)</label>
+                    <input type="text" placeholder="Ex: Seg. a Sex. das 08h às 18h" value={formData.whatsapp_hours_text || ''} onChange={e => setFormData({...formData, whatsapp_hours_text: e.target.value})} />
+                  </div>
+                )}
+
                 <div style={{ borderTop: '1px solid var(--border)', paddingTop: '2rem' }}>
                   <h4 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>Atendentes / Contatos</h4>
                   <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginBottom: '1.5rem' }}>Se você adicionar mais de um atendente, o botão flutuante abrirá uma lista para o cliente escolher com quem falar. Cada atendente pode ter um número diferente.</p>
@@ -2585,6 +2766,106 @@ export default function SettingsPage() {
                       + Adicionar Novo Atendente
                     </button>
                   </div>
+                </div>
+              </div>
+            )
+          )}
+
+          {activeTab === 'pop_up' && (
+            plan !== 'premium' ? (
+              <div className="glass-card" style={{ padding: '3.5rem 2.5rem', textAlign: 'center', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', color: '#6366f1' }}>
+                  <Sparkles size={32} />
+                </div>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginBottom: '0.75rem' }}>Recurso Exclusivo do Plano Premium</h2>
+                <p style={{ color: 'var(--muted)', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '2rem' }}>
+                  O Módulo de Pop-up de Oferta não está ativo no seu plano atual (<strong>{plan === 'pro' ? 'Profissional' : 'Básico'}</strong>). Faça um upgrade agora mesmo para o Plano Premium para criar pop-ups de ofertas irresistíveis e aumentar suas conversões!
+                </p>
+                <Link href="/admin/subscription" style={{ display: 'inline-block', padding: '0.85rem 2rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)', transition: '0.2s' }}>
+                  Ver Planos & Fazer Upgrade
+                </Link>
+              </div>
+            ) : (
+              <div className="glass-card" style={{ padding: '2.5rem', display: 'grid', gap: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
+                  <div>
+                    <h3 style={{ fontSize: '1.5rem', fontWeight: 800, margin: 0, color: 'var(--foreground)' }}>Pop-up de Oferta</h3>
+                    <p style={{ color: 'var(--muted)', fontSize: '0.85rem', margin: '0.25rem 0 0 0' }}>Configure um pop-up de ofertas e promoções para captar a atenção dos visitantes na sua loja.</p>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                    <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Ativar Pop-up</span>
+                    <label className="switch">
+                      <input type="checkbox" checked={formData.offer_popup_enabled || false} onChange={e => setFormData({...formData, offer_popup_enabled: e.target.checked})} />
+                      <span className="slider round"></span>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Título do Pop-up (Ex: Super Desconto de Inauguração! 🎉)</label>
+                  <input type="text" placeholder="Super Oferta!" value={formData.offer_popup_title || ''} onChange={e => setFormData({...formData, offer_popup_title: e.target.value})} />
+                </div>
+
+                <div className="form-group">
+                  <label>Subtítulo / Descrição da Oferta</label>
+                  <textarea rows={3} placeholder="Aproveite este desconto exclusivo por tempo limitado." value={formData.offer_popup_subtitle || ''} onChange={e => setFormData({...formData, offer_popup_subtitle: e.target.value})} />
+                </div>
+
+                <div className="form-group">
+                  <label>Imagem da Oferta (Recomendado banner retangular vertical ou quadrado)</label>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>
+                    <div style={{ width: '120px', height: '120px', borderRadius: '12px', border: '2px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                      {formData.offer_popup_image_url ? <img src={formData.offer_popup_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <ImageIcon size={32} color="var(--muted)" />}
+                    </div>
+                    <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center' }}>
+                      <label className="btn-secondary" style={{ cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', padding: '0.75rem 1.5rem', border: '1px solid var(--border)', borderRadius: '8px' }}>
+                        <Upload size={18} />
+                        Selecionar Imagem
+                        <input type="file" hidden accept="image/*" onChange={(e) => handleGenericImageUpload(e, 'offer_popup_image_url')} />
+                      </label>
+                      {formData.offer_popup_image_url && (
+                        <button onClick={() => setFormData({...formData, offer_popup_image_url: ''})} style={{ padding: '0.75rem 1.25rem', border: '1px solid #ef4444', borderRadius: '8px', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>
+                          <X size={18} />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                  <div className="form-group">
+                    <label>Texto do Botão de Ação (CTA)</label>
+                    <input type="text" placeholder="Garantir Desconto" value={formData.offer_popup_button_text || ''} onChange={e => setFormData({...formData, offer_popup_button_text: e.target.value})} />
+                  </div>
+                  <div className="form-group">
+                    <label>Link de Destino do Botão (Ex: /produtos ou link do WhatsApp)</label>
+                    <input type="text" placeholder="https://..." value={formData.offer_popup_button_link || ''} onChange={e => setFormData({...formData, offer_popup_button_link: e.target.value})} />
+                  </div>
+                </div>
+                
+                <div className="form-group">
+                  <label>Modelo do Pop-up</label>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', border: '1px solid var(--border)', borderRadius: '12px', cursor: 'pointer', backgroundColor: (formData.offer_popup_layout || 'split') === 'split' ? 'rgba(255,255,255,0.03)' : 'transparent' }}>
+                      <input type="radio" name="offer_popup_layout" checked={(formData.offer_popup_layout || 'split') === 'split'} onChange={() => setFormData({...formData, offer_popup_layout: 'split'})} />
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>Dividido (Produto)</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Exibe a imagem em destaque à esquerda (sem cortes) e o texto à direita.</div>
+                      </div>
+                    </label>
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '1rem', border: '1px solid var(--border)', borderRadius: '12px', cursor: 'pointer', backgroundColor: formData.offer_popup_layout === 'full' ? 'rgba(255,255,255,0.03)' : 'transparent' }}>
+                      <input type="radio" name="offer_popup_layout" checked={formData.offer_popup_layout === 'full'} onChange={() => setFormData({...formData, offer_popup_layout: 'full'})} />
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>Fundo Inteiro (Background)</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Exibe a imagem cobrindo todo o fundo do pop-up com textos sobrepostos.</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <div className="form-group">
+                  <label>Tempo de Atraso para Exibição (em segundos)</label>
+                  <input type="number" min={1} max={60} value={formData.offer_popup_delay || 5} onChange={e => setFormData({...formData, offer_popup_delay: parseInt(e.target.value) || 5})} />
                 </div>
               </div>
             )
@@ -2738,7 +3019,7 @@ export default function SettingsPage() {
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 2fr', gap: '0.5rem', fontFamily: 'monospace', fontSize: '0.85rem' }}>
                       <div><strong>TIPO:</strong> A</div>
                       <div><strong>NOME:</strong> @ <span style={{ color: 'var(--muted)', fontSize: '0.75rem' }}>(ou vazio)</span></div>
-                      <div><strong>DESTINO:</strong> 216.198.79.1</div>
+                      <div><strong>DESTINO:</strong> 76.76.21.21</div>
                     </div>
                   </div>
                 </div>

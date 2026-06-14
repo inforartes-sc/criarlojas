@@ -245,7 +245,7 @@ export default function SaaSCommercialPortal() {
       priceMonthly: 29.90,
       priceAnnual: 23.92, // 20% OFF
       desc: 'Ideal para quem deseja vender pelo catálogo do WhatsApp de forma rápida.',
-      features: ['Catálogo online no WhatsApp', 'Produtos cadastrados ilimitados', 'Domínio personalizado ou grátis', 'Certificado SSL incluso', '[-] Checkout integrado na loja', '[-] Cupons de Desconto e Pixels', '[-] Avaliações de Produtos (Reviews)', '[-] Campanhas de Promoções', '[-] Botão do WhatsApp Personalizado', '[-] Recuperação de Carrinho Abandonado'],
+      features: ['Catálogo online no WhatsApp', 'Produtos cadastrados ilimitados', 'Domínio personalizado ou grátis', 'Certificado SSL incluso', '[-] Checkout integrado na loja', '[-] Cupons de Desconto e Pixels', '[-] Avaliações de Produtos (Reviews)', '[-] Campanhas de Promoções', '[-] Botão do WhatsApp Personalizado', '[-] Recuperação de Carrinho Abandonado', '[-] Pop-up de Ofertas e Promoções'],
       popular: false,
       buttonText: 'Contratar Plano Básico'
     },
@@ -255,7 +255,7 @@ export default function SaaSCommercialPortal() {
       priceMonthly: 34.90,
       priceAnnual: 27.92, // 20% OFF
       desc: 'Loja virtual completa com checkout integrado, pagamento e frete.',
-      features: ['Loja com Checkout Integrado', 'Integração Correios e Melhor Envio', 'Mercado Pago e outros gateways', 'Produtos cadastrados ilimitados', 'Domínio personalizado ou grátis', 'Certificado SSL incluso', 'Botão do WhatsApp Personalizado', '[-] Cupons de Desconto e Pixels', '[-] Avaliações de Produtos (Reviews)', '[-] Recuperação de Carrinho Abandonado'],
+      features: ['Loja com Checkout Integrado', 'Integração Correios e Melhor Envio', 'Mercado Pago e outros gateways', 'Produtos cadastrados ilimitados', 'Domínio personalizado ou grátis', 'Certificado SSL incluso', 'Botão do WhatsApp Personalizado', '[-] Cupons de Desconto e Pixels', '[-] Avaliações de Produtos (Reviews)', '[-] Recuperação de Carrinho Abandonado', '[-] Pop-up de Ofertas e Promoções'],
       popular: true,
       buttonText: 'Contratar Plano Pro'
     },
@@ -265,15 +265,15 @@ export default function SaaSCommercialPortal() {
       priceMonthly: 47.90,
       priceAnnual: 38.32, // 20% OFF
       desc: 'Tudo do Pro mais ferramentas completas de marketing e reviews para decolar.',
-      features: ['Tudo do Plano Pro incluso', 'Cupons de Desconto ilimitados', 'Pixels (Facebook, Google, etc)', 'Avaliações de Clientes (Reviews)', 'Campanhas de Promoções', 'Suporte Prioritário VIP', 'Produtos cadastrados ilimitados', 'Botão do WhatsApp Personalizado', 'Recuperação de Carrinho Abandonado'],
+      features: ['Tudo do Plano Pro incluso', 'Cupons de Desconto ilimitados', 'Pixels (Facebook, Google, etc)', 'Avaliações de Clientes (Reviews)', 'Campanhas de Promoções', 'Suporte Prioritário VIP', 'Produtos cadastrados ilimitados', 'Botão do WhatsApp Personalizado', 'Recuperação de Carrinho Abandonado', 'Pop-up de Ofertas e Promoções'],
       popular: false,
       buttonText: 'Contratar Plano Premium'
     }
   ]
- 
+
   const [plans, setPlans] = useState<any[]>([])
   const [loadingPlans, setLoadingPlans] = useState(true)
- 
+
   useEffect(() => {
     async function loadPlans() {
       try {
@@ -282,7 +282,7 @@ export default function SaaSCommercialPortal() {
           .select('*')
           .eq('subdomain', 'platform-settings')
           .single()
- 
+
         if (data && data.settings && data.settings.plans && Array.isArray(data.settings.plans)) {
           const dbPlans = data.settings.plans.map((p: any) => {
             const price = Number(p.price || 0)
@@ -299,6 +299,13 @@ export default function SaaSCommercialPortal() {
               features = [
                 ...features,
                 p.id === 'premium' ? 'Recuperação de Carrinho Abandonado' : '[-] Recuperação de Carrinho Abandonado'
+              ]
+            }
+            const hasPopup = features.some((f: any) => typeof f === 'string' && (f.includes('Pop-up de Ofertas') || f.includes('Popup de Ofertas')));
+            if (!hasPopup) {
+              features = [
+                ...features,
+                p.id === 'premium' ? 'Pop-up de Ofertas e Promoções' : '[-] Pop-up de Ofertas e Promoções'
               ]
             }
             return {
@@ -1227,7 +1234,7 @@ export default function SaaSCommercialPortal() {
 
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginBottom: '2.5rem' }}>
                         <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#94a3b8' }}>R$</span>
-                        <span style={{ fontSize: '3.5rem', fontWeight: 900, color: '#f8fafc', lineHeight: 1 }}>{price.toFixed(2)}</span>
+                        <span style={{ fontSize: '3.5rem', fontWeight: 900, color: '#f8fafc', lineHeight: 1 }}>{price.toFixed(2).replace('.', ',')}</span>
                         <span style={{ fontSize: '0.9rem', color: '#94a3b8', fontWeight: 600 }}>/mês</span>
                       </div>
 
@@ -1402,6 +1409,12 @@ export default function SaaSCommercialPortal() {
                     </tr>
                     <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
                       <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Recuperação de Carrinho Abandonado</td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
+                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
+                    </tr>
+                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Pop-up de Ofertas e Promoções</td>
                       <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
                       <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
                       <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>

@@ -1119,6 +1119,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
           width: '80%', 
           maxWidth: '280px',
           backgroundColor: '#fff', 
+          color: '#0f172a',
           zIndex: 10001, 
           transition: 'left 0.3s ease', 
           boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
@@ -1128,8 +1129,8 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
           overflow: 'hidden'
         }}>
           <div style={{ padding: '1.5rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #eee' }}>
-            <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800 }}>MENU</h2>
-            <button onClick={() => setIsMenuOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={24} /></button>
+            <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 800, color: '#0f172a' }}>MENU</h2>
+            <button onClick={() => setIsMenuOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0f172a' }}><X size={24} /></button>
           </div>
           <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem', overflowY: 'auto' }}>
             {headerLinks.map((link: any, i: number) => renderMobileHeaderLink(link, i))}

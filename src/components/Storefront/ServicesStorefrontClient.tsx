@@ -1,12 +1,13 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { ArrowRight, Sparkles, Shield, Cpu, Star, MessageSquare, Send, X, Wrench, Menu, ShoppingBag, ShieldCheck, Zap } from 'lucide-react'
+import { ArrowRight, Sparkles, Shield, Cpu, Star, MessageSquare, Send, X, Wrench, Menu, ShoppingBag, ShieldCheck, Zap, ChevronLeft, ChevronRight } from 'lucide-react'
 import BenefitIcon from '@/components/BenefitIcon'
 import StoreHeader from './StoreHeader'
 import StoreFooter from './StoreFooter'
 import ProductCard from './ProductCard'
 import WhatsAppFloatingButton from './WhatsAppFloatingButton'
+import OfferPopup from './OfferPopup'
 
 interface ServicesStorefrontClientProps {
   store: any
@@ -299,6 +300,31 @@ export default function ServicesStorefrontClient({
     { title: 'Pagamento Facilitado', subtitle: 'Em até 12x no cartão' }
   ]
 
+  // Brands logic
+  const showBrandsSection = ['services', 'aura', 'electrician'].includes(layoutModel)
+  const defaultBrands = [
+    { name: 'Brastemp', logo_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&auto=format&fit=crop&q=60' },
+    { name: 'Electrolux', logo_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&auto=format&fit=crop&q=60' },
+    { name: 'Consul', logo_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&auto=format&fit=crop&q=60' },
+    { name: 'LG', logo_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&auto=format&fit=crop&q=60' },
+    { name: 'Samsung', logo_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&auto=format&fit=crop&q=60' },
+    { name: 'Carrier', logo_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&auto=format&fit=crop&q=60' }
+  ]
+  const brandsList = settings.brands?.length > 0 ? settings.brands : defaultBrands
+  const brandsScrollRef = useRef<HTMLDivElement>(null)
+
+  const scrollBrandsLeft = () => {
+    if (brandsScrollRef.current) {
+      brandsScrollRef.current.scrollBy({ left: -300, behavior: 'smooth' })
+    }
+  }
+
+  const scrollBrandsRight = () => {
+    if (brandsScrollRef.current) {
+      brandsScrollRef.current.scrollBy({ left: 300, behavior: 'smooth' })
+    }
+  }
+
   return (
     <div className="services-template" style={{ 
       backgroundColor: 'var(--bg-dark)',
@@ -311,6 +337,7 @@ export default function ServicesStorefrontClient({
         .services-template {
           --accent-cyan: ${primaryColor};
           --accent-blue: ${primaryColor};
+          --accent-purple: ${primaryColor};
           --primary-color: ${primaryColor};
           --secondary-color: ${secondaryColor};
           --radius-md: ${settings.button_style === 'pill' ? '16px' : settings.button_style === 'sharp' ? '0px' : '12px'};
@@ -432,6 +459,18 @@ export default function ServicesStorefrontClient({
           }
         }
         @media (max-width: 768px) {
+          ${settings.hero_image_mobile_url ? `
+            .services-hero-full {
+              background-image: ${settings.show_hero_text !== false ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${settings.hero_image_mobile_url})` : `url(${settings.hero_image_mobile_url})`} !important;
+            }
+            .services-hero-left {
+              background-image: linear-gradient(0deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${settings.hero_image_mobile_url}) !important;
+            }
+            .services-hero-split-img-card {
+              background-image: url(${settings.hero_image_mobile_url}) !important;
+            }
+          ` : ''}
+
           #home {
             grid-template-columns: 1fr !important;
             padding: 5rem 1.5rem !important;
@@ -528,14 +567,14 @@ export default function ServicesStorefrontClient({
               </div>
             )}
             {/* Image Card side (Right) */}
-            <div style={{ 
+            <div className="hero-split-img" style={{ 
               display: 'flex', 
               alignItems: 'center', 
               justifyContent: 'center', 
               width: '100%', 
               height: '100%' 
             }}>
-              <div style={{ 
+              <div className="services-hero-split-img-card" style={{ 
                 width: '100%', 
                 height: '55vh',
                 backgroundImage: `url(${settings.hero_image_url || '/hero_smart_space.png'})`, 
@@ -548,7 +587,7 @@ export default function ServicesStorefrontClient({
             </div>
           </section>
         ) : heroStyle === 'left-aligned' ? (
-          <section id="home" style={{ 
+          <section id="home" className="services-hero-left" style={{ 
             height: '80vh', 
             display: 'flex', 
             alignItems: 'center', 
@@ -624,7 +663,7 @@ export default function ServicesStorefrontClient({
           </section>
         ) : (
           // Default "full" / full width banner
-          <section id="home" style={{ 
+          <section id="home" className="services-hero-full" style={{ 
             height: '80vh', 
             display: 'flex', 
             alignItems: 'center', 
@@ -1078,6 +1117,59 @@ export default function ServicesStorefrontClient({
         </div>
       </section>
 
+      {/* 7.5. BRANDS WE WORK WITH */}
+      {showBrandsSection && (
+        <section id="brands" className={`brands-section ${isDark ? 'dark' : ''}`}>
+          <div className="container">
+            <div className="section-header reveal active" style={{ marginBottom: '3rem' }}>
+              <span className="section-tag" style={{ color: primaryColor }}>Marcas</span>
+              <h2 className="section-title">{settings.brands_title || "Marcas que Trabalhamos!"}</h2>
+              <p className="section-subtitle">
+                {settings.brands_subtitle || "Oferecemos assistência técnica especializada em consertos e manutenção das principais marcas."}
+              </p>
+            </div>
+
+            <div className="brands-carousel-container reveal active">
+              {brandsList.length > 5 && (
+                <button 
+                  className="carousel-nav-btn prev" 
+                  onClick={scrollBrandsLeft}
+                  aria-label="Anterior"
+                >
+                  <ChevronLeft size={20} />
+                </button>
+              )}
+
+              <div className="brands-scroll-wrapper" ref={brandsScrollRef}>
+                {brandsList.map((brand: any, index: number) => (
+                  <div key={index} className="brand-card-item">
+                    {brand.logo_url ? (
+                      <img 
+                        src={brand.logo_url} 
+                        alt={brand.name} 
+                        className="brand-logo-img" 
+                      />
+                    ) : (
+                      <span className="brand-fallback-text">{brand.name}</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {brandsList.length > 5 && (
+                <button 
+                  className="carousel-nav-btn next" 
+                  onClick={scrollBrandsRight}
+                  aria-label="Próximo"
+                >
+                  <ChevronRight size={20} />
+                </button>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* 8. CTA SECTION */}
       <section className="cta-section" style={{ borderTop: '1px solid var(--border-glass)' }}>
         <div className="container">
@@ -1308,6 +1400,7 @@ export default function ServicesStorefrontClient({
       )}
 
       <WhatsAppFloatingButton settings={settings} />
+      <OfferPopup settings={settings} />
     </div>
   )
 }

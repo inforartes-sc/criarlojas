@@ -56,7 +56,9 @@ export default function WhatsAppFloatingButton({ settings }: { settings: any }) 
           transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
         }}
         className="whatsapp-floating-btn"
-        title="Fale Conosco pelo WhatsApp"
+        title={settings.whatsapp_hours_enabled && settings.whatsapp_hours_text 
+          ? `Fale Conosco pelo WhatsApp - Horário: ${settings.whatsapp_hours_text}` 
+          : "Fale Conosco pelo WhatsApp"}
       >
         <WhatsAppIcon size={34} />
       </button>
@@ -93,6 +95,8 @@ export default function WhatsAppFloatingButton({ settings }: { settings: any }) 
           boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
           border: `1px solid ${settings.theme_mode === 'dark' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.06)'}`,
           overflow: 'hidden',
+          transform: 'translateZ(0)',
+          WebkitTransform: 'translateZ(0)',
           animation: 'slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
           fontFamily: 'Inter, system-ui, sans-serif'
         }}>
@@ -101,10 +105,29 @@ export default function WhatsAppFloatingButton({ settings }: { settings: any }) 
             background: 'linear-gradient(135deg, #128C7E 0%, #075E54 100%)',
             padding: '1.25rem',
             color: '#ffffff',
-            position: 'relative'
+            position: 'relative',
+            borderTopLeftRadius: '20px',
+            borderTopRightRadius: '20px'
           }}>
             <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800 }}>{title}</h4>
             <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.8rem', opacity: 0.9 }}>Selecione um de nossos atendentes abaixo:</p>
+            {settings.whatsapp_hours_enabled && settings.whatsapp_hours_text && (
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.35rem', 
+                margin: '0.5rem 0 0 0', 
+                fontSize: '0.75rem', 
+                opacity: 0.95, 
+                backgroundColor: 'rgba(255, 255, 255, 0.15)', 
+                padding: '4px 8px', 
+                borderRadius: '6px', 
+                width: 'fit-content' 
+              }}>
+                <span style={{ fontSize: '0.85rem' }}>🕒</span>
+                <span>{settings.whatsapp_hours_text}</span>
+              </div>
+            )}
             <button 
               onClick={() => setIsOpen(false)}
               style={{
@@ -131,7 +154,9 @@ export default function WhatsAppFloatingButton({ settings }: { settings: any }) 
             display: 'flex',
             flexDirection: 'column',
             gap: '0.75rem',
-            backgroundColor: settings.theme_mode === 'dark' ? '#0f172a' : '#f8fafc'
+            backgroundColor: settings.theme_mode === 'dark' ? '#0f172a' : '#f8fafc',
+            borderBottomLeftRadius: '20px',
+            borderBottomRightRadius: '20px'
           }}>
             {finalAgents.map((agent: any, index: number) => (
               <div 

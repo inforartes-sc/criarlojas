@@ -2311,3 +2311,116 @@ ul {
   font-size: 0.85rem !important;
   text-align: left !important;
 }
+
+/* BRANDS SECTION */
+.brands-section {
+  padding: 80px 0;
+  background: #f8fafc;
+  border-top: 1px solid var(--border-glass);
+}
+.brands-section.dark {
+  background: #0b0f19;
+}
+.brands-carousel-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+.brands-scroll-wrapper {
+  display: flex;
+  gap: 1.5rem;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 1rem 0.5rem;
+  width: 100%;
+  scrollbar-width: none; /* Firefox */
+}
+.brands-scroll-wrapper::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+.brand-card-item {
+  flex: 0 0 200px;
+  height: 100px;
+  background: #ffffff;
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  transition: all var(--transition-normal);
+  cursor: pointer;
+  user-select: none;
+}
+.brands-section.dark .brand-card-item {
+  background: #141b2d;
+}
+.brand-card-item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+.brand-logo-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: grayscale(100%);
+  opacity: 0.6;
+  transition: all 0.3s ease;
+}
+.brand-card-item:hover .brand-logo-img {
+  filter: grayscale(0%);
+  opacity: 1;
+}
+.brand-fallback-text {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  text-align: center;
+  transition: all 0.3s ease;
+}
+.carousel-nav-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid var(--border-glass);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  z-index: 10;
+  color: var(--text-primary);
+  transition: all var(--transition-fast);
+}
+.brands-section.dark .carousel-nav-btn {
+  background: #141b2d;
+  color: #ffffff;
+}
+.carousel-nav-btn:hover {
+  color: #ffffff;
+  border-color: transparent;
+  transform: translateY(-50%) scale(1.05);
+}
+.carousel-nav-btn.prev {
+  left: -22px;
+}
+.carousel-nav-btn.next {
+  right: -22px;
+}
+@media (max-width: 768px) {
+  .carousel-nav-btn {
+    display: none;
+  }
+  .brand-card-item {
+    flex: 0 0 160px;
+    height: 80px;
+  }
+}
+
