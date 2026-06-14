@@ -1990,7 +1990,7 @@ export default function SaaSCommercialPortal() {
 
       {/* RODAPÉ PREMIUM */}
       <footer style={{ background: '#070a12', borderTop: '1px solid rgba(255, 255, 255, 0.08)', padding: '6rem 0 4rem 0', color: '#94a3b8' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem', display: 'grid', gridTemplateColumns: '2fr 1fr 1.5fr', gap: '4rem', marginBottom: '6rem' }}>
+        <div className="saas-footer-grid" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem', gap: '4rem', marginBottom: '6rem' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
               <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -2062,6 +2062,10 @@ export default function SaaSCommercialPortal() {
         .plan-card-portal:hover { transform: translateY(-8px); border-color: #10b981; box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2); }
         .plan-btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
         .footer-link:hover { color: #ffffff !important; text-decoration: underline !important; }
+        .saas-footer-grid {
+          display: grid;
+          grid-template-columns: 2fr 1fr 1.5fr;
+        }
         .close-btn:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.05); }
         .cancel-btn:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.2); }
         .submit-lead-btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
@@ -2541,6 +2545,10 @@ export default function SaaSCommercialPortal() {
           }
           .mobile-menu-toggle {
             display: inline-flex !important;
+          }
+          .saas-footer-grid {
+            grid-template-columns: 1fr !important;
+            gap: 2rem !important;
           }
 
           .saas-hero-section {
