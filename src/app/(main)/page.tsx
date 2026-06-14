@@ -2001,7 +2001,7 @@ export default function SaaSCommercialPortal() {
             <p style={{ fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '2rem', maxWidth: '350px' }}>
               A plataforma SaaS de e-commerce definitiva para lojistas e empreendedores que buscam alta conversão e estabilidade com setup assistido.
             </p>
-            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+            <div className="desktop-copyright" style={{ fontSize: '0.85rem', color: '#64748b' }}>
               © 2026 Criar Lojas Inc. Todos os direitos reservados.
             </div>
           </div>
@@ -2039,6 +2039,10 @@ export default function SaaSCommercialPortal() {
               <Shield size={20} color="#10b981" style={{ flexShrink: 0 }} />
               <span style={{ color: '#10b981', fontSize: '0.95rem', fontWeight: 800, letterSpacing: '0.5px' }}>Ambiente 100% Seguro</span>
             </div>
+            
+            <div className="mobile-copyright" style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '1.5rem' }}>
+              © 2026 Criar Lojas Inc. Todos os direitos reservados.
+            </div>
           </div>
         </div>
 
@@ -2065,6 +2069,9 @@ export default function SaaSCommercialPortal() {
         .saas-footer-grid {
           display: grid;
           grid-template-columns: 2fr 1fr 1.5fr;
+        }
+        .mobile-copyright {
+          display: none !important;
         }
         .close-btn:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.05); }
         .cancel-btn:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.2); }
@@ -2549,6 +2556,12 @@ export default function SaaSCommercialPortal() {
           .saas-footer-grid {
             grid-template-columns: 1fr !important;
             gap: 2rem !important;
+          }
+          .desktop-copyright {
+            display: none !important;
+          }
+          .mobile-copyright {
+            display: block !important;
           }
 
           .saas-hero-section {
