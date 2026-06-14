@@ -611,9 +611,6 @@ export default function SaaSCommercialPortal() {
           </div>
 
           <div className="saas-nav-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <a href={getAbsoluteUrl('teste', '/admin')} style={{ color: '#0ea5e9', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 700, padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid rgba(14, 165, 233, 0.3)', transition: 'all 0.2s' }} className="login-btn">
-              Login do Lojista
-            </a>
             <button onClick={() => handleOpenLeadModal('modern', 'pro')} style={{ background: 'linear-gradient(135deg, #10b981, #0ea5e9)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '0.95rem', fontWeight: 800, padding: '0.65rem 1.5rem', borderRadius: '10px', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)', transition: 'all 0.2s' }} className="cta-btn">
               Solicitar Minha Loja
             </button>

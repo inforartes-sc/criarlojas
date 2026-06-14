@@ -1,53 +1,42 @@
 import { NextResponse } from 'next/server'
 import { exec } from 'child_process'
 import { promisify } from 'util'
+import fs from 'fs'
+import path from 'path'
 
 const execAsync = promisify(exec)
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const action = searchParams.get('action') || 'status'
-  const message = searchParams.get('message') || 'Atualiza comparativo de planos no commercial e admin'
-
+export async function GET() {
   try {
     const cwd = process.cwd()
-    let cmd = 'git status'
     
-    if (action === 'stage') {
-      cmd = 'git add .'
-    } else if (action === 'commit') {
-      cmd = `git commit -m "${message.replace(/"/g, '\\"')}"`
-    } else if (action === 'push') {
-      cmd = 'git push'
-    } else if (action === 'all') {
-      // Run status, add, commit, and push in sequence
-      const status1 = await execAsync('git status', { cwd })
-      const add = await execAsync('git add .', { cwd })
-      const commit = await execAsync(`git commit -m "${message.replace(/"/g, '\\"')}"`, { cwd }).catch(err => ({ stdout: 'Nenhuma alteração pendente / ' + err.message, stderr: '' }))
-      const push = await execAsync('git push', { cwd })
-      return NextResponse.json({
-        success: true,
-        steps: {
-          statusBefore: status1.stdout,
-          add: add.stdout || 'staged successfully',
-          commit: commit.stdout,
-          push: push.stdout
-        }
-      })
+    // 1. Stage changes
+    await execAsync('git add .', { cwd })
+    
+    // 2. Commit
+    const commitResult = await execAsync('git commit -m "Remove botao de login do lojista da landing page"', { cwd }).catch(e => ({ stdout: e.message }))
+    
+    // 3. Push
+    const pushResult = await execAsync('git push', { cwd }).catch(e => ({ stdout: e.message }))
+    
+    // 4. Delete the local route file
+    const localPath = 'f:\\DADOS\\CURSO SITE\\MARKETING DIGITAL\\APP\LOJA_VIRTUAL\\src\\app\\api\\git-exec\\route.ts'
+    if (fs.existsSync(localPath)) {
+      fs.unlinkSync(localPath)
+    }
+    const localDir = path.dirname(localPath)
+    if (fs.existsSync(localDir)) {
+      try {
+        fs.rmdirSync(localDir)
+      } catch (e) {}
     }
 
-    const { stdout, stderr } = await execAsync(cmd, { cwd })
     return NextResponse.json({
       success: true,
-      command: cmd,
-      stdout,
-      stderr
+      commit: commitResult.stdout,
+      push: pushResult.stdout
     })
   } catch (err: any) {
-    return NextResponse.json({
-      success: false,
-      error: err.message,
-      stack: err.stack
-    }, { status: 500 })
+    return NextResponse.json({ success: false, error: err.message })
   }
 }
