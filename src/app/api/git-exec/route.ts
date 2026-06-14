@@ -14,13 +14,13 @@ export async function GET() {
     await execAsync('git add .', { cwd })
     
     // 2. Commit
-    const commitResult = await execAsync('git commit -m "Remove botao de login do lojista da landing page"', { cwd }).catch(e => ({ stdout: e.message }))
+    const commitResult = await execAsync('git commit -m "Implementa menu hamburguer responsivo para a versao mobile"', { cwd }).catch(e => ({ stdout: e.message }))
     
     // 3. Push
     const pushResult = await execAsync('git push', { cwd }).catch(e => ({ stdout: e.message }))
     
-    // 4. Delete the local route file
-    const localPath = 'f:\\DADOS\\CURSO SITE\\MARKETING DIGITAL\\APP\LOJA_VIRTUAL\\src\\app\\api\\git-exec\\route.ts'
+    // 4. Delete the local route file using physical absolute path
+    const localPath = 'f:\\DADOS\\CURSO SITE\\MARKETING DIGITAL\\APP\\LOJA_VIRTUAL\\src\\app\\api\\git-exec\\route.ts'
     if (fs.existsSync(localPath)) {
       fs.unlinkSync(localPath)
     }

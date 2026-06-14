@@ -33,6 +33,7 @@ import {
   Mail,
   User,
   X,
+  Menu,
   Globe,
   Palette,
   Clock,
@@ -45,6 +46,7 @@ import { getDomainSuffix, getAbsoluteUrl } from '@/lib/getDomainSuffix'
 
 export default function SaaSCommercialPortal() {
   const [domainSuffix, setDomainSuffix] = useState('.localhost:3000')
+  const [showMobileMenu, setShowMobileMenu] = useState(false)
 
   useEffect(() => {
     setDomainSuffix(getDomainSuffix())
@@ -614,9 +616,54 @@ export default function SaaSCommercialPortal() {
             <button onClick={() => handleOpenLeadModal('modern', 'pro')} style={{ background: 'linear-gradient(135deg, #10b981, #0ea5e9)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '0.95rem', fontWeight: 800, padding: '0.65rem 1.5rem', borderRadius: '10px', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)', transition: 'all 0.2s' }} className="cta-btn">
               Solicitar Minha Loja
             </button>
+            <button 
+              onClick={() => setShowMobileMenu(!showMobileMenu)}
+              className="mobile-menu-toggle"
+              style={{
+                background: 'rgba(255, 255, 255, 0.05)',
+                border: '1px solid rgba(255, 255, 255, 0.1)',
+                color: '#f8fafc',
+                padding: '0.5rem',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                display: 'none',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              aria-label="Menu"
+            >
+              {showMobileMenu ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
         </div>
       </nav>
+
+      {/* Mobile Menu Drawer */}
+      {showMobileMenu && (
+        <div 
+          style={{
+            position: 'fixed',
+            top: '73px',
+            left: 0,
+            right: 0,
+            background: '#090d16',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            padding: '1.5rem 2rem',
+            zIndex: 49,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.25rem',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+            animation: 'fadeIn 0.2s ease-out'
+          }}
+          className="mobile-menu-drawer"
+        >
+          <a href="#funcionalidades" onClick={() => setShowMobileMenu(false)} style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Funcionalidades</a>
+          <a href="#vitrine" onClick={() => setShowMobileMenu(false)} style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Lojas Modelo</a>
+          <a href="#calculadora" onClick={() => setShowMobileMenu(false)} style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Calculadora de ROI</a>
+          <a href="#precos" onClick={() => setShowMobileMenu(false)} style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Planos</a>
+        </div>
+      )}
 
       {/* HERO SECTION DE ALTO IMPACTO */}
       <section style={{ padding: '12rem 0 8rem 0', position: 'relative', overflow: 'hidden' }} className="saas-hero-section">
@@ -2471,6 +2518,9 @@ export default function SaaSCommercialPortal() {
           .saas-nav-actions .cta-btn {
             padding: 0.5rem 1rem !important;
             font-size: 0.85rem !important;
+          }
+          .mobile-menu-toggle {
+            display: inline-flex !important;
           }
 
           .saas-hero-section {
