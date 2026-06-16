@@ -267,32 +267,74 @@ export default function SuperAdminPayments() {
         return !isDemo
       })
 
-      const generatedInvoices = activeBillingStores.map((store, index) => {
-        const invId = `INV-2026-${String(index + 1).padStart(3, '0')}`
-        const paidInfo = store.settings?.paid_invoices?.[invId]
-
-        const planNum = index % 3
-        const planName = store.settings?.plan === 'premium' || planNum === 0 ? 'Premium Ilimitado' : store.settings?.plan === 'pro' || planNum === 1 ? 'Plano Profissional' : 'Plano Básico'
-        const amountVal = planName === 'Premium Ilimitado' ? 299.00 : planName === 'Plano Profissional' ? 149.00 : 49.00
+      const generatedInvoices: any[] = []
+      
+      activeBillingStores.forEach(store => {
+        const paidInvoices = store.settings?.paid_invoices || {}
+        const planCode = store.plan || store.settings?.plan || 'pro'
+        const amountVal = planCode === 'premium' ? 299.00 : planCode === 'pro' ? 149.00 : 49.00
+        const planName = planCode === 'premium' ? 'Premium Ilimitado' : planCode === 'pro' ? 'Plano Profissional' : 'Plano Básico'
         
-        const statusVal = paidInfo ? 'paid' : (index === 0 ? 'paid' : index === 2 ? 'overdue' : 'pending')
-        const paidAtVal = paidInfo ? paidInfo.paidAt : (statusVal === 'paid' ? '15/05/2026 14:32' : null)
-        const paymentMethodVal = paidInfo ? paidInfo.paymentMethod : (index % 2 === 0 ? 'PIX' : 'Cartão de Crédito')
-
-        return {
-          id: invId,
-          storeId: store.id,
-          storeName: store.name || 'Loja Comercial',
-          subdomain: store.subdomain,
-          merchantName: store.settings?.admin_user || store.settings?.name || store.name || 'Lojista Principal',
-          plan: planName,
-          amount: amountVal,
-          dueDate: `15/05/2026`,
-          status: statusVal,
-          paymentMethod: paymentMethodVal,
-          paidAt: paidAtVal,
-          merchantPhone: store.settings?.whatsapp || store.settings?.phone || '11999999999',
-          merchantEmail: store.settings?.email || 'contato@lojavirtual.com'
+        const start = new Date(store.created_at || '2026-02-01')
+        const now = new Date()
+        
+        let currentYear = start.getFullYear()
+        let currentMonth = start.getMonth()
+        
+        const endYear = now.getFullYear()
+        const endMonth = now.getMonth()
+        
+        const nextMonthClosed = now.getDate() >= 25
+        const targetEndYear = nextMonthClosed ? (endMonth === 11 ? endYear + 1 : endYear) : endYear
+        const targetEndMonth = nextMonthClosed ? (endMonth === 11 ? 0 : endMonth + 1) : endMonth
+        
+        let iterDate = new Date(currentYear, currentMonth, 1)
+        const targetDate = new Date(targetEndYear, targetEndMonth, 1)
+        
+        while (iterDate <= targetDate) {
+          const year = iterDate.getFullYear()
+          const monthIndex = iterDate.getMonth()
+          
+          const invId = `INV-${year}-${String(monthIndex + 1).padStart(2, '0')}`
+          
+          const monthNames = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+          ]
+          const labelMonth = `${monthNames[monthIndex]} / ${year}`
+          const dueDate = `10/${String(monthIndex + 1).padStart(2, '0')}/${year}`
+          const prevMonthIdx = monthIndex === 0 ? 11 : monthIndex - 1
+          const prevYear = monthIndex === 0 ? year - 1 : year
+          const cycleClosedDate = `25/${String(prevMonthIdx + 1).padStart(2, '0')}/${prevYear}`
+          
+          const isPaid = !!paidInvoices[invId]
+          const paidInfo = paidInvoices[invId]
+          
+          const dueObj = new Date(year, monthIndex, 10, 23, 59, 59)
+          let status = 'pending'
+          if (isPaid) {
+            status = 'paid'
+          } else if (dueObj < now) {
+            status = 'overdue'
+          }
+          
+          generatedInvoices.push({
+            id: invId,
+            storeId: store.id,
+            storeName: store.name || 'Loja Comercial',
+            subdomain: store.subdomain,
+            merchantName: store.settings?.admin_user || store.settings?.name || store.name || 'Lojista Principal',
+            plan: planName,
+            amount: amountVal,
+            dueDate,
+            status,
+            paymentMethod: paidInfo?.paymentMethod || (isPaid ? 'PIX' : 'PIX'),
+            paidAt: paidInfo?.paidAt || (status === 'paid' ? `${cycleClosedDate} 15:30` : null),
+            merchantPhone: store.settings?.whatsapp || store.settings?.phone || '11999999999',
+            merchantEmail: store.settings?.email || 'contato@lojavirtual.com'
+          })
+          
+          iterDate.setMonth(iterDate.getMonth() + 1)
         }
       })
 

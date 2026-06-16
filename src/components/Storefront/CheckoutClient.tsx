@@ -180,7 +180,7 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
   // Calculate discount
   let discountAmount = 0
   if (appliedCoupon) {
-    if (appliedCoupon.type === 'percentage') {
+    if (appliedCoupon.type === 'percent' || appliedCoupon.type === 'percentage') {
       discountAmount = subtotal * (appliedCoupon.value / 100)
     } else {
       discountAmount = appliedCoupon.value
@@ -193,10 +193,8 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
     pixDiscount = (subtotal - discountAmount) * (settings.pix_discount_percentage / 100)
   }
 
-  const shippingCost = selectedShippingMethod 
-    ? selectedShippingMethod.cost 
-    : (settings.free_shipping_threshold && subtotal >= settings.free_shipping_threshold ? 0 : (settings.fixed_shipping_cost || 15))
-  const finalTotal = Math.max(0, subtotal - discountAmount - pixDiscount + shippingCost)
+  const shippingCost = selectedShippingMethod ? selectedShippingMethod.cost : 0
+  const finalTotal = Math.max(0, subtotal - discountAmount - pixDiscount + (selectedShippingMethod ? shippingCost : 0))
 
   const saveAbandonedCartDraft = async (updatedData = formData) => {
     if ((updatedData.name || updatedData.phone || updatedData.email) && cartItems.length > 0) {
@@ -242,10 +240,10 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
   const handleApplyCoupon = () => {
     if (!couponCode.trim()) return toast.error('Digite o código do cupom.')
 
-    const coupons = settings.coupons || []
+    const coupons = settings.promotions?.coupons || settings.coupons || []
     const found = coupons.find((c: any) => c.code.toUpperCase() === couponCode.trim().toUpperCase())
 
-    if (!found) {
+    if (!found || found.active === false) {
       return toast.error('Cupom inválido ou inexistente.')
     }
 
@@ -984,8 +982,8 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
 
                   <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: '1rem', fontWeight: 600 }}>
                     <span>Frete</span>
-                    <span style={{ color: shippingCost === 0 ? '#10b981' : '#0f172a', fontWeight: 700 }}>
-                      {shippingCost === 0 ? 'GRÁTIS' : `R$ ${shippingCost.toFixed(2).replace('.', ',')}`}
+                    <span style={{ color: selectedShippingMethod ? (shippingCost === 0 ? '#10b981' : '#0f172a') : '#64748b', fontWeight: 700 }}>
+                      {selectedShippingMethod ? (shippingCost === 0 ? 'GRÁTIS' : `R$ ${shippingCost.toFixed(2).replace('.', ',')}`) : 'A calcular'}
                     </span>
                   </div>
 

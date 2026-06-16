@@ -56,16 +56,15 @@ export default function CartClient({ store, categories }: CartClientProps) {
   // Calculate discount
   let discountAmount = 0
   if (appliedCoupon) {
-    if (appliedCoupon.type === 'percentage') {
+    if (appliedCoupon.type === 'percent' || appliedCoupon.type === 'percentage') {
       discountAmount = subtotal * (appliedCoupon.value / 100)
     } else {
       discountAmount = appliedCoupon.value
     }
   }
 
-  const baseShippingCost = settings.free_shipping_threshold && subtotal >= settings.free_shipping_threshold ? 0 : (settings.fixed_shipping_cost || 15)
-  const shippingCost = selectedShippingMethod ? selectedShippingMethod.cost : baseShippingCost
-  const finalTotal = Math.max(0, subtotal - discountAmount + (subtotal > 0 ? shippingCost : 0))
+  const shippingCost = selectedShippingMethod ? selectedShippingMethod.cost : 0
+  const finalTotal = Math.max(0, subtotal - discountAmount + (subtotal > 0 && selectedShippingMethod ? shippingCost : 0))
 
   const handleCalculateShipping = async () => {
     if (!cepInput.trim() || cepInput.replace(/\D/g, '').length !== 8) {
@@ -107,10 +106,10 @@ export default function CartClient({ store, categories }: CartClientProps) {
   const handleApplyCoupon = () => {
     if (!couponCode.trim()) return toast.error('Digite o código do cupom.')
 
-    const coupons = settings.coupons || []
+    const coupons = settings.promotions?.coupons || settings.coupons || []
     const found = coupons.find((c: any) => c.code.toUpperCase() === couponCode.trim().toUpperCase())
 
-    if (!found) {
+    if (!found || found.active === false) {
       return toast.error('Cupom inválido ou inexistente.')
     }
 
@@ -324,10 +323,10 @@ export default function CartClient({ store, categories }: CartClientProps) {
                   </div>
                 )}
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: '1.05rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '1.5rem' }}>
+                 <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontSize: '1.05rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '1.5rem' }}>
                   <span>Frete Estimado</span>
-                  <span style={{ fontWeight: 700, color: shippingCost === 0 ? '#10b981' : '#0f172a' }}>
-                    {shippingCost === 0 ? 'Grátis' : `R$ ${shippingCost.toFixed(2).replace('.', ',')}`}
+                  <span style={{ fontWeight: 700, color: selectedShippingMethod ? (shippingCost === 0 ? '#10b981' : '#0f172a') : '#64748b' }}>
+                    {selectedShippingMethod ? (shippingCost === 0 ? 'Grátis' : `R$ ${shippingCost.toFixed(2).replace('.', ',')}`) : 'A calcular'}
                   </span>
                 </div>
 
@@ -340,7 +339,7 @@ export default function CartClient({ store, categories }: CartClientProps) {
               </div>
 
               <Link 
-                href="./checkout" 
+                href="/checkout" 
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', padding: '1.4rem', backgroundColor: primaryColor, color: '#fff', textDecoration: 'none', borderRadius: '16px', fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px', boxShadow: `0 10px 25px ${primaryColor}40`, transition: 'all 0.2s ease', textAlign: 'center' }}
               >
                 Prosseguir para Checkout <ArrowRight size={22} />

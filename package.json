@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate-db": "node scratch/run_migration.js"
+    "migrate-db": "node scratch/run_migration.js",
+    "deploy-rpcs": "node scratch/create_rpc_functions.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.105.4",

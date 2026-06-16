@@ -27,7 +27,7 @@ import ServicesLawyerDashboard from '@/components/Admin/ServicesLawyerDashboard'
 export default function AdminDashboard() {
   const { store } = useAdminAuth()
   const layoutModel = store?.settings?.layout_model || ''
-  const isServiceOrLawyer = ['services', 'aura', 'lawyer', 'advocacia', 'advocacy'].includes(layoutModel)
+  const isServiceOrLawyer = ['services', 'aura', 'lawyer', 'advocacia', 'advocacy', 'electrician'].includes(layoutModel)
 
 
 

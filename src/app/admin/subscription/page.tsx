@@ -142,36 +142,67 @@ export default function SubscriptionPage() {
       const planName = matchedPlan ? matchedPlan.name : (planCode === 'premium' ? 'Premium Ilimitado' : planCode === 'pro' ? 'Plano Profissional' : 'Plano Básico')
       const amountVal = matchedPlan ? Number(matchedPlan.price) : (planCode === 'premium' ? 299.00 : planCode === 'pro' ? 149.00 : 49.00)
 
-      // Gera lista de faturas do lojista
-      const generatedInvoices = [
-        {
-          id: 'INV-2026-003',
-          month: 'Maio / 2026',
-          dueDate: '15/05/2026',
-          amount: amountVal,
-          status: paidInvoices['INV-2026-003'] ? 'paid' : 'pending',
-          paidAt: paidInvoices['INV-2026-003']?.paidAt || null,
-          paymentMethod: paidInvoices['INV-2026-003']?.paymentMethod || 'PIX'
-        },
-        {
-          id: 'INV-2026-002',
-          month: 'Abril / 2026',
-          dueDate: '15/04/2026',
-          amount: amountVal,
-          status: paidInvoices['INV-2026-002'] ? 'paid' : 'paid',
-          paidAt: paidInvoices['INV-2026-002']?.paidAt || '15/04/2026 14:20',
-          paymentMethod: paidInvoices['INV-2026-002']?.paymentMethod || 'PIX'
-        },
-        {
-          id: 'INV-2026-001',
-          month: 'Março / 2026',
-          dueDate: '15/03/2026',
-          amount: amountVal,
-          status: paidInvoices['INV-2026-001'] ? 'paid' : 'paid',
-          paidAt: paidInvoices['INV-2026-001']?.paidAt || '15/03/2026 11:45',
-          paymentMethod: paidInvoices['INV-2026-001']?.paymentMethod || 'Cartão de Crédito'
+      // Gera lista de faturas do lojista dinamicamente
+      const generatedInvoices = (() => {
+        const list = []
+        const start = new Date(data.created_at || '2026-02-01')
+        const now = new Date()
+        
+        let currentYear = start.getFullYear()
+        let currentMonth = start.getMonth()
+        
+        const endYear = now.getFullYear()
+        const endMonth = now.getMonth()
+        
+        const nextMonthClosed = now.getDate() >= 25
+        const targetEndYear = nextMonthClosed ? (endMonth === 11 ? endYear + 1 : endYear) : endYear
+        const targetEndMonth = nextMonthClosed ? (endMonth === 11 ? 0 : endMonth + 1) : endMonth
+        
+        let iterDate = new Date(currentYear, currentMonth, 1)
+        const targetDate = new Date(targetEndYear, targetEndMonth, 1)
+        
+        while (iterDate <= targetDate) {
+          const year = iterDate.getFullYear()
+          const monthIndex = iterDate.getMonth()
+          
+          const invId = `INV-${year}-${String(monthIndex + 1).padStart(2, '0')}`
+          
+          const monthNames = [
+            'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+            'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+          ]
+          const labelMonth = `${monthNames[monthIndex]} / ${year}`
+          const dueDate = `10/${String(monthIndex + 1).padStart(2, '0')}/${year}`
+          const prevMonthIdx = monthIndex === 0 ? 11 : monthIndex - 1
+          const prevYear = monthIndex === 0 ? year - 1 : year
+          const cycleClosedDate = `25/${String(prevMonthIdx + 1).padStart(2, '0')}/${prevYear}`
+          
+          const isPaid = !!paidInvoices[invId]
+          const paidInfo = paidInvoices[invId]
+          
+          const dueObj = new Date(year, monthIndex, 10, 23, 59, 59)
+          let status = 'pending'
+          if (isPaid) {
+            status = 'paid'
+          } else if (dueObj < now) {
+            status = 'overdue'
+          }
+          
+          list.unshift({
+            id: invId,
+            month: labelMonth,
+            dueDate,
+            amount: amountVal,
+            status,
+            paidAt: paidInfo?.paidAt || (status === 'paid' ? `${cycleClosedDate} 15:30` : null),
+            paymentMethod: paidInfo?.paymentMethod || (isPaid ? 'PIX' : 'PIX')
+          })
+          
+          iterDate.setMonth(iterDate.getMonth() + 1)
         }
-      ]
+        
+        return list
+      })()
 
       setInvoices(generatedInvoices)
 
@@ -503,7 +534,17 @@ export default function SubscriptionPage() {
                 <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 600, display: 'block', marginBottom: '0.25rem' }}>Próximo Vencimento</span>
                 <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                   <Calendar size={18} />
-                  15/06/2026
+                  {(() => {
+                    const now = new Date()
+                    const currentYear = now.getFullYear()
+                    const currentMonth = now.getMonth()
+                    if (now.getDate() <= 10) {
+                      return `10/${String(currentMonth + 1).padStart(2, '0')}/${currentYear}`
+                    }
+                    const nextMonth = currentMonth === 11 ? 0 : currentMonth + 1
+                    const nextYear = currentMonth === 11 ? currentYear + 1 : currentYear
+                    return `10/${String(nextMonth + 1).padStart(2, '0')}/${nextYear}`
+                  })()}
                 </span>
               </div>
               <div>
@@ -543,7 +584,7 @@ export default function SubscriptionPage() {
             <FileText size={24} color="#0ea5e9" />
             <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: 'var(--foreground)' }}>Faturas & Histórico de Pagamentos</h2>
           </div>
-          <span style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 600 }}>Ciclo de faturamento dia 15 de cada mês</span>
+          <span style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: 600 }}>Ciclo fecha dia 25 do mês anterior • Vence dia 10</span>
         </div>
 
         <div className="invoice-table-container">
@@ -982,8 +1023,8 @@ export default function SubscriptionPage() {
                 />
               </div>
 
-              <div style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '1rem', borderRadius: '12px', fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.5 }}>
-                ⚠️ <strong>Atenção:</strong> Ao confirmar, sua solicitação será enviada ao nosso setor financeiro. Sua loja e painel continuarão acessíveis até o final do ciclo atual pago.
+              <div style={{ background: 'rgba(239, 68, 68, 0.05)', border: '1px solid rgba(239, 68, 68, 0.2)', padding: '1.25rem', borderRadius: '12px', fontSize: '0.85rem', color: '#cbd5e1', lineHeight: 1.6 }}>
+                ⚠️ <strong>Atenção:</strong> Ao confirmar o cancelamento, sua solicitação será enviada para a administração. Após a confirmação e exclusão final realizada pelo Super Admin, todos os dados da sua loja (produtos, faturas, clientes e configurações) serão <strong>EXCLUÍDAS DEFINITIVAMENTE</strong> do banco de dados. <strong>Este processo é irreversível e os dados não poderão ser recuperados!</strong>
               </div>
 
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', marginTop: '0.5rem' }}>
@@ -1000,7 +1041,7 @@ export default function SubscriptionPage() {
                   style={{ padding: '0.85rem 2rem', background: '#ef4444', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(239, 68, 68, 0.4)' }}
                 >
                   {processingCancel ? <Loader2 className="animate-spin" size={18} /> : <Check size={18} />}
-                  <span>Confirmar Solicitação</span>
+                  <span>Confirmar Solicitação de Cancelamento</span>
                 </button>
               </div>
             </form>

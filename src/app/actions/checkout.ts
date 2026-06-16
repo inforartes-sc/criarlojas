@@ -99,14 +99,38 @@ export async function processCheckoutAction({
     // 4. Update Coupon Usage if applicable
     if (appliedCouponCode) {
       const { data: storeData } = await supabase.from('stores').select('settings').eq('id', storeId).single()
-      if (storeData && storeData.settings && storeData.settings.coupons) {
-        const updatedCoupons = storeData.settings.coupons.map((c: any) => {
-          if (c.code.toUpperCase() === appliedCouponCode.toUpperCase()) {
-            return { ...c, used: (c.used || 0) + 1 }
+      if (storeData && storeData.settings) {
+        const settings = storeData.settings
+        let updatedCoupons = null
+        let path = ''
+
+        if (settings.promotions && settings.promotions.coupons) {
+          path = 'promotions'
+          updatedCoupons = settings.promotions.coupons.map((c: any) => {
+            if (c.code.toUpperCase() === appliedCouponCode.toUpperCase()) {
+              return { ...c, used: (c.used || 0) + 1 }
+            }
+            return c
+          })
+        } else if (settings.coupons) {
+          path = 'direct'
+          updatedCoupons = settings.coupons.map((c: any) => {
+            if (c.code.toUpperCase() === appliedCouponCode.toUpperCase()) {
+              return { ...c, used: (c.used || 0) + 1 }
+            }
+            return c
+          })
+        }
+
+        if (updatedCoupons) {
+          const newSettings = { ...settings }
+          if (path === 'promotions') {
+            newSettings.promotions = { ...settings.promotions, coupons: updatedCoupons }
+          } else {
+            newSettings.coupons = updatedCoupons
           }
-          return c
-        })
-        await supabase.from('stores').update({ settings: { ...storeData.settings, coupons: updatedCoupons } }).eq('id', storeId)
+          await supabase.from('stores').update({ settings: newSettings }).eq('id', storeId)
+        }
       }
     }
 

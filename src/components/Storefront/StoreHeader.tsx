@@ -1217,7 +1217,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                 </div>
                 <div style={{ display: 'grid', gap: '0.75rem' }}>
                   <Link 
-                    href="./cart" 
+                    href="/cart" 
                     onClick={() => setIsCartOpen(false)}
                     style={{ 
                       display: 'flex', 
@@ -1236,7 +1236,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                     Ver Carrinho Completo
                   </Link>
                   <Link 
-                    href="./checkout" 
+                    href="/checkout" 
                     onClick={() => setIsCartOpen(false)}
                     style={{ 
                       display: 'flex', 

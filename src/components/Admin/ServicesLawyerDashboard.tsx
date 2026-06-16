@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Users, Briefcase, Star, UserCheck, Loader2, ArrowRight, Scale, Wrench, Mail, Phone, Package, ShoppingBag } from 'lucide-react'
+import { Users, Briefcase, Star, UserCheck, Loader2, ArrowRight, Scale, Wrench, Mail, Phone, Package, ShoppingBag, DollarSign, FileText } from 'lucide-react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 
@@ -32,20 +32,22 @@ export default function ServicesLawyerDashboard({ store, layoutModel }: Props) {
   const loadData = async () => {
     setLoading(true)
     try {
+      // 1. Clientes de Serviço
       const { count: custCount } = await supabase
-        .from('customers')
+        .from('service_clients')
         .select('*', { count: 'exact', head: true })
         .eq('store_id', store.id)
       setTotalCustomers(custCount || 0)
 
       const { data: custData } = await supabase
-        .from('customers')
-        .select('name, email, phone, created_at')
+        .from('service_clients')
+        .select('id, name, email, phone, created_at')
         .eq('store_id', store.id)
         .order('created_at', { ascending: false })
         .limit(5)
       setRecentCustomers(custData || [])
 
+      // 2. Serviços Ofertados (produtos ativos onde is_service = true)
       const { count: prodCount } = await supabase
         .from('products')
         .select('*', { count: 'exact', head: true })
@@ -53,38 +55,41 @@ export default function ServicesLawyerDashboard({ store, layoutModel }: Props) {
         .eq('is_service', true)
       setTotalProducts(prodCount || 0)
 
+      // 3. Faturas Emitidas (custom_invoices)
       const { count: partsCount } = await supabase
-        .from('products')
+        .from('custom_invoices')
         .select('*', { count: 'exact', head: true })
         .eq('store_id', store.id)
-        .eq('is_service', false)
       setTotalParts(partsCount || 0)
 
-      const { count: orderCount } = await supabase
-        .from('orders')
-        .select('*', { count: 'exact', head: true })
+      // 4. Faturamento Recebido (soma de recebíveis pagos de financial_entries)
+      const { data: incomeData } = await supabase
+        .from('financial_entries')
+        .select('amount')
         .eq('store_id', store.id)
-      setTotalOrders(orderCount || 0)
+        .eq('type', 'receivable')
+        .eq('status', 'paid')
+      const sumIncome = incomeData ? incomeData.reduce((acc, curr) => acc + Number(curr.amount || 0), 0) : 0
+      setTotalOrders(sumIncome)
 
-      // 1. Fetch recent orders
-      const { data: ordersData } = await supabase
-        .from('orders')
-        .select('id, total_amount, status, created_at, customers(name, email)')
+      // 5. Últimas Faturas Emitidas
+      const { data: invoicesData } = await supabase
+        .from('custom_invoices')
+        .select('id, amount, status, created_at, service_clients(name, email)')
         .eq('store_id', store.id)
         .order('created_at', { ascending: false })
         .limit(3)
-      setRecentOrders(ordersData || [])
+      setRecentOrders(invoicesData || [])
 
-      // 2. Fetch low stock parts
-      const { data: lowStockData } = await supabase
-        .from('products')
-        .select('name, stock_quantity, category')
+      // 6. Faturas Pendentes
+      const { data: pendingInvoices } = await supabase
+        .from('custom_invoices')
+        .select('id, title, amount, due_date, service_clients(name)')
         .eq('store_id', store.id)
-        .eq('is_service', false)
-        .lte('stock_quantity', 5)
-        .order('stock_quantity', { ascending: true })
+        .eq('status', 'pending')
+        .order('due_date', { ascending: true })
         .limit(4)
-      setLowStockParts(lowStockData || [])
+      setLowStockParts(pendingInvoices || [])
     } catch (err) {
       console.error('Erro ao carregar dados:', err)
     } finally {
@@ -98,28 +103,28 @@ export default function ServicesLawyerDashboard({ store, layoutModel }: Props) {
     ? [
         {
           label: 'Clientes',
-          value: totalCustomers,
+          value: String(totalCustomers),
           icon: Users,
           color: '#6366f1',
           link: '/admin/customers'
         },
         {
           label: 'Áreas de Atuação',
-          value: (settings.practice_areas || categoriesList || []).length || 0,
+          value: String((settings.practice_areas || categoriesList || []).length || 0),
           icon: Scale,
           color: '#0ea5e9',
           link: null
         },
         {
           label: 'Membros da Equipe',
-          value: teamMembers.length,
+          value: String(teamMembers.length),
           icon: UserCheck,
           color: '#22c55e',
           link: '/admin/settings'
         },
         {
           label: 'Depoimentos',
-          value: testimonials.length,
+          value: String(testimonials.length),
           icon: Star,
           color: '#ec4899',
           link: '/admin/settings'
@@ -127,29 +132,29 @@ export default function ServicesLawyerDashboard({ store, layoutModel }: Props) {
       ]
     : [
         {
-          label: 'Serviços',
-          value: totalProducts,
+          label: 'Faturamento Recebido',
+          value: `R$ ${totalOrders.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
+          icon: DollarSign,
+          color: '#22c55e',
+          link: '/admin/financial'
+        },
+        {
+          label: 'Faturas Emitidas',
+          value: String(totalParts),
+          icon: FileText,
+          color: '#0ea5e9',
+          link: '/admin/financial'
+        },
+        {
+          label: 'Serviços Ofertados',
+          value: String(totalProducts),
           icon: Wrench,
           color: '#6366f1',
           link: '/admin/products'
         },
         {
-          label: 'Peças',
-          value: totalParts,
-          icon: Package,
-          color: '#0ea5e9',
-          link: '/admin/parts'
-        },
-        {
-          label: 'Orçamentos',
-          value: totalOrders,
-          icon: ShoppingBag,
-          color: '#22c55e',
-          link: '/admin/orders'
-        },
-        {
-          label: 'Clientes',
-          value: totalCustomers,
+          label: 'Clientes de Serviço',
+          value: String(totalCustomers),
           icon: Users,
           color: '#ec4899',
           link: '/admin/customers'
@@ -261,53 +266,68 @@ export default function ServicesLawyerDashboard({ store, layoutModel }: Props) {
           <>
             <div className="glass-card" style={{ padding: '1.75rem', borderRadius: '16px', display: 'grid', gap: '1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Últimos Orçamentos</h3>
-                <Link href="/admin/orders" style={{ fontSize: '0.85rem', color: '#6366f1', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  Ver Todos <ArrowRight size={14} />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Últimas Faturas</h3>
+                <Link href="/admin/financial" style={{ fontSize: '0.85rem', color: '#6366f1', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  Ver Todas <ArrowRight size={14} />
                 </Link>
               </div>
               {recentOrders.length === 0 ? (
-                <p style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>Nenhum orçamento cadastrado ainda.</p>
+                <p style={{ color: 'var(--muted)', fontSize: '0.9rem' }}>Nenhuma fatura emitida ainda.</p>
               ) : (
                 <div style={{ display: 'grid', gap: '0.75rem' }}>
-                  {recentOrders.map((order: any, i: number) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'var(--card-bg)', border: '1px solid var(--border)' }}>
-                      <div>
-                        <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>#{order.id.slice(0, 8).toUpperCase()}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{order.customers?.name || 'Cliente'}</div>
+                  {recentOrders.map((order: any, i: number) => {
+                    const statusLabels: Record<string, string> = {
+                      paid: 'Paga',
+                      pending: 'Pendente',
+                      cancelled: 'Cancelada'
+                    }
+                    const statusColor = order.status === 'paid' ? '#22c55e' : order.status === 'cancelled' ? '#ef4444' : '#f59e0b'
+                    
+                    return (
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'var(--card-bg)', border: '1px solid var(--border)' }}>
+                        <div>
+                          <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>#{order.id.slice(0, 8).toUpperCase()}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{order.service_clients?.name || 'Cliente'}</div>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#6366f1' }}>R$ {order.amount?.toFixed(2).replace('.', ',')}</div>
+                          <div style={{ fontSize: '0.75rem', color: statusColor, fontWeight: 700 }}>{statusLabels[order.status] || order.status || 'Pendente'}</div>
+                        </div>
                       </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#6366f1' }}>R$ {order.total_amount?.toFixed(2).replace('.', ',')}</div>
-                        <div style={{ fontSize: '0.75rem', color: order.status === 'Pago' ? '#22c55e' : '#f59e0b', fontWeight: 700 }}>{order.status || 'Pendente'}</div>
-                      </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               )}
             </div>
 
             <div className="glass-card" style={{ padding: '1.75rem', borderRadius: '16px', display: 'grid', gap: '1.25rem' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Alerta de Estoque (Peças)</h3>
-                <Link href="/admin/products" style={{ fontSize: '0.85rem', color: '#6366f1', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-                  Ver Estoque <ArrowRight size={14} />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>Faturas Pendentes</h3>
+                <Link href="/admin/financial" style={{ fontSize: '0.85rem', color: '#6366f1', textDecoration: 'none', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  Ver Todas <ArrowRight size={14} />
                 </Link>
               </div>
               {lowStockParts.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '1rem', color: 'var(--muted)', fontSize: '0.85rem' }}>
-                  Estoque de peças saudável!
+                <div style={{ textAlign: 'center', padding: '2rem', color: 'var(--muted)', fontSize: '0.85rem' }}>
+                  Nenhuma fatura pendente de pagamento!
                 </div>
               ) : (
                 <div style={{ display: 'grid', gap: '0.75rem' }}>
-                  {lowStockParts.map((part: any, i: number) => (
-                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(239, 68, 68, 0.03)', border: '1px solid rgba(239, 68, 68, 0.1)' }}>
+                  {lowStockParts.map((invoice: any, i: number) => (
+                    <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem', borderRadius: '10px', backgroundColor: 'rgba(245, 158, 11, 0.03)', border: '1px solid rgba(245, 158, 11, 0.1)' }}>
                       <div>
-                        <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{part.name}</div>
-                        <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{part.category || 'Peças'}</div>
+                        <div style={{ fontWeight: 700, fontSize: '0.9rem' }}>{invoice.title}</div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
+                          Cliente: {invoice.service_clients?.name || '—'}
+                        </div>
                       </div>
                       <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#ef4444' }}>{part.stock_quantity} un</div>
-                        <div style={{ fontSize: '0.7rem', color: '#ef4444', fontWeight: 700 }}>{part.stock_quantity === 0 ? 'Sem estoque' : 'Estoque Baixo'}</div>
+                        <div style={{ fontWeight: 800, fontSize: '0.95rem', color: '#f59e0b' }}>
+                          R$ {invoice.amount?.toFixed(2).replace('.', ',')}
+                        </div>
+                        <div style={{ fontSize: '0.7rem', color: 'var(--muted)', fontWeight: 600 }}>
+                          Vence em: {invoice.due_date ? new Date(invoice.due_date).toLocaleDateString('pt-BR') : '—'}
+                        </div>
                       </div>
                     </div>
                   ))}
