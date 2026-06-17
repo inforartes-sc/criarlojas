@@ -90,7 +90,8 @@ export default function ProductActions({
       quantity: quantity,
       image: currentSkuObj?.image_url || product.images?.[0] || '',
       variations: product?.has_variations ? selectedOptions : undefined,
-      storeId: product.store_id
+      storeId: product.store_id,
+      sku: currentSkuObj?.sku || product?.sku
     }
     addToCart(item)
     toast.success('Produto adicionado ao carrinho!')

@@ -116,7 +116,8 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
       price: currentPrice,
       quantity: 1,
       image: product.images?.[0] || '',
-      storeId: product.store_id
+      storeId: product.store_id,
+      sku: product.sku
     }
     addToCart(item)
     toast.success('Produto adicionado ao carrinho!')

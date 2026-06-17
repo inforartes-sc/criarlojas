@@ -7,6 +7,7 @@ export interface CartItem {
   image: string;
   variations?: { [key: string]: string };
   storeId: string;
+  sku?: string;
 }
 
 export const getCart = (): CartItem[] => {
