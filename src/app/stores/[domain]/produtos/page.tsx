@@ -66,6 +66,7 @@ export default async function ProdutosPage({
   const plan = store?.settings?.plan || 'basic'
   const storeMode = plan === 'basic' ? 'catalogo' : (settings.store_mode || 'loja')
   const storeWhatsapp = settings.whatsapp || ''
+  const buttonRadius = settings.button_style === 'pill' ? '100px' : settings.button_style === 'sharp' ? '0px' : '8px'
 
   const categoryFilter = resolvedSearchParams.category as string | undefined
   const searchFilter = resolvedSearchParams.search as string | undefined
