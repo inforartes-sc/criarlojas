@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { ShoppingBag, ArrowRight, ArrowLeft, Trash2, Plus, Minus, Tag, CheckCircle2, Truck, MapPin } from 'lucide-react'
+import { ShoppingBag, ArrowRight, ArrowLeft, Trash2, Plus, Minus, Tag, CheckCircle2, Truck, MapPin, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import toast from 'react-hot-toast'
 import { getCart, updateQuantity, removeFromCart, CartItem } from '@/lib/cartStore'
@@ -20,6 +20,49 @@ export default function CartClient({ store, categories }: CartClientProps) {
   
   const settings = store?.settings || {}
   const primaryColor = settings.primary_color || '#6366f1'
+  const plan = settings.plan || 'basic'
+  const storeMode = plan === 'basic' ? 'catalogo' : (settings.store_mode || 'loja')
+  const isCatalogo = storeMode === 'catalogo'
+
+  const handleCheckoutWhatsapp = () => {
+    if (!settings.whatsapp) {
+      toast.error('WhatsApp não configurado pelo lojista.')
+      return
+    }
+
+    const cleanPhone = settings.whatsapp.replace(/\D/g, '')
+    const formattedPhone = cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`
+    
+    let message = `Olá! Gostaria de fazer um pedido/cotação dos seguintes itens:\n\n`
+    cartItems.forEach((item, index) => {
+      message += `*${index + 1}. ${item.name}*\n`
+      message += `   Qtd: ${item.quantity}\n`
+      if (item.variations && Object.keys(item.variations).length > 0) {
+        const variationsStr = Object.entries(item.variations)
+          .map(([key, val]) => `${key}: ${val}`)
+          .join(', ')
+        message += `   Variações: ${variationsStr}\n`
+      }
+      if (item.sku) {
+        message += `   SKU: ${item.sku}\n`
+      }
+      message += `   Preço unitário: R$ ${item.price.toFixed(2).replace('.', ',')}\n`
+      message += `   Subtotal: R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}\n\n`
+    })
+
+    if (appliedCoupon) {
+      message += `*Cupom Aplicado:* ${appliedCoupon.code.toUpperCase()} (Desconto: R$ ${discountAmount.toFixed(2).replace('.', ',')})\n`
+    }
+
+    if (selectedShippingMethod) {
+      message += `*Frete:* ${selectedShippingMethod.label} (Prazo: ${selectedShippingMethod.deadline}) - ${shippingCost === 0 ? 'Grátis' : `R$ ${shippingCost.toFixed(2).replace('.', ',')}`}\n`
+    }
+    
+    message += `\n*Total Estimado: R$ ${finalTotal.toFixed(2).replace('.', ',')}*`
+    
+    const text = encodeURIComponent(message)
+    window.open(`https://wa.me/${formattedPhone}?text=${text}`, '_blank')
+  }
 
   // Coupon State
   const [couponCode, setCouponCode] = useState('')
@@ -338,12 +381,40 @@ export default function CartClient({ store, categories }: CartClientProps) {
                 </div>
               </div>
 
-              <Link 
-                href="/checkout" 
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', padding: '1.4rem', backgroundColor: primaryColor, color: '#fff', textDecoration: 'none', borderRadius: '16px', fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px', boxShadow: `0 10px 25px ${primaryColor}40`, transition: 'all 0.2s ease', textAlign: 'center' }}
-              >
-                Prosseguir para Checkout <ArrowRight size={22} />
-              </Link>
+              {isCatalogo ? (
+                <button 
+                  onClick={handleCheckoutWhatsapp}
+                  style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    justifyContent: 'center', 
+                    gap: '0.75rem', 
+                    padding: '1.4rem', 
+                    backgroundColor: '#25D366', 
+                    color: '#fff', 
+                    border: 'none',
+                    cursor: 'pointer',
+                    borderRadius: '16px', 
+                    fontWeight: 900, 
+                    fontSize: '1.1rem', 
+                    textTransform: 'uppercase', 
+                    letterSpacing: '1px', 
+                    boxShadow: '0 10px 25px rgba(37, 211, 102, 0.4)', 
+                    transition: 'all 0.2s ease', 
+                    textAlign: 'center',
+                    width: '100%'
+                  }}
+                >
+                  Finalizar por WhatsApp <MessageCircle size={22} />
+                </button>
+              ) : (
+                <Link 
+                  href="/checkout" 
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', padding: '1.4rem', backgroundColor: primaryColor, color: '#fff', textDecoration: 'none', borderRadius: '16px', fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px', boxShadow: `0 10px 25px ${primaryColor}40`, transition: 'all 0.2s ease', textAlign: 'center' }}
+                >
+                  Prosseguir para Checkout <ArrowRight size={22} />
+                </Link>
+              )}
             </div>
           </div>
         </div>

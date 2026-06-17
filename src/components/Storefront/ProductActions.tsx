@@ -109,9 +109,15 @@ export default function ProductActions({
     toast.success(added ? 'Adicionado aos favoritos!' : 'Removido dos favoritos!')
   }
 
+  const productPriceFormatted = currentPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const productSkuClean = product?.sku?.replace('#hide_price', '') || product?.id?.slice(0, 8).toUpperCase()
+  
   const whatsappText = encodeURIComponent(
-    `Olá! Gostaria de saber mais sobre o produto: *${product?.name}*` +
-    (product?.has_variations ? ` (${Object.entries(selectedOptions).map(([k,v]) => `${k}: ${v}`).join(', ')})` : '')
+    `Olá! Gostaria de saber mais sobre o produto:\n\n` +
+    `*Produto:* ${product?.name}\n` +
+    (product?.has_variations ? `*Variação:* ${Object.entries(selectedOptions).map(([k,v]) => `${k}: ${v}`).join(', ')}\n` : '') +
+    `*SKU:* ${productSkuClean}\n` +
+    `*Valor:* R$ ${productPriceFormatted}`
   )
 
   const layoutModel = settings?.layout_model || 'modern'
@@ -280,75 +286,110 @@ export default function ProductActions({
       `}</style>
 
       {storeMode === 'catalogo' ? (
-        <div className="product-actions-grid product-actions-catalog-grid">
-          <button
-            onClick={handleFavoriteClick}
-            title={isFavorited ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
-            className="action-btn-height"
-            style={{
-              width: '3.5rem',
-              borderRadius: buttonRadius,
-              border: '2px solid #eaeaea',
-              backgroundColor: isFavorited ? '#ef444415' : '#fff',
-              color: isFavorited ? '#ef4444' : '#666',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease'
-            }}
-          >
-            <Heart size={24} fill={isFavorited ? '#ef4444' : 'none'} />
-          </button>
-          {currentStock <= 0 ? (
-            <button 
-              disabled
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div className="product-actions-grid product-actions-store-grid">
+            <button
+              onClick={handleFavoriteClick}
+              title={isFavorited ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
               className="action-btn-height"
-              style={{ 
-                padding: '0 1.2rem', 
-                backgroundColor: '#cbd5e1', 
-                color: '#64748b', 
-                border: 'none', 
-                borderRadius: buttonRadius, 
-                fontSize: '1.1rem', 
-                fontWeight: 800,
-                cursor: 'not-allowed',
+              style={{
+                width: '3.5rem',
+                borderRadius: buttonRadius,
+                border: '2px solid #eaeaea',
+                backgroundColor: isFavorited ? '#ef444415' : '#fff',
+                color: isFavorited ? '#ef4444' : '#666',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                gap: '0.75rem',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                width: '100%'
+                cursor: 'pointer',
+                transition: 'all 0.2s ease'
               }}
             >
-              <MessageCircle size={24} />
-              Esgotado
+              <Heart size={22} fill={isFavorited ? '#ef4444' : 'none'} />
             </button>
-          ) : (
+
+            <div className="action-btn-height" style={{ 
+              display: 'flex', 
+              alignItems: 'center',
+              justifyContent: 'space-between', 
+              border: '2px solid #eaeaea', 
+              borderRadius: buttonRadius,
+              overflow: 'hidden',
+              backgroundColor: currentStock <= 0 ? '#f1f5f9' : '#fff',
+              opacity: currentStock <= 0 ? 0.5 : 1
+            }}>
+              <button 
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                disabled={currentStock <= 0}
+                style={{ height: '100%', padding: '0 0.75rem', background: 'transparent', border: 'none', cursor: currentStock <= 0 ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', color: '#666', transition: 'background-color 0.2s ease', flexShrink: 0 }}
+                onMouseOver={(e) => { if(currentStock > 0) e.currentTarget.style.backgroundColor = '#f5f5f5' }}
+                onMouseOut={(e) => { if(currentStock > 0) e.currentTarget.style.backgroundColor = 'transparent' }}
+              >
+                <Minus size={16} />
+              </button>
+              <span style={{ textAlign: 'center', fontWeight: 800, fontSize: '1.1rem', color: '#111', flexShrink: 0 }}>
+                {quantity}
+              </span>
+              <button 
+                onClick={() => setQuantity(quantity + 1)}
+                disabled={currentStock <= 0 || quantity >= currentStock}
+                style={{ height: '100%', padding: '0 0.75rem', background: 'transparent', border: 'none', cursor: currentStock <= 0 || quantity >= currentStock ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', color: '#666', transition: 'background-color 0.2s ease', flexShrink: 0 }}
+                onMouseOver={(e) => { if(currentStock > 0 && quantity < currentStock) e.currentTarget.style.backgroundColor = '#f5f5f5' }}
+                onMouseOut={(e) => { if(currentStock > 0 && quantity < currentStock) e.currentTarget.style.backgroundColor = 'transparent' }}
+              >
+                <Plus size={16} />
+              </button>
+            </div>
+
+            <button 
+              onClick={handleAddToCart}
+              disabled={currentStock <= 0}
+              className={currentStock <= 0 ? "btn-add-to-cart-wrapper" : "btn-buy-dynamic btn-add-to-cart-wrapper"} 
+              style={{ 
+                width: '100%',
+                padding: '0 0.5rem', 
+                borderRadius: buttonRadius, 
+                fontSize: '0.85rem', 
+                fontWeight: 800,
+                cursor: currentStock <= 0 ? 'not-allowed' : 'pointer',
+                backgroundColor: currentStock <= 0 ? '#cbd5e1' : undefined,
+                color: currentStock <= 0 ? '#64748b' : undefined,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem',
+                letterSpacing: '0.5px',
+                whiteSpace: 'nowrap',
+                border: 'none'
+              }}
+            >
+              <ShoppingCart size={20} />
+              {currentStock <= 0 ? 'ESGOTADO' : 'ADICIONAR AO CARRINHO'}
+            </button>
+          </div>
+          
+          {currentStock > 0 && (
             <Link 
               href={storeWhatsapp ? `https://wa.me/${storeWhatsapp.replace(/\D/g,'')}?text=${whatsappText}` : '#'}
               target="_blank"
-              className="action-btn-height"
               style={{ 
-                padding: '0 1.2rem', 
-                backgroundColor: '#25D366', 
-                color: 'white', 
-                border: 'none', 
-                borderRadius: buttonRadius, 
-                fontSize: '1.1rem', 
-                fontWeight: 800,
-                cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '0.75rem',
+                padding: '1.1rem',
+                backgroundColor: '#25D366',
+                color: '#fff',
                 textDecoration: 'none',
+                borderRadius: buttonRadius,
+                fontWeight: 800,
+                fontSize: '1rem',
                 textTransform: 'uppercase',
-                letterSpacing: '1px'
+                letterSpacing: '1px',
+                boxShadow: '0 4px 12px rgba(37, 211, 102, 0.2)'
               }}
             >
-              <MessageCircle size={24} />
+              <MessageCircle size={22} />
               Comprar via WhatsApp
             </Link>
           )}

@@ -300,45 +300,41 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
             </span>
 
             {/* Direita: Carrinho (ou div vazia no modo catálogo para manter o centro perfeito) */}
-            {storeMode !== 'catalogo' ? (
-              <button
-                onClick={handleQuickAddToCart}
-                title={totalStock <= 0 ? 'Esgotado' : 'Adicionar ao Carrinho'}
-                disabled={totalStock <= 0}
-                className="product-fav-cart-btn"
-                style={{
-                  width: '36px',
-                  height: '36px',
-                  borderRadius: '50%',
-                  backgroundColor: cartBtnBgColor,
-                  border: `1.5px solid ${cartBtnBorderColor}`,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: totalStock <= 0 ? 'not-allowed' : 'pointer',
-                  transition: 'all 0.2s ease',
-                  color: cartBtnTextColor
-                }}
-                onMouseEnter={(e) => {
-                  if (totalStock > 0) {
-                    e.currentTarget.style.backgroundColor = isCampaign && isDarkBg ? '#ffffff' : primaryColor
-                    e.currentTarget.style.color = isCampaign && isDarkBg ? (campaignBgColor || '#ef4444') : '#fff'
-                    e.currentTarget.style.transform = 'scale(1.12)'
-                  }
-                }}
-                onMouseLeave={(e) => {
-                  if (totalStock > 0) {
-                    e.currentTarget.style.backgroundColor = cartBtnBgColor
-                    e.currentTarget.style.color = cartBtnTextColor
-                    e.currentTarget.style.transform = 'scale(1)'
-                  }
-                }}
-              >
-                <ShoppingCart size={16} />
-              </button>
-            ) : (
-              <div style={{ width: '36px' }} />
-            )}
+            <button
+              onClick={handleQuickAddToCart}
+              title={totalStock <= 0 ? 'Esgotado' : 'Adicionar ao Carrinho'}
+              disabled={totalStock <= 0}
+              className="product-fav-cart-btn"
+              style={{
+                width: '36px',
+                height: '36px',
+                borderRadius: '50%',
+                backgroundColor: cartBtnBgColor,
+                border: `1.5px solid ${cartBtnBorderColor}`,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: totalStock <= 0 ? 'not-allowed' : 'pointer',
+                transition: 'all 0.2s ease',
+                color: cartBtnTextColor
+              }}
+              onMouseEnter={(e) => {
+                if (totalStock > 0) {
+                  e.currentTarget.style.backgroundColor = isCampaign && isDarkBg ? '#ffffff' : primaryColor
+                  e.currentTarget.style.color = isCampaign && isDarkBg ? (campaignBgColor || '#ef4444') : '#fff'
+                  e.currentTarget.style.transform = 'scale(1.12)'
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (totalStock > 0) {
+                  e.currentTarget.style.backgroundColor = cartBtnBgColor
+                  e.currentTarget.style.color = cartBtnTextColor
+                  e.currentTarget.style.transform = 'scale(1)'
+                }
+              }}
+            >
+              <ShoppingCart size={16} />
+            </button>
           </div>
           <h4 className="product-name" style={{ fontSize: featured ? '2rem' : '1.1rem', margin: '0.6rem 0', fontWeight: 900, color: titleColor, letterSpacing: '-0.5px', minHeight: featured ? '4rem' : '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', whiteSpace: 'normal', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{product.name}</h4>
           
@@ -382,7 +378,22 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
         </Link>
         {storeMode === 'catalogo' ? (
           <button 
-            onClick={() => storeWhatsapp ? window.open(`https://wa.me/${storeWhatsapp.replace(/\D/g,'')}?text=${encodeURIComponent(`Olá! Gostaria de saber mais sobre o produto: *${product.name}*`)}`, '_blank') : alert('WhatsApp não configurado pelo lojista.')}
+            onClick={() => {
+              if (!storeWhatsapp) {
+                alert('WhatsApp não configurado pelo lojista.')
+                return
+              }
+              const currentPrice = displaySalePrice ? displaySalePrice : displayPrice
+              const priceFormatted = currentPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+              const skuClean = product.sku?.replace('#hide_price', '') || product.id?.slice(0, 8).toUpperCase()
+              const text = encodeURIComponent(
+                `Olá! Gostaria de saber mais sobre o produto:\n\n` +
+                `*Produto:* ${product.name}\n` +
+                `*SKU:* ${skuClean}\n` +
+                `*Valor:* R$ ${priceFormatted}`
+              )
+              window.open(`https://wa.me/${storeWhatsapp.replace(/\D/g,'')}?text=${text}`, '_blank')
+            }}
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
             disabled={totalStock <= 0}

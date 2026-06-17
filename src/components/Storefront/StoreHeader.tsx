@@ -60,8 +60,42 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
     }
   }, [])
 
-  const storeMode = settings.store_mode || 'loja'
+  const plan = store?.settings?.plan || 'basic'
+  const storeMode = plan === 'basic' ? 'catalogo' : (settings.store_mode || 'loja')
   const isCatalogo = storeMode === 'catalogo'
+
+  const handleCartCheckoutWhatsapp = () => {
+    if (!settings.whatsapp) {
+      alert('WhatsApp não configurado pelo lojista.')
+      return
+    }
+    if (cartItems.length === 0) return
+
+    const cleanPhone = settings.whatsapp.replace(/\D/g, '')
+    const formattedPhone = cleanPhone.startsWith('55') ? cleanPhone : `55${cleanPhone}`
+    
+    let message = `Olá! Gostaria de fazer um pedido/cotação dos seguintes itens:\n\n`
+    cartItems.forEach((item, index) => {
+      message += `*${index + 1}. ${item.name}*\n`
+      message += `   Qtd: ${item.quantity}\n`
+      if (item.variations && Object.keys(item.variations).length > 0) {
+        const variationsStr = Object.entries(item.variations)
+          .map(([key, val]) => `${key}: ${val}`)
+          .join(', ')
+        message += `   Variações: ${variationsStr}\n`
+      }
+      if (item.sku) {
+        message += `   SKU: ${item.sku}\n`
+      }
+      message += `   Preço unitário: R$ ${item.price.toFixed(2).replace('.', ',')}\n`
+      message += `   Subtotal: R$ ${(item.price * item.quantity).toFixed(2).replace('.', ',')}\n\n`
+    })
+    
+    message += `*Total do Pedido: R$ ${totalPrice.toFixed(2).replace('.', ',')}*`
+    
+    const text = encodeURIComponent(message)
+    window.open(`https://wa.me/${formattedPhone}?text=${text}`, '_blank')
+  }
 
   useEffect(() => {
     if (store?.subdomain) {
@@ -402,7 +436,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
             </div>
             <div className="store-icons-right" style={{ flexShrink: 0, display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
               <div className="desktop-only-icons" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                {!isCatalogo && (
+                {!isApenasServico && (
                   <>
                     <div style={{ cursor: 'pointer' }} onClick={handleWhatsappClick} title="WhatsApp">
                       <WhatsappIcon size={22} color={iconColor} />
@@ -421,7 +455,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                   </>
                 )}
               </div>
-              {!isCatalogo && (
+              {!isApenasServico && (
                 <>
                   <div className="mobile-only-favorites" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsFavoritesOpen(true)} title="Favoritos">
                     <Heart size={22} color={iconColor} />
@@ -523,7 +557,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
             </div>
             <div className="store-icons-right" style={{ flexShrink: 0, display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
               <div className="desktop-only-icons" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                {!isCatalogo && (
+                {!isApenasServico && (
                   <>
                     <div style={{ cursor: 'pointer' }} onClick={handleWhatsappClick} title="WhatsApp">
                       <WhatsappIcon size={20} color={iconColor} />
@@ -542,7 +576,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                   </>
                 )}
               </div>
-              {!isCatalogo && (
+              {!isApenasServico && (
                 <>
                   <div className="mobile-only-favorites" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsFavoritesOpen(true)} title="Favoritos">
                     <Heart size={20} color={iconColor} />
@@ -635,7 +669,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
             </div>
             <div className="store-icons-right" style={{ flexShrink: 0, display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
               <div className="desktop-only-icons" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                {isCatalogo ? (
+                {isApenasServico ? (
                   <Menu size={24} color={iconColor} style={{ cursor: 'pointer' }} onClick={() => setIsMenuOpen(true)} />
                 ) : (
                   <>
@@ -656,7 +690,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                   </>
                 )}
               </div>
-              {!isCatalogo && (
+              {!isApenasServico && (
                 <>
                   <div className="mobile-only-favorites" style={{ position: 'relative', cursor: 'pointer' }} onClick={() => setIsFavoritesOpen(true)} title="Favoritos">
                     <Heart size={22} color={iconColor} />
@@ -757,7 +791,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
             </div>
             <div className="store-icons-right" style={{ flexShrink: 0, display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <div className="desktop-only-icons" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                {!isCatalogo && (
+                {!isApenasServico && (
                   <>
                     {isApenasServico ? (
                       <button
@@ -806,7 +840,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                   </>
                 )}
               </div>
-              {!isCatalogo && (
+              {!isApenasServico && (
                 <>
                   {!isApenasServico && (
                     <>
@@ -920,7 +954,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
               </div>
               <div className="store-icons-right" style={{ flex: 1, display: 'flex', justifyContent: 'flex-end', gap: '1.5rem', alignItems: 'center' }}>
                 <div className="desktop-only-icons" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                  {!isCatalogo && (
+                  {!isApenasServico && (
                     <>
                       {isApenasServico ? (
                         <button
@@ -979,7 +1013,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                     </>
                   )}
                 </div>
-                {!isCatalogo && (
+                {!isApenasServico && (
                   <>
                     {!isApenasServico && (
                       <>
@@ -1014,7 +1048,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
               </div>
               <div style={{ flex: 0, display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
                 <div className="desktop-only-icons" style={{ display: 'flex', gap: '1.5rem', alignItems: 'center' }}>
-                  {!isCatalogo && (
+                  {!isApenasServico && (
                     <>
                       {isApenasServico ? (
                         <button
@@ -1073,7 +1107,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                     </>
                   )}
                 </div>
-                {!isCatalogo && (
+                {!isApenasServico && (
                   <>
                     {!isApenasServico && (
                       <>
@@ -1235,27 +1269,55 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
                   >
                     Ver Carrinho Completo
                   </Link>
-                  <Link 
-                    href="/checkout" 
-                    onClick={() => setIsCartOpen(false)}
-                    style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center', 
-                      padding: '1.2rem', 
-                      backgroundColor: primaryColor, 
-                      color: 'white', 
-                      textDecoration: 'none', 
-                      borderRadius: '8px', 
-                      fontWeight: 800, 
-                      fontSize: '1rem',
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                      boxShadow: `0 4px 12px ${primaryColor}40`
-                    }}
-                  >
-                    Finalizar Compra
-                  </Link>
+                  {isCatalogo ? (
+                    <button 
+                      onClick={() => {
+                        setIsCartOpen(false);
+                        handleCartCheckoutWhatsapp();
+                      }}
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        padding: '1.2rem', 
+                        backgroundColor: primaryColor, 
+                        color: 'white', 
+                        border: 'none',
+                        cursor: 'pointer',
+                        borderRadius: '8px', 
+                        fontWeight: 800, 
+                        fontSize: '1rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px',
+                        boxShadow: `0 4px 12px ${primaryColor}40`,
+                        width: '100%'
+                      }}
+                    >
+                      Finalizar por WhatsApp
+                    </button>
+                  ) : (
+                    <Link 
+                      href="/checkout" 
+                      onClick={() => setIsCartOpen(false)}
+                      style={{ 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        padding: '1.2rem', 
+                        backgroundColor: primaryColor, 
+                        color: 'white', 
+                        textDecoration: 'none', 
+                        borderRadius: '8px', 
+                        fontWeight: 800, 
+                        fontSize: '1rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px',
+                        boxShadow: `0 4px 12px ${primaryColor}40`
+                      }}
+                    >
+                      Finalizar Compra
+                    </Link>
+                  )}
                 </div>
               </div>
             </div>

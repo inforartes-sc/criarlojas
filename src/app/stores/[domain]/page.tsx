@@ -181,8 +181,8 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
   const splitBgColor = settings.hero_bg_color && settings.hero_bg_color !== 'transparent' ? settings.hero_bg_color : (settings.body_bg_color || (isDark ? '#0a0a0a' : '#f1f5f9e6'))
   const heroTitleColor = settings.hero_title_color || (isDark ? '#ffffff' : '#111111')
   const heroSubtitleColor = settings.hero_subtitle_color || (isDark ? '#cbd5e1' : '#555555')
-  
-  const storeMode = settings.store_mode || 'loja'
+  const plan = store?.settings?.plan || 'basic'
+  const storeMode = plan === 'basic' ? 'catalogo' : (settings.store_mode || 'loja')
   const storeWhatsapp = settings.whatsapp || ''
   const isCatalogo = storeMode === 'catalogo'
   const isProductsView = resolvedSearchParams.view === 'produtos' || !!categoryFilter

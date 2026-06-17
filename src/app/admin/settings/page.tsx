@@ -765,7 +765,14 @@ export default function SettingsPage() {
           settings: mergedSettings
         })
         .eq('id', storeId)
-      if (error) throw error
+      if (error) {
+        if (error.message.includes('unique constraint') || error.message.includes('duplicate key') || error.message.includes('duplicada') || error.code === '23505') {
+          toast.error('Este domínio personalizado já está sendo usado por outra loja!')
+          setSaving(false)
+          return
+        }
+        throw error
+      }
 
       // Se o nicho selecionado for Eletricista (electrician), semear categorias e especialidades padrão se não houver nenhuma
       if (formData.layout_model === 'electrician') {
