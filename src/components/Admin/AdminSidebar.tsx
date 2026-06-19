@@ -299,10 +299,10 @@ export default function AdminSidebar() {
               </button>
             </div>
 
-            {/* Grid of Other Modules - 3 Columns using Flexbox for 100% device compatibility */}
+            {/* Grid of Other Modules - Vertical List for 100% compatibility and premium look */}
             <div style={{
               display: 'flex',
-              flexWrap: 'wrap',
+              flexDirection: 'column',
               gap: '0.5rem',
               width: '100%'
             }}>
@@ -317,38 +317,32 @@ export default function AdminSidebar() {
                       background: '#f8fafc',
                       border: '1px solid rgba(0,0,0,0.05)',
                       borderRadius: '12px',
-                      padding: '0.6rem 0.25rem',
+                      padding: '0.85rem 1rem',
                       display: 'flex',
-                      flexDirection: 'column',
                       alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.3rem',
+                      gap: '0.85rem',
                       textDecoration: 'none',
                       color: '#334155',
                       transition: 'all 0.2s',
-                      textAlign: 'center',
-                      width: 'calc((100% - 1rem) / 3)',
-                      minWidth: '80px',
-                      boxSizing: 'border-box',
-                      overflow: 'hidden'
+                      width: '100%',
+                      boxSizing: 'border-box'
                     }}
                     className="mobile-grid-item"
                   >
-                    <item.icon size={18} style={{ color: '#6366f1', flexShrink: 0 }} />
+                    <item.icon size={20} style={{ color: '#6366f1', flexShrink: 0 }} />
                     <span style={{ 
-                      fontSize: '0.62rem', 
+                      fontSize: '0.85rem', 
                       fontWeight: 700, 
-                      lineHeight: 1.1, 
-                      display: 'block', 
-                      width: '100%',
-                      wordBreak: 'break-word',
-                      hyphens: 'auto'
+                      color: '#334155',
+                      flex: 1,
+                      textAlign: 'left'
                     }}>
                       {item.label}
-                      {item.label === 'Carrinhos Abandonados' && plan === 'pro' && (
-                        <Crown size={10} style={{ color: '#fbbf24', marginLeft: '0.2rem', display: 'inline-block', verticalAlign: 'middle' }} />
-                      )}
                     </span>
+                    {item.label === 'Carrinhos Abandonados' && plan === 'pro' && (
+                      <Crown size={14} style={{ color: '#fbbf24', marginRight: '0.5rem' }} />
+                    )}
+                    <span style={{ color: '#94a3b8', fontSize: '1rem', fontWeight: 600 }}>&rarr;</span>
                   </Link>
                 ))}
             </div>
