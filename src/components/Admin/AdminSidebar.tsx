@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { LayoutDashboard, ShoppingBag, Settings, Users, LogOut, Package, CreditCard, Truck, Tag, Link2, Star, Menu, X, DollarSign, Crown } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAdminAuth } from '@/context/AdminAuthContext'
@@ -74,6 +74,18 @@ export default function AdminSidebar() {
       logout()
     }, 500)
   }
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (showMobileMenu) {
+      document.body.style.overflow = 'hidden'
+    } else {
+      document.body.style.overflow = ''
+    }
+    return () => {
+      document.body.style.overflow = ''
+    }
+  }, [showMobileMenu])
 
   const bottomItemStyle = (href: string): React.CSSProperties => {
     const isActive = pathname === href || (href !== '/admin' && pathname?.startsWith(href))
@@ -200,7 +212,7 @@ export default function AdminSidebar() {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-around',
-        zIndex: 1000,
+        zIndex: 10000,
         padding: '0 0.5rem'
       }}>
         <Link href="/admin" onClick={() => setShowMobileMenu(false)} style={bottomItemStyle('/admin')}>
@@ -242,7 +254,7 @@ export default function AdminSidebar() {
           top: 0,
           left: 0,
           right: 0,
-          bottom: 0,
+          bottom: '65px',
           backgroundColor: '#0f172a',
           zIndex: 9999,
           display: 'flex',
@@ -354,7 +366,7 @@ export default function AdminSidebar() {
           border-color: rgba(99, 102, 241, 0.3) !important;
         }
 
-        @media (min-width: 769px) {
+        @media (min-width: 768.01px) {
           .mobile-bottom-bar {
             display: none !important;
           }
