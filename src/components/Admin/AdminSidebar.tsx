@@ -254,7 +254,7 @@ export default function AdminSidebar() {
       {showMobileMenu && (
         <>
           <style>{`
-            .admin-main-content {
+            main {
               display: none !important;
             }
           `}</style>
