@@ -156,6 +156,10 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
             padding: 1.25rem 1.25rem 80px 1.25rem !important; /* Bottom padding for bottom navigation bar */
             width: 100% !important;
           }
+          body.mobile-menu-active .admin-main-content,
+          body.mobile-menu-active main {
+            display: none !important;
+          }
           .admin-header {
             flex-direction: column !important;
             align-items: flex-start !important;
