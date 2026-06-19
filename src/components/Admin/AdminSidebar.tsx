@@ -250,123 +250,126 @@ export default function AdminSidebar() {
         </Link>
       </div>
 
-      {/* Mobile Menu Overlay */}
+      {/* Mobile Menu Popup Modal */}
       {showMobileMenu && (
-        <>
-          <style>{`
-            main {
-              display: none !important;
-            }
-          `}</style>
-          <div className="mobile-menu-overlay" style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: '65px',
+        <div className="mobile-menu-backdrop" style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(15, 23, 42, 0.65)',
+          zIndex: 9999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem',
+          transform: 'translate3d(0, 0, 0)',
+          WebkitTransform: 'translate3d(0, 0, 0)'
+        }} onClick={() => setShowMobileMenu(false)}>
+          <div className="mobile-menu-modal" style={{
             backgroundColor: '#ffffff',
-            borderTop: '1px solid rgba(0,0,0,0.08)',
-            zIndex: 9999,
+            borderRadius: '24px',
+            width: '100%',
+            maxWidth: '380px',
+            padding: '1.5rem',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+            maxHeight: '80vh',
             display: 'flex',
             flexDirection: 'column',
-            padding: '1.5rem',
-            overflowY: 'auto',
-            transform: 'translate3d(0, 0, 0)',
-            WebkitTransform: 'translate3d(0, 0, 0)',
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden'
-          }}>
-          {/* Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid rgba(0,0,0,0.08)', paddingBottom: '1rem' }}>
-            <div>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Menu Principal</h2>
-              <span style={{ fontSize: '0.75rem', color: '#6366f1', fontWeight: 700 }}>{store?.name}</span>
-            </div>
-            <button onClick={() => setShowMobileMenu(false)} style={{
-              background: 'rgba(0,0,0,0.05)',
-              border: '1px solid rgba(0,0,0,0.08)',
-              color: '#64748b',
-              borderRadius: '50%',
-              padding: '0.5rem',
-              display: 'flex',
-              cursor: 'pointer'
-            }}>
-              <X size={20} />
-            </button>
-          </div>
-
-          {/* Grid of Other Modules */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: '1rem',
-            flex: 1
-          }}>
-            {filteredMenuItems
-              .filter(item => !['Dashboard', 'Pedidos', 'Clientes'].includes(item.label))
-              .map(item => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  onClick={() => setShowMobileMenu(false)}
-                  style={{
-                    background: '#ffffff',
-                    border: '1px solid rgba(0,0,0,0.06)',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
-                    borderRadius: '16px',
-                    padding: '1.25rem 1rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.5rem',
-                    textDecoration: 'none',
-                    color: '#1e293b',
-                    transition: 'all 0.2s',
-                    textAlign: 'center'
-                  }}
-                  className="mobile-grid-item"
-                >
-                  <item.icon size={24} style={{ color: '#6366f1' }} />
-                  <span style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                    {item.label}
-                    {item.label === 'Carrinhos Abandonados' && plan === 'pro' && (
-                      <Crown size={12} style={{ color: '#fbbf24' }} />
-                    )}
-                  </span>
-                </Link>
-              ))}
-          </div>
-
-          {/* Footer Logout */}
-          <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(0,0,0,0.08)', paddingTop: '1.5rem' }}>
-            <button
-              onClick={() => {
-                setShowMobileMenu(false)
-                handleLogout()
-              }}
-              style={{
-                width: '100%',
-                padding: '1rem',
-                background: 'rgba(239, 68, 68, 0.08)',
-                border: '1px solid rgba(239, 68, 68, 0.15)',
-                color: '#ef4444',
-                borderRadius: '12px',
-                fontWeight: 700,
-                fontSize: '0.95rem',
+            gap: '1.25rem',
+            overflowY: 'auto'
+          }} onClick={(e) => e.stopPropagation()}>
+            {/* Header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,0,0,0.06)', paddingBottom: '0.75rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Menu Principal</h3>
+                <span style={{ fontSize: '0.7rem', color: '#6366f1', fontWeight: 700 }}>{store?.name}</span>
+              </div>
+              <button onClick={() => setShowMobileMenu(false)} style={{
+                background: 'rgba(0,0,0,0.04)',
+                border: 'none',
+                color: '#64748b',
+                borderRadius: '50%',
+                padding: '0.4rem',
                 display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '0.5rem',
                 cursor: 'pointer'
-              }}
-            >
-              <LogOut size={18} />
-              <span>Sair do Painel</span>
-            </button>
+              }}>
+                <X size={18} />
+              </button>
+            </div>
+
+            {/* Grid of Other Modules - 3 Columns */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: '0.6rem'
+            }}>
+              {filteredMenuItems
+                .filter(item => !['Dashboard', 'Pedidos', 'Clientes'].includes(item.label))
+                .map(item => (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setShowMobileMenu(false)}
+                    style={{
+                      background: '#f8fafc',
+                      border: '1px solid rgba(0,0,0,0.05)',
+                      borderRadius: '12px',
+                      padding: '0.75rem 0.35rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.35rem',
+                      textDecoration: 'none',
+                      color: '#334155',
+                      transition: 'all 0.2s',
+                      textAlign: 'center'
+                    }}
+                    className="mobile-grid-item"
+                  >
+                    <item.icon size={18} style={{ color: '#6366f1' }} />
+                    <span style={{ fontSize: '0.68rem', fontWeight: 700, lineHeight: 1.1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.15rem' }}>
+                      {item.label}
+                      {item.label === 'Carrinhos Abandonados' && plan === 'pro' && (
+                        <Crown size={10} style={{ color: '#fbbf24' }} />
+                      )}
+                    </span>
+                  </Link>
+                ))}
+            </div>
+
+            {/* Footer Logout */}
+            <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: '0.75rem' }}>
+              <button
+                onClick={() => {
+                  setShowMobileMenu(false)
+                  handleLogout()
+                }}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  background: 'rgba(239, 68, 68, 0.08)',
+                  border: '1px solid rgba(239, 68, 68, 0.15)',
+                  color: '#ef4444',
+                  borderRadius: '12px',
+                  fontWeight: 700,
+                  fontSize: '0.85rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.4rem',
+                  cursor: 'pointer'
+                }}
+              >
+                <LogOut size={16} />
+                <span>Sair do Painel</span>
+              </button>
+            </div>
           </div>
         </div>
-      </>)}
+      )}
 
       <style>{`
         .nav-item:hover {
