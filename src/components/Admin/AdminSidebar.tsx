@@ -75,15 +75,18 @@ export default function AdminSidebar() {
     }, 500)
   }
 
-  // Prevent body scroll when mobile menu is open
+  // Prevent body scroll and hide main content when mobile menu is open to prevent GPU compositing flicker
   useEffect(() => {
     if (showMobileMenu) {
       document.body.style.overflow = 'hidden'
+      document.body.classList.add('mobile-menu-active')
     } else {
       document.body.style.overflow = ''
+      document.body.classList.remove('mobile-menu-active')
     }
     return () => {
       document.body.style.overflow = ''
+      document.body.classList.remove('mobile-menu-active')
     }
   }, [showMobileMenu])
 
@@ -260,7 +263,11 @@ export default function AdminSidebar() {
           display: 'flex',
           flexDirection: 'column',
           padding: '1.5rem',
-          overflowY: 'auto'
+          overflowY: 'auto',
+          transform: 'translate3d(0, 0, 0)',
+          WebkitTransform: 'translate3d(0, 0, 0)',
+          backfaceVisibility: 'hidden',
+          WebkitBackfaceVisibility: 'hidden'
         }}>
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '1rem' }}>
@@ -364,6 +371,10 @@ export default function AdminSidebar() {
         .mobile-grid-item:hover {
           background: rgba(255, 255, 255, 0.05) !important;
           border-color: rgba(99, 102, 241, 0.3) !important;
+        }
+
+        body.mobile-menu-active .admin-main-content {
+          display: none !important;
         }
 
         @media (min-width: 768.01px) {
