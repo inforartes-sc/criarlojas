@@ -258,7 +258,8 @@ export default function AdminSidebar() {
           left: 0,
           right: 0,
           bottom: '65px',
-          backgroundColor: '#0f172a',
+          backgroundColor: '#f8fafc',
+          borderTop: '1px solid rgba(0,0,0,0.08)',
           zIndex: 9999,
           display: 'flex',
           flexDirection: 'column',
@@ -270,15 +271,15 @@ export default function AdminSidebar() {
           WebkitBackfaceVisibility: 'hidden'
         }}>
           {/* Header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '1rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid rgba(0,0,0,0.08)', paddingBottom: '1rem' }}>
             <div>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: 'white', margin: 0 }}>Menu Principal</h2>
-              <span style={{ fontSize: '0.75rem', color: '#0ea5e9', fontWeight: 600 }}>{store?.name}</span>
+              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Menu Principal</h2>
+              <span style={{ fontSize: '0.75rem', color: '#6366f1', fontWeight: 700 }}>{store?.name}</span>
             </div>
             <button onClick={() => setShowMobileMenu(false)} style={{
-              background: 'rgba(255,255,255,0.05)',
-              border: '1px solid rgba(255,255,255,0.1)',
-              color: '#94a3b8',
+              background: 'rgba(0,0,0,0.05)',
+              border: '1px solid rgba(0,0,0,0.08)',
+              color: '#64748b',
               borderRadius: '50%',
               padding: '0.5rem',
               display: 'flex',
@@ -303,8 +304,9 @@ export default function AdminSidebar() {
                   href={item.href}
                   onClick={() => setShowMobileMenu(false)}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.02)',
-                    border: '1px solid rgba(255, 255, 255, 0.05)',
+                    background: '#ffffff',
+                    border: '1px solid rgba(0,0,0,0.06)',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.02)',
                     borderRadius: '16px',
                     padding: '1.25rem 1rem',
                     display: 'flex',
@@ -313,14 +315,14 @@ export default function AdminSidebar() {
                     justifyContent: 'center',
                     gap: '0.5rem',
                     textDecoration: 'none',
-                    color: 'white',
+                    color: '#1e293b',
                     transition: 'all 0.2s',
                     textAlign: 'center'
                   }}
                   className="mobile-grid-item"
                 >
                   <item.icon size={24} style={{ color: '#6366f1' }} />
-                  <span style={{ fontSize: '0.85rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  <span style={{ fontSize: '0.85rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                     {item.label}
                     {item.label === 'Carrinhos Abandonados' && plan === 'pro' && (
                       <Crown size={12} style={{ color: '#fbbf24' }} />
@@ -331,7 +333,7 @@ export default function AdminSidebar() {
           </div>
 
           {/* Footer Logout */}
-          <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '1.5rem' }}>
+          <div style={{ marginTop: '2rem', borderTop: '1px solid rgba(0,0,0,0.08)', paddingTop: '1.5rem' }}>
             <button
               onClick={() => {
                 setShowMobileMenu(false)
@@ -340,8 +342,8 @@ export default function AdminSidebar() {
               style={{
                 width: '100%',
                 padding: '1rem',
-                background: 'rgba(239, 68, 68, 0.1)',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.15)',
                 color: '#ef4444',
                 borderRadius: '12px',
                 fontWeight: 700,
@@ -369,8 +371,8 @@ export default function AdminSidebar() {
           background: rgba(239, 68, 68, 0.1) !important;
         }
         .mobile-grid-item:hover {
-          background: rgba(255, 255, 255, 0.05) !important;
-          border-color: rgba(99, 102, 241, 0.3) !important;
+          background: rgba(99, 102, 241, 0.05) !important;
+          border-color: rgba(99, 102, 241, 0.2) !important;
         }
 
         body.mobile-menu-active .admin-main-content {
