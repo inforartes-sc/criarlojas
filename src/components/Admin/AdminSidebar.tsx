@@ -252,33 +252,48 @@ export default function AdminSidebar() {
 
       {/* Mobile Menu Popup Modal */}
       {showMobileMenu && (
-        <div className="mobile-menu-backdrop" style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: '65px',
-          backgroundColor: 'rgba(15, 23, 42, 0.65)',
-          zIndex: 9999,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '1rem',
-          transform: 'translate3d(0, 0, 0)',
-          WebkitTransform: 'translate3d(0, 0, 0)'
-        }} onClick={() => setShowMobileMenu(false)}>
+        <>
+          <style>{`
+            main {
+              display: none !important;
+            }
+          `}</style>
+          {/* Backdrop */}
+          <div className="mobile-menu-backdrop" style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: '65px',
+            backgroundColor: 'rgba(15, 23, 42, 0.65)',
+            zIndex: 9998,
+            transform: 'translate3d(0, 0, 0)',
+            WebkitTransform: 'translate3d(0, 0, 0)'
+          }} onClick={() => setShowMobileMenu(false)} />
+
+          {/* Centered Modal Card */}
           <div className="mobile-menu-modal" style={{
+            position: 'fixed',
+            top: 'calc(50% - 32px)',
+            left: '50%',
+            transform: 'translate(-50%, -50%) translate3d(0, 0, 0)',
+            WebkitTransform: 'translate(-50%, -50%) translate3d(0, 0, 0)',
             backgroundColor: '#ffffff',
+            background: 'white',
             borderRadius: '24px',
-            width: '100%',
-            maxWidth: '380px',
+            width: '90%',
+            maxWidth: '360px',
             padding: '1.25rem',
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-            maxHeight: '80vh',
+            maxHeight: '75vh',
             display: 'flex',
             flexDirection: 'column',
             gap: '1rem',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            zIndex: 9999,
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden',
+            boxSizing: 'border-box'
           }} onClick={(e) => e.stopPropagation()}>
             {/* Header */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,0,0,0.06)', paddingBottom: '0.6rem' }}>
@@ -376,7 +391,7 @@ export default function AdminSidebar() {
             </div>
           </div>
         </div>
-      )}
+      </>)}
 
       <style>{`
         .nav-item:hover {
