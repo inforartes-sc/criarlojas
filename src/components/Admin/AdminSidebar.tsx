@@ -91,7 +91,7 @@ export default function AdminSidebar() {
   }, [showMobileMenu])
 
   const bottomItemStyle = (href: string): React.CSSProperties => {
-    const isActive = pathname === href || (href !== '/admin' && pathname?.startsWith(href))
+    const isActive = !showMobileMenu && (pathname === href || (href !== '/admin' && pathname?.startsWith(href)))
     return {
       color: isActive ? '#6366f1' : '#94a3b8',
       textDecoration: 'none',
