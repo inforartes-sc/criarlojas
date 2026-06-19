@@ -257,7 +257,7 @@ export default function AdminSidebar() {
           top: 0,
           left: 0,
           right: 0,
-          bottom: 0,
+          bottom: '65px',
           backgroundColor: 'rgba(15, 23, 42, 0.65)',
           zIndex: 9999,
           display: 'flex',
@@ -272,30 +272,30 @@ export default function AdminSidebar() {
             borderRadius: '24px',
             width: '100%',
             maxWidth: '380px',
-            padding: '1.5rem',
+            padding: '1.25rem',
             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
             maxHeight: '80vh',
             display: 'flex',
             flexDirection: 'column',
-            gap: '1.25rem',
+            gap: '1rem',
             overflowY: 'auto'
           }} onClick={(e) => e.stopPropagation()}>
             {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,0,0,0.06)', paddingBottom: '0.75rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,0,0,0.06)', paddingBottom: '0.6rem' }}>
               <div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Menu Principal</h3>
-                <span style={{ fontSize: '0.7rem', color: '#6366f1', fontWeight: 700 }}>{store?.name}</span>
+                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Menu Principal</h3>
+                <span style={{ fontSize: '0.65rem', color: '#6366f1', fontWeight: 700 }}>{store?.name}</span>
               </div>
               <button onClick={() => setShowMobileMenu(false)} style={{
                 background: 'rgba(0,0,0,0.04)',
                 border: 'none',
                 color: '#64748b',
                 borderRadius: '50%',
-                padding: '0.4rem',
+                padding: '0.35rem',
                 display: 'flex',
                 cursor: 'pointer'
               }}>
-                <X size={18} />
+                <X size={16} />
               </button>
             </div>
 
@@ -303,7 +303,7 @@ export default function AdminSidebar() {
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '0.6rem'
+              gap: '0.5rem'
             }}>
               {filteredMenuItems
                 .filter(item => !['Dashboard', 'Pedidos', 'Clientes'].includes(item.label))
@@ -316,24 +316,34 @@ export default function AdminSidebar() {
                       background: '#f8fafc',
                       border: '1px solid rgba(0,0,0,0.05)',
                       borderRadius: '12px',
-                      padding: '0.75rem 0.35rem',
+                      padding: '0.6rem 0.25rem',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '0.35rem',
+                      gap: '0.3rem',
                       textDecoration: 'none',
                       color: '#334155',
                       transition: 'all 0.2s',
-                      textAlign: 'center'
+                      textAlign: 'center',
+                      minWidth: 0,
+                      overflow: 'hidden'
                     }}
                     className="mobile-grid-item"
                   >
-                    <item.icon size={18} style={{ color: '#6366f1' }} />
-                    <span style={{ fontSize: '0.68rem', fontWeight: 700, lineHeight: 1.1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.15rem' }}>
+                    <item.icon size={18} style={{ color: '#6366f1', flexShrink: 0 }} />
+                    <span style={{ 
+                      fontSize: '0.62rem', 
+                      fontWeight: 700, 
+                      lineHeight: 1.1, 
+                      display: 'block', 
+                      width: '100%',
+                      wordBreak: 'break-word',
+                      hyphens: 'auto'
+                    }}>
                       {item.label}
                       {item.label === 'Carrinhos Abandonados' && plan === 'pro' && (
-                        <Crown size={10} style={{ color: '#fbbf24' }} />
+                        <Crown size={10} style={{ color: '#fbbf24', marginLeft: '0.2rem', display: 'inline-block', verticalAlign: 'middle' }} />
                       )}
                     </span>
                   </Link>
@@ -341,7 +351,7 @@ export default function AdminSidebar() {
             </div>
 
             {/* Footer Logout */}
-            <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: '0.75rem' }}>
+            <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: '0.6rem' }}>
               <button
                 onClick={() => {
                   setShowMobileMenu(false)
@@ -349,21 +359,21 @@ export default function AdminSidebar() {
                 }}
                 style={{
                   width: '100%',
-                  padding: '0.75rem',
+                  padding: '0.65rem',
                   background: 'rgba(239, 68, 68, 0.08)',
                   border: '1px solid rgba(239, 68, 68, 0.15)',
                   color: '#ef4444',
                   borderRadius: '12px',
                   fontWeight: 700,
-                  fontSize: '0.85rem',
+                  fontSize: '0.8rem',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.4rem',
+                  gap: '0.35rem',
                   cursor: 'pointer'
                 }}
               >
-                <LogOut size={16} />
+                <LogOut size={14} />
                 <span>Sair do Painel</span>
               </button>
             </div>
