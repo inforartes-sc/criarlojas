@@ -218,18 +218,6 @@ export default function AdminSidebar() {
         zIndex: 10000,
         padding: '0 0.5rem'
       }}>
-        <Link href="/admin" onClick={() => setShowMobileMenu(false)} style={bottomItemStyle('/admin')}>
-          <LayoutDashboard size={20} />
-          <span style={{ fontSize: '0.7rem', marginTop: '2px' }}>Dashboard</span>
-        </Link>
-        <Link href="/admin/orders" onClick={() => setShowMobileMenu(false)} style={bottomItemStyle('/admin/orders')}>
-          <ShoppingBag size={20} />
-          <span style={{ fontSize: '0.7rem', marginTop: '2px' }}>Pedidos</span>
-        </Link>
-        <Link href="/admin/customers" onClick={() => setShowMobileMenu(false)} style={bottomItemStyle('/admin/customers')}>
-          <Users size={20} />
-          <span style={{ fontSize: '0.7rem', marginTop: '2px' }}>Clientes</span>
-        </Link>
         <button 
           onClick={() => setShowMobileMenu(!showMobileMenu)} 
           style={{
@@ -248,6 +236,18 @@ export default function AdminSidebar() {
           <Menu size={20} />
           <span style={{ fontSize: '0.7rem', marginTop: '2px' }}>Menu</span>
         </button>
+        <Link href="/admin/orders" onClick={() => setShowMobileMenu(false)} style={bottomItemStyle('/admin/orders')}>
+          <ShoppingBag size={20} />
+          <span style={{ fontSize: '0.7rem', marginTop: '2px' }}>Pedidos</span>
+        </Link>
+        <Link href="/admin/customers" onClick={() => setShowMobileMenu(false)} style={bottomItemStyle('/admin/customers')}>
+          <Users size={20} />
+          <span style={{ fontSize: '0.7rem', marginTop: '2px' }}>Clientes</span>
+        </Link>
+        <Link href="/admin" onClick={() => setShowMobileMenu(false)} style={bottomItemStyle('/admin')}>
+          <LayoutDashboard size={20} />
+          <span style={{ fontSize: '0.7rem', marginTop: '2px' }}>Dashboard</span>
+        </Link>
       </div>
 
       {/* Mobile Menu Overlay */}
