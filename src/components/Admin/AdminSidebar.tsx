@@ -252,24 +252,30 @@ export default function AdminSidebar() {
 
       {/* Mobile Menu Overlay */}
       {showMobileMenu && (
-        <div className="mobile-menu-overlay" style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: '65px',
-          backgroundColor: '#f8fafc',
-          borderTop: '1px solid rgba(0,0,0,0.08)',
-          zIndex: 9999,
-          display: 'flex',
-          flexDirection: 'column',
-          padding: '1.5rem',
-          overflowY: 'auto',
-          transform: 'translate3d(0, 0, 0)',
-          WebkitTransform: 'translate3d(0, 0, 0)',
-          backfaceVisibility: 'hidden',
-          WebkitBackfaceVisibility: 'hidden'
-        }}>
+        <>
+          <style>{`
+            .admin-main-content {
+              display: none !important;
+            }
+          `}</style>
+          <div className="mobile-menu-overlay" style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: '65px',
+            backgroundColor: '#ffffff',
+            borderTop: '1px solid rgba(0,0,0,0.08)',
+            zIndex: 9999,
+            display: 'flex',
+            flexDirection: 'column',
+            padding: '1.5rem',
+            overflowY: 'auto',
+            transform: 'translate3d(0, 0, 0)',
+            WebkitTransform: 'translate3d(0, 0, 0)',
+            backfaceVisibility: 'hidden',
+            WebkitBackfaceVisibility: 'hidden'
+          }}>
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem', borderBottom: '1px solid rgba(0,0,0,0.08)', paddingBottom: '1rem' }}>
             <div>
@@ -360,7 +366,7 @@ export default function AdminSidebar() {
             </button>
           </div>
         </div>
-      )}
+      </>)}
 
       <style>{`
         .nav-item:hover {
