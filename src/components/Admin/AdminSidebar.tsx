@@ -390,7 +390,6 @@ export default function AdminSidebar() {
               </button>
             </div>
           </div>
-        </div>
       </>)}
 
       <style>{`
