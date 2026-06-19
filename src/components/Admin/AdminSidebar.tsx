@@ -299,11 +299,12 @@ export default function AdminSidebar() {
               </button>
             </div>
 
-            {/* Grid of Other Modules - 3 Columns */}
+            {/* Grid of Other Modules - 3 Columns using Flexbox for 100% device compatibility */}
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(3, 1fr)',
-              gap: '0.5rem'
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '0.5rem',
+              width: '100%'
             }}>
               {filteredMenuItems
                 .filter(item => !['Dashboard', 'Pedidos', 'Clientes'].includes(item.label))
@@ -326,7 +327,9 @@ export default function AdminSidebar() {
                       color: '#334155',
                       transition: 'all 0.2s',
                       textAlign: 'center',
-                      minWidth: 0,
+                      width: 'calc((100% - 1rem) / 3)',
+                      minWidth: '80px',
+                      boxSizing: 'border-box',
                       overflow: 'hidden'
                     }}
                     className="mobile-grid-item"
