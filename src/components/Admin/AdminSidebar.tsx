@@ -314,12 +314,13 @@ export default function AdminSidebar() {
               </button>
             </div>
 
-            {/* Grid of Other Modules - Vertical List for 100% compatibility and premium look */}
+            {/* Grid of Other Modules - 2-column layout with icons on top and text below */}
             <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.5rem',
-              width: '100%'
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '0.75rem',
+              width: '100%',
+              boxSizing: 'border-box'
             }}>
               {filteredMenuItems
                 .filter(item => !['Dashboard', 'Pedidos', 'Clientes'].includes(item.label))
@@ -331,33 +332,45 @@ export default function AdminSidebar() {
                     style={{
                       background: '#f8fafc',
                       border: '1px solid rgba(0,0,0,0.05)',
-                      borderRadius: '12px',
-                      padding: '0.85rem 1rem',
+                      borderRadius: '16px',
+                      padding: '1.25rem 0.5rem',
                       display: 'flex',
+                      flexDirection: 'column',
                       alignItems: 'center',
-                      gap: '0.85rem',
+                      justifyContent: 'center',
+                      gap: '0.6rem',
                       textDecoration: 'none',
                       color: '#334155',
                       transition: 'all 0.2s',
                       width: '100%',
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      minHeight: '105px',
+                      position: 'relative'
                     }}
                     className="mobile-grid-item"
                   >
-                    <item.icon size={20} style={{ color: '#6366f1', flexShrink: 0 }} />
+                    <div style={{
+                      backgroundColor: 'rgba(99, 102, 241, 0.08)',
+                      padding: '0.5rem',
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <item.icon size={22} style={{ color: '#6366f1', flexShrink: 0 }} />
+                    </div>
                     <span style={{ 
-                      fontSize: '0.85rem', 
+                      fontSize: '0.82rem', 
                       fontWeight: 700, 
                       color: '#334155',
-                      flex: 1,
-                      textAlign: 'left'
+                      textAlign: 'center',
+                      lineHeight: '1.25'
                     }}>
                       {item.label}
                     </span>
                     {item.label === 'Carrinhos Abandonados' && plan === 'pro' && (
-                      <Crown size={14} style={{ color: '#fbbf24', marginRight: '0.5rem' }} />
+                      <Crown size={12} style={{ color: '#fbbf24', position: 'absolute', top: '8px', right: '8px' }} />
                     )}
-                    <span style={{ color: '#94a3b8', fontSize: '1rem', fontWeight: 600 }}>&rarr;</span>
                   </Link>
                 ))}
             </div>
@@ -403,6 +416,10 @@ export default function AdminSidebar() {
         .mobile-grid-item:hover {
           background: rgba(99, 102, 241, 0.05) !important;
           border-color: rgba(99, 102, 241, 0.2) !important;
+        }
+        .mobile-grid-item:active {
+          transform: scale(0.97) !important;
+          background: rgba(99, 102, 241, 0.08) !important;
         }
 
         body.mobile-menu-active .admin-main-content {

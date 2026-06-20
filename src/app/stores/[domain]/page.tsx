@@ -414,13 +414,55 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
           /* Título da seção all products */
           .all-products-title { font-size: 2rem !important; letter-spacing: -1px !important; }
 
-          /* Categorias */
+          /* Categorias no Mobile como na imagem (cards de 2 colunas, ícone e texto abaixo) */
           .categories-row {
             display: grid !important;
             grid-template-columns: repeat(2, 1fr) !important;
-            gap: 2rem 1rem !important;
-            justify-items: center !important;
-            padding-left: 0 !important;
+            gap: 0.75rem !important;
+            padding: 0 0.5rem !important;
+          }
+          .category-card {
+            width: 100% !important;
+            min-width: 0 !important;
+            background-color: ${isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc'} !important;
+            border: 1px solid ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'} !important;
+            border-radius: 16px !important;
+            padding: 1.5rem 1rem !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 0.75rem !important;
+            transition: all 0.2s ease !important;
+          }
+          .category-card:active {
+            transform: scale(0.97) !important;
+            background-color: ${isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9'} !important;
+          }
+          .category-img-container {
+            width: 40px !important;
+            height: 40px !important;
+            margin-bottom: 0 !important;
+            background-color: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            border-radius: 0 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+          }
+          .category-img-container img {
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            border-radius: 8px !important;
+          }
+          .category-title {
+            font-size: 0.95rem !important;
+            font-weight: 600 !important;
+            text-transform: none !important;
+            letter-spacing: 0 !important;
+            color: ${isDark ? '#e2e8f0' : '#1e293b'} !important;
           }
 
           /* Seção de novidades e all products: padding menor */
