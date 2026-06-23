@@ -47,6 +47,8 @@ import { getDomainSuffix, getAbsoluteUrl } from '@/lib/getDomainSuffix'
 export default function SaaSCommercialPortal() {
   const [domainSuffix, setDomainSuffix] = useState('.localhost:3000')
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+  const [isDemoBtnHovered, setIsDemoBtnHovered] = useState(false)
+  const [isHeroBtnHovered, setIsHeroBtnHovered] = useState(false)
 
   useEffect(() => {
     setDomainSuffix(getDomainSuffix())
@@ -82,10 +84,29 @@ export default function SaaSCommercialPortal() {
   const [activeClientsList, setActiveClientsList] = useState<any[]>([])
 
   // Estado para as configurações globais de contato (conectado com o Super Admin)
-  const [platformSettings, setPlatformSettings] = useState({
-    supportEmail: 'contato@criarlojas.com.br',
-    whatsappSupport: '(11) 99999-8888',
-    businessHours: 'Seg - Sex, das 9h às 18h'
+  const [platformSettings, setPlatformSettings] = useState(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const saved = localStorage.getItem('superadmin_global_settings')
+        if (saved) {
+          const parsed = JSON.parse(saved)
+          return {
+            supportEmail: parsed.supportEmail || 'contato@criarlojas.com.br',
+            whatsappSupport: parsed.whatsappSupport || '(11) 99999-8888',
+            businessHours: parsed.businessHours || 'Seg - Sex, das 9h às 18h',
+            landingPageTheme: parsed.landingPageTheme || 'light'
+          }
+        }
+      } catch (e) {
+        console.error(e)
+      }
+    }
+    return {
+      supportEmail: 'contato@criarlojas.com.br',
+      whatsappSupport: '(11) 99999-8888',
+      businessHours: 'Seg - Sex, das 9h às 18h',
+      landingPageTheme: 'light'
+    }
   })
 
   useEffect(() => {
@@ -99,11 +120,23 @@ export default function SaaSCommercialPortal() {
         
         if (data && data.settings) {
           const s = data.settings
+          const themeVal = s.landingPageTheme || 'light'
           setPlatformSettings({
             supportEmail: s.supportEmail || 'contato@criarlojas.com.br',
             whatsappSupport: s.whatsappSupport || '5511999998888',
-            businessHours: s.businessHours || 'Seg - Sex, das 9h às 18h'
+            businessHours: s.businessHours || 'Seg - Sex, das 9h às 18h',
+            landingPageTheme: themeVal
           })
+          
+          // Save to localStorage for instant load next time
+          try {
+            localStorage.setItem('superadmin_global_settings', JSON.stringify({
+              supportEmail: s.supportEmail,
+              whatsappSupport: s.whatsappSupport,
+              businessHours: s.businessHours,
+              landingPageTheme: themeVal
+            }))
+          } catch (e) {}
           return
         }
       } catch (err) {
@@ -118,7 +151,8 @@ export default function SaaSCommercialPortal() {
           setPlatformSettings({
             supportEmail: parsed.supportEmail || 'contato@criarlojas.com.br',
             whatsappSupport: parsed.whatsappSupport || '(11) 99999-8888',
-            businessHours: parsed.businessHours || 'Seg - Sex, das 9h às 18h'
+            businessHours: parsed.businessHours || 'Seg - Sex, das 9h às 18h',
+            landingPageTheme: parsed.landingPageTheme || 'light'
           })
         }
       } catch (e) {
@@ -470,7 +504,7 @@ export default function SaaSCommercialPortal() {
   // Cálculo da Calculadora de ROI
   const totalRevenue = monthlyOrders * averageTicket
   const otherPlatformCost = (totalRevenue * 0.05) + (monthlyOrders * 1)
-  const storeproCost = totalRevenue * 0.01
+  const storeproCost = totalRevenue * 0.0125
   const monthlySavings = otherPlatformCost - storeproCost
   const annualSavings = monthlySavings * 12
 
@@ -598,10 +632,183 @@ export default function SaaSCommercialPortal() {
     return `https://wa.me/${formattedPhone}?text=${text}`
   }
 
+  const isLightTheme = platformSettings.landingPageTheme === 'light'
+
   return (
-    <div style={{ backgroundColor: '#090d16', color: '#f8fafc', minHeight: '100vh', fontFamily: 'var(--font-sans), sans-serif', overflowX: 'hidden' }}>
+    <div 
+      className={isLightTheme ? 'light-theme' : 'dark-theme'}
+      style={{ 
+        backgroundColor: 'var(--bg-color)', 
+        color: 'var(--text-primary)', 
+        minHeight: '100vh', 
+        fontFamily: 'var(--font-sans), sans-serif', 
+        overflowX: 'hidden' 
+      }}
+    >
+      <style>{`
+        :root, .dark-theme {
+          --bg-color: #090d16;
+          --text-primary: #f8fafc;
+          --text-secondary: #cbd5e1;
+          --text-muted: #94a3b8;
+          --card-bg: rgba(15, 23, 42, 0.6);
+          --card-bg-solid: #0f172a;
+          --navbar-bg: rgba(9, 13, 22, 0.85);
+          --border-color: rgba(255, 255, 255, 0.08);
+          --hero-bg-overlay: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(14, 165, 233, 0.1) 40%, transparent 70%);
+          --section-alt-bg: rgba(255, 255, 255, 0.02);
+          --input-bg-val: rgba(255, 255, 255, 0.03);
+          --nav-link-color: #cbd5e1;
+          --price-text-color: #f8fafc;
+          --feature-card-hover-bg: rgba(255, 255, 255, 0.02);
+          --logo-text-color: #f8fafc;
+        }
+        .light-theme {
+          --bg-color: #f8fafc;
+          --text-primary: #0f172a;
+          --text-secondary: #334155;
+          --text-muted: #64748b;
+          --card-bg: rgba(255, 255, 255, 0.85);
+          --card-bg-solid: #ffffff;
+          --navbar-bg: rgba(248, 250, 252, 0.9);
+          --border-color: rgba(15, 23, 42, 0.08);
+          --hero-bg-overlay: none;
+          --section-alt-bg: rgba(15, 23, 42, 0.02);
+          --input-bg-val: #ffffff;
+          --nav-link-color: #334155;
+          --price-text-color: #0f172a;
+          --feature-card-hover-bg: #ffffff;
+          --logo-text-color: #0f172a;
+        }
+        .light-theme .nav-link { color: var(--nav-link-color) !important; }
+        .light-theme .nav-link:hover { color: #10b981 !important; }
+        
+        .light-theme .saas-hero-checks span, .light-theme .saas-hero-checks div span { color: var(--text-secondary) !important; }
+
+        /* Uniform Feature Cards in Light Theme (Light Green) */
+        .light-theme .feature-card { background: rgba(16, 185, 129, 0.06) !important; border-color: rgba(16, 185, 129, 0.15) !important; }
+        .light-theme .feature-card h3 { color: var(--text-primary) !important; }
+        .light-theme .feature-card p { color: var(--text-secondary) !important; }
+        .light-theme .feature-card div { border-color: var(--border-color) !important; }
+
+        .light-theme .demo-card { border-color: var(--border-color) !important; }
+        .light-theme .demo-card:hover { border-color: rgba(16, 185, 129, 0.3) !important; box-shadow: 0 12px 25px rgba(0,0,0,0.08) !important; }
+        .light-theme .demo-card h3 { color: var(--text-primary) !important; }
+        .light-theme .demo-card p { color: var(--text-secondary) !important; }
+        .light-theme .demo-card a:not(.btn-visit) { border-color: var(--border-color) !important; color: var(--text-primary) !important; }
+        .light-theme .demo-card .btn-visit { color: #ffffff !important; }
+
+        .light-theme #vitrine { background: linear-gradient(to bottom, #ffffff, rgba(16, 185, 129, 0.03)) !important; }
+        .light-theme #vitrine h2 { color: var(--text-primary) !important; }
+        .light-theme #vitrine p { color: var(--text-muted) !important; }
+        .light-theme .no-scrollbar button:not([style*="linear-gradient"]) { background: rgba(16, 185, 129, 0.08) !important; color: #10b981 !important; border-color: rgba(16, 185, 129, 0.2) !important; }
+        
+        .light-theme .btn-admin { background: rgba(0, 0, 0, 0.04) !important; color: var(--text-secondary) !important; border-color: var(--border-color) !important; }
+        .light-theme .btn-admin:hover { background: rgba(0, 0, 0, 0.08) !important; }
+
+        .light-theme #clientes { background: linear-gradient(to bottom, rgba(14, 165, 233, 0.03), #ffffff) !important; }
+        .light-theme #clientes h2 { color: var(--text-primary) !important; }
+        .light-theme #clientes p { color: var(--text-muted) !important; }
+
+        .light-theme #funcionalidades h2 { color: var(--text-primary) !important; }
+        .light-theme #funcionalidades p { color: var(--text-muted) !important; }
+
+        .light-theme #calculadora h2 { color: var(--text-primary) !important; }
+        .light-theme #calculadora p { color: var(--text-muted) !important; }
+        .light-theme #calculadora label { color: var(--text-secondary) !important; }
+        .light-theme #calculadora span { color: var(--text-primary) !important; }
+        
+        .light-theme .roi-input-card { background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(14, 165, 233, 0.05)) !important; border-color: rgba(16, 185, 129, 0.15) !important; }
+        
+        /* ROI Calculator Right Card overrides to retain white/light text inside the dark card */
+        .light-theme #calculadora .roi-result-card,
+        .light-theme #calculadora .roi-result-card span,
+        .light-theme #calculadora .roi-result-card div { color: #f8fafc !important; }
+        .light-theme #calculadora .roi-result-card .roi-monthly-value { color: #ffffff !important; }
+        .light-theme #calculadora .roi-result-card .roi-annual-value { color: #ffffff !important; }
+        .light-theme #calculadora .roi-result-card span[style*="#ef4444"] { color: #ef4444 !important; }
+        .light-theme #calculadora .roi-result-card span[style*="#10b981"] { color: #10b981 !important; }
+
+        .light-theme #precos > div > div:first-child p { color: var(--text-muted) !important; }
+        
+
+
+        .light-theme .comparison-toggle-btn { background: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.2) !important; color: #10b981 !important; }
+        .light-theme .comparison-toggle-btn:hover { background: rgba(16, 185, 129, 0.15) !important; }
+        .light-theme table th { color: var(--text-primary) !important; }
+        .light-theme table td { color: var(--text-secondary) !important; }
+        .light-theme table td .lucide-check { color: #10b981 !important; }
+        .light-theme table td .lucide-x { color: #ef4444 !important; }
+        
+        .light-theme #faq h2 { color: var(--text-primary) !important; }
+        .light-theme #faq p { color: var(--text-muted) !important; }
+        .light-theme .faq-item { background: #10b981 !important; border-color: rgba(255, 255, 255, 0.2) !important; }
+        .light-theme .faq-item button { color: #ffffff !important; }
+        .light-theme .faq-item p { color: #e6fffa !important; }
+        .light-theme .faq-item button svg { color: #ffffff !important; }
+
+        .light-theme #concierge { background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, #ffffff 100%) !important; border-top: 1px solid rgba(16, 185, 129, 0.15) !important; border-bottom: 1px solid rgba(16, 185, 129, 0.15) !important; }
+        .light-theme #concierge h2, .light-theme #concierge h3 { color: var(--text-primary) !important; }
+        .light-theme #concierge p, .light-theme #concierge .info-card p { color: var(--text-secondary) !important; }
+        .light-theme #concierge .info-card { background: rgba(16, 185, 129, 0.06) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
+
+        .light-theme #dominio { background: linear-gradient(135deg, rgba(14, 165, 233, 0.06) 0%, #ffffff 100%) !important; border-bottom: 1px solid rgba(14, 165, 233, 0.15) !important; }
+        .light-theme #dominio h2, .light-theme #dominio h3 { color: var(--text-primary) !important; }
+        .light-theme #dominio p, .light-theme #dominio .info-card p { color: var(--text-secondary) !important; }
+        .light-theme #dominio .info-card { background: rgba(14, 165, 233, 0.06) !important; border-color: rgba(14, 165, 233, 0.2) !important; }
+
+        .light-theme #onboarding { background: radial-gradient(circle at center, rgba(16, 185, 129, 0.08) 0%, #f8fafc 70%) !important; }
+        .light-theme #onboarding h2 { color: #064e3b !important; }
+        .light-theme #onboarding p { color: #0f533e !important; }
+        .light-theme .saas-onboarding-card { background: #e6fcf5 !important; border-color: rgba(16, 185, 129, 0.25) !important; box-shadow: 0 25px 50px rgba(16, 185, 129, 0.08) !important; }
+        .light-theme .saas-onboarding-card .onboarding-btn-blue { background: #0ea5e9 !important; color: #ffffff !important; border-color: transparent !important; }
+        .light-theme .saas-onboarding-card .onboarding-btn-blue:hover { background: #0284c7 !important; color: #ffffff !important; }
+        .light-theme .saas-onboarding-card .onboarding-btn-green { background: #10b981 !important; color: #ffffff !important; }
+        .light-theme .saas-onboarding-card .onboarding-btn-green:hover { background: #059669 !important; color: #ffffff !important; }
+        
+        .onboarding-btn-green { background: #10b981 !important; color: #ffffff !important; border: none !important; transition: all 0.2s !important; }
+        .onboarding-btn-green:hover { transform: translateY(-2px) scale(1.02) !important; filter: brightness(1.1) !important; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3) !important; }
+        
+        .onboarding-btn-blue { background: #0ea5e9 !important; color: #ffffff !important; border: none !important; transition: all 0.2s !important; }
+        .onboarding-btn-blue:hover { transform: translateY(-2px) scale(1.02) !important; filter: brightness(1.1) !important; box-shadow: 0 8px 25px rgba(14, 165, 233, 0.3) !important; }
+
+        .light-theme .lead-modal-content { background: #ffffff !important; border-color: rgba(16, 185, 129, 0.3) !important; color: var(--text-primary) !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06) !important; }
+        .light-theme .domain-modal-content { background: #ffffff !important; border-color: rgba(14, 165, 233, 0.3) !important; color: var(--text-primary) !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06) !important; }
+        .light-theme #concierge img { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important; }
+        .light-theme #dominio img { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important; }
+        .light-theme .plan-card-portal { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03) !important; }
+        .light-theme .plan-card-portal:hover { box-shadow: 0 8px 25px rgba(16, 185, 129, 0.08) !important; }
+        .light-theme .roi-result-card { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important; }
+        .light-theme .mobile-menu-drawer { box-shadow: 0 6px 15px rgba(0, 0, 0, 0.04) !important; }
+        .light-theme .lead-modal-content h3, .light-theme .domain-modal-content h3 { color: var(--text-primary) !important; }
+        .light-theme .lead-modal-content h4, .light-theme .domain-modal-content h4 { color: var(--text-primary) !important; border-color: rgba(0,0,0,0.08) !important; }
+        .light-theme .lead-modal-content p, .light-theme .domain-modal-content p { color: var(--text-secondary) !important; }
+        .light-theme .lead-modal-content label, .light-theme .domain-modal-content label { color: var(--text-secondary) !important; }
+        .light-theme .lead-modal-content input, .light-theme .lead-modal-content select, .light-theme .lead-modal-content textarea, .light-theme .domain-modal-content input, .light-theme .domain-modal-content textarea { background: #f1f5f9 !important; border-color: rgba(0,0,0,0.1) !important; color: var(--text-primary) !important; }
+        .light-theme .subdomain-container { background: #f1f5f9 !important; border-color: rgba(0,0,0,0.1) !important; color: var(--text-primary) !important; }
+        .light-theme .subdomain-container input { color: var(--text-primary) !important; }
+        .light-theme .subdomain-container span { background: rgba(0,0,0,0.03) !important; border-left-color: rgba(0,0,0,0.1) !important; color: #0ea5e9 !important; }
+        .light-theme .modal-panel { background: rgba(16, 185, 129, 0.03) !important; border-color: rgba(16, 185, 129, 0.1) !important; }
+        .light-theme .custom-color-row { background: #f8fafc !important; border-color: rgba(0,0,0,0.08) !important; }
+        .light-theme .cancel-btn { color: var(--text-secondary) !important; border-color: rgba(0,0,0,0.1) !important; }
+        .light-theme .cancel-btn:hover { background: rgba(0,0,0,0.03) !important; }
+        .light-theme .close-btn { background: rgba(0,0,0,0.05) !important; border-color: rgba(0,0,0,0.1) !important; color: var(--text-secondary) !important; }
+        .light-theme .close-btn:hover { background: rgba(0,0,0,0.08) !important; }
+        .light-theme .color-presets-grid button { background: #ffffff !important; border-color: rgba(0,0,0,0.1) !important; color: var(--text-primary) !important; }
+        .light-theme .color-presets-grid button[style*="2px solid"] { border-width: 2px !important; }
+
+        .light-theme footer { background: #e6fcf5 !important; border-color: rgba(16, 185, 129, 0.2) !important; }
+        .light-theme footer h4 { color: #064e3b !important; }
+        .light-theme footer span:not([style*="#10b981"]) { color: #064e3b !important; }
+        .light-theme footer p { color: #0f533e !important; }
+        .light-theme footer a { color: #0f533e !important; }
+        .light-theme footer a:hover { color: #10b981 !important; }
+        .light-theme footer .desktop-copyright, .light-theme footer .mobile-copyright { color: #64748b !important; }
+        .light-theme footer div { color: #0f533e !important; }
+      `}</style>
+
       {/* NAVBAR PREMIUM */}
-      <nav className="saas-navbar" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, background: 'rgba(9, 13, 22, 0.85)', backdropFilter: 'blur(12px)', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', padding: '1rem 0' }}>
+      <nav className="saas-navbar" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, background: 'var(--navbar-bg)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--border-color)', padding: '1rem 0' }}>
         <div className="saas-nav-container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)' }}>
@@ -613,10 +820,10 @@ export default function SaaSCommercialPortal() {
           </div>
 
           <div className="saas-nav-links" style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
-            <a href="#funcionalidades" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }} className="nav-link">Funcionalidades</a>
-            <a href="#vitrine" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }} className="nav-link">Lojas Modelo</a>
-            <a href="#calculadora" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }} className="nav-link">Calculadora de ROI</a>
-            <a href="#precos" style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }} className="nav-link">Planos</a>
+            <a href="#funcionalidades" style={{ color: 'var(--nav-link-color)', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }} className="nav-link">Funcionalidades</a>
+            <a href="#vitrine" style={{ color: 'var(--nav-link-color)', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }} className="nav-link">Lojas Modelo</a>
+            <a href="#calculadora" style={{ color: 'var(--nav-link-color)', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }} className="nav-link">Calculadora de ROI</a>
+            <a href="#precos" style={{ color: 'var(--nav-link-color)', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }} className="nav-link">Planos</a>
           </div>
 
           <div className="saas-nav-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
@@ -653,8 +860,8 @@ export default function SaaSCommercialPortal() {
             top: '73px',
             left: 0,
             right: 0,
-            background: '#090d16',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            background: 'var(--bg-color)',
+            borderBottom: '1px solid var(--border-color)',
             padding: '1.5rem 2rem',
             zIndex: 49,
             display: 'flex',
@@ -665,10 +872,10 @@ export default function SaaSCommercialPortal() {
           }}
           className="mobile-menu-drawer"
         >
-          <a href="#funcionalidades" onClick={() => setShowMobileMenu(false)} style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Funcionalidades</a>
-          <a href="#vitrine" onClick={() => setShowMobileMenu(false)} style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Lojas Modelo</a>
-          <a href="#calculadora" onClick={() => setShowMobileMenu(false)} style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Calculadora de ROI</a>
-          <a href="#precos" onClick={() => setShowMobileMenu(false)} style={{ color: '#cbd5e1', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Planos</a>
+          <a href="#funcionalidades" onClick={() => setShowMobileMenu(false)} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Funcionalidades</a>
+          <a href="#vitrine" onClick={() => setShowMobileMenu(false)} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Lojas Modelo</a>
+          <a href="#calculadora" onClick={() => setShowMobileMenu(false)} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Calculadora de ROI</a>
+          <a href="#precos" onClick={() => setShowMobileMenu(false)} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Planos</a>
           <button 
             onClick={() => { setShowMobileMenu(false); handleOpenLeadModal('modern', 'pro'); }}
             style={{ 
@@ -695,7 +902,7 @@ export default function SaaSCommercialPortal() {
 
       {/* HERO SECTION DE ALTO IMPACTO */}
       <section style={{ padding: '12rem 0 8rem 0', position: 'relative', overflow: 'hidden' }} className="saas-hero-section">
-        <div style={{ position: 'absolute', top: '-10%', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '800px', background: 'radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(14, 165, 233, 0.1) 40%, transparent 70%)', zIndex: 1 }} />
+        <div style={{ position: 'absolute', top: '-10%', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '800px', background: 'var(--hero-bg-overlay)', zIndex: 1 }} />
         
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem', position: 'relative', zIndex: 10, textAlign: 'center' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '0.4rem 1.25rem', borderRadius: '30px', marginBottom: '2rem' }}>
@@ -707,7 +914,7 @@ export default function SaaSCommercialPortal() {
 
           <h1 className="saas-hero-title" style={{ fontSize: '4.5rem', fontWeight: 900, marginBottom: '1.5rem', lineHeight: 1.1, letterSpacing: '-1px' }}>
             Escolha seu Modelo e Receba sua <br />
-            <span style={{ background: 'linear-gradient(to right, #10b981, #0ea5e9, #6366f1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+            <span style={{ color: '#10b981' }}>
               Loja Virtual Pronta para Vender
             </span>
           </h1>
@@ -717,13 +924,48 @@ export default function SaaSCommercialPortal() {
           </p>
 
           <div className="saas-hero-buttons" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
-            <button onClick={() => handleOpenLeadModal('modern', 'pro')} style={{ padding: '1.25rem 3rem', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 800, borderRadius: '12px', boxShadow: '0 8px 25px rgba(16, 185, 129, 0.5)', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', transition: 'all 0.2s' }} className="hero-btn">
+            <button 
+              onClick={() => handleOpenLeadModal('modern', 'pro')} 
+              style={{ 
+                padding: '1.25rem 3rem', 
+                background: '#10b981', 
+                color: 'white', 
+                border: 'none', 
+                cursor: 'pointer', 
+                fontSize: '1.1rem', 
+                fontWeight: 800, 
+                borderRadius: '12px', 
+                boxShadow: '0 8px 25px rgba(16, 185, 129, 0.5)', 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '0.75rem', 
+                transition: 'all 0.2s'
+              }} 
+              className="hero-btn"
+            >
               <span>Quero Solicitar Minha Loja</span>
               <ArrowRight size={20} />
             </button>
             
-            <a href="#vitrine" style={{ padding: '1.25rem 2.5rem', background: 'rgba(255, 255, 255, 0.05)', color: '#f8fafc', textDecoration: 'none', fontSize: '1.1rem', fontWeight: 700, borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', transition: 'all 0.2s' }} className="demo-btn">
-              <Play size={18} color="#0ea5e9" />
+            <a 
+              href="#vitrine" 
+              style={{ 
+                padding: '1.25rem 2.5rem', 
+                background: '#0ea5e9', 
+                color: '#ffffff', 
+                textDecoration: 'none', 
+                fontSize: '1.1rem', 
+                fontWeight: 700, 
+                borderRadius: '12px', 
+                border: 'none', 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                gap: '0.75rem', 
+                transition: 'all 0.2s'
+              }} 
+              className="demo-btn"
+            >
+              <Play size={18} color="#ffffff" />
               <span>Ver Lojas Modelo</span>
             </a>
           </div>
@@ -836,7 +1078,7 @@ export default function SaaSCommercialPortal() {
               <div 
                 key={store.id} 
                 style={{ 
-                  background: 'rgba(15, 23, 42, 0.6)', 
+                  background: isLightTheme ? '#0ea5e915' : 'rgba(15, 23, 42, 0.6)', 
                   borderRadius: '16px', 
                   border: '1px solid rgba(255, 255, 255, 0.08)', 
                   overflow: 'hidden', 
@@ -946,7 +1188,7 @@ export default function SaaSCommercialPortal() {
               <div 
                 key={store.id} 
                 style={{ 
-                  background: 'rgba(15, 23, 42, 0.6)', 
+                  background: isLightTheme ? '#0ea5e915' : 'rgba(15, 23, 42, 0.6)', 
                   borderRadius: '16px', 
                   border: '1px solid rgba(255, 255, 255, 0.08)', 
                   overflow: 'hidden', 
@@ -1092,15 +1334,14 @@ export default function SaaSCommercialPortal() {
               </div>
 
               <h2 style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0 0 1.5rem 0', color: '#f8fafc', lineHeight: 1.2 }}>
-                Quanto Você Economiza com as <br />
-                <span style={{ color: '#10b981' }}>Taxas Ultrabaixas da Criar Lojas?</span>
+                Quanto Você Economiza com as Taxas Ultrabaixas da Criar Lojas?
               </h2>
 
               <p style={{ color: '#94a3b8', fontSize: '1.1rem', marginBottom: '2.5rem', lineHeight: 1.6 }}>
                 Plataformas tradicionais cobram até 5% de comissão mais tarifas fixas por cada venda realizada. Na Criar Lojas, você tem previsibilidade financeira e margem de lucro maximizada.
               </p>
 
-              <div style={{ display: 'grid', gap: '2rem', background: 'rgba(15, 23, 42, 0.6)', padding: '2rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+              <div className="roi-input-card" style={{ display: 'grid', gap: '2rem', background: 'rgba(15, 23, 42, 0.6)', padding: '2rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
                     <label style={{ fontWeight: 700, color: '#cbd5e1' }}>Pedidos por Mês:</label>
@@ -1135,36 +1376,36 @@ export default function SaaSCommercialPortal() {
               </div>
             </div>
 
-            <div style={{ background: 'linear-gradient(135deg, #1e293b, #0f172a)', padding: '3.5rem', borderRadius: '24px', border: '1px solid rgba(16, 185, 129, 0.3)', boxShadow: '0 20px 50px rgba(0,0,0,0.5)', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', top: 0, right: 0, background: '#10b981', color: 'white', padding: '0.5rem 2rem', fontSize: '0.8rem', fontWeight: 800, borderRadius: '0 0 0 20px', textTransform: 'uppercase' }}>
+            <div className="roi-result-card" style={{ background: '#10b981', padding: '3.5rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.2)', boxShadow: '0 20px 50px rgba(16, 185, 129, 0.3)', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ position: 'absolute', top: 0, right: 0, background: '#064e3b', color: 'white', padding: '0.5rem 2rem', fontSize: '0.8rem', fontWeight: 800, borderRadius: '0 0 0 20px', textTransform: 'uppercase' }}>
                 Economia Comprovada
               </div>
 
               <div style={{ marginBottom: '2.5rem' }}>
-                <span style={{ fontSize: '0.9rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>Faturamento Mensal Simulado</span>
-                <span className="roi-monthly-value" style={{ fontSize: '2.2rem', fontWeight: 900, color: '#f8fafc' }}>R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                <span style={{ fontSize: '0.9rem', color: 'rgba(255, 255, 255, 0.85)', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>Faturamento Mensal Simulado</span>
+                <span className="roi-monthly-value" style={{ fontSize: '2.2rem', fontWeight: 900, color: '#ffffff' }}>R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem', padding: '1.5rem', background: 'rgba(0,0,0,0.3)', borderRadius: '16px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem', padding: '1.5rem', background: 'rgba(0,0,0,0.15)', borderRadius: '16px' }}>
                 <div>
-                  <span style={{ fontSize: '0.8rem', color: '#ef4444', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>Taxas Outras Plataformas</span>
-                  <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ef4444', textDecoration: 'line-through' }}>R$ {otherPlatformCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  <span style={{ fontSize: '0.8rem', color: '#ff8a8a', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>Taxas Outras Plataformas</span>
+                  <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ff8a8a', textDecoration: 'line-through' }}>R$ {otherPlatformCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div>
-                  <span style={{ fontSize: '0.8rem', color: '#10b981', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>Taxa Criar Lojas (1%)</span>
-                  <span style={{ fontSize: '1.3rem', fontWeight: 900, color: '#10b981' }}>R$ {storeproCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  <span style={{ fontSize: '0.8rem', color: '#ffffff', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>Taxa Criar Lojas (1,25%)</span>
+                  <span style={{ fontSize: '1.3rem', fontWeight: 900, color: '#ffffff' }}>R$ {storeproCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
                 </div>
               </div>
 
-              <div style={{ background: 'rgba(16, 185, 129, 0.15)', border: '2px solid #10b981', padding: '2rem', borderRadius: '16px', marginBottom: '2.5rem' }}>
-                <span style={{ fontSize: '0.95rem', color: '#10b981', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>Sua Economia Anual Estimada</span>
-                <span className="roi-annual-value" style={{ fontSize: '3rem', fontWeight: 900, color: '#10b981', display: 'block', lineHeight: 1.1 }}>
+              <div style={{ background: 'rgba(0, 0, 0, 0.12)', border: '2px solid rgba(255, 255, 255, 0.4)', padding: '2rem', borderRadius: '16px', marginBottom: '2.5rem' }}>
+                <span style={{ fontSize: '0.95rem', color: '#ffffff', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>Sua Economia Anual Estimada</span>
+                <span className="roi-annual-value" style={{ fontSize: '3rem', fontWeight: 900, color: '#ffffff', display: 'block', lineHeight: 1.1 }}>
                   R$ {annualSavings.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
-                <span style={{ fontSize: '0.85rem', color: '#cbd5e1', marginTop: '0.5rem', display: 'block' }}>Dinheiro direto no seu bolso para investir em estoque e anúncios!</span>
+                <span style={{ fontSize: '0.85rem', color: '#e6fffa', marginTop: '0.5rem', display: 'block' }}>Dinheiro direto no seu bolso para investir em estoque e anúncios!</span>
               </div>
 
-              <button onClick={() => handleOpenLeadModal('modern', 'pro')} style={{ width: '100%', padding: '1.25rem', background: '#10b981', color: 'white', border: 'none', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 800, borderRadius: '12px', display: 'inline-block', boxShadow: '0 8px 20px rgba(16, 185, 129, 0.4)', transition: 'all 0.2s' }} className="calc-btn">
+              <button onClick={() => handleOpenLeadModal('modern', 'pro')} style={{ width: '100%', padding: '1.25rem', background: '#ffffff', color: '#10b981', border: 'none', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 800, borderRadius: '12px', display: 'inline-block', boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)', transition: 'all 0.2s' }} className="calc-btn">
                 Solicitar Loja & Garantir Economia
               </button>
             </div>
@@ -1176,22 +1417,22 @@ export default function SaaSCommercialPortal() {
       <section id="precos" style={{ padding: '8rem 0' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
           <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0 0 1rem 0', color: '#f8fafc' }}>Planos Transparentes Para Todos os Tamanhos</h2>
-            <p style={{ color: '#94a3b8', fontSize: '1.1rem', maxWidth: '700px', margin: '0 auto 2.5rem' }}>
+            <h2 style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0 0 1rem 0', color: isLightTheme ? 'var(--text-primary)' : '#f8fafc' }}>Planos Transparentes Para Todos os Tamanhos</h2>
+            <p style={{ color: isLightTheme ? 'var(--text-secondary)' : '#94a3b8', fontSize: '1.1rem', maxWidth: '700px', margin: '0 auto 2.5rem' }}>
               Escolha o pacote ideal para o momento do seu negócio. Contratação assistida e sem fidelidade.
             </p>
 
             {/* Seletor Mensal / Anual */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', background: 'rgba(255, 255, 255, 0.05)', padding: '0.5rem', borderRadius: '30px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', background: isLightTheme ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.05)', padding: '0.5rem', borderRadius: '30px', border: isLightTheme ? '1px solid rgba(0, 0, 0, 0.08)' : '1px solid rgba(255, 255, 255, 0.1)' }}>
               <button 
                 onClick={() => setBillingCycle('mensal')}
-                style={{ padding: '0.65rem 2rem', background: billingCycle === 'mensal' ? 'linear-gradient(135deg, #10b981, #0ea5e9)' : 'transparent', color: billingCycle === 'mensal' ? 'white' : '#94a3b8', border: 'none', borderRadius: '25px', fontWeight: 800, cursor: 'pointer', fontSize: '0.95rem', transition: 'all 0.2s' }}
+                style={{ padding: '0.65rem 2rem', background: billingCycle === 'mensal' ? 'linear-gradient(135deg, #10b981, #0ea5e9)' : 'transparent', color: billingCycle === 'mensal' ? 'white' : (isLightTheme ? 'var(--text-secondary)' : '#94a3b8'), border: 'none', borderRadius: '25px', fontWeight: 800, cursor: 'pointer', fontSize: '0.95rem', transition: 'all 0.2s' }}
               >
                 Mensal
               </button>
               <button 
                 onClick={() => setBillingCycle('anual')}
-                style={{ padding: '0.65rem 2rem', background: billingCycle === 'anual' ? 'linear-gradient(135deg, #10b981, #0ea5e9)' : 'transparent', color: billingCycle === 'anual' ? 'white' : '#94a3b8', border: 'none', borderRadius: '25px', fontWeight: 800, cursor: 'pointer', fontSize: '0.95rem', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                style={{ padding: '0.65rem 2rem', background: billingCycle === 'anual' ? 'linear-gradient(135deg, #10b981, #0ea5e9)' : 'transparent', color: billingCycle === 'anual' ? 'white' : (isLightTheme ? 'var(--text-secondary)' : '#94a3b8'), border: 'none', borderRadius: '25px', fontWeight: 800, cursor: 'pointer', fontSize: '0.95rem', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
               >
                 <span>Anual</span>
                 <span style={{ background: '#ef4444', color: 'white', fontSize: '0.7rem', padding: '0.15rem 0.5rem', borderRadius: '10px', fontWeight: 900 }}>20% OFF</span>
@@ -1218,36 +1459,77 @@ export default function SaaSCommercialPortal() {
             ) : (
               plans.map((plan) => {
                 const price = billingCycle === 'mensal' ? plan.priceMonthly : plan.priceAnnual
+                const isPro = plan.id === 'pro'
+                
+                // Color configuration
+                const cardBg = isPro 
+                  ? (isLightTheme ? '#f0f9ff' : 'rgba(14, 165, 233, 0.12)') 
+                  : (isLightTheme ? '#e6fcf5' : 'rgba(16, 185, 129, 0.12)')
+                
+                const cardBorderColor = isPro 
+                  ? 'rgba(14, 165, 233, 0.25)' 
+                  : 'rgba(16, 185, 129, 0.25)'
+                
+                const titleColor = isPro 
+                  ? (isLightTheme ? '#0369a1' : '#ffffff') 
+                  : (isLightTheme ? '#064e3b' : '#ffffff')
+                
+                const textMutedColor = isPro 
+                  ? (isLightTheme ? '#0284c7' : '#e0f2fe') 
+                  : (isLightTheme ? '#0f533e' : '#e6fffa')
+                
+                const featuresHeaderColor = isLightTheme 
+                  ? (isPro ? '#0369a1' : '#064e3b') 
+                  : '#ffffff'
+                
+                const dividerBorder = isLightTheme 
+                  ? (isPro ? '1px solid rgba(14, 165, 233, 0.2)' : '1px solid rgba(16, 185, 129, 0.2)') 
+                  : '1px solid rgba(255, 255, 255, 0.2)'
+                
+                const featureLiColor = isLightTheme ? '#0f172a' : '#ffffff'
+                const featureLiExcludedColor = isLightTheme ? 'rgba(15, 23, 42, 0.35)' : 'rgba(255, 255, 255, 0.45)'
+                
+                const bulletBg = isPro 
+                  ? (isLightTheme ? '#0ea5e9' : 'rgba(255, 255, 255, 0.25)') 
+                  : (isLightTheme ? '#10b981' : 'rgba(255, 255, 255, 0.25)')
+                
+                const buttonBg = isPro ? '#0ea5e9' : '#10b981'
+                const buttonShadow = isPro ? '0 8px 25px rgba(14, 165, 233, 0.25)' : '0 8px 25px rgba(16, 185, 129, 0.25)'
 
                 return (
-                  <div key={plan.id} style={{ background: 'rgba(15, 23, 42, 0.6)', border: plan.popular ? '2px solid #10b981' : '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '24px', padding: '3rem 2.5rem', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'transform 0.3s, box-shadow 0.3s' }} className="plan-card-portal">
+                  <div key={plan.id} style={{ background: cardBg, border: `1px solid ${cardBorderColor}`, borderRadius: '24px', padding: '3rem 2.5rem', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'transform 0.3s, box-shadow 0.3s', backdropFilter: isLightTheme ? 'none' : 'blur(10px)' }} className="plan-card-portal">
                     {plan.popular && (
-                      <div style={{ position: 'absolute', top: 0, right: 0, background: 'linear-gradient(135deg, #10b981, #0ea5e9)', color: 'white', fontSize: '0.75rem', fontWeight: 800, padding: '0.4rem 1.5rem', borderRadius: '0 24px 0 16px', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                      <div style={{ position: 'absolute', top: 0, right: 0, background: '#0ea5e9', color: 'white', fontSize: '0.75rem', fontWeight: 800, padding: '0.4rem 1.5rem', borderRadius: '0 24px 0 16px', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
                         <Star size={14} fill="white" />
                         <span>Mais Escolhido</span>
                       </div>
                     )}
 
                     <div>
-                      <h3 style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0 0 1rem 0', color: '#f8fafc' }}>{plan.name}</h3>
-                      <p style={{ color: '#94a3b8', fontSize: '0.95rem', marginBottom: '2rem', lineHeight: 1.5 }}>{plan.desc}</p>
+                      <h3 style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0 0 1rem 0', color: titleColor }}>{plan.name}</h3>
+                      <p style={{ color: textMutedColor, fontSize: '0.95rem', marginBottom: '2rem', lineHeight: 1.5 }}>{plan.desc}</p>
 
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginBottom: '2.5rem' }}>
-                        <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#94a3b8' }}>R$</span>
-                        <span style={{ fontSize: '3.5rem', fontWeight: 900, color: '#f8fafc', lineHeight: 1 }}>{price.toFixed(2).replace('.', ',')}</span>
-                        <span style={{ fontSize: '0.9rem', color: '#94a3b8', fontWeight: 600 }}>/mês</span>
+                        <span style={{ fontSize: '1.2rem', fontWeight: 700, color: textMutedColor }}>R$</span>
+                        <span style={{ fontSize: '3.5rem', fontWeight: 900, color: titleColor, lineHeight: 1 }}>{price.toFixed(2).replace('.', ',')}</span>
+                        <span style={{ fontSize: '0.9rem', color: textMutedColor, fontWeight: 600 }}>/mês</span>
                       </div>
 
-                      <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '2rem', marginBottom: '3rem' }}>
-                        <div style={{ fontSize: '0.8rem', fontWeight: 800, color: '#cbd5e1', textTransform: 'uppercase', marginBottom: '1.5rem', letterSpacing: '1px' }}>O que está incluído:</div>
+                      <div style={{ borderTop: dividerBorder, paddingTop: '2rem', marginBottom: '3rem' }}>
+                        <div style={{ fontSize: '0.8rem', fontWeight: 800, color: featuresHeaderColor, textTransform: 'uppercase', marginBottom: '1.5rem', letterSpacing: '1px' }}>O que está incluído:</div>
                         <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '1rem' }}>
                           {plan.features.map((f: any, i: number) => {
                             const isExcluded = typeof f === 'string' && (f.startsWith('[-] ') || f.startsWith('[-]'));
-                            const cleanText = typeof f === 'string' ? (isExcluded ? f.replace(/^\[-\]\s*/, '') : f) : '';
+                            let cleanText = typeof f === 'string' ? (isExcluded ? f.replace(/^\[-\]\s*/, '') : f) : '';
+
+                            // Format transaction fee to use comma instead of dot
+                            if (cleanText.toLowerCase().includes('taxa de transa')) {
+                              cleanText = cleanText.replace('.', ',');
+                            }
 
                             return (
-                              <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.95rem', color: isExcluded ? '#64748b' : '#e2e8f0', fontWeight: 500, textDecoration: isExcluded ? 'line-through' : 'none', opacity: isExcluded ? 0.75 : 1 }}>
-                                <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: isExcluded ? 'rgba(239, 68, 68, 0.15)' : 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isExcluded ? '#ef4444' : '#10b981', flexShrink: 0 }}>
+                              <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.95rem', color: isExcluded ? featureLiExcludedColor : featureLiColor, fontWeight: 500, textDecoration: isExcluded ? 'line-through' : 'none', opacity: isExcluded ? 0.65 : 1 }}>
+                                <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: isExcluded ? (isLightTheme ? 'rgba(0, 0, 0, 0.08)' : 'rgba(0, 0, 0, 0.15)') : bulletBg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: isExcluded ? (isLightTheme ? '#64748b' : 'rgba(255, 255, 255, 0.6)') : '#ffffff', flexShrink: 0 }}>
                                   {isExcluded ? <X size={14} /> : <Check size={14} />}
                                 </div>
                                 <span style={{ lineHeight: 1.3 }}>{cleanText}</span>
@@ -1260,7 +1542,7 @@ export default function SaaSCommercialPortal() {
 
                     <button 
                       onClick={() => handleOpenLeadModal('modern', plan.id)}
-                      style={{ width: '100%', padding: '1.25rem', background: plan.popular ? 'linear-gradient(135deg, #10b981, #0ea5e9)' : 'rgba(255, 255, 255, 0.05)', color: plan.popular ? 'white' : '#f8fafc', border: plan.popular ? 'none' : '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '12px', fontWeight: 800, fontSize: '1.05rem', cursor: 'pointer', textAlign: 'center', display: 'block', boxShadow: plan.popular ? '0 8px 20px rgba(16, 185, 129, 0.4)' : 'none', transition: 'all 0.2s' }}
+                      style={{ width: '100%', padding: '1.25rem', background: buttonBg, color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '1.05rem', cursor: 'pointer', textAlign: 'center', display: 'block', boxShadow: buttonShadow, transition: 'all 0.2s' }}
                       className="plan-btn"
                     >
                       {plan.buttonText}
@@ -1292,7 +1574,7 @@ export default function SaaSCommercialPortal() {
             </div>
 
             {showComparison && (
-              <div style={{ overflowX: 'auto', background: 'rgba(15, 23, 42, 0.4)', borderRadius: '20px', border: '1px solid rgba(255, 255, 255, 0.08)', padding: '1.5rem' }}>
+              <div style={{ overflowX: 'auto', background: isLightTheme ? 'rgba(16, 185, 129, 0.06)' : 'rgba(15, 23, 42, 0.4)', borderRadius: '20px', border: isLightTheme ? '1px solid rgba(16, 185, 129, 0.15)' : '1px solid rgba(255, 255, 255, 0.08)', padding: '1.5rem' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px', textAlign: 'left' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
@@ -1476,7 +1758,7 @@ export default function SaaSCommercialPortal() {
               </p>
 
               <div style={{ display: 'grid', gap: '1.5rem' }}>
-                <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+                <div className="info-card" style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
                   <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', flexShrink: 0, marginTop: '0.25rem' }}>
                     <Check size={22} />
                   </div>
@@ -1486,7 +1768,7 @@ export default function SaaSCommercialPortal() {
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+                <div className="info-card" style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
                   <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(14, 165, 233, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0ea5e9', flexShrink: 0, marginTop: '0.25rem' }}>
                     <Check size={22} />
                   </div>
@@ -1499,7 +1781,7 @@ export default function SaaSCommercialPortal() {
             </div>
 
             <div style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%)', transform: 'scale(1.2)', zIndex: 1 }} />
+              <div style={{ position: 'absolute', inset: 0, background: isLightTheme ? 'radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%)', transform: isLightTheme ? 'scale(1.02)' : 'scale(1.2)', zIndex: 1 }} />
               <img 
                 src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80" 
                 alt="Serviço de Personalização VIP e Concierge" 
@@ -1555,7 +1837,7 @@ export default function SaaSCommercialPortal() {
               </p>
 
               <div style={{ display: 'grid', gap: '1.5rem' }}>
-                <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+                <div className="info-card" style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
                   <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(14, 165, 233, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0ea5e9', flexShrink: 0, marginTop: '0.25rem' }}>
                     <Check size={22} />
                   </div>
@@ -1565,7 +1847,7 @@ export default function SaaSCommercialPortal() {
                   </div>
                 </div>
 
-                <div style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
+                <div className="info-card" style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
                   <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', flexShrink: 0, marginTop: '0.25rem' }}>
                     <Check size={22} />
                   </div>
@@ -1578,7 +1860,7 @@ export default function SaaSCommercialPortal() {
             </div>
 
             <div style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle, rgba(14, 165, 233, 0.2) 0%, transparent 70%)', transform: 'scale(1.2)', zIndex: 1 }} />
+              <div style={{ position: 'absolute', inset: 0, background: isLightTheme ? 'radial-gradient(circle, rgba(14, 165, 233, 0.05) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(14, 165, 233, 0.2) 0%, transparent 70%)', transform: isLightTheme ? 'scale(1.02)' : 'scale(1.2)', zIndex: 1 }} />
               <img 
                 src="https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=800&q=80" 
                 alt="Registro de Domínio Próprio .com.br" 
@@ -1603,28 +1885,28 @@ export default function SaaSCommercialPortal() {
       </section>
 
       {/* SEÇÃO DE CHAMADA PARA AÇÃO */}
-      <section id="onboarding" style={{ padding: '8rem 0', background: 'radial-gradient(circle at center, rgba(16, 185, 129, 0.1) 0%, rgba(9, 13, 22, 1) 70%)', position: 'relative' }}>
+      <section id="onboarding" style={{ padding: '8rem 0', background: isLightTheme ? 'radial-gradient(circle at center, rgba(16, 185, 129, 0.08) 0%, #f8fafc 70%)' : 'radial-gradient(circle at center, rgba(16, 185, 129, 0.1) 0%, rgba(9, 13, 22, 1) 70%)', position: 'relative' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 2rem' }}>
-          <div className="saas-onboarding-card" style={{ background: 'rgba(15, 23, 42, 0.85)', backdropFilter: 'blur(16px)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', padding: '5rem 4rem', boxShadow: '0 25px 50px rgba(0,0,0,0.5)', position: 'relative', overflow: 'hidden', textAlign: 'center' }}>
+          <div className="saas-onboarding-card" style={{ background: isLightTheme ? '#e6fcf5' : 'rgba(16, 185, 129, 0.12)', border: isLightTheme ? '1px solid rgba(16, 185, 129, 0.25)' : '1px solid rgba(16, 185, 129, 0.25)', borderRadius: '24px', padding: '5rem 4rem', boxShadow: isLightTheme ? '0 25px 50px rgba(16, 185, 129, 0.08)' : '0 25px 50px rgba(0,0,0,0.5)', position: 'relative', overflow: 'hidden', textAlign: 'center', backdropFilter: isLightTheme ? 'none' : 'blur(10px)' }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '6px', background: 'linear-gradient(to right, #10b981, #0ea5e9, #6366f1)' }} />
 
-            <div style={{ width: '72px', height: '72px', borderRadius: '18px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem', boxShadow: '0 8px 25px rgba(16, 185, 129, 0.4)' }}>
+            <div style={{ width: '72px', height: '72px', borderRadius: '18px', background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem', boxShadow: '0 8px 25px rgba(16, 185, 129, 0.2)' }}>
               <MessageSquare size={36} color="white" />
             </div>
 
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 900, margin: '0 0 1rem 0', color: '#f8fafc', letterSpacing: '-0.5px' }}>
+            <h2 style={{ fontSize: '2.5rem', fontWeight: 900, margin: '0 0 1rem 0', color: isLightTheme ? '#064e3b' : '#ffffff', letterSpacing: '-0.5px' }}>
               Pronto Para Ter Sua Loja Virtual Premium?
             </h2>
 
-            <p style={{ color: '#94a3b8', fontSize: '1.2rem', maxWidth: '700px', margin: '0 auto 3.5rem', lineHeight: 1.6 }}>
+            <p style={{ color: isLightTheme ? '#0f533e' : '#e6fffa', fontSize: '1.2rem', maxWidth: '700px', margin: '0 auto 3.5rem', lineHeight: 1.6 }}>
               Nossa equipe de especialistas está pronta para provisionar seu banco de dados, configurar seu gateway de pagamento e entregar a vitrine modelo idêntica à que você escolher.
             </p>
 
             <div className="saas-onboarding-buttons" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
               <button 
                 onClick={() => handleOpenLeadModal('modern', 'pro')}
-                style={{ padding: '1.35rem 3.5rem', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '1.15rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 8px 25px rgba(16, 185, 129, 0.5)', transition: 'all 0.2s' }}
-                className="cta-btn"
+                style={{ padding: '1.35rem 3.5rem', background: '#10b981', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '1.15rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 8px 25px rgba(16, 185, 129, 0.25)', transition: 'all 0.2s' }}
+                className="cta-btn onboarding-btn-green"
               >
                 <span>Solicitar Loja</span>
                 <ArrowRight size={22} />
@@ -1634,10 +1916,10 @@ export default function SaaSCommercialPortal() {
                 href={`https://wa.me/${formatWhatsappNumber(platformSettings.whatsappSupport)}?text=${encodeURIComponent('Olá! Gostaria de entender mais sobre a plataforma Criar Lojas e solicitar a minha loja modelo.')}`}
                 target="_blank" 
                 rel="noopener noreferrer"
-                style={{ padding: '1.35rem 2.5rem', background: 'rgba(255, 255, 255, 0.05)', color: '#cbd5e1', textDecoration: 'none', fontSize: '1.15rem', fontWeight: 700, borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', transition: 'all 0.2s', whiteSpace: 'nowrap' }}
-                className="btn-admin"
+                style={{ padding: '1.35rem 2.5rem', background: '#0ea5e9', color: '#ffffff', textDecoration: 'none', fontSize: '1.15rem', fontWeight: 700, borderRadius: '12px', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', transition: 'all 0.2s', whiteSpace: 'nowrap', boxShadow: '0 8px 25px rgba(14, 165, 233, 0.25)' }}
+                className="btn-admin onboarding-btn-blue"
               >
-                <Phone size={20} color="#10b981" />
+                <Phone size={20} color="#ffffff" />
                 <span>WhatsApp Direto</span>
               </a>
             </div>
@@ -1664,17 +1946,17 @@ export default function SaaSCommercialPortal() {
               const isOpen = openFaq === index
 
               return (
-                <div key={index} style={{ background: 'rgba(15, 23, 42, 0.6)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', overflow: 'hidden', transition: 'all 0.2s' }}>
+                <div key={index} className="faq-item" style={{ background: '#10b981', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '16px', overflow: 'hidden', transition: 'all 0.2s' }}>
                   <button 
                     onClick={() => setOpenFaq(isOpen ? null : index)}
-                    style={{ width: '100%', padding: '2rem', background: 'transparent', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', textAlign: 'left', color: '#f8fafc', fontWeight: 800, fontSize: '1.15rem' }}
+                    style={{ width: '100%', padding: '2rem', background: 'transparent', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', textAlign: 'left', color: '#ffffff', fontWeight: 800, fontSize: '1.15rem' }}
                   >
                     <span>{faq.q}</span>
-                    {isOpen ? <ChevronUp size={22} color="#10b981" /> : <ChevronDown size={22} color="#64748b" />}
+                    {isOpen ? <ChevronUp size={22} color="#ffffff" /> : <ChevronDown size={22} color="#ffffff" />}
                   </button>
 
                   {isOpen && (
-                    <div style={{ padding: '0 2rem 2rem 2rem', color: '#94a3b8', fontSize: '1rem', lineHeight: 1.6, borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '1.5rem' }}>
+                    <div style={{ padding: '0 2rem 2rem 2rem', color: '#e6fffa', fontSize: '1rem', lineHeight: 1.6, borderTop: '1px solid rgba(255, 255, 255, 0.2)', paddingTop: '1.5rem' }}>
                       {faq.a}
                     </div>
                   )}
@@ -2069,7 +2351,7 @@ export default function SaaSCommercialPortal() {
         .login-btn:hover { background: rgba(14, 165, 233, 0.15); }
         .cta-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
         .hero-btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
-        .demo-btn:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
+        .demo-btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
         .demo-card:hover { transform: translateY(-6px); border-color: rgba(16, 185, 129, 0.3); box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
         .demo-card:hover .demo-img { transform: scale(1.05); }
         .btn-visit:hover { filter: brightness(1.15); transform: scale(1.02); }
@@ -2501,9 +2783,9 @@ export default function SaaSCommercialPortal() {
         }
 
         .demo-btn:hover {
-          background-color: rgba(255, 255, 255, 0.1) !important;
-          border-color: rgba(255, 255, 255, 0.2) !important;
           transform: translateY(-3px);
+          filter: brightness(1.15);
+          box-shadow: 0 10px 25px rgba(14, 165, 233, 0.4) !important;
         }
 
         .btn-admin:hover {

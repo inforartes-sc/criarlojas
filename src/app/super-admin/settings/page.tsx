@@ -18,7 +18,8 @@ export default function SuperAdminSettings() {
     maxStoresPerUser: 10,
     businessHours: 'Seg - Sex, das 9h às 18h',
     adminEmail: 'admin@criarlojas.com.br',
-    adminPassword: 'admin'
+    adminPassword: 'admin',
+    landingPageTheme: 'dark'
   })
 
   const [loading, setLoading] = useState(true)
@@ -57,7 +58,8 @@ export default function SuperAdminSettings() {
           maxStoresPerUser: s.maxStoresPerUser || 10,
           businessHours: s.businessHours || 'Seg - Sex, das 9h às 18h',
           adminEmail: s.adminEmail || 'admin@criarlojas.com.br',
-          adminPassword: s.adminPassword || 'admin'
+          adminPassword: s.adminPassword || 'admin',
+          landingPageTheme: s.landingPageTheme || 'dark'
         })
         setPlans(s.plans || [])
       } else {
@@ -104,7 +106,8 @@ export default function SuperAdminSettings() {
             maxStoresPerUser: s.maxStoresPerUser || 10,
             businessHours: s.businessHours || 'Seg - Sex, das 9h às 18h',
             adminEmail: s.adminEmail || 'admin@criarlojas.com.br',
-            adminPassword: s.adminPassword || 'admin'
+            adminPassword: s.adminPassword || 'admin',
+            landingPageTheme: s.landingPageTheme || 'dark'
           })
         }
       }
@@ -380,6 +383,30 @@ export default function SuperAdminSettings() {
                 onChange={e => setSettings({...settings, maintenanceMode: e.target.checked})}
                 style={{ width: '20px', height: '20px', accentColor: '#ef4444', cursor: 'pointer' }}
               />
+            </div>
+          </div>
+        </div>
+        {/* Seção de Tema da Página Comercial */}
+        <div className="glass-card" style={{ padding: '2.5rem', border: '1px solid var(--border)', borderRadius: '16px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
+            <Settings color="#f59e0b" size={22} />
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, margin: 0, color: 'var(--foreground)' }}>Tema da Página Comercial</h3>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--muted)', marginBottom: '0.5rem' }}>Tema de Cores da Home Comercial</label>
+              <select 
+                value={settings.landingPageTheme || 'dark'}
+                onChange={e => setSettings({...settings, landingPageTheme: e.target.value})}
+                style={{ width: '100%', padding: '0.75rem 1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '10px', color: 'var(--foreground)', outline: 'none', fontWeight: 600, cursor: 'pointer' }}
+              >
+                <option value="dark">Tema Escuro Premium (Padrão)</option>
+                <option value="light">Tema Claro Clean</option>
+              </select>
+              <span style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.25rem', display: 'block' }}>
+                Define a tonalidade e paleta de cores padrão exibida para os clientes no site institucional.
+              </span>
             </div>
           </div>
         </div>
