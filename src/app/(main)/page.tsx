@@ -780,6 +780,7 @@ export default function SaaSCommercialPortal() {
         .light-theme .plan-card-portal:hover { box-shadow: 0 8px 25px rgba(16, 185, 129, 0.08) !important; }
         .light-theme .roi-result-card { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important; }
         .light-theme .mobile-menu-drawer { box-shadow: 0 6px 15px rgba(0, 0, 0, 0.04) !important; }
+        .light-theme .mobile-menu-toggle { color: var(--text-primary) !important; border-color: rgba(15, 23, 42, 0.1) !important; background: rgba(15, 23, 42, 0.05) !important; }
         .light-theme .lead-modal-content h3, .light-theme .domain-modal-content h3 { color: var(--text-primary) !important; }
         .light-theme .lead-modal-content h4, .light-theme .domain-modal-content h4 { color: var(--text-primary) !important; border-color: rgba(0,0,0,0.08) !important; }
         .light-theme .lead-modal-content p, .light-theme .domain-modal-content p { color: var(--text-secondary) !important; }
