@@ -566,7 +566,7 @@ export default function LawyerStorefrontClient({
           
           {banners.length > 1 && (
             <div style={{ position: 'absolute', bottom: '2rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '0.5rem', zIndex: 10 }}>
-              {banners.map((_, idx) => {
+              {banners.map((_: any, idx: number) => {
                 const isActive = activeDotIndex === idx
                 return (
                   <button 
