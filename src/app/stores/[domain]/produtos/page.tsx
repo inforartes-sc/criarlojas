@@ -118,8 +118,8 @@ export default async function ProdutosPage({
         @media (max-width: 600px) { .products-grid { grid-template-columns: 1fr; } }
       `}</style>
 
-      {/* Header */}
-      <StoreHeader store={store} settings={settings} primaryColor={primaryColor} categories={categories} />
+      {/* HEADER DA LOJA */}
+      <StoreHeader store={store} settings={settings} primaryColor={primaryColor} categories={categories} products={allProducts} />
 
       <main style={{ maxWidth: '1300px', margin: '0 auto', padding: '3rem 2rem 6rem' }}>
 

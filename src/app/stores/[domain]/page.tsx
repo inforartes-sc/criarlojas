@@ -12,6 +12,9 @@ import ServicesStorefrontClient from '@/components/Storefront/ServicesStorefront
 import LawyerStorefrontClient from '@/components/Storefront/LawyerStorefrontClient'
 import WhatsAppFloatingButton from '@/components/Storefront/WhatsAppFloatingButton'
 import OfferPopup from '@/components/Storefront/OfferPopup'
+import StoreHeroClient from '@/components/Storefront/StoreHeroClient'
+import GoogleReviews from '@/components/Storefront/GoogleReviews'
+
 
 async function getStoreData(domain: string) {
   const subdomainOnly = domain.split('.')[0]
@@ -185,7 +188,7 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
   const storeMode = plan === 'basic' ? 'catalogo' : (settings.store_mode || 'loja')
   const storeWhatsapp = settings.whatsapp || ''
   const isCatalogo = storeMode === 'catalogo'
-  const isProductsView = resolvedSearchParams.view === 'produtos' || !!categoryFilter
+  const isProductsView = resolvedSearchParams.view === 'produtos' || !!categoryFilter || !!searchFilter
 
   // Helper to convert hex to RGBA
   const hexToRgba = (hex: string, alpha: number) => {
@@ -514,7 +517,7 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
       `}</style>
       
       {/* 1. INTERACTIVE HEADER */}
-      <StoreHeader store={store} settings={settings} primaryColor={primaryColor} categories={categories} />
+      <StoreHeader store={store} settings={settings} primaryColor={primaryColor} categories={categories} products={allProductsRaw} />
 
 
       <main>
@@ -522,169 +525,18 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
           <>
             {/* 2. HERO BANNER */}
             {!isCatalogo && (
-                  heroStyle === 'split' ? (
-                  <section style={{ 
-                    minHeight: '80vh', 
-                    display: 'grid', 
-                    gridTemplateColumns: showHeroText ? '1.2fr 0.8fr' : '1fr', 
-                    alignItems: 'center', 
-                    backgroundColor: splitBgColor, 
-                    padding: '4rem 8%',
-                    gap: '4rem',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}>
-                    {/* Content side (Left) */}
-                    {showHeroText && (
-                      <div style={{ maxWidth: '650px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', margin: '0 auto' }}>
-                        <h2 style={{ fontSize: '4.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', color: heroTitleColor, letterSpacing: '-2px' }}>
-                          {settings.hero_title || 'REDEFINA SEU CONCEITO'}
-                        </h2>
-                        <p style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6 }}>
-                          {settings.hero_subtitle || 'Explore nossa curadoria especial para elevar sua experiência.'}
-                        </p>
-                        <div>
-                          <Link href="?view=produtos" className="btn-buy-dynamic" style={{ 
-                            display: 'inline-block',
-                            padding: '1.2rem 3rem',
-                            textDecoration: 'none',
-                            fontSize: '0.85rem',
-                            fontWeight: 800,
-                            borderRadius: buttonRadius,
-                            textTransform: 'uppercase',
-                            letterSpacing: '1px'
-                          }}>
-                            SAIBA MAIS
-                          </Link>
-                        </div>
-                      </div>
-                    )}
-                    {/* Image Card side (Right) */}
-                    <div className="hero-split-img" style={{ 
-                      display: 'flex', 
-                      alignItems: 'center', 
-                      justifyContent: 'center', 
-                      width: '100%', 
-                      height: '100%' 
-                    }}>
-                      <div className="hero-split-img-card" style={{ 
-                        width: '100%', 
-                        height: '55vh',
-                        backgroundImage: `url(${heroBgImage})`, 
-                        backgroundSize: 'cover', 
-                        backgroundPosition: 'center',
-                        borderRadius: '24px',
-                        boxShadow: isDark ? '0 20px 40px rgba(0,0,0,0.5)' : '0 20px 40px rgba(0,0,0,0.08)',
-                        border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.03)'
-                      }} />
-                    </div>
-                  </section>
-                ) : heroStyle === 'left-aligned' ? (
-                  <section className="hero-left" style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    backgroundColor: splitBgColor,
-                    backgroundImage: `linear-gradient(90deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${heroBgImage})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    padding: '0 8%',
-                    color: heroTitleColor
-                  }}>
-                    {showHeroText && (
-                      <div style={{ maxWidth: '600px', textAlign: 'left' }}>
-                        <h2 className="hero-title-lg" style={{ fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', color: heroTitleColor, letterSpacing: '-2px' }}>
-                          {settings.hero_title || 'REDEFINA SEU CONCEITO'}
-                        </h2>
-                        <p className="hero-subtitle" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6 }}>
-                          {settings.hero_subtitle || 'Explore nossa curadoria especial para elevar sua experiência.'}
-                        </p>
-                        <Link href="?view=produtos" className="btn-buy-dynamic" style={{ 
-                           display: 'inline-block',
-                           padding: '1.2rem 3rem',
-                           textDecoration: 'none',
-                           fontSize: '0.85rem',
-                           fontWeight: 800,
-                           borderRadius: buttonRadius,
-                           textTransform: 'uppercase',
-                           letterSpacing: '1px'
-                        }}>
-                          SAIBA MAIS
-                        </Link>
-                      </div>
-                    )}
-                  </section>
-                ) : heroStyle === 'minimalist' ? (
-                  <section className="hero-minimalist" style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    backgroundColor: splitBgColor,
-                    padding: '0 5%',
-                    textAlign: 'center',
-                    borderBottom: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid #eaeaea'
-                  }}>
-                    {showHeroText && (
-                      <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <h2 className="hero-title-md" style={{ fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: heroTitleColor, letterSpacing: '-2px' }}>
-                          {settings.hero_title || 'REDEFINA SEU CONCEITO'}
-                        </h2>
-                        <p className="hero-subtitle" style={{ fontSize: '1.2rem', color: heroSubtitleColor, marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '650px' }}>
-                          {settings.hero_subtitle || 'Explore nossa curadoria especial para elevar sua experiência.'}
-                        </p>
-                        <Link href="?view=produtos" className="btn-buy-dynamic" style={{ 
-                          display: 'inline-block',
-                          padding: '1.2rem 3rem',
-                          textDecoration: 'none',
-                          fontSize: '0.85rem',
-                          fontWeight: 800,
-                          borderRadius: buttonRadius,
-                          textTransform: 'uppercase',
-                          letterSpacing: '1px'
-                        }}>
-                          SAIBA MAIS
-                        </Link>
-                      </div>
-                    )}
-                  </section>
-                ) : (
-                  // Default "full" / full width banner
-                  <section className="hero-full" style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    padding: '0 5%', 
-                    backgroundImage: showHeroText ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${heroBgImage})` : `url(${heroBgImage})`, 
-                    backgroundColor: showHeroText ? heroBgColor : 'transparent',
-                    backgroundSize: 'cover', 
-                    backgroundPosition: 'center', 
-                    color: heroTitleColor,
-                    textAlign: 'center'
-                  }}>
-                    {showHeroText && (
-                      <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                        <h2 className="hero-title-lg" style={{ fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', letterSpacing: '-2px', color: heroTitleColor }}>
-                          {settings.hero_title || 'REDEFINA SEU CONCEITO'}
-                        </h2>
-                        <p className="hero-subtitle" style={{ fontSize: '1.25rem', marginBottom: '3.5rem', opacity: 0.95, maxWidth: '700px', margin: '0 auto 3.5rem auto', lineHeight: 1.7, color: heroSubtitleColor }}>
-                          {settings.hero_subtitle || 'Explore nossa curadoria especial para elevar sua experiência.'}
-                        </p>
-                        <Link href="?view=produtos" className="btn-buy-dynamic" style={{ 
-                          display: 'inline-block', 
-                          padding: '1.2rem 3rem', 
-                          borderRadius: buttonRadius, 
-                          fontWeight: 800, 
-                          fontSize: '0.85rem', 
-                          cursor: 'pointer', 
-                          letterSpacing: '2px', 
-                          textTransform: 'uppercase',
-                          textDecoration: 'none'
-                        }}>
-                          SAIBA MAIS
-                        </Link>
-                      </div>
-                    )}
-                  </section>
-                )
+                  <StoreHeroClient 
+                    settings={settings}
+                    heroStyle={heroStyle}
+                    showHeroText={showHeroText}
+                    splitBgColor={splitBgColor}
+                    heroTitleColor={heroTitleColor}
+                    heroSubtitleColor={heroSubtitleColor}
+                    buttonRadius={buttonRadius}
+                    isDark={isDark}
+                    overlayColor55={overlayColor55}
+                    heroBgColor={heroBgColor}
+                  />
             )}
 
         {/* 2.1 BENEFITS (Movido para cima para dar espaçamento perfeito entre o banner e a campanha) */}
@@ -879,8 +731,12 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
         )}
 
 
-        {/* 7. FOOTER (RODAPÉ) */}
+        {/* 7. REVIEWS DO GOOGLE */}
+        <GoogleReviews settings={settings} primaryColor={primaryColor} buttonRadius={buttonRadius} plan={plan} />
+
+        {/* 8. FOOTER (RODAPÉ) */}
         <StoreFooter store={store} settings={settings} primaryColor={primaryColor} buttonRadius={buttonRadius} />
+
       </main>
 
       <WhatsAppFloatingButton settings={settings} />

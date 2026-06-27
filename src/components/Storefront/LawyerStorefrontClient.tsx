@@ -8,6 +8,8 @@ import StoreFooter from './StoreFooter'
 import WhatsAppFloatingButton from './WhatsAppFloatingButton'
 import OfferPopup from './OfferPopup'
 
+
+
 interface LawyerStorefrontClientProps {
   store: any
   products: any[]
@@ -112,14 +114,11 @@ export default function LawyerStorefrontClient({
   const storeWhatsapp = settings.whatsapp || ''
   const storeMode = settings.store_mode || 'loja'
   const isCatalogo = storeMode === 'catalogo'
-
-  const layoutModel = settings.layout_model || 'lawyer'
-  const themeMode = settings.theme_mode || 'dark'
+  const themeMode = settings.theme_mode || 'light'
   const isDark = themeMode === 'dark'
-  const heroBgColor = settings.hero_bg_color || (isDark ? '#0b1315' : 'transparent')
-  const splitBgColor = settings.hero_bg_color && settings.hero_bg_color !== 'transparent' ? settings.hero_bg_color : (isDark ? '#0b1315' : '#fcfbf7')
-  const heroTitleColor = settings.hero_title_color || (isDark ? '#f2efeb' : '#111111')
-  const heroSubtitleColor = settings.hero_subtitle_color || (isDark ? '#94a3b8' : '#555555')
+  const splitBgColor = settings.hero_bg_color || (isDark ? '#0a0a0a' : '#f8fafc')
+  const heroTitleColor = settings.hero_title_color || (isDark ? '#ffffff' : '#111111')
+  const heroSubtitleColor = settings.hero_subtitle_color || (isDark ? '#cbd5e1' : '#555555')
 
   // Helper to convert hex to RGBA
   const hexToRgba = (hex: string, alpha: number) => {
@@ -130,8 +129,6 @@ export default function LawyerStorefrontClient({
     return `rgba(${isNaN(r) ? 0 : r}, ${isNaN(g) ? 0 : g}, ${isNaN(b) ? 0 : b}, ${alpha})`
   }
 
-  const overlayColor85 = hexToRgba(splitBgColor, 0.85)
-  const overlayColor40 = hexToRgba(splitBgColor, 0.40)
   const overlayColor55 = hexToRgba(splitBgColor, 0.55)
 
   // Scroll reveal animation handler
@@ -269,7 +266,6 @@ export default function LawyerStorefrontClient({
     { title: 'Pagamento Facilitado', subtitle: 'Em até 12x no cartão' }
   ]
 
-  // Lawyer Team list
   const teamList = (settings.team_members?.length > 0 ? settings.team_members : [
     {
       id: 1,
@@ -294,6 +290,53 @@ export default function LawyerStorefrontClient({
     }
   ]).map((m: any, i: number) => ({ ...m, id: m.id || i + 1 }))
 
+  // Hero Carousel Logic
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
+  const [isTransitioning, setIsTransitioning] = useState(true)
+  const banners = settings.hero_banners && settings.hero_banners.length > 0 
+    ? settings.hero_banners 
+    : [{
+        id: 'default',
+        desktop_url: settings.hero_image_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200',
+        mobile_url: settings.hero_image_mobile_url || settings.hero_image_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200',
+        title: settings.hero_title || 'Excelência e Solidez Jurídica',
+        subtitle: settings.hero_subtitle || 'Prestamos assessoria de alta performance voltada à mitigação de riscos e defesa de direitos com ética, sigilo e foco absoluto em resultados.'
+      }]
+
+  const transitionEffect = settings.hero_transition_effect || 'fade'
+
+  useEffect(() => {
+    if (banners.length <= 1) return
+    const interval = setInterval(() => {
+      setIsTransitioning(true)
+      setCurrentBannerIndex((prev) => prev + 1)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [banners.length])
+
+  useEffect(() => {
+    if (currentBannerIndex === banners.length) {
+      const timer = setTimeout(() => {
+        setIsTransitioning(false)
+        setCurrentBannerIndex(0)
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [currentBannerIndex, banners.length])
+
+  useEffect(() => {
+    if (!isTransitioning && currentBannerIndex === 0) {
+      const timer = setTimeout(() => {
+        setIsTransitioning(true)
+      }, 50)
+      return () => clearTimeout(timer)
+    }
+  }, [isTransitioning, currentBannerIndex])
+
+  const activeDotIndex = currentBannerIndex % banners.length
+  const currentBanner = banners[activeDotIndex] || banners[0]
+  const currentBannerUrl = currentBanner.desktop_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200'
+
   return (
     <div className="lawyer-template" style={{ 
       backgroundColor: 'var(--bg-dark)',
@@ -301,7 +344,6 @@ export default function LawyerStorefrontClient({
       minHeight: '100vh',
       fontFamily: 'var(--font-body)'
     }}>
-      {/* Dynamic CSS Variables Injection to override primary legal gold if client customized the colors */}
       <style>{`
         .lawyer-template {
           --accent-gold: ${primaryColor};
@@ -346,49 +388,7 @@ export default function LawyerStorefrontClient({
           color: #ffffff !important;
           transform: translateY(-2px);
         }
-        .lawyer-whatsapp-float:hover {
-          transform: scale(1.1) rotate(5deg) !important;
-          filter: brightness(1.1);
-        }
-        .lawyer-cta .btn-gold-primary {
-          background-color: ${settings.cta_button_bg_color || '#25D366'} !important;
-          color: ${settings.cta_button_text_color || '#ffffff'} !important;
-          border-color: ${settings.cta_button_bg_color || '#25D366'} !important;
-        }
-        .lawyer-cta .btn-gold-primary:hover {
-          background-color: ${settings.cta_button_bg_color || '#25D366'} !important;
-          color: ${settings.cta_button_text_color || '#ffffff'} !important;
-          border-color: ${settings.cta_button_bg_color || '#25D366'} !important;
-          filter: brightness(0.9);
-        }
-        .lawyer-cta .btn-gold-secondary {
-          color: ${settings.cta_button_2_text_color || primaryColor} !important;
-          border-color: ${settings.cta_button_2_text_color || (primaryColor + '40')} !important;
-        }
-        .lawyer-cta .btn-gold-secondary:hover {
-          background-color: ${settings.cta_button_2_text_color ? (settings.cta_button_2_text_color + '14') : (primaryColor + '14')} !important;
-          border-color: ${settings.cta_button_2_text_color || primaryColor} !important;
-          color: ${settings.cta_button_2_text_color || '#ffffff'} !important;
-        }
-        .lawyer-cta-title {
-          color: ${settings.cta_title_color || '#ffffff'} !important;
-        }
-        .lawyer-cta-desc {
-          color: ${settings.cta_desc_color || 'var(--text-secondary)'} !important;
-        }
         @media (max-width: 768px) {
-          ${settings.hero_image_mobile_url ? `
-            .lawyer-hero-full {
-              background-image: ${showHeroText ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${settings.hero_image_mobile_url})` : `url(${settings.hero_image_mobile_url})`} !important;
-            }
-            .lawyer-hero-left {
-              background-image: linear-gradient(0deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${settings.hero_image_mobile_url}) !important;
-            }
-            .lawyer-hero-split-img-card {
-              background-image: url(${settings.hero_image_mobile_url}) !important;
-            }
-          ` : ''}
-
           .lawyer-cta-buttons {
             display: flex !important;
             flex-direction: column !important;
@@ -469,10 +469,8 @@ export default function LawyerStorefrontClient({
         }
       `}</style>
 
-      {/* 1. HEADER */}
-      <StoreHeader store={store} settings={settings} primaryColor={primaryColor} categories={categories} />
+      <StoreHeader store={store} settings={settings} primaryColor={primaryColor} categories={categories} products={products} />
 
-      {/* 2. HERO */}
       {!isCatalogo && (
         heroStyle === 'split' ? (
           <section id="home" style={{ 
@@ -493,11 +491,11 @@ export default function LawyerStorefrontClient({
                   <Sparkles size={14} style={{ color: primaryColor }} />
                   <span>{settings.hero_badge || 'Advocacia & Assessoria Jurídica'}</span>
                 </div>
-                <h1 className="lawyer-hero-title" style={{ color: heroTitleColor, fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', letterSpacing: '-2px' }}>
-                  {settings.hero_title || 'Excelência Jurídica e Defesa Definitiva Dos Seus Direitos.'}
+                <h1 className="lawyer-hero-title" style={{ color: heroTitleColor, fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
+                  {currentBanner.title}
                 </h1>
-                <p className="lawyer-hero-description" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6 }}>
-                  {settings.hero_subtitle || 'Oferecemos soluções jurídicas estratégicas com alto padrão de ética, transparência e comprometimento absoluto com os resultados e a segurança de nossos representados.'}
+                <p className="lawyer-hero-description" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6, transition: 'all 0.3s ease' }}>
+                  {currentBanner.subtitle}
                 </p>
                 <div className="lawyer-hero-actions" style={{ justifyContent: 'center' }}>
                   <a href="#areas" className="btn-gold-primary" onClick={(e) => { e.preventDefault(); document.getElementById('areas')?.scrollIntoView({ behavior: 'smooth' }) }}>
@@ -521,14 +519,73 @@ export default function LawyerStorefrontClient({
               <div className="lawyer-hero-split-img-card" style={{ 
                 width: '100%', 
                 height: '55vh',
-                backgroundImage: `url(${settings.hero_image_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=600'})`, 
-                backgroundSize: 'cover', 
-                backgroundPosition: 'center',
                 borderRadius: '24px',
                 boxShadow: isDark ? '0 20px 40px rgba(0,0,0,0.5)' : '0 20px 40px rgba(0,0,0,0.08)',
-                border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.03)'
-              }} />
+                border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.03)',
+                position: 'relative',
+                overflow: 'hidden',
+                ...(transitionEffect === 'fade' ? {
+                  backgroundImage: `url(${currentBannerUrl})`, 
+                  backgroundSize: 'cover', 
+                  backgroundPosition: 'center',
+                  transition: 'background-image 0.5s ease-in-out'
+                } : {})
+              }}>
+              {transitionEffect === 'slide' && (
+                <div style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: `${(banners.length + 1) * 100}%`,
+                  height: '100%',
+                  display: 'flex',
+                  transform: `translateX(-${currentBannerIndex * (100 / (banners.length + 1))}%)`,
+                  transition: isTransitioning ? 'transform 0.5s ease-in-out' : 'none'
+                }}>
+                  {[...banners, banners[0]].map((banner: any, idx: number) => {
+                    const bannerUrl = typeof window !== 'undefined' && window.innerWidth <= 768 && banner.mobile_url 
+                      ? banner.mobile_url 
+                      : (banner.desktop_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200')
+                    return (
+                      <div 
+                        key={idx} 
+                        style={{
+                          width: `${100 / (banners.length + 1)}%`,
+                          height: '100%',
+                          backgroundImage: `url(${bannerUrl})`,
+                          backgroundSize: 'cover',
+                          backgroundPosition: 'center'
+                        }}
+                      />
+                    )
+                  })}
+                </div>
+              )}
             </div>
+          </div>
+          
+          {banners.length > 1 && (
+            <div style={{ position: 'absolute', bottom: '2rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '0.5rem', zIndex: 10 }}>
+              {banners.map((_, idx) => {
+                const isActive = activeDotIndex === idx
+                return (
+                  <button 
+                    key={idx}
+                    onClick={() => { setIsTransitioning(true); setCurrentBannerIndex(idx); }}
+                    style={{ 
+                      width: isActive ? '24px' : '8px', 
+                      height: '8px', 
+                      borderRadius: '4px', 
+                      backgroundColor: isActive ? primaryColor : (isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'),
+                      border: 'none',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }} 
+                  />
+                )
+              })}
+            </div>
+          )}
           </section>
         ) : heroStyle === 'left-aligned' ? (
           <section id="home" className="lawyer-hero-left" style={{ 
@@ -536,23 +593,57 @@ export default function LawyerStorefrontClient({
             display: 'flex', 
             alignItems: 'center', 
             backgroundColor: splitBgColor,
-            backgroundImage: `linear-gradient(90deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${settings.hero_image_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=600'})`,
+            backgroundImage: transitionEffect === 'fade' ? `linear-gradient(90deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${currentBannerUrl})` : undefined,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             padding: '0 8%',
-            color: heroTitleColor
+            color: heroTitleColor,
+            position: 'relative',
+            overflow: 'hidden',
+            transition: 'background-image 0.5s ease-in-out'
           }}>
+            {transitionEffect === 'slide' && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: `${(banners.length + 1) * 100}%`,
+                height: '100%',
+                display: 'flex',
+                transform: `translateX(-${currentBannerIndex * (100 / (banners.length + 1))}%)`,
+                transition: isTransitioning ? 'transform 0.5s ease-in-out' : 'none',
+                zIndex: 1
+              }}>
+                {[...banners, banners[0]].map((banner: any, idx: number) => {
+                  const bannerUrl = typeof window !== 'undefined' && window.innerWidth <= 768 && banner.mobile_url 
+                    ? banner.mobile_url 
+                    : (banner.desktop_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200')
+                  return (
+                    <div 
+                      key={idx} 
+                      style={{
+                        width: `${100 / (banners.length + 1)}%`,
+                        height: '100%',
+                        backgroundImage: `linear-gradient(90deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${bannerUrl})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                      }}
+                    />
+                  )
+                })}
+              </div>
+            )}
             {showHeroText && (
-              <div style={{ maxWidth: '600px', textAlign: 'left' }}>
+              <div style={{ maxWidth: '600px', textAlign: 'left', zIndex: 2 }}>
                 <div className="lawyer-hero-badge" style={{ marginBottom: '1.5rem', alignSelf: 'flex-start' }}>
                   <Sparkles size={14} style={{ color: primaryColor }} />
                   <span>{settings.hero_badge || 'Advocacia & Assessoria Jurídica'}</span>
                 </div>
-                <h1 className="lawyer-hero-title" style={{ color: heroTitleColor, fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', letterSpacing: '-2px' }}>
-                  {settings.hero_title || 'Excelência Jurídica e Defesa Definitiva Dos Seus Direitos.'}
+                <h1 className="lawyer-hero-title" style={{ color: heroTitleColor, fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
+                  {currentBanner.title}
                 </h1>
-                <p className="lawyer-hero-description" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6 }}>
-                  {settings.hero_subtitle || 'Oferecemos soluções jurídicas estratégicas com alto padrão de ética, transparência e comprometimento absoluto com os resultados e a segurança de nossos representados.'}
+                <p className="lawyer-hero-description" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6, transition: 'all 0.3s ease' }}>
+                  {currentBanner.subtitle}
                 </p>
                 <div className="lawyer-hero-actions" style={{ justifyContent: 'flex-start' }}>
                   <a href="#areas" className="btn-gold-primary" onClick={(e) => { e.preventDefault(); document.getElementById('areas')?.scrollIntoView({ behavior: 'smooth' }) }}>
@@ -565,6 +656,30 @@ export default function LawyerStorefrontClient({
                 </div>
               </div>
             )}
+            
+            {/* Pagination Dots */}
+            {banners.length > 1 && (
+              <div style={{ position: 'absolute', bottom: '2rem', left: '8%', display: 'flex', gap: '0.5rem', zIndex: 10 }}>
+                {banners.map((_, idx) => {
+                  const isActive = activeDotIndex === idx
+                  return (
+                    <button 
+                      key={idx}
+                      onClick={() => { setIsTransitioning(true); setCurrentBannerIndex(idx); }}
+                      style={{ 
+                        width: isActive ? '24px' : '8px', 
+                        height: '8px', 
+                        borderRadius: '4px', 
+                        backgroundColor: isActive ? primaryColor : (isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'),
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }} 
+                    />
+                  )
+                })}
+              </div>
+            )}
           </section>
         ) : heroStyle === 'minimalist' ? (
           <section id="home" style={{ 
@@ -575,19 +690,20 @@ export default function LawyerStorefrontClient({
             backgroundColor: splitBgColor,
             padding: '0 5%',
             textAlign: 'center',
-            borderBottom: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid #eaeaea'
+            borderBottom: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid #eaeaea',
+            position: 'relative'
           }}>
             {showHeroText && (
-              <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
                 <div className="lawyer-hero-badge" style={{ justifyContent: 'center', marginBottom: '1.5rem' }}>
                   <Sparkles size={14} style={{ color: primaryColor }} />
                   <span>{settings.hero_badge || 'Advocacia & Assessoria Jurídica'}</span>
                 </div>
-                <h1 className="lawyer-hero-title" style={{ fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: heroTitleColor, letterSpacing: '-2px' }}>
-                  {settings.hero_title || 'Excelência Jurídica e Defesa Definitiva Dos Seus Direitos.'}
+                <h1 className="lawyer-hero-title" style={{ fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: heroTitleColor, letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
+                  {currentBanner.title}
                 </h1>
-                <p className="lawyer-hero-description" style={{ fontSize: '1.2rem', color: heroSubtitleColor, marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '650px' }}>
-                  {settings.hero_subtitle || 'Oferecemos soluções jurídicas estratégicas com alto padrão de ética, transparência e comprometimento absoluto com os resultados e a segurança de nossos representados.'}
+                <p className="lawyer-hero-description" style={{ fontSize: '1.2rem', color: heroSubtitleColor, marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '650px', transition: 'all 0.3s ease' }}>
+                  {currentBanner.subtitle}
                 </p>
                 <div className="lawyer-hero-actions" style={{ justifyContent: 'center' }}>
                   <a href="#areas" className="btn-gold-primary" onClick={(e) => { e.preventDefault(); document.getElementById('areas')?.scrollIntoView({ behavior: 'smooth' }) }}>
@@ -600,43 +716,100 @@ export default function LawyerStorefrontClient({
                 </div>
               </div>
             )}
+            
+            {/* Pagination Dots */}
+            {banners.length > 1 && (
+              <div style={{ position: 'absolute', bottom: '2rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '0.5rem', zIndex: 10 }}>
+                {banners.map((_, idx) => {
+                  const isActive = activeDotIndex === idx
+                  return (
+                    <button key={idx} onClick={() => { setIsTransitioning(true); setCurrentBannerIndex(idx); }} style={{ width: isActive ? '24px' : '8px', height: '8px', borderRadius: '4px', backgroundColor: isActive ? primaryColor : (isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'), border: 'none', cursor: 'pointer', transition: 'all 0.3s ease' }} />
+                  )
+                })}
+              </div>
+            )}
           </section>
         ) : (
-          // Default "full" / full width banner
           <section id="home" className="lawyer-hero-full" style={{ 
             height: '80vh', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            padding: '0 5%', 
-            backgroundImage: showHeroText ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${settings.hero_image_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=600'})` : `url(${settings.hero_image_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=600'})`, 
-            backgroundColor: showHeroText ? heroBgColor : 'transparent',
-            backgroundSize: 'cover', 
-            backgroundPosition: 'center', 
-            color: heroTitleColor,
-            textAlign: 'center'
+            textAlign: 'center',
+            backgroundColor: splitBgColor,
+            backgroundImage: transitionEffect === 'fade' ? (showHeroText ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${currentBannerUrl})` : `url(${currentBannerUrl})`) : undefined, 
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            padding: '0 8%',
+            color: '#fff',
+            position: 'relative',
+            overflow: 'hidden',
+            transition: 'background-image 0.5s ease-in-out'
           }}>
+            {transitionEffect === 'slide' && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: `${(banners.length + 1) * 100}%`,
+                height: '100%',
+                display: 'flex',
+                transform: `translateX(-${currentBannerIndex * (100 / (banners.length + 1))}%)`,
+                transition: isTransitioning ? 'transform 0.5s ease-in-out' : 'none',
+                zIndex: 1
+              }}>
+                {[...banners, banners[0]].map((banner: any, idx: number) => {
+                  const bannerUrl = typeof window !== 'undefined' && window.innerWidth <= 768 && banner.mobile_url 
+                    ? banner.mobile_url 
+                    : (banner.desktop_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200')
+                  return (
+                    <div 
+                      key={idx} 
+                      style={{
+                        width: `${100 / (banners.length + 1)}%`,
+                        height: '100%',
+                        backgroundImage: showHeroText ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${bannerUrl})` : `url(${bannerUrl})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                      }}
+                    />
+                  )
+                })}
+              </div>
+            )}
             {showHeroText && (
-              <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ maxWidth: '800px', zIndex: 2 }}>
                 <div className="lawyer-hero-badge" style={{ justifyContent: 'center', marginBottom: '1.5rem' }}>
-                  <Sparkles size={14} style={{ color: primaryColor }} />
-                  <span>{settings.hero_badge || 'Advocacia & Assessoria Jurídica'}</span>
+                  <Sparkles size={14} style={{ color: '#fff' }} />
+                  <span style={{ color: '#fff' }}>{settings.hero_badge || 'Advocacia & Assessoria Jurídica'}</span>
                 </div>
-                <h1 className="lawyer-hero-title" style={{ fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', letterSpacing: '-2px', color: heroTitleColor }}>
-                  {settings.hero_title || 'Excelência Jurídica e Defesa Definitiva Dos Seus Direitos.'}
+                <h1 className="lawyer-hero-title" style={{ color: '#fff', fontSize: '4rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', letterSpacing: '-2px', textShadow: '0 4px 12px rgba(0,0,0,0.3)', transition: 'all 0.3s ease' }}>
+                  {currentBanner.title}
                 </h1>
-                <p className="lawyer-hero-description" style={{ fontSize: '1.25rem', marginBottom: '3.5rem', opacity: 0.95, maxWidth: '700px', margin: '0 auto 3.5rem auto', lineHeight: 1.7, color: heroSubtitleColor }}>
-                  {settings.hero_subtitle || 'Oferecemos soluções jurídicas estratégicas com alto padrão de ética, transparência e comprometimento absoluto com os resultados e a segurança de nossos representados.'}
+                <p className="lawyer-hero-description" style={{ fontSize: '1.25rem', color: 'rgba(255,255,255,0.9)', marginBottom: '2.5rem', lineHeight: 1.6, textShadow: '0 2px 8px rgba(0,0,0,0.2)', transition: 'all 0.3s ease' }}>
+                  {currentBanner.subtitle}
                 </p>
                 <div className="lawyer-hero-actions" style={{ justifyContent: 'center' }}>
                   <a href="#areas" className="btn-gold-primary" onClick={(e) => { e.preventDefault(); document.getElementById('areas')?.scrollIntoView({ behavior: 'smooth' }) }}>
                     <span>Áreas de Atuação</span>
                     <ArrowRight size={16} />
                   </a>
-                  <a href="#sobre" className="btn-gold-secondary" onClick={(e) => { e.preventDefault(); document.getElementById('sobre')?.scrollIntoView({ behavior: 'smooth' }) }}>
+                  <a href="#sobre" className="btn-gold-secondary" onClick={(e) => { e.preventDefault(); document.getElementById('sobre')?.scrollIntoView({ behavior: 'smooth' }) }} style={{ borderColor: 'rgba(255,255,255,0.5)', color: '#fff' }}>
                     <span>Conhecer Escritório</span>
                   </a>
                 </div>
+              </div>
+            )}
+            
+            {/* Pagination Dots */}
+            {banners.length > 1 && (
+              <div style={{ position: 'absolute', bottom: '2rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '0.5rem', zIndex: 10 }}>
+                {banners.map((_, idx) => {
+                  const isActive = activeDotIndex === idx
+                  return (
+                    <button key={idx} onClick={() => { setIsTransitioning(true); setCurrentBannerIndex(idx); }} style={{ width: isActive ? '24px' : '8px', height: '8px', borderRadius: '4px', backgroundColor: isActive ? primaryColor : 'rgba(255,255,255,0.4)', border: 'none', cursor: 'pointer', transition: 'all 0.3s ease' }} />
+                  )
+                })}
               </div>
             )}
           </section>
@@ -966,8 +1139,11 @@ export default function LawyerStorefrontClient({
         </div>
       </section>
 
+
+
       {/* 9. FOOTER */}
       <StoreFooter store={store} settings={settings} primaryColor={primaryColor} buttonRadius={buttonRadius} />
+
 
       {/* 10. CASE INTAKE LEAD MODAL */}
       {activeService && (

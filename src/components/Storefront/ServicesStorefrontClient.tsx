@@ -9,6 +9,8 @@ import ProductCard from './ProductCard'
 import WhatsAppFloatingButton from './WhatsAppFloatingButton'
 import OfferPopup from './OfferPopup'
 
+
+
 interface ServicesStorefrontClientProps {
   store: any
   products: any[]
@@ -95,7 +97,8 @@ export default function ServicesStorefrontClient({
     ? products.filter(p => activeCampaign.product_ids.includes(p.id))
     : []
 
-  const [searchQuery, setSearchQuery] = useState('')
+  const urlSearchFilter = (resolvedSearchParams?.search as string) || ''
+  const [searchQuery, setSearchQuery] = useState(urlSearchFilter)
   const [activeService, setActiveService] = useState<any>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [showAllProducts, setShowAllProducts] = useState(false)
@@ -127,15 +130,60 @@ export default function ServicesStorefrontClient({
   const defaultPriceColor = settings.default_price_color || '#000000'
   const buttonRadius = settings.button_style === 'pill' ? '100px' : settings.button_style === 'sharp' ? '0px' : '8px'
   const heroStyle = settings.hero_style || 'split'
-  const showHeroText = settings.show_hero_text !== undefined ? settings.show_hero_text : true
-
   const layoutModel = settings.layout_model || 'services'
   const themeMode = settings.theme_mode || 'light'
-  const isDark = themeMode === 'dark'
-  const heroBgColor = settings.hero_bg_color || (isDark ? '#0a0a0a' : 'transparent')
-  const splitBgColor = settings.hero_bg_color && settings.hero_bg_color !== 'transparent' ? settings.hero_bg_color : (isDark ? '#0a0a0a' : '#ffffff')
+  const isDark = themeMode === 'dark' || layoutModel === 'tech'
+
+  // Hero Carousel Logic
+  const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
+  const [isTransitioning, setIsTransitioning] = useState(true)
+  const banners = settings.hero_banners && settings.hero_banners.length > 0 
+    ? settings.hero_banners 
+    : [{
+        id: 'default',
+        desktop_url: settings.hero_image_url || '/hero_smart_space.png',
+        mobile_url: settings.hero_image_mobile_url || settings.hero_image_url || '/hero_smart_space.png',
+        title: settings.hero_title || 'Climatização Inteligente. Alta Performance.',
+        subtitle: settings.hero_subtitle || 'Elevamos a qualidade do seu ar e o conforto dos seus ambientes através de projetos de climatização de ponta e assistência técnica premium.'
+      }]
+
+  const transitionEffect = settings.hero_transition_effect || 'fade'
+
+  useEffect(() => {
+    if (banners.length <= 1) return
+    const interval = setInterval(() => {
+      setIsTransitioning(true)
+      setCurrentBannerIndex((prev) => prev + 1)
+    }, 5000)
+    return () => clearInterval(interval)
+  }, [banners.length])
+
+  useEffect(() => {
+    if (currentBannerIndex === banners.length) {
+      const timer = setTimeout(() => {
+        setIsTransitioning(false)
+        setCurrentBannerIndex(0)
+      }, 500)
+      return () => clearTimeout(timer)
+    }
+  }, [currentBannerIndex, banners.length])
+
+  useEffect(() => {
+    if (!isTransitioning && currentBannerIndex === 0) {
+      const timer = setTimeout(() => {
+        setIsTransitioning(true)
+      }, 50)
+      return () => clearTimeout(timer)
+    }
+  }, [isTransitioning, currentBannerIndex])
+
+  const activeDotIndex = currentBannerIndex % banners.length
+  const currentBanner = banners[activeDotIndex] || banners[0]
   const heroTitleColor = settings.hero_title_color || (isDark ? '#ffffff' : '#111111')
-  const heroSubtitleColor = settings.hero_subtitle_color || (isDark ? '#cbd5e1' : '#555555')
+  const heroSubtitleColor = settings.hero_subtitle_color || (isDark ? '#94a3b8' : '#555555')
+  const splitBgColor = settings.hero_bg_color || (isDark ? '#0f172a' : '#f8fafc')
+  const showHeroText = settings.show_hero_text !== false
+  const currentBannerUrl = currentBanner.desktop_url || '/hero_smart_space.png'
 
   // Helper to convert hex to RGBA
   const hexToRgba = (hex: string, alpha: number) => {
@@ -146,8 +194,6 @@ export default function ServicesStorefrontClient({
     return `rgba(${isNaN(r) ? 0 : r}, ${isNaN(g) ? 0 : g}, ${isNaN(b) ? 0 : b}, ${alpha})`
   }
 
-  const overlayColor85 = hexToRgba(splitBgColor, 0.85)
-  const overlayColor40 = hexToRgba(splitBgColor, 0.40)
   const overlayColor55 = hexToRgba(splitBgColor, 0.55)
 
   const storeMode = settings.store_mode || 'loja'
@@ -300,9 +346,7 @@ export default function ServicesStorefrontClient({
     { title: 'Pagamento Facilitado', subtitle: 'Em até 12x no cartão' }
   ]
 
-  // Brands logic
-  const showBrandsSection = ['services', 'aura', 'electrician'].includes(layoutModel)
-  const defaultBrands = [
+  const brandsList = settings.brands?.length > 0 ? settings.brands : [
     { name: 'Brastemp', logo_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&auto=format&fit=crop&q=60' },
     { name: 'Electrolux', logo_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&auto=format&fit=crop&q=60' },
     { name: 'Consul', logo_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&auto=format&fit=crop&q=60' },
@@ -310,18 +354,18 @@ export default function ServicesStorefrontClient({
     { name: 'Samsung', logo_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&auto=format&fit=crop&q=60' },
     { name: 'Carrier', logo_url: 'https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=150&auto=format&fit=crop&q=60' }
   ]
-  const brandsList = settings.brands?.length > 0 ? settings.brands : defaultBrands
   const brandsScrollRef = useRef<HTMLDivElement>(null)
+  const showBrandsSection = settings.show_brands_section !== undefined ? settings.show_brands_section : true
 
   const scrollBrandsLeft = () => {
     if (brandsScrollRef.current) {
-      brandsScrollRef.current.scrollBy({ left: -300, behavior: 'smooth' })
+      brandsScrollRef.current.scrollBy({ left: -200, behavior: 'smooth' })
     }
   }
 
   const scrollBrandsRight = () => {
     if (brandsScrollRef.current) {
-      brandsScrollRef.current.scrollBy({ left: 300, behavior: 'smooth' })
+      brandsScrollRef.current.scrollBy({ left: 200, behavior: 'smooth' })
     }
   }
 
@@ -332,7 +376,6 @@ export default function ServicesStorefrontClient({
       minHeight: '100vh',
       fontFamily: 'var(--font-body)'
     }}>
-      {/* Dynamic CSS Variables Injection */}
       <style>{`
         .services-template {
           --accent-cyan: ${primaryColor};
@@ -353,41 +396,47 @@ export default function ServicesStorefrontClient({
             --border-glass: rgba(0, 0, 0, 0.08) !important;
           ` : ''}
         }
-        /* Feature Cards - cores dinâmicas baseadas na paleta do lojista */
-        .feature-card.feat-sky {
-          background: linear-gradient(135deg, ${hexToRgba(primaryColor, 0.06)} 0%, ${hexToRgba(primaryColor, 0.12)} 50%, ${hexToRgba(secondaryColor, 0.18)} 100%) !important;
-          border: 1px solid ${hexToRgba(primaryColor, 0.22)} !important;
-          box-shadow: 0 10px 25px ${hexToRgba(primaryColor, 0.07)} !important;
+        .benefits-grid-container {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 2rem;
+          background-color: var(--bg-card, ${isDark ? 'rgba(255,255,255,0.02)' : '#f1f5f9'});
+          padding: 2rem 2.5rem;
+          border-radius: var(--radius-lg, 16px);
+          border: 1px solid var(--border-glass, ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0, 0, 0, 0.04)'});
         }
-        .feature-card.feat-sky:hover {
-          transform: translateY(-6px);
-          background: linear-gradient(135deg, ${hexToRgba(primaryColor, 0.12)} 0%, ${hexToRgba(primaryColor, 0.2)} 50%, ${hexToRgba(secondaryColor, 0.28)} 100%) !important;
-          border-color: ${hexToRgba(primaryColor, 0.42)} !important;
-          box-shadow: 0 20px 40px ${hexToRgba(primaryColor, 0.14)} !important;
+        @media (max-width: 991px) {
+          .benefits-grid-container {
+            grid-template-columns: repeat(2, 1fr);
+          }
         }
-        .feature-card.feat-sky .feature-icon-wrapper {
-          background: ${hexToRgba(primaryColor, 0.1)} !important;
-          color: ${primaryColor} !important;
-          border-color: ${hexToRgba(primaryColor, 0.22)} !important;
+        @media (max-width: 576px) {
+          .benefits-grid-container {
+            grid-template-columns: 1fr;
+          }
         }
-        /* Testimonial Cards - cores dinâmicas baseadas na paleta do lojista */
-        .testimonial-card-v2 {
-          background: linear-gradient(135deg, ${hexToRgba(primaryColor, 0.05)} 0%, ${hexToRgba(primaryColor, 0.1)} 50%, ${hexToRgba(secondaryColor, 0.15)} 100%) !important;
-          border: 1px solid ${hexToRgba(primaryColor, 0.2)} !important;
-          box-shadow: 0 4px 20px ${hexToRgba(primaryColor, 0.04)} !important;
+        .products-grid-4col {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 2rem;
+          margin-top: 2rem;
         }
-        .testimonial-card-v2::before {
-          background: linear-gradient(180deg, ${primaryColor} 0%, ${secondaryColor} 100%) !important;
+        @media (max-width: 1024px) {
+          .products-grid-4col {
+            grid-template-columns: repeat(3, 1fr);
+          }
         }
-        .testimonial-card-v2:hover {
-          background: linear-gradient(135deg, ${hexToRgba(primaryColor, 0.1)} 0%, ${hexToRgba(primaryColor, 0.18)} 50%, ${hexToRgba(secondaryColor, 0.26)} 100%) !important;
-          border-color: ${hexToRgba(primaryColor, 0.4)} !important;
-          box-shadow: 0 25px 45px ${hexToRgba(primaryColor, 0.12)} !important;
+        @media (max-width: 768px) {
+          .products-grid-4col {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.25rem;
+          }
         }
-        .quote-icon-wrapper {
-          background: ${hexToRgba(primaryColor, 0.07)} !important;
+        @media (max-width: 480px) {
+          .products-grid-4col {
+            grid-template-columns: 1fr;
+          }
         }
-
         .btn-buy-dynamic {
           background-color: ${buttonVariant === 'filled' ? buttonColor : 'transparent'} !important;
           color: ${buttonVariant === 'filled' ? buttonTextColor : buttonColor} !important;
@@ -402,131 +451,10 @@ export default function ServicesStorefrontClient({
           transform: translateY(-2px);
           box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
-        .products-grid-4col {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 2rem;
-        }
-        @media (max-width: 1100px) {
-          .products-grid-4col { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 600px) {
-          .products-grid-4col { grid-template-columns: 1fr; }
-        }
-        .stat-card {
-          background-color: ${primaryColor} !important;
-          border: 1px solid rgba(255, 255, 255, 0.1) !important;
-          transition: all 0.3s ease !important;
-        }
-        .stat-number {
-          background: none !important;
-          -webkit-background-clip: initial !important;
-          -webkit-text-fill-color: initial !important;
-          color: #ffffff !important;
-        }
-        .stat-label {
-          color: rgba(255, 255, 255, 0.8) !important;
-        }
-        .stat-card:hover {
-          border-color: rgba(255, 255, 255, 0.25) !important;
-          box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15) !important;
-          transform: translateY(-4px) !important;
-        }
-        .cta-desc {
-          color: rgba(255, 255, 255, 0.9) !important;
-        }
-        .benefits-grid-container {
-          width: 100%;
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 2rem;
-          padding: 1.5rem 3rem;
-          background-color: ${settings.benefits_bg_color || '#f9fafb'} !important;
-          border-radius: 16px;
-          border: 1px solid #eaeaea;
-        }
-        @media (max-width: 1024px) {
-          .benefits-grid-container {
-            grid-template-columns: repeat(2, 1fr);
-            padding: 1.5rem 2rem;
-          }
-        }
-        @media (max-width: 640px) {
-          .benefits-grid-container {
-            grid-template-columns: repeat(2, 1fr);
-            padding: 1rem;
-            gap: 1rem;
-          }
-        }
-        @media (max-width: 768px) {
-          ${settings.hero_image_mobile_url ? `
-            .services-hero-full {
-              background-image: ${settings.show_hero_text !== false ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${settings.hero_image_mobile_url})` : `url(${settings.hero_image_mobile_url})`} !important;
-            }
-            .services-hero-left {
-              background-image: linear-gradient(0deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${settings.hero_image_mobile_url}) !important;
-            }
-            .services-hero-split-img-card {
-              background-image: url(${settings.hero_image_mobile_url}) !important;
-            }
-          ` : ''}
-
-          #home {
-            grid-template-columns: 1fr !important;
-            padding: 5rem 1.5rem !important;
-            gap: 2rem !important;
-            min-height: auto !important;
-          }
-          .hero-title {
-            font-size: 2.25rem !important;
-          }
-          .hero-description {
-            margin-bottom: 2rem !important;
-          }
-          .hero-actions {
-            flex-direction: column;
-            width: 100%;
-            gap: 1rem;
-          }
-          .hero-actions a {
-            width: 100%;
-            text-align: center;
-          }
-          .services-grid {
-            grid-template-columns: 1fr !important;
-            gap: 1.5rem !important;
-          }
-          .container {
-            padding: 0 1.25rem !important;
-          }
-        }
-        .whatsapp-floating-btn:hover {
-          transform: scale(1.1) rotate(5deg) !important;
-          filter: brightness(1.1);
-        }
-        @media (max-width: 768px) {
-          .cta-buttons {
-            display: flex !important;
-            flex-direction: column !important;
-            width: 100% !important;
-            gap: 1rem !important;
-            align-items: center !important;
-          }
-          .cta-buttons a {
-            width: 100% !important;
-            max-width: 400px !important;
-            text-align: center !important;
-            display: flex !important;
-            justify-content: center !important;
-            align-items: center !important;
-          }
-        }
       `}</style>
 
-      {/* 1. HEADER */}
-      <StoreHeader store={store} settings={settings} primaryColor={primaryColor} categories={categories} />
+      <StoreHeader store={store} settings={settings} primaryColor={primaryColor} categories={categories} products={products} />
 
-      {/* 2. HERO */}
       {!isCatalogo && (
         heroStyle === 'split' ? (
           <section id="home" style={{ 
@@ -540,51 +468,92 @@ export default function ServicesStorefrontClient({
             position: 'relative',
             overflow: 'hidden'
           }}>
-            {/* Content side (Left) */}
             {showHeroText && (
               <div style={{ maxWidth: '650px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', margin: '0 auto' }}>
-                <div className="hero-badge" style={{ justifyContent: 'center', marginBottom: '1.5rem' }}>
-                  <Sparkles size={14} style={{ color: primaryColor }} />
-                  <span>{settings.hero_badge || 'Tecnologia & Conforto Térmico'}</span>
-                </div>
                 <h1 className="hero-title" style={{ color: heroTitleColor, fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', letterSpacing: '-2px' }}>
-                  {settings.hero_title || 'Climatização Inteligente. Alta Performance.'}
+                  {currentBanner.title}
                 </h1>
                 <p className="hero-description" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6 }}>
-                  {settings.hero_subtitle || 'Elevamos a qualidade do seu ar e o conforto dos seus ambientes através de projetos de climatização de ponta e assistência técnica premium.'}
+                  {currentBanner.subtitle}
                 </p>
                 <div className="hero-actions" style={{ justifyContent: 'center' }}>
                   <a href="#services" className="btn btn-primary" style={{ borderRadius: buttonRadius }}>
                     <span>Agendar Serviço</span>
                     <ArrowRight size={18} />
                   </a>
-                  {physicalProducts.length > 0 && (
-                    <a href="#produtos" className="btn btn-secondary" style={{ borderRadius: buttonRadius }}>
-                      <span>Comprar Peças</span>
-                    </a>
-                  )}
                 </div>
               </div>
             )}
-            {/* Image Card side (Right) */}
-            <div className="hero-split-img" style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'center', 
-              width: '100%', 
-              height: '100%' 
-            }}>
-              <div className="services-hero-split-img-card" style={{ 
+            <div className="hero-split-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
+              <div style={{ 
                 width: '100%', 
                 height: '55vh',
-                backgroundImage: `url(${settings.hero_image_url || '/hero_smart_space.png'})`, 
-                backgroundSize: 'cover', 
-                backgroundPosition: 'center',
                 borderRadius: '24px',
+                position: 'relative',
+                overflow: 'hidden',
                 boxShadow: isDark ? '0 20px 40px rgba(0,0,0,0.5)' : '0 20px 40px rgba(0,0,0,0.08)',
-                border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.03)'
-              }} />
+                border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.03)',
+                ...(transitionEffect === 'fade' ? {
+                  backgroundImage: `url(${currentBannerUrl})`, 
+                  backgroundSize: 'cover', 
+                  backgroundPosition: 'center',
+                  transition: 'background-image 0.5s ease-in-out'
+                } : {})
+              }}>
+                {transitionEffect === 'slide' && (
+                  <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    width: `${(banners.length + 1) * 100}%`,
+                    height: '100%',
+                    display: 'flex',
+                    transform: `translateX(-${currentBannerIndex * (100 / (banners.length + 1))}%)`,
+                    transition: isTransitioning ? 'transform 0.5s ease-in-out' : 'none'
+                  }}>
+                    {[...banners, banners[0]].map((banner: any, idx: number) => {
+                      const bannerUrl = typeof window !== 'undefined' && window.innerWidth <= 768 && banner.mobile_url 
+                        ? banner.mobile_url 
+                        : (banner.desktop_url || '/hero_smart_space.png')
+                      return (
+                        <div 
+                          key={idx} 
+                          style={{
+                            width: `${100 / (banners.length + 1)}%`,
+                            height: '100%',
+                            backgroundImage: `url(${bannerUrl})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center'
+                          }}
+                        />
+                      )
+                    })}
+                  </div>
+                )}
+              </div>
             </div>
+            {banners.length > 1 && (
+              <div style={{ position: 'absolute', bottom: '2rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '0.5rem', zIndex: 10 }}>
+                {banners.map((_, idx) => {
+                  const isActive = activeDotIndex === idx
+                  return (
+                    <button 
+                      key={idx}
+                      onClick={() => { setIsTransitioning(true); setCurrentBannerIndex(idx); }}
+                      style={{ 
+                        width: isActive ? '24px' : '8px', 
+                        height: '8px', 
+                        borderRadius: '4px', 
+                        backgroundColor: isActive ? primaryColor : (isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'),
+                        border: 'none',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease'
+                      }} 
+                    />
+                  )
+                })}
+              </div>
+            )}
           </section>
         ) : heroStyle === 'left-aligned' ? (
           <section id="home" className="services-hero-left" style={{ 
@@ -592,101 +561,130 @@ export default function ServicesStorefrontClient({
             display: 'flex', 
             alignItems: 'center', 
             backgroundColor: splitBgColor,
-            backgroundImage: `linear-gradient(90deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${settings.hero_image_url || '/hero_smart_space.png'})`,
+            backgroundImage: transitionEffect === 'fade' ? `linear-gradient(90deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${currentBannerUrl})` : undefined,
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             padding: '0 8%',
-            color: heroTitleColor
+            color: heroTitleColor,
+            position: 'relative',
+            overflow: 'hidden',
+            transition: 'background-image 0.5s ease-in-out'
           }}>
+            {transitionEffect === 'slide' && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: `${(banners.length + 1) * 100}%`,
+                height: '100%',
+                display: 'flex',
+                transform: `translateX(-${currentBannerIndex * (100 / (banners.length + 1))}%)`,
+                transition: isTransitioning ? 'transform 0.5s ease-in-out' : 'none',
+                zIndex: 1
+              }}>
+                {[...banners, banners[0]].map((banner: any, idx: number) => {
+                  const bannerUrl = typeof window !== 'undefined' && window.innerWidth <= 768 && banner.mobile_url 
+                    ? banner.mobile_url 
+                    : (banner.desktop_url || '/hero_smart_space.png')
+                  return (
+                    <div 
+                      key={idx} 
+                      style={{
+                        width: `${100 / (banners.length + 1)}%`,
+                        height: '100%',
+                        backgroundImage: `linear-gradient(90deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${bannerUrl})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                      }}
+                    />
+                  )
+                })}
+              </div>
+            )}
             {showHeroText && (
-              <div style={{ maxWidth: '600px', textAlign: 'left' }}>
-                <div className="hero-badge" style={{ marginBottom: '1.5rem', alignSelf: 'flex-start' }}>
-                  <Sparkles size={14} style={{ color: primaryColor }} />
-                  <span>{settings.hero_badge || 'Tecnologia & Conforto Térmico'}</span>
-                </div>
-                <h1 className="hero-title" style={{ color: heroTitleColor, fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', letterSpacing: '-2px' }}>
-                  {settings.hero_title || 'Climatização Inteligente. Alta Performance.'}
+              <div style={{ maxWidth: '600px', zIndex: 2 }}>
+                <h1 className="hero-title" style={{ color: heroTitleColor, fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', letterSpacing: '-1px' }}>
+                  {currentBanner.title}
                 </h1>
-                <p className="hero-description" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6 }}>
-                  {settings.hero_subtitle || 'Elevamos a qualidade do seu ar e o conforto dos seus ambientes através de projetos de climatização de ponta e assistência técnica premium.'}
+                <p className="hero-description" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '2.5rem', lineHeight: 1.6 }}>
+                  {currentBanner.subtitle}
                 </p>
                 <div className="hero-actions" style={{ justifyContent: 'flex-start' }}>
                   <a href="#services" className="btn btn-primary" style={{ borderRadius: buttonRadius }}>
                     <span>Agendar Serviço</span>
                     <ArrowRight size={18} />
                   </a>
-                  {physicalProducts.length > 0 && (
-                    <a href="#produtos" className="btn btn-secondary" style={{ borderRadius: buttonRadius }}>
-                      <span>Comprar Peças</span>
-                    </a>
-                  )}
                 </div>
               </div>
             )}
-          </section>
-        ) : heroStyle === 'minimalist' ? (
-          <section id="home" style={{ 
-            height: '60vh', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            backgroundColor: splitBgColor,
-            padding: '0 5%',
-            textAlign: 'center',
-            borderBottom: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid #eaeaea'
-          }}>
-            {showHeroText && (
-              <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div className="hero-badge" style={{ justifyContent: 'center', marginBottom: '1.5rem' }}>
-                  <Sparkles size={14} style={{ color: primaryColor }} />
-                  <span>{settings.hero_badge || 'Tecnologia & Conforto Térmico'}</span>
-                </div>
-                <h1 className="hero-title" style={{ fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: heroTitleColor, letterSpacing: '-2px' }}>
-                  {settings.hero_title || 'Climatização Inteligente. Alta Performance.'}
-                </h1>
-                <p className="hero-description" style={{ fontSize: '1.2rem', color: heroSubtitleColor, marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '650px' }}>
-                  {settings.hero_subtitle || 'Elevamos a qualidade do seu ar e o conforto dos seus ambientes através de projetos de climatização de ponta e assistência técnica premium.'}
-                </p>
-                <div className="hero-actions" style={{ justifyContent: 'center' }}>
-                  <a href="#services" className="btn btn-primary" style={{ borderRadius: buttonRadius }}>
-                    <span>Agendar Serviço</span>
-                    <ArrowRight size={18} />
-                  </a>
-                  {physicalProducts.length > 0 && (
-                    <a href="#produtos" className="btn btn-secondary" style={{ borderRadius: buttonRadius }}>
-                      <span>Comprar Peças</span>
-                    </a>
-                  )}
-                </div>
+            {banners.length > 1 && (
+              <div style={{ position: 'absolute', bottom: '2rem', left: '8%', display: 'flex', gap: '0.5rem', zIndex: 10 }}>
+                {banners.map((_, idx) => {
+                  const isActive = activeDotIndex === idx
+                  return (
+                    <button 
+                      key={idx} 
+                      onClick={() => { setIsTransitioning(true); setCurrentBannerIndex(idx); }} 
+                      style={{ width: isActive ? '24px' : '8px', height: '8px', borderRadius: '4px', backgroundColor: isActive ? primaryColor : 'rgba(0,0,0,0.2)', border: 'none', cursor: 'pointer', transition: 'all 0.3s ease' }} 
+                    />
+                  )
+                })}
               </div>
             )}
           </section>
         ) : (
-          // Default "full" / full width banner
           <section id="home" className="services-hero-full" style={{ 
             height: '80vh', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
-            padding: '0 5%', 
-            backgroundImage: showHeroText ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${settings.hero_image_url || '/hero_smart_space.png'})` : `url(${settings.hero_image_url || '/hero_smart_space.png'})`, 
-            backgroundColor: showHeroText ? heroBgColor : 'transparent',
-            backgroundSize: 'cover', 
-            backgroundPosition: 'center', 
-            color: heroTitleColor,
-            textAlign: 'center'
+            backgroundImage: transitionEffect === 'fade' ? `linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.5) 100%), url(${currentBannerUrl})` : undefined,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            color: '#fff',
+            position: 'relative',
+            overflow: 'hidden',
+            textAlign: 'center',
+            transition: 'background-image 0.5s ease-in-out'
           }}>
+            {transitionEffect === 'slide' && (
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: `${(banners.length + 1) * 100}%`,
+                height: '100%',
+                display: 'flex',
+                transform: `translateX(-${currentBannerIndex * (100 / (banners.length + 1))}%)`,
+                transition: isTransitioning ? 'transform 0.5s ease-in-out' : 'none',
+                zIndex: 1
+              }}>
+                {[...banners, banners[0]].map((banner: any, idx: number) => {
+                  const bannerUrl = typeof window !== 'undefined' && window.innerWidth <= 768 && banner.mobile_url 
+                    ? banner.mobile_url 
+                    : (banner.desktop_url || '/hero_smart_space.png')
+                  return (
+                    <div 
+                      key={idx} 
+                      style={{
+                        width: `${100 / (banners.length + 1)}%`,
+                        height: '100%',
+                        backgroundImage: `linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.5) 100%), url(${bannerUrl})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                      }}
+                    />
+                  )
+                })}
+              </div>
+            )}
             {showHeroText && (
-              <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-                <div className="hero-badge" style={{ justifyContent: 'center', marginBottom: '1.5rem' }}>
-                  <Sparkles size={14} style={{ color: primaryColor }} />
-                  <span>{settings.hero_badge || 'Tecnologia & Conforto Térmico'}</span>
-                </div>
-                <h1 className="hero-title" style={{ fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', letterSpacing: '-2px', color: heroTitleColor }}>
-                  {settings.hero_title || 'Climatização Inteligente. Alta Performance.'}
+              <div style={{ maxWidth: '800px', zIndex: 2, display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <h1 className="hero-title" style={{ color: '#fff', fontSize: '3.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', letterSpacing: '-1px' }}>
+                  {currentBanner.title}
                 </h1>
-                <p className="hero-description" style={{ fontSize: '1.25rem', marginBottom: '3.5rem', opacity: 0.95, maxWidth: '700px', margin: '0 auto 3.5rem auto', lineHeight: 1.7, color: heroSubtitleColor }}>
-                  {settings.hero_subtitle || 'Elevamos a qualidade do seu ar e o conforto dos seus ambientes através de projetos de climatização de ponta e assistência técnica premium.'}
+                <p className="hero-description" style={{ fontSize: '1.15rem', color: 'rgba(255,255,255,0.9)', marginBottom: '2.5rem', lineHeight: 1.6 }}>
+                  {currentBanner.subtitle}
                 </p>
                 <div className="hero-actions" style={{ justifyContent: 'center' }}>
                   <a href="#services" className="btn btn-primary" style={{ borderRadius: buttonRadius }}>
@@ -1221,8 +1219,11 @@ export default function ServicesStorefrontClient({
         </div>
       </section>
 
+
+
       {/* 9. FOOTER */}
       <StoreFooter store={store} settings={settings} primaryColor={primaryColor} buttonRadius={buttonRadius} />
+
 
       {/* 10. LEAD MODAL */}
       {activeService && (

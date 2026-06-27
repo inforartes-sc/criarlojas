@@ -65,6 +65,17 @@ async function getCategories(storeId: string) {
   return data || []
 }
 
+async function getProducts(storeId: string) {
+  const { data } = await supabase
+    .from('products')
+    .select('*')
+    .eq('store_id', storeId)
+    .eq('is_active', true)
+    .order('created_at', { ascending: false })
+  return data || []
+}
+
+
 async function getRelatedProducts(storeId: string, currentProductId: string, category: string) {
   let query = supabase
     .from('products')
@@ -123,7 +134,11 @@ export default async function ProductPage({
 
   const store = product.stores
   const settings = store?.settings || {}
-  const categories = await getCategories(store.id)
+  const [categories, allProducts] = await Promise.all([
+    getCategories(store.id),
+    getProducts(store.id)
+  ])
+
 
   const primaryColor = settings.primary_color || '#6366f1'
   const buttonColor = settings.button_color || '#000000'
@@ -236,9 +251,10 @@ export default async function ProductPage({
         }
       `}</style>
 
-      {/* HEADER INTERATIVO */}
-      <StoreHeader store={store} settings={settings} primaryColor={primaryColor} categories={categories} />
+      {/* HEADER */}
+      <StoreHeader store={store} settings={settings} primaryColor={primaryColor} categories={categories} products={allProducts || []} />
 
+      {/* CÓDIGO ESTRUTURAL DA PÁGINA */}
       <main className="product-page-main" style={{ maxWidth: '1300px', margin: '3rem auto 6rem auto', padding: '0 2rem' }}>
         
         {/* Breadcrumb */}

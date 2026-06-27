@@ -18,6 +18,8 @@ export default function SettingsPage() {
   const [confirmModal, setConfirmModal] = useState<{ message: string; onConfirm: () => void } | null>(null)
   const [domainSuffix, setDomainSuffix] = useState('.localhost:3000')
   const [initialCustomDomain, setInitialCustomDomain] = useState('')
+  const [newReview, setNewReview] = useState({ author_name: '', rating: 5, relative_time_description: 'há uma semana', text: '' })
+
 
   useEffect(() => {
     setDomainSuffix(getDomainSuffix())
@@ -92,6 +94,15 @@ export default function SettingsPage() {
     new_arrivals_title: 'Novidades',
     hero_image_url: '',
     hero_image_mobile_url: '',
+    google_reviews_enabled: false,
+    google_business_name: '',
+    google_place_id: '',
+    google_rating: '5.0',
+    google_reviews_count: '1',
+    google_reviews: [] as any[],
+    hero_banners: [] as any[],
+
+    hero_transition_effect: 'fade',
     hero_bg_color: '#ffffff',
     hero_title_color: '#111111',
     hero_subtitle_color: '#555555',
@@ -232,6 +243,21 @@ export default function SettingsPage() {
       if (error) throw error
 
       const s = data.settings || {}
+      
+      let loadedBanners = s.hero_banners || []
+      if (loadedBanners.length === 0 && (s.hero_image_url || data.hero_image_url)) {
+        loadedBanners = [
+          {
+            desktop_url: s.hero_image_url || data.hero_image_url || '',
+            mobile_url: s.hero_image_mobile_url || s.hero_image_url || data.hero_image_url || '',
+            title: s.hero_title || 'REDEFINA SEU CONCEITO',
+            subtitle: s.hero_subtitle || 'Explore nossa curadoria especial para elevar sua experiência.',
+            button_text: 'SAIBA MAIS',
+            button_url: '?view=produtos'
+          }
+        ]
+      }
+
       setFormData({
         name: data.name,
         subdomain: data.subdomain,
@@ -280,8 +306,15 @@ export default function SettingsPage() {
         button_hover_variant: s.button_hover_variant || 'filled',
         header_style: s.header_style || 'modern',
         hero_style: s.hero_style || 'split',
-        layout_model: s.layout_model || 'modern',
-        store_mode: s.store_mode || 'loja',
+        google_reviews_enabled: s.google_reviews_enabled || false,
+        google_business_name: s.google_business_name || '',
+        google_place_id: s.google_place_id || '',
+        google_rating: s.google_rating || '5.0',
+        google_reviews_count: s.google_reviews_count || '1',
+        google_reviews: s.google_reviews || [],
+        hero_banners: loadedBanners,
+
+        hero_transition_effect: s.hero_transition_effect || 'fade',
         benefits: s.benefits || [
           { title: 'Entrega Rápida', subtitle: 'Calcule o prazo no checkout', icon: 'Truck' },
           { title: 'Compra Segura', subtitle: 'Ambiente 100% protegido', icon: 'ShieldCheck' },
@@ -496,6 +529,38 @@ export default function SettingsPage() {
       toast.error('Erro no upload: ' + error.message)
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleBannerImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, index: number, field: 'desktop_url' | 'mobile_url') => {
+    try {
+      const file = e.target.files?.[0]
+      if (!file) return
+
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random()}.${fileExt}`
+      const filePath = `hero/${fileName}`
+
+      toast.loading('Fazendo upload da imagem do banner...', { id: 'upload-banner' })
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('store-assets')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('store-assets')
+        .getPublicUrl(filePath)
+
+      const updatedBanners = [...formData.hero_banners]
+      updatedBanners[index] = { ...updatedBanners[index], [field]: publicUrl }
+      setFormData(prev => ({ ...prev, hero_banners: updatedBanners }))
+
+      toast.success('Imagem carregada com sucesso!', { id: 'upload-banner' })
+    } catch (error) {
+      console.error(error)
+      toast.error('Erro ao fazer upload da imagem.', { id: 'upload-banner' })
     }
   }
 
@@ -1059,12 +1124,14 @@ export default function SettingsPage() {
             { id: 'secoes', label: 'Seções da Home', icon: Layout },
             { id: 'rodape', label: 'Rodapé', icon: Layout },
             { id: 'whatsapp_floating', label: 'Botão do WhatsApp', icon: MessageSquare },
+            ...(!isServicesOnly() ? [{ id: 'google_reviews', label: 'Avaliações do Google', icon: Star }] : []),
             { id: 'pop_up', label: 'Pop-up de Oferta', icon: Sparkles },
             { id: 'layout', label: 'Estrutura', icon: Layout },
             { id: 'dominios', label: 'Domínios & Roteamento', icon: Globe },
             { id: 'seguranca', label: 'Segurança & Acesso', icon: Lock },
             ...(isServicesOnly() ? [] : [{ id: 'integracoes', label: 'Integrações & Pixels', icon: ShoppingBag }])
           ].map(tab => (
+
             <button 
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
@@ -2226,84 +2293,124 @@ export default function SettingsPage() {
                 </div>
               </div>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem' }}>
-                <div className="form-group">
-                  <label>Imagem de Fundo do Banner (Computador)</label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ width: '100%', height: '180px', borderRadius: '12px', border: '2px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.02)', position: 'relative' }}>
-                      {formData.hero_image_url ? (
-                        <img src={formData.hero_image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <div style={{ textAlign: 'center', color: 'var(--muted)' }}>
-                          <ImageIcon size={32} style={{ margin: '0 auto 0.5rem' }} />
-                          <span style={{ fontSize: '0.875rem' }}>Nenhuma imagem selecionada</span>
-                        </div>
-                      )}
-                    </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <label className="btn-secondary" style={{ cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', padding: '0.75rem 1.25rem', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.85rem' }}>
-                        <Upload size={16} />
-                        Upload Computador
-                        <input type="file" hidden accept="image/*" onChange={handleHeroImageUpload} />
-                      </label>
-                      {formData.hero_image_url && (
-                        <button onClick={() => setFormData({...formData, hero_image_url: ''})} style={{ padding: '0.75rem 1rem', border: '1px solid #ef4444', borderRadius: '8px', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>
-                          <X size={16} />
-                        </button>
-                      )}
-                    </div>
-                  </div>
+              <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '2rem', marginBottom: '2rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                  <label style={{ fontWeight: 700, margin: 0 }}>Banners da Loja (Slider)</label>
+                  <button onClick={() => {
+                    const newBanner = { id: Math.random().toString(), desktop_url: '', mobile_url: '', title: '', subtitle: '' }
+                    setFormData({...formData, hero_banners: [...formData.hero_banners, newBanner]})
+                  }} style={{ padding: '0.5rem 1rem', background: 'var(--primary)', color: '#fff', borderRadius: '8px', cursor: 'pointer', border: 'none', fontWeight: 600, fontSize: '0.85rem' }}>
+                    + Adicionar Banner
+                  </button>
                 </div>
 
-                <div className="form-group">
-                  <label>Imagem do Banner (Celular / Mobile)</label>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ width: '100%', height: '180px', borderRadius: '12px', border: '2px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.02)', position: 'relative' }}>
-                      {formData.hero_image_mobile_url ? (
-                        <img src={formData.hero_image_mobile_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                      ) : (
-                        <div style={{ textAlign: 'center', color: 'var(--muted)' }}>
-                          <ImageIcon size={32} style={{ margin: '0 auto 0.5rem' }} />
-                          <span style={{ fontSize: '0.875rem' }}>Nenhuma imagem selecionada</span>
+                <div style={{ display: 'grid', gap: '2rem' }}>
+                  {formData.hero_banners.map((banner: any, index: number) => (
+                    <div key={banner.id} style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '1.5rem', backgroundColor: 'var(--card)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <h4 style={{ fontWeight: 600, fontSize: '1rem', margin: 0 }}>Banner #{index + 1}</h4>
+                        <button onClick={() => {
+                          const updated = formData.hero_banners.filter((_:any, i:number) => i !== index)
+                          setFormData({...formData, hero_banners: updated})
+                        }} style={{ background: 'transparent', color: '#ef4444', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.85rem' }}>
+                          <X size={16} /> Remover
+                        </button>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '1.5rem' }}>
+                        <div className="form-group">
+                          <label style={{ fontSize: '0.85rem' }}>Imagem Fundo (Computador)</label>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div style={{ width: '100%', height: '140px', borderRadius: '8px', border: '2px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.02)', position: 'relative' }}>
+                              {banner.desktop_url ? (
+                                <img src={banner.desktop_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                <div style={{ textAlign: 'center', color: 'var(--muted)' }}><ImageIcon size={24} style={{ margin: '0 auto' }}/></div>
+                              )}
+                            </div>
+                            <label className="btn-secondary" style={{ cursor: 'pointer', textAlign: 'center', padding: '0.5rem', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.8rem' }}>
+                              Upload Computador
+                              <input type="file" hidden accept="image/*" onChange={(e) => handleBannerImageUpload(e, index, 'desktop_url')} />
+                            </label>
+                          </div>
+                        </div>
+
+                        <div className="form-group">
+                          <label style={{ fontSize: '0.85rem' }}>Imagem Fundo (Celular)</label>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div style={{ width: '100%', height: '140px', borderRadius: '8px', border: '2px dashed var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', backgroundColor: 'rgba(255,255,255,0.02)', position: 'relative' }}>
+                              {banner.mobile_url ? (
+                                <img src={banner.mobile_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              ) : (
+                                <div style={{ textAlign: 'center', color: 'var(--muted)' }}><ImageIcon size={24} style={{ margin: '0 auto' }}/></div>
+                              )}
+                            </div>
+                            <label className="btn-secondary" style={{ cursor: 'pointer', textAlign: 'center', padding: '0.5rem', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.8rem' }}>
+                              Upload Celular
+                              <input type="file" hidden accept="image/*" onChange={(e) => handleBannerImageUpload(e, index, 'mobile_url')} />
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      {formData.show_hero_text && (
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                          <div className="form-group">
+                            <label style={{ fontSize: '0.85rem' }}>Título do Banner</label>
+                            <input type="text" value={banner.title} onChange={e => {
+                              const updated = [...formData.hero_banners]
+                              updated[index].title = e.target.value
+                              setFormData({...formData, hero_banners: updated})
+                            }} placeholder="Ex: Coleção de Verão" style={{ padding: '0.5rem', fontSize: '0.9rem' }} />
+                          </div>
+                          <div className="form-group">
+                            <label style={{ fontSize: '0.85rem' }}>Subtítulo do Banner</label>
+                            <input type="text" value={banner.subtitle} onChange={e => {
+                              const updated = [...formData.hero_banners]
+                              updated[index].subtitle = e.target.value
+                              setFormData({...formData, hero_banners: updated})
+                            }} placeholder="Confira as novidades" style={{ padding: '0.5rem', fontSize: '0.9rem' }} />
+                          </div>
                         </div>
                       )}
                     </div>
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <label className="btn-secondary" style={{ cursor: 'pointer', display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'center', padding: '0.75rem 1.25rem', border: '1px solid var(--border)', borderRadius: '8px', fontSize: '0.85rem' }}>
-                        <Upload size={16} />
-                        Upload Celular
-                        <input type="file" hidden accept="image/*" onChange={(e) => handleGenericImageUpload(e, 'hero_image_mobile_url')} />
-                      </label>
-                      {formData.hero_image_mobile_url && (
-                        <button onClick={() => setFormData({...formData, hero_image_mobile_url: ''})} style={{ padding: '0.75rem 1rem', border: '1px solid #ef4444', borderRadius: '8px', background: 'transparent', color: '#ef4444', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}>
-                          <X size={16} />
-                        </button>
-                      )}
+                  ))}
+                  {formData.hero_banners.length === 0 && (
+                    <div style={{ padding: '2rem', textAlign: 'center', border: '1px dashed var(--border)', borderRadius: '12px', color: 'var(--muted)' }}>
+                      Nenhum banner configurado. Adicione um banner para exibir no topo do site.
                     </div>
-                  </div>
+                  )}
+                </div>
+
+                <div style={{ marginTop: '1.5rem' }}>
+                  <label style={{ fontSize: '0.85rem', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>Efeito de Transição do Banner (Slide / Carrossel)</label>
+                  <select 
+                    value={formData.hero_transition_effect} 
+                    onChange={e => setFormData({...formData, hero_transition_effect: e.target.value})} 
+                    style={{ 
+                      width: '100%', 
+                      padding: '0.75rem', 
+                      borderRadius: '8px', 
+                      border: '1px solid var(--border)', 
+                      backgroundColor: 'var(--card)', 
+                      color: 'var(--foreground)' 
+                    }}
+                  >
+                    <option value="fade">Esmaecer (Fade Suave - Apenas muda o fundo)</option>
+                    <option value="slide">Deslizar (Slide Horizontal - Efeito carrossel lateral)</option>
+                  </select>
                 </div>
               </div>
 
               {formData.show_hero_text && (
-                <>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                    <div className="form-group">
-                      <label>Título do Banner</label>
-                      <input type="text" value={formData.hero_title} onChange={e => setFormData({...formData, hero_title: e.target.value})} />
-                    </div>
+                <div style={{ borderBottom: '1px solid var(--border)', paddingBottom: '2rem', marginBottom: '2rem' }}>
+                  <h4 style={{ fontWeight: 700, marginBottom: '1rem' }}>Cores Globais do Texto do Banner</h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1.5rem' }}>
                     <ColorInput label="Cor do Título" value={formData.hero_title_color} onChange={(v:any) => setFormData({...formData, hero_title_color: v})} />
+                    <ColorInput label="Cor do Subtítulo" value={formData.hero_subtitle_color} onChange={(v:any) => setFormData({...formData, hero_subtitle_color: v})} />
+                    <ColorInput label="Fundo da Área de Texto" value={formData.hero_bg_color} onChange={(v:any) => setFormData({...formData, hero_bg_color: v})} />
                   </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                    <div className="form-group">
-                      <label>Subtítulo do Banner</label>
-                      <textarea rows={3} value={formData.hero_subtitle} onChange={e => setFormData({...formData, hero_subtitle: e.target.value})} />
-                    </div>
-                    <div style={{ display: 'grid', gap: '1rem' }}>
-                      <ColorInput label="Cor do Subtítulo" value={formData.hero_subtitle_color} onChange={(v:any) => setFormData({...formData, hero_subtitle_color: v})} />
-                      <ColorInput label="Fundo da Área de Texto" value={formData.hero_bg_color} onChange={(v:any) => setFormData({...formData, hero_bg_color: v})} />
-                    </div>
-                  </div>
-                </>
+                </div>
               )}
             </div>
           )}
@@ -2930,7 +3037,243 @@ export default function SettingsPage() {
             </div>
           )}
 
+          {activeTab === 'google_reviews' && (
+            plan !== 'premium' ? (
+              <div className="glass-card" style={{ padding: '3.5rem 2.5rem', textAlign: 'center', borderRadius: '16px', border: '1px solid var(--border)' }}>
+                <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', color: '#6366f1' }}>
+                  <Star size={32} fill="#6366f1" />
+                </div>
+                <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginBottom: '0.75rem' }}>Recurso Exclusivo do Plano Premium</h2>
+                <p style={{ color: 'var(--muted)', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '2rem' }}>
+                  O Módulo de Avaliações do Google (Google Meu Negócio) não está ativo no seu plano atual (<strong>{plan === 'pro' ? 'Profissional' : 'Básico'}</strong>). Faça um upgrade agora mesmo para o Plano Premium para aumentar a credibilidade da sua loja exibindo a prova social dos seus clientes!
+                </p>
+                <Link href="/admin/subscription" style={{ display: 'inline-block', padding: '0.85rem 2rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)', transition: '0.2s' }}>
+                  Ver Planos & Fazer Upgrade
+                </Link>
+              </div>
+            ) : (
+              <div className="glass-card" style={{ padding: '2.5rem', display: 'grid', gap: '2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(99, 102, 241, 0.1)', color: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Star size={26} fill="#6366f1" />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 700 }}>Avaliações do Google (Google Meu Negócio)</h3>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--muted)', marginTop: '0.25rem' }}>Destaque a prova social da sua empresa exibindo suas avaliações do Google no final da página inicial.</p>
+                  </div>
+                </div>
+
+                <div className="form-group" style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <input 
+                    type="checkbox" 
+                    id="google_reviews_enabled"
+                    checked={formData.google_reviews_enabled === true} 
+                    onChange={e => setFormData({...formData, google_reviews_enabled: e.target.checked})} 
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                  />
+                  <label htmlFor="google_reviews_enabled" style={{ fontWeight: 600, fontSize: '0.95rem', margin: 0, cursor: 'pointer' }}>Exibir avaliações do Google na Página Inicial</label>
+                </div>
+
+                {formData.google_reviews_enabled && (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+                      <div className="form-group">
+                        <label>Nome da Empresa no Google</label>
+                        <input 
+                          type="text" 
+                          value={formData.google_business_name || ''} 
+                          onChange={e => setFormData({...formData, google_business_name: e.target.value})} 
+                          placeholder="Ex: Minha Loja Ltda" 
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Google Place ID</label>
+                        <input 
+                          type="text" 
+                          value={formData.google_place_id || ''} 
+                          onChange={e => setFormData({...formData, google_place_id: e.target.value})} 
+                          placeholder="Ex: ChIJs0-56t-ZzpQRr9P8L..." 
+                        />
+                        <span style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.25rem', display: 'block' }}>
+                          Usado para gerar o link de "Escrever avaliação". <a href="https://developers.google.com/maps/documentation/places/web-service/place-id?hl=pt-br" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'underline' }}>Como encontrar meu Place ID?</a>
+                        </span>
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1.5rem' }}>
+                      <div className="form-group">
+                        <label>Nota Média Geral (Rating)</label>
+                        <input 
+                          type="text" 
+                          value={formData.google_rating || '5.0'} 
+                          onChange={e => setFormData({...formData, google_rating: e.target.value})} 
+                          placeholder="Ex: 4.9" 
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Total de Avaliações</label>
+                        <input 
+                          type="text" 
+                          value={formData.google_reviews_count || '1'} 
+                          onChange={e => setFormData({...formData, google_reviews_count: e.target.value})} 
+                          placeholder="Ex: 145" 
+                        />
+                      </div>
+                    </div>
+
+                    {/* Reviews List */}
+                    <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+                        <h4 style={{ fontWeight: 700, fontSize: '1.05rem', margin: 0 }}>Gerenciar Avaliações Exibidas</h4>
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            const demoReviews = [
+                              {
+                                id: 'demo-1',
+                                author_name: 'Carlos Silva',
+                                rating: 5,
+                                relative_time_description: 'há uma semana',
+                                text: 'Excelente atendimento e serviço de alta qualidade! Fiquei muito satisfeito com o resultado final.'
+                              },
+                              {
+                                id: 'demo-2',
+                                author_name: 'Juliana Mendes',
+                                rating: 5,
+                                relative_time_description: 'há 3 dias',
+                                text: 'Super recomendo! Profissionais atenciosos, entrega rápida e suporte excelente pós-venda.'
+                              },
+                              {
+                                id: 'demo-3',
+                                author_name: 'Roberto Souza',
+                                rating: 5,
+                                relative_time_description: 'há um mês',
+                                text: 'O melhor custo-benefício que encontrei. Trabalho muito sério e de total confiança.'
+                              }
+                            ]
+                            setFormData({ ...formData, google_reviews: demoReviews })
+                            toast.success('Avaliações exemplo carregadas!')
+                          }}
+                          style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600 }}
+                        >
+                          Carregar Avaliações de Exemplo
+                        </button>
+                      </div>
+
+                      {formData.google_reviews && formData.google_reviews.length > 0 ? (
+                        <div style={{ display: 'grid', gap: '1rem', marginBottom: '2rem' }}>
+                          {formData.google_reviews.map((review: any, idx: number) => (
+                            <div key={review.id || idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', border: '1px solid var(--border)', borderRadius: '8px', backgroundColor: 'rgba(255,255,255,0.01)' }}>
+                              <div style={{ display: 'grid', gap: '0.25rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                  <span style={{ fontWeight: 700, fontSize: '0.9rem' }}>{review.author_name}</span>
+                                  <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>({review.relative_time_description})</span>
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                                  {Array.from({ length: 5 }).map((_, i) => (
+                                    <Star key={i} size={12} fill={i < review.rating ? '#f59e0b' : 'transparent'} color={i < review.rating ? '#f59e0b' : '#d1d5db'} />
+                                  ))}
+                                </div>
+                                <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: '0.25rem 0 0 0', fontStyle: 'italic' }}>"{review.text}"</p>
+                              </div>
+                              <button 
+                                type="button" 
+                                onClick={() => {
+                                  const updated = formData.google_reviews.filter((_: any, i: number) => i !== idx)
+                                  setFormData({ ...formData, google_reviews: updated })
+                                }}
+                                style={{ background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', padding: '0.5rem' }}
+                              >
+                                <X size={16} />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <div style={{ padding: '2rem', textAlign: 'center', border: '1px dashed var(--border)', borderRadius: '8px', color: 'var(--muted)', fontSize: '0.9rem', marginBottom: '2rem' }}>
+                          Nenhuma avaliação configurada. Adicione uma nova avaliação abaixo ou use as de exemplo.
+                        </div>
+                      )}
+
+                      {/* Add Review Box */}
+                      <div style={{ border: '1px solid var(--border)', borderRadius: '12px', padding: '1.5rem', backgroundColor: 'rgba(255,255,255,0.02)' }}>
+                        <h5 style={{ fontWeight: 700, fontSize: '0.95rem', margin: '0 0 1rem 0' }}>Adicionar Nova Avaliação Manual</h5>
+                        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
+                          <div className="form-group">
+                            <label style={{ fontSize: '0.8rem' }}>Nome do Autor</label>
+                            <input 
+                              type="text" 
+                              value={newReview.author_name} 
+                              onChange={e => setNewReview({ ...newReview, author_name: e.target.value })} 
+                              placeholder="Ex: Carlos Silva" 
+                              style={{ padding: '0.5rem', fontSize: '0.85rem' }}
+                            />
+                          </div>
+                          <div className="form-group">
+                            <label style={{ fontSize: '0.8rem' }}>Nota (Estrelas)</label>
+                            <select 
+                              value={newReview.rating} 
+                              onChange={e => setNewReview({ ...newReview, rating: parseInt(e.target.value) || 5 })}
+                              style={{ padding: '0.5rem', fontSize: '0.85rem', width: '100%', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--card)', color: 'var(--foreground)' }}
+                            >
+                              <option value={5}>5 Estrelas</option>
+                              <option value={4}>4 Estrelas</option>
+                              <option value={3}>3 Estrelas</option>
+                              <option value={2}>2 Estrelas</option>
+                              <option value={1}>1 Estrela</option>
+                            </select>
+                          </div>
+                          <div className="form-group">
+                            <label style={{ fontSize: '0.8rem' }}>Tempo Relativo</label>
+                            <input 
+                              type="text" 
+                              value={newReview.relative_time_description} 
+                              onChange={e => setNewReview({ ...newReview, relative_time_description: e.target.value })} 
+                              placeholder="Ex: há uma semana" 
+                              style={{ padding: '0.5rem', fontSize: '0.85rem' }}
+                            />
+                          </div>
+                        </div>
+                        <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                          <label style={{ fontSize: '0.8rem' }}>Texto da Avaliação</label>
+                          <textarea 
+                            value={newReview.text} 
+                            onChange={e => setNewReview({ ...newReview, text: e.target.value })} 
+                            placeholder="Digite o texto da avaliação do cliente..." 
+                            rows={3}
+                            style={{ padding: '0.5rem', fontSize: '0.85rem', width: '100%', borderRadius: '8px', border: '1px solid var(--border)', backgroundColor: 'var(--card)', color: 'var(--foreground)' }}
+                          />
+                        </div>
+                        <button 
+                          type="button" 
+                          onClick={() => {
+                            if (!newReview.author_name || !newReview.text) {
+                              toast.error('Preencha o nome do autor e o texto da avaliação!')
+                              return
+                            }
+                            const updated = [...(formData.google_reviews || [])]
+                            updated.push({
+                              id: Math.random().toString(),
+                              ...newReview
+                            })
+                            setFormData({ ...formData, google_reviews: updated })
+                            setNewReview({ author_name: '', rating: 5, relative_time_description: 'há uma semana', text: '' })
+                            toast.success('Avaliação adicionada com sucesso!')
+                          }}
+                          style={{ padding: '0.75rem 1.5rem', background: '#6366f1', color: '#ffffff', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 600, fontSize: '0.85rem' }}
+                        >
+                          + Adicionar Avaliação à Lista
+                        </button>
+                      </div>
+                    </div>
+                  </>
+                )}
+              </div>
+            )
+          )}
+
           {activeTab === 'seguranca' && (
+
             <div className="glass-card" style={{ padding: '2.5rem', display: 'grid', gap: '2rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem' }}>
                 <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>

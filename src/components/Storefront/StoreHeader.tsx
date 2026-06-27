@@ -7,6 +7,7 @@ import Script from 'next/script'
 import { getCart, removeFromCart, updateQuantity, CartItem } from '@/lib/cartStore'
 import { getFavorites, FavoriteItem } from '@/lib/favoriteStore'
 import { setStoreSubdomain } from '@/lib/getStoreSubdomain'
+import { supabase } from '@/lib/supabase'
 
 const WhatsappIcon = ({ size = 24, color = "currentColor" }: any) => (
   <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill={color}>
@@ -19,9 +20,10 @@ interface StoreHeaderProps {
   settings: any
   primaryColor: string
   categories: any[]
+  products?: any[]
 }
 
-export default function StoreHeader({ store, settings, primaryColor, categories }: StoreHeaderProps) {
+export default function StoreHeader({ store, settings, primaryColor, categories, products }: StoreHeaderProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isCartOpen, setIsCartOpen] = useState(false)
   const [isSearchOpen, setIsSearchOpen] = useState(false)
@@ -30,6 +32,53 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
   const [homePath, setHomePath] = useState('/')
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [favoriteItems, setFavoriteItems] = useState<FavoriteItem[]>([])
+  const [searchTerm, setSearchTerm] = useState('')
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [isSearching, setIsSearching] = useState(false)
+
+  useEffect(() => {
+    if (searchTerm.length >= 2) {
+      setIsSearching(true)
+
+      // Busca local se products for passado
+      if (products && products.length > 0) {
+        const term = searchTerm.toLowerCase()
+        const localResults = products
+          .filter(p => p.name.toLowerCase().includes(term) && p.is_active)
+          .slice(0, 5)
+        setSearchResults(localResults)
+        setIsSearching(false)
+        return
+      }
+
+      // Senão, fallback pro Supabase (pode falhar por RLS etc)
+      const fetchProducts = async () => {
+        const { data, error } = await supabase
+          .from('products')
+          .select('id, name, slug, price, sale_price, images')
+          .eq('store_id', store.id)
+          .eq('is_active', true)
+          .ilike('name', `%${searchTerm}%`)
+          .limit(5)
+        
+        if (error) console.error("Search fetch error:", error)
+        if (data) setSearchResults(data)
+        setIsSearching(false)
+      }
+      const timeoutId = setTimeout(fetchProducts, 300)
+      return () => clearTimeout(timeoutId)
+    } else {
+      setSearchResults([])
+      setIsSearching(false)
+    }
+  }, [searchTerm, store?.id, products])
+
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      window.location.href = `${homePath}?search=${encodeURIComponent(searchTerm.trim())}`
+      setIsSearchOpen(false)
+    }
+  }
 
   const handleWhatsappClick = () => {
     if (!settings.whatsapp) {
@@ -1140,7 +1189,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
         {(isMenuOpen || isCartOpen || isSearchOpen || isFavoritesOpen) && (
           <div 
             style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 10000, backdropFilter: 'blur(4px)' }}
-            onClick={() => { setIsMenuOpen(false); setIsCartOpen(false); setIsSearchOpen(false); setIsFavoritesOpen(false); }}
+            onClick={() => { setIsMenuOpen(false); setIsCartOpen(false); setIsSearchOpen(false); setIsFavoritesOpen(false); setSearchTerm(''); }}
           />
         )}
 
@@ -1371,15 +1420,78 @@ export default function StoreHeader({ store, settings, primaryColor, categories 
           backgroundColor: '#fff', zIndex: 10002, transition: 'top 0.3s ease', boxShadow: '0 5px 15px rgba(0,0,0,0.1)',
           padding: '2rem'
         }}>
-          <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <Search size={24} color="#666" />
-            <input 
-              type="text" 
-              placeholder="O que você está procurando?" 
-              style={{ flex: 1, border: 'none', fontSize: '1.5rem', padding: '0.5rem', outline: 'none' }}
-              autoFocus={isSearchOpen}
-            />
-            <button onClick={() => setIsSearchOpen(false)} style={{ background: 'none', border: 'none', cursor: 'pointer' }}><X size={28} color="#111" /></button>
+          <div style={{ maxWidth: '800px', margin: '0 auto', display: 'flex', alignItems: 'center', gap: '1rem', position: 'relative' }}>
+            <Search size={24} color="#666" style={{ cursor: 'pointer', flexShrink: 0 }} onClick={handleSearch} />
+            <div style={{ flex: 1, position: 'relative' }}>
+              <input 
+                type="text" 
+                placeholder="O que você está procurando?" 
+                style={{ width: '100%', border: 'none', fontSize: '1.5rem', padding: '0.5rem', outline: 'none' }}
+                autoFocus={isSearchOpen}
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSearch()
+                  }
+                }}
+              />
+              {(searchTerm.length >= 2 && isSearchOpen) && (
+                <div style={{ 
+                  position: 'absolute', top: '100%', left: 0, right: 0, 
+                  backgroundColor: '#fff', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', 
+                  borderRadius: '0 0 12px 12px', overflow: 'hidden', marginTop: '0.5rem',
+                  maxHeight: '400px', overflowY: 'auto', zIndex: 10003, border: '1px solid #eaeaea'
+                }}>
+                  {isSearching ? (
+                    <div style={{ padding: '1.5rem', color: '#666', textAlign: 'center' }}>Buscando...</div>
+                  ) : searchResults.length > 0 ? (
+                    <>
+                      {searchResults.map(p => (
+                        <Link 
+                          key={p.id} 
+                          href={`${homePath === '/' ? '' : homePath}/product/${p.slug}`} 
+                          onClick={() => { setIsSearchOpen(false); setSearchTerm(''); }}
+                          style={{ 
+                            display: 'flex', alignItems: 'center', gap: '1rem', padding: '1rem', 
+                            borderBottom: '1px solid #eee', textDecoration: 'none', color: '#111',
+                            transition: 'background 0.2s'
+                          }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#f8f9fa'}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                        >
+                          {p.images && p.images.length > 0 ? (
+                            <img src={p.images[0]} alt={p.name} style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '6px' }} />
+                          ) : (
+                            <div style={{ width: '50px', height: '50px', backgroundColor: '#f1f5f9', borderRadius: '6px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              <ShoppingBag size={20} color="#94a3b8" />
+                            </div>
+                          )}
+                          <div>
+                            <div style={{ fontWeight: 600, fontSize: '1rem', marginBottom: '0.25rem' }}>{p.name}</div>
+                            <div style={{ color: primaryColor, fontWeight: 700, fontSize: '0.9rem' }}>
+                              R$ {p.sale_price ? Number(p.sale_price).toFixed(2).replace('.', ',') : Number(p.price).toFixed(2).replace('.', ',')}
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                      <button 
+                        onClick={handleSearch}
+                        style={{ 
+                          width: '100%', padding: '1rem', background: '#f8f9fa', border: 'none', 
+                          borderTop: '1px solid #eee', cursor: 'pointer', fontWeight: 600, color: primaryColor 
+                        }}
+                      >
+                        Ver todos os resultados
+                      </button>
+                    </>
+                  ) : (
+                    <div style={{ padding: '1.5rem', color: '#666', textAlign: 'center' }}>Nenhum produto encontrado.</div>
+                  )}
+                </div>
+              )}
+            </div>
+            <button onClick={() => { setIsSearchOpen(false); setSearchTerm(''); }} style={{ background: 'none', border: 'none', cursor: 'pointer', flexShrink: 0 }}><X size={28} color="#111" /></button>
           </div>
         </div>
       </>
