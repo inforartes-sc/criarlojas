@@ -660,7 +660,7 @@ export default function LawyerStorefrontClient({
             {/* Pagination Dots */}
             {banners.length > 1 && (
               <div style={{ position: 'absolute', bottom: '2rem', left: '8%', display: 'flex', gap: '0.5rem', zIndex: 10 }}>
-                {banners.map((_, idx) => {
+                {banners.map((_: any, idx: number) => {
                   const isActive = activeDotIndex === idx
                   return (
                     <button 
@@ -720,7 +720,7 @@ export default function LawyerStorefrontClient({
             {/* Pagination Dots */}
             {banners.length > 1 && (
               <div style={{ position: 'absolute', bottom: '2rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '0.5rem', zIndex: 10 }}>
-                {banners.map((_, idx) => {
+                {banners.map((_: any, idx: number) => {
                   const isActive = activeDotIndex === idx
                   return (
                     <button key={idx} onClick={() => { setIsTransitioning(true); setCurrentBannerIndex(idx); }} style={{ width: isActive ? '24px' : '8px', height: '8px', borderRadius: '4px', backgroundColor: isActive ? primaryColor : (isDark ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.2)'), border: 'none', cursor: 'pointer', transition: 'all 0.3s ease' }} />
@@ -804,7 +804,7 @@ export default function LawyerStorefrontClient({
             {/* Pagination Dots */}
             {banners.length > 1 && (
               <div style={{ position: 'absolute', bottom: '2rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '0.5rem', zIndex: 10 }}>
-                {banners.map((_, idx) => {
+                {banners.map((_: any, idx: number) => {
                   const isActive = activeDotIndex === idx
                   return (
                     <button key={idx} onClick={() => { setIsTransitioning(true); setCurrentBannerIndex(idx); }} style={{ width: isActive ? '24px' : '8px', height: '8px', borderRadius: '4px', backgroundColor: isActive ? primaryColor : 'rgba(255,255,255,0.4)', border: 'none', cursor: 'pointer', transition: 'all 0.3s ease' }} />
@@ -1064,7 +1064,7 @@ export default function LawyerStorefrontClient({
             {testimonials.map((test: any) => (
               <div key={test.id} className="lawyer-testimonial-card reveal active">
                 <div className="lawyer-testimonial-stars">
-                  {[...Array(test.rating)].map((_, i) => (
+                  {[...Array(test.rating)].map((_: any, i: number) => (
                     <Star key={i} size={15} fill={primaryColor} stroke={primaryColor} />
                   ))}
                 </div>
