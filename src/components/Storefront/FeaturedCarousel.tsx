@@ -78,7 +78,7 @@ export default function FeaturedCarousel({ products, primaryColor }: { products:
       <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', alignItems: 'center' }}>
         <button onClick={prev} className="nav-btn"><ChevronLeft size={20} /></button>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          {products.map((_, i) => (
+          {products.map((_: any, i: number) => (
             <div 
               key={i} 
               onClick={() => setCurrentIndex(i)}

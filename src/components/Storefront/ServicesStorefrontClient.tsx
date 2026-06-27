@@ -534,7 +534,7 @@ export default function ServicesStorefrontClient({
             </div>
             {banners.length > 1 && (
               <div style={{ position: 'absolute', bottom: '2rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '0.5rem', zIndex: 10 }}>
-                {banners.map((_, idx) => {
+                {banners.map((_: any, idx: number) => {
                   const isActive = activeDotIndex === idx
                   return (
                     <button 
@@ -619,7 +619,7 @@ export default function ServicesStorefrontClient({
             )}
             {banners.length > 1 && (
               <div style={{ position: 'absolute', bottom: '2rem', left: '8%', display: 'flex', gap: '0.5rem', zIndex: 10 }}>
-                {banners.map((_, idx) => {
+                {banners.map((_: any, idx: number) => {
                   const isActive = activeDotIndex === idx
                   return (
                     <button 
@@ -1089,7 +1089,7 @@ export default function ServicesStorefrontClient({
               <div key={test.id} className="testimonial-card-v2">
                 <div className="testimonial-card-header" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
                   <div className="stars-group" style={{ display: 'flex', gap: '0.2rem' }}>
-                    {[...Array(Number(test.rating) || 5)].map((_, i) => (
+                    {[...Array(Number(test.rating) || 5)].map((_: any, i: number) => (
                       <Star key={i} size={14} fill="#fbbf24" stroke="#fbbf24" />
                     ))}
                   </div>

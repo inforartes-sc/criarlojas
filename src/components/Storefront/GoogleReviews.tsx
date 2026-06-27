@@ -23,7 +23,7 @@ export default function GoogleReviews({ settings, primaryColor, buttonRadius, pl
 
   // Rating Stars Helper
   const renderStars = (num: number, size = 16) => {
-    return Array.from({ length: 5 }).map((_, i) => {
+    return Array.from({ length: 5 }).map((_: any, i: number) => {
       const isFilled = i < Math.floor(num)
       const isHalf = !isFilled && i < num
       return (
