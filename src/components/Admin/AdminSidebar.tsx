@@ -250,7 +250,7 @@ export default function AdminSidebar() {
         </Link>
       </div>
 
-      {/* Mobile Menu Popup Modal */}
+      {/* Mobile Menu Fullscreen View */}
       {showMobileMenu && (
         <>
           <style>{`
@@ -258,125 +258,115 @@ export default function AdminSidebar() {
               display: none !important;
             }
           `}</style>
-          {/* Backdrop */}
-          <div className="mobile-menu-backdrop" style={{
+
+          {/* Full Screen Menu Container */}
+          <div className="mobile-menu-fullscreen" style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
             bottom: '65px',
-            backgroundColor: 'rgba(15, 23, 42, 0.65)',
-            zIndex: 9998,
-            transform: 'translate3d(0, 0, 0)',
-            WebkitTransform: 'translate3d(0, 0, 0)'
-          }} onClick={() => setShowMobileMenu(false)} />
-
-          {/* Centered Modal Card */}
-          <div className="mobile-menu-modal" style={{
-            position: 'fixed',
-            top: 'calc(50% - 32px)',
-            left: '50%',
-            transform: 'translate(-50%, -50%) translate3d(0, 0, 0)',
-            WebkitTransform: 'translate(-50%, -50%) translate3d(0, 0, 0)',
-            backgroundColor: '#ffffff',
-            background: 'white',
-            borderRadius: '24px',
-            width: '90%',
-            maxWidth: '360px',
-            padding: '1.25rem',
-            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-            maxHeight: '75vh',
+            backgroundColor: '#f8fafc',
+            zIndex: 9999,
             display: 'flex',
             flexDirection: 'column',
-            gap: '1rem',
             overflowY: 'auto',
-            zIndex: 9999,
-            backfaceVisibility: 'hidden',
-            WebkitBackfaceVisibility: 'hidden',
-            boxSizing: 'border-box'
+            boxSizing: 'border-box',
+            padding: '1.5rem 1.25rem 2rem 1.25rem'
           }} onClick={(e) => e.stopPropagation()}>
+            
             {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid rgba(0,0,0,0.06)', paddingBottom: '0.6rem' }}>
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center', 
+              marginBottom: '1.5rem',
+              paddingBottom: '1rem',
+              borderBottom: '1px solid #e2e8f0'
+            }}>
               <div>
-                <h3 style={{ fontSize: '1.05rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Menu Principal</h3>
-                <span style={{ fontSize: '0.65rem', color: '#6366f1', fontWeight: 700 }}>{store?.name}</span>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Menu Principal</h3>
+                <span style={{ fontSize: '0.75rem', color: '#6366f1', fontWeight: 700 }}>{store?.name}</span>
               </div>
               <button onClick={() => setShowMobileMenu(false)} style={{
-                background: 'rgba(0,0,0,0.04)',
+                background: '#e2e8f0',
                 border: 'none',
-                color: '#64748b',
+                color: '#0f172a',
                 borderRadius: '50%',
-                padding: '0.35rem',
+                width: '32px',
+                height: '32px',
                 display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 cursor: 'pointer'
               }}>
-                <X size={16} />
+                <X size={18} />
               </button>
             </div>
 
-            {/* Grid of Other Modules - 2-column layout with icons on top and text below */}
+            {/* Grid of All Modules - 2-column cell phone style */}
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '0.75rem',
+              gap: '1rem',
               width: '100%',
               boxSizing: 'border-box'
             }}>
-              {filteredMenuItems
-                .filter(item => !['Dashboard', 'Pedidos', 'Clientes'].includes(item.label))
-                .map(item => (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    onClick={() => setShowMobileMenu(false)}
-                    style={{
-                      background: '#f8fafc',
-                      border: '1px solid rgba(0,0,0,0.05)',
-                      borderRadius: '16px',
-                      padding: '1.25rem 0.5rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '0.6rem',
-                      textDecoration: 'none',
-                      color: '#334155',
-                      transition: 'all 0.2s',
-                      width: '100%',
-                      boxSizing: 'border-box',
-                      minHeight: '105px',
-                      position: 'relative'
-                    }}
-                    className="mobile-grid-item"
-                  >
-                    <div style={{
-                      backgroundColor: 'rgba(99, 102, 241, 0.08)',
-                      padding: '0.5rem',
-                      borderRadius: '12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}>
-                      <item.icon size={22} style={{ color: '#6366f1', flexShrink: 0 }} />
-                    </div>
-                    <span style={{ 
-                      fontSize: '0.82rem', 
-                      fontWeight: 700, 
-                      color: '#334155',
-                      textAlign: 'center',
-                      lineHeight: '1.25'
-                    }}>
-                      {item.label}
-                    </span>
-                    {item.label === 'Carrinhos Abandonados' && plan === 'pro' && (
-                      <Crown size={12} style={{ color: '#fbbf24', position: 'absolute', top: '8px', right: '8px' }} />
-                    )}
-                  </Link>
-                ))}
+              {filteredMenuItems.map(item => (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  onClick={() => setShowMobileMenu(false)}
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #f1f5f9',
+                    borderRadius: '20px',
+                    padding: '1.5rem 0.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.6rem',
+                    textDecoration: 'none',
+                    color: '#334155',
+                    transition: 'all 0.2s',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    minHeight: '115px',
+                    position: 'relative',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.03)'
+                  }}
+                  className="mobile-grid-item"
+                >
+                  <div style={{
+                    backgroundColor: 'rgba(99, 102, 241, 0.06)',
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '14px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}>
+                    <item.icon size={22} style={{ color: '#6366f1', flexShrink: 0 }} />
+                  </div>
+                  <span style={{ 
+                    fontSize: '0.85rem', 
+                    fontWeight: 700, 
+                    color: '#1e293b',
+                    textAlign: 'center',
+                    lineHeight: '1.25'
+                  }}>
+                    {item.label}
+                  </span>
+                  {item.label === 'Carrinhos Abandonados' && plan === 'pro' && (
+                    <Crown size={12} style={{ color: '#fbbf24', position: 'absolute', top: '10px', right: '10px' }} />
+                  )}
+                </Link>
+              ))}
             </div>
 
             {/* Footer Logout */}
-            <div style={{ borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: '0.6rem' }}>
+            <div style={{ marginTop: '2rem', borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
               <button
                 onClick={() => {
                   setShowMobileMenu(false)
@@ -384,21 +374,21 @@ export default function AdminSidebar() {
                 }}
                 style={{
                   width: '100%',
-                  padding: '0.65rem',
+                  padding: '0.85rem',
                   background: 'rgba(239, 68, 68, 0.08)',
                   border: '1px solid rgba(239, 68, 68, 0.15)',
                   color: '#ef4444',
-                  borderRadius: '12px',
+                  borderRadius: '14px',
                   fontWeight: 700,
-                  fontSize: '0.8rem',
+                  fontSize: '0.9rem',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '0.35rem',
+                  gap: '0.5rem',
                   cursor: 'pointer'
                 }}
               >
-                <LogOut size={14} />
+                <LogOut size={16} />
                 <span>Sair do Painel</span>
               </button>
             </div>
