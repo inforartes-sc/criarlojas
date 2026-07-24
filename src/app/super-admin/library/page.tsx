@@ -433,7 +433,7 @@ export default function SuperAdminLibrary() {
 
       {/* CREATE / EDIT MODAL */}
       {showModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifycontent: 'center', zIndex: 1000, padding: '1rem', display: 'flex', justifyContent: 'center' }}>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
           <div className="glass-card" style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '20px', width: '100%', maxWidth: '650px', padding: '2.5rem', position: 'relative', marginTop: '5vh', maxHeight: '90vh', overflowY: 'auto' }}>
             <button 
               onClick={() => setShowModal(false)} 
