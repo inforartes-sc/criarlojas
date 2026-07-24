@@ -156,7 +156,7 @@ export default async function ProductPage({
   
   const plan = store?.settings?.plan || 'basic'
   const isPremium = plan === 'premium'
-  const storeMode = plan === 'basic' ? 'catalogo' : (settings.store_mode || 'loja')
+  const storeMode = (plan === 'basic' || plan === 'free') ? 'catalogo' : (settings.store_mode || 'loja')
   const storeWhatsapp = settings.whatsapp || ''
 
   const benefits = settings.benefits || [

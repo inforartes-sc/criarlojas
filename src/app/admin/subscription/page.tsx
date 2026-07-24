@@ -745,6 +745,58 @@ export default function SubscriptionPage() {
         </div>
       )}
 
+      {/* SEÇÃO DE SOLICITAÇÃO DE PERSONALIZAÇÃO VIP (SETUP VIP CONCIERGE) */}
+      <div style={{ background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.08), rgba(99, 102, 241, 0.08))', border: '1px solid rgba(168, 85, 247, 0.25)', borderRadius: '20px', padding: '2.5rem', marginBottom: '3rem', display: 'grid', gridTemplateColumns: '1fr auto', gap: '2rem', alignItems: 'center' }} className="plan-grid-container">
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#a855f7', fontWeight: 800, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '0.5rem' }}>
+            <Sparkles size={16} />
+            <span>Serviço Concierge Especializado</span>
+          </div>
+          <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: 'var(--foreground)' }}>Solicitar Personalização VIP da sua Loja (Setup VIP)</h3>
+          <p style={{ color: 'var(--muted)', fontSize: '0.95rem', margin: 0, lineHeight: 1.5, maxWidth: '750px' }}>
+            Nossa equipe de designers e copywriters monta os banners de alta conversão, cadastra os produtos iniciais e configura todas as integrações de frete e pagamento. Você recebe a loja 100% pronta sem trabalho.
+          </p>
+        </div>
+        <div>
+          {store?.settings?.vip_request_status === 'pending' ? (
+            <div style={{ padding: '0.85rem 1.5rem', background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7', borderRadius: '12px', fontWeight: 800, fontSize: '0.9rem', border: '1px solid rgba(168, 85, 247, 0.3)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Clock size={16} />
+              <span>Solicitado</span>
+            </div>
+          ) : (
+            <button
+              onClick={async () => {
+                try {
+                  const currentSettings = store?.settings || {}
+                  const updatedSettings = {
+                    ...currentSettings,
+                    vip_request_status: 'pending',
+                    vip_request_date: new Date().toISOString()
+                  }
+                  const { error } = await supabase
+                    .from('stores')
+                    .update({ settings: updatedSettings })
+                    .eq('id', store.id)
+                  
+                  if (error) throw error
+
+                  setStore({ ...store, settings: updatedSettings })
+                  toast.success('Solicitação de Setup VIP enviada! Nossa equipe entrará em contato via WhatsApp nas próximas horas.');
+                } catch (err: any) {
+                  console.error('Erro ao solicitar VIP:', err.message)
+                  toast.error('Erro ao enviar solicitação.')
+                }
+              }}
+              style={{ padding: '0.85rem 2rem', background: 'linear-gradient(135deg, #a855f7, #6366f1)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(168, 85, 247, 0.3)', transition: 'all 0.2s' }}
+              className="btn-pay"
+            >
+              <Sparkles size={18} />
+              <span>Contratar Setup VIP</span>
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* RODAPÉ DO MÓDULO COM BOTÃO DE CANCELAMENTO / REATIVAÇÃO */}
       <div className="sub-footer" style={{ borderTop: '1px solid var(--border)', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         {isPendingCancel ? (

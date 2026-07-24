@@ -64,7 +64,7 @@ export default async function ProdutosPage({
   const normalPriceColor = settings.normal_price_color || '#bbbbbb'
   const defaultPriceColor = settings.default_price_color || '#000000'
   const plan = store?.settings?.plan || 'basic'
-  const storeMode = plan === 'basic' ? 'catalogo' : (settings.store_mode || 'loja')
+  const storeMode = (plan === 'basic' || plan === 'free') ? 'catalogo' : (settings.store_mode || 'loja')
   const storeWhatsapp = settings.whatsapp || ''
   const buttonRadius = settings.button_style === 'pill' ? '100px' : settings.button_style === 'sharp' ? '0px' : '8px'
 

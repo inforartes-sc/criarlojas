@@ -7,10 +7,12 @@ import toast from 'react-hot-toast'
 import { getCart, clearCart, updateQuantity, removeFromCart, CartItem } from '@/lib/cartStore'
 import { supabase } from '@/lib/supabase'
 import { processCheckoutAction, saveAbandonedCartAction } from '@/app/actions/checkout'
+import { processMercadoPagoPaymentAction } from '@/app/actions/mercadopago'
 import { loginCustomerAction, updateCustomerPasswordAction, registerCustomerAction } from '@/app/actions/auth'
 import StoreHeader from './StoreHeader'
 import StoreFooter from './StoreFooter'
 import { calculateShippingAction } from '@/app/actions/shipping'
+import MercadoPagoBrick from './MercadoPagoBrick'
 
 interface CheckoutClientProps {
   store: any
@@ -41,7 +43,10 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
   })
 
   // Payment Method State
-  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | 'boleto' | 'whatsapp'>('pix')
+  const [paymentMethod, setPaymentMethod] = useState<'pix' | 'card' | 'boleto' | 'whatsapp' | 'mercadopago'>('pix')
+  
+  const mpSettings = settings.payment_gateways?.mercadopago
+  const isMercadoPagoActive = mpSettings?.active && Boolean(mpSettings?.public_key)
   
   // Card Simulation State
   const [cardData, setCardData] = useState({
@@ -372,6 +377,57 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
     toast.success('Você saiu da sua conta.')
   }
 
+  const handleMercadoPagoSubmit = async (mpFormData: any) => {
+    if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.street.trim() || !formData.number.trim() || !formData.city.trim() || !formData.state.trim()) {
+      toast.error('Por favor, preencha todos os campos do endereço e contato antes de finalizar.')
+      throw new Error('Campos incompletos')
+    }
+
+    setLoading(true)
+    try {
+      const fullAddress = `${formData.street}, ${formData.number} ${formData.complement ? `(${formData.complement})` : ''} - ${formData.neighborhood}, ${formData.city}/${formData.state}`
+
+      const result = await processMercadoPagoPaymentAction({
+        storeId: store?.id,
+        formData: mpFormData,
+        customerData: {
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          phone: formData.phone.trim(),
+          address: fullAddress
+        },
+        finalTotal,
+        cartItems,
+        appliedCouponCode: appliedCoupon ? appliedCoupon.code : null,
+        abandonedCartId
+      })
+
+      if (!result.success) {
+        throw new Error(result.error)
+      }
+
+      clearCart()
+      setCartItems([])
+      setSuccessOrder({
+        ...result.order,
+        address: fullAddress,
+        paymentMethod: mpFormData.payment_method_id?.includes('pix') ? 'Pix' : mpFormData.payment_method_id?.includes('bol') ? 'Boleto Bancário' : 'Cartão de Crédito',
+        qrCode: result.qrCode,
+        qrCodeBase64: result.qrCodeBase64,
+        ticketUrl: result.ticketUrl
+      })
+
+      toast.success('Pagamento processado com sucesso!')
+
+    } catch (err: any) {
+      console.error('Checkout MP Error:', err)
+      toast.error(err.message || 'Erro ao finalizar pagamento no Mercado Pago.')
+      throw err
+    } finally {
+      setLoading(false)
+    }
+  }
+
   const handleCheckout = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -470,15 +526,41 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#065f46', fontWeight: 800, fontSize: '1.2rem' }}>
                   <QrCode size={24} /> Escaneie o QR Code ou Copie o Código Pix
                 </div>
-                <div style={{ width: '200px', height: '200px', backgroundColor: '#fff', padding: '1rem', borderRadius: '12px', border: '1px solid #10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#10b981', textAlign: 'center' }}>
-                  [ QR CODE PIX SIMULADO ]
+                {successOrder.qrCodeBase64 ? (
+                  <img 
+                    src={`data:image/png;base64,${successOrder.qrCodeBase64}`} 
+                    alt="QR Code Pix" 
+                    style={{ width: '220px', height: '220px', borderRadius: '12px', border: '1px solid #10b981' }} 
+                  />
+                ) : (
+                  <div style={{ width: '200px', height: '200px', backgroundColor: '#fff', padding: '1rem', borderRadius: '12px', border: '1px solid #10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, color: '#10b981', textAlign: 'center' }}>
+                    [ QR CODE PIX ]
+                  </div>
+                )}
+                {successOrder.qrCode && (
+                  <button 
+                    onClick={() => { navigator.clipboard.writeText(successOrder.qrCode); toast.success('Código Pix copiado com sucesso!'); }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.5rem', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}
+                  >
+                    <Copy size={18} /> Copiar Código Pix Copia e Cola
+                  </button>
+                )}
+              </div>
+            )}
+
+            {successOrder.ticketUrl && (
+              <div style={{ backgroundColor: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: '16px', padding: '2rem', marginBottom: '2.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#3730a3', fontWeight: 800, fontSize: '1.2rem' }}>
+                  <ShieldCheck size={24} /> Seu Boleto Bancário foi Gerado
                 </div>
-                <button 
-                  onClick={() => { navigator.clipboard.writeText('00020126580014br.gov.bcb.pix0136pix@lojavirtual.com.br5204000053039865802BR5913Loja Virtual6009Sao Paulo62070503***63041234'); toast.success('Código Pix copiado!'); }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.75rem 1.5rem', backgroundColor: '#10b981', color: '#fff', border: 'none', borderRadius: '8px', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}
+                <a 
+                  href={successOrder.ticketUrl} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.85rem 1.75rem', backgroundColor: primaryColor, color: '#fff', textDecoration: 'none', borderRadius: '10px', fontWeight: 800 }}
                 >
-                  <Copy size={18} /> Copiar Código Pix Copia e Cola
-                </button>
+                  Visualizar / Imprimir Boleto
+                </a>
               </div>
             )}
 
@@ -829,73 +911,91 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
                   })}
                 </div>
 
-                {/* DETALHES DA FORMA ESCOLHIDA */}
-                {paymentMethod === 'pix' && (
-                  <div style={{ backgroundColor: '#f8fafc', borderRadius: '16px', padding: '2rem', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                    <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: '#10b98115', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <QrCode size={32} />
+                {/* SEPARADOR MERCADO PAGO OU MANUAL */}
+                {isMercadoPagoActive ? (
+                  <div style={{ marginTop: '1rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem', color: '#10b981', fontWeight: 800, fontSize: '1.05rem' }}>
+                      <ShieldCheck size={20} /> Checkout Transparente Mercado Pago Ativo
                     </div>
-                    <div>
-                      <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.25rem' }}>Pagamento Instantâneo via Pix</h4>
-                      <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
-                        {settings.pix_discount_percentage ? `Ganhe ${settings.pix_discount_percentage}% de desconto extra no Pix! ` : ''}O QR Code e o código Pix Copia e Cola serão gerados na próxima tela.
-                      </p>
-                    </div>
+                    <MercadoPagoBrick 
+                      publicKey={mpSettings.public_key}
+                      amount={finalTotal}
+                      email={formData.email || currentUser?.email || ''}
+                      maxInstallments={mpSettings.installments || 12}
+                      onPaymentSubmit={handleMercadoPagoSubmit}
+                    />
                   </div>
-                )}
-
-                {paymentMethod === 'card' && (
-                  <div style={{ backgroundColor: '#f8fafc', borderRadius: '16px', padding: '2rem', border: '1px solid #e2e8f0', display: 'grid', gap: '1.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', fontSize: '0.85rem', fontWeight: 700 }}>
-                      <Lock size={16} color="#10b981" /> AMBIENTE SEGURO E CRIPTOGRAFADO
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>Número do Cartão *</label>
-                      <input type="text" name="number" required value={cardData.number} onChange={handleCardChange} placeholder="0000 0000 0000 0000" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#fff', outline: 'none', fontSize: '0.95rem', fontWeight: 600 }} />
-                    </div>
-                    <div>
-                      <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>Nome Impresso no Cartão *</label>
-                      <input type="text" name="name" required value={cardData.name} onChange={handleCardChange} placeholder="NOME DO TITULAR" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#fff', outline: 'none', fontSize: '0.95rem', fontWeight: 600, textTransform: 'uppercase' }} />
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>Validade (MM/AA) *</label>
-                        <input type="text" name="expiry" required value={cardData.expiry} onChange={handleCardChange} placeholder="MM/AA" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#fff', outline: 'none', fontSize: '0.95rem', fontWeight: 600 }} />
+                ) : (
+                  <>
+                    {/* DETALHES DA FORMA ESCOLHIDA (SIMULADA / MANUAL) */}
+                    {paymentMethod === 'pix' && (
+                      <div style={{ backgroundColor: '#f8fafc', borderRadius: '16px', padding: '2rem', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                        <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: '#10b98115', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <QrCode size={32} />
+                        </div>
+                        <div>
+                          <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.25rem' }}>Pagamento Instantâneo via Pix</h4>
+                          <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
+                            {settings.pix_discount_percentage ? `Ganhe ${settings.pix_discount_percentage}% de desconto extra no Pix! ` : ''}O QR Code e o código Pix Copia e Cola serão gerados na próxima tela.
+                          </p>
+                        </div>
                       </div>
-                      <div>
-                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>CVV *</label>
-                        <input type="text" name="cvv" required value={cardData.cvv} onChange={handleCardChange} placeholder="123" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#fff', outline: 'none', fontSize: '0.95rem', fontWeight: 600 }} maxLength={4} />
+                    )}
+
+                    {paymentMethod === 'card' && (
+                      <div style={{ backgroundColor: '#f8fafc', borderRadius: '16px', padding: '2rem', border: '1px solid #e2e8f0', display: 'grid', gap: '1.5rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#64748b', fontSize: '0.85rem', fontWeight: 700 }}>
+                          <Lock size={16} color="#10b981" /> AMBIENTE SEGURO E CRIPTOGRAFADO
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>Número do Cartão *</label>
+                          <input type="text" name="number" required value={cardData.number} onChange={handleCardChange} placeholder="0000 0000 0000 0000" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#fff', outline: 'none', fontSize: '0.95rem', fontWeight: 600 }} />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>Nome Impresso no Cartão *</label>
+                          <input type="text" name="name" required value={cardData.name} onChange={handleCardChange} placeholder="NOME DO TITULAR" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#fff', outline: 'none', fontSize: '0.95rem', fontWeight: 600, textTransform: 'uppercase' }} />
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>Validade (MM/AA) *</label>
+                            <input type="text" name="expiry" required value={cardData.expiry} onChange={handleCardChange} placeholder="MM/AA" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#fff', outline: 'none', fontSize: '0.95rem', fontWeight: 600 }} />
+                          </div>
+                          <div>
+                            <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: '#334155', marginBottom: '0.5rem' }}>CVV *</label>
+                            <input type="text" name="cvv" required value={cardData.cvv} onChange={handleCardChange} placeholder="123" style={{ width: '100%', padding: '0.85rem 1.2rem', borderRadius: '12px', border: '1px solid #cbd5e1', backgroundColor: '#fff', outline: 'none', fontSize: '0.95rem', fontWeight: 600 }} maxLength={4} />
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                )}
+                    )}
 
-                {paymentMethod === 'boleto' && (
-                  <div style={{ backgroundColor: '#f8fafc', borderRadius: '16px', padding: '2rem', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                    <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: '#6366f115', color: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <ShieldCheck size={32} />
-                    </div>
-                    <div>
-                      <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.25rem' }}>Boleto Bancário</h4>
-                      <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
-                        O boleto será gerado na próxima tela. A confirmação do pagamento pode levar até 2 dias úteis.
-                      </p>
-                    </div>
-                  </div>
-                )}
+                    {paymentMethod === 'boleto' && (
+                      <div style={{ backgroundColor: '#f8fafc', borderRadius: '16px', padding: '2rem', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                        <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: '#6366f115', color: '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <ShieldCheck size={32} />
+                        </div>
+                        <div>
+                          <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.25rem' }}>Boleto Bancário</h4>
+                          <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
+                            O boleto será gerado na próxima tela. A confirmação do pagamento pode levar até 2 dias úteis.
+                          </p>
+                        </div>
+                      </div>
+                    )}
 
-                {paymentMethod === 'whatsapp' && (
-                  <div style={{ backgroundColor: '#f8fafc', borderRadius: '16px', padding: '2rem', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
-                    <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: '#25d36615', color: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <Truck size={32} />
-                    </div>
-                    <div>
-                      <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.25rem' }}>Combinar Entrega via WhatsApp</h4>
-                      <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
-                        Seu pedido será reservado e você será redirecionado para o WhatsApp da loja para combinar o pagamento e entrega diretamente com o vendedor.
-                      </p>
-                    </div>
-                  </div>
+                    {paymentMethod === 'whatsapp' && (
+                      <div style={{ backgroundColor: '#f8fafc', borderRadius: '16px', padding: '2rem', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+                        <div style={{ width: '60px', height: '60px', borderRadius: '16px', backgroundColor: '#25d36615', color: '#25d366', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <Truck size={32} />
+                        </div>
+                        <div>
+                          <h4 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.25rem' }}>Combinar Entrega via WhatsApp</h4>
+                          <p style={{ color: '#64748b', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>
+                            Seu pedido será reservado e você será redirecionado para o WhatsApp da loja para combinar o pagamento e entrega diretamente com o vendedor.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -993,40 +1093,42 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
                   </div>
                 </div>
 
-                <button 
-                  type="submit" 
-                  disabled={loading}
-                  style={{ 
-                    width: '100%', 
-                    padding: '1.4rem', 
-                    backgroundColor: primaryColor, 
-                    color: '#fff', 
-                    border: 'none', 
-                    borderRadius: '16px', 
-                    fontWeight: 900, 
-                    fontSize: '1.1rem', 
-                    cursor: loading ? 'not-allowed' : 'pointer', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center', 
-                    gap: '0.75rem', 
-                    boxShadow: `0 10px 25px ${primaryColor}40`,
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px',
-                    transition: 'all 0.2s ease',
-                    opacity: loading ? 0.7 : 1
-                  }}
-                >
-                  {loading ? (
-                    <>
-                      <Loader2 className="animate-spin" size={24} /> Processando Pedido...
-                    </>
-                  ) : (
-                    <>
-                      Finalizar Pedido <ArrowRight size={24} />
-                    </>
-                  )}
-                </button>
+                {!isMercadoPagoActive && (
+                  <button 
+                    type="submit" 
+                    disabled={loading}
+                    style={{ 
+                      width: '100%', 
+                      padding: '1.4rem', 
+                      backgroundColor: primaryColor, 
+                      color: '#fff', 
+                      border: 'none', 
+                      borderRadius: '16px', 
+                      fontWeight: 900, 
+                      fontSize: '1.1rem', 
+                      cursor: loading ? 'not-allowed' : 'pointer', 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center', 
+                      gap: '0.75rem', 
+                      boxShadow: `0 10px 25px ${primaryColor}40`,
+                      textTransform: 'uppercase',
+                      letterSpacing: '1px',
+                      transition: 'all 0.2s ease',
+                      opacity: loading ? 0.7 : 1
+                    }}
+                  >
+                    {loading ? (
+                      <>
+                        <Loader2 className="animate-spin" size={24} /> Processando Pedido...
+                      </>
+                    ) : (
+                      <>
+                        Finalizar Pedido <ArrowRight size={24} />
+                      </>
+                    )}
+                  </button>
+                )}
               </div>
             </div>
           </form>

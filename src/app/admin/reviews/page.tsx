@@ -161,7 +161,7 @@ export default function ReviewsPage() {
         </div>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginBottom: '0.75rem' }}>Recurso Exclusivo do Plano Premium</h2>
         <p style={{ color: 'var(--muted)', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '2rem' }}>
-          O sistema de avaliação de produtos (reviews) não está ativo no seu plano atual (<strong>{plan === 'pro' ? 'Profissional' : 'Básico'}</strong>). Faça um upgrade agora mesmo para liberar todas as avaliações de clientes e construir prova social forte na sua loja.
+          O sistema de avaliação de produtos (reviews) não está ativo no seu plano atual (<strong>{plan === 'pro' ? 'Profissional' : (plan === 'free' ? 'Gratuito' : 'Básico')}</strong>). Faça um upgrade agora mesmo para liberar todas as avaliações de clientes e construir prova social forte na sua loja.
         </p>
         <Link href="/admin/subscription" style={{ display: 'inline-block', padding: '0.85rem 2rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)', transition: '0.2s' }}>
           Ver Planos & Fazer Upgrade

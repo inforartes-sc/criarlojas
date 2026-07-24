@@ -1,0 +1,3381 @@
+[
+  {
+    "id": "127c8481-2392-41a0-b781-6ca81341623b",
+    "name": "Boutique Elegance",
+    "subdomain": "moda",
+    "settings": {
+      "name": "Boutique Elegance",
+      "plan": "pro",
+      "email": "contato@boutiqueelegance.com.br",
+      "model": "fashion",
+      "niche": "Moda & Acessórios",
+      "phone": "5511999993333",
+      "active": true,
+      "is_demo": false,
+      "whatsapp": "5511999993333",
+      "subdomain": "moda",
+      "admin_user": "contato@boutiqueelegance.com.br",
+      "description": "Loja virtual premium configurada com alta conversão.",
+      "button_color": "#0ea5e9",
+      "layout_model": "modern",
+      "primaryColor": "#f43f5e",
+      "primary_color": "#0ea5e9",
+      "admin_password": "senha123",
+      "billing_enabled": true,
+      "footer_description": "Loja virtual premium desenvolvida na plataforma Na Loja Virtual.",
+      "top_bar_announcement": "COLEÇÃO OUTONO-INVERNO COM 20% DE DESCONTO"
+    }
+  },
+  {
+    "id": "9170fd89-a1fe-4af0-99c1-3f1acf8d363d",
+    "name": "Shop Mix",
+    "subdomain": "shopmix",
+    "settings": {
+      "cpf": "",
+      "cnpj": "",
+      "name": "Shop Mix",
+      "plan": "premium",
+      "email": "contato@shopmix.com.br",
+      "ga_id": "",
+      "niche": "Loja Virtual (Diversos)",
+      "phone": "11999999999",
+      "active": true,
+      "brands": [],
+      "gtm_id": "",
+      "address": "São José - SC",
+      "is_demo": true,
+      "benefits": [
+        {
+          "title": "Entrega Rápida",
+          "subtitle": "Calcule o prazo no checkout"
+        },
+        {
+          "title": "Compra Segura",
+          "subtitle": "Ambiente 100% protegido"
+        },
+        {
+          "title": "Troca Fácil",
+          "subtitle": "7 dias para devolução"
+        },
+        {
+          "title": "Pagamento Facilitado",
+          "subtitle": "Em até 12x no cartão"
+        }
+      ],
+      "bio_link": {
+        "links": [],
+        "theme": "primary",
+        "title": "Naila Shop Mix",
+        "enabled": false,
+        "description": "Um mix de produtos para você!",
+        "button_style": "rounded",
+        "social_links": {
+          "tiktok": "",
+          "youtube": "",
+          "facebook": "https://www.facebook.com/nailashopmix",
+          "whatsapp": "48984040762",
+          "instagram": "nailashopmix"
+        },
+        "custom_bg_color": "#0f172a",
+        "custom_text_color": "#ffffff",
+        "profile_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/bio-profile-1780790611372.jpg",
+        "custom_button_bg_color": "#1e293b",
+        "custom_button_text_color": "#ffffff"
+      },
+      "facebook": "https://www.facebook.com/nailashopmix",
+      "features": [
+        {
+          "desc": "Consultores técnicos prontos para analisar o seu projeto do zero ao acabamento.",
+          "icon": "Headphones",
+          "title": "Atendimento Especializado"
+        },
+        {
+          "desc": "Instalação credenciada com manutenção de garantia original dos fabricantes.",
+          "icon": "Award",
+          "title": "Garantia de Qualidade"
+        },
+        {
+          "desc": "Acompanhamento dedicado pós-venda e atendimento emergencial prioritário.",
+          "icon": "Heart",
+          "title": "Suporte Personalizado"
+        },
+        {
+          "desc": "Profissionais qualificados pelas principais marcas do mercado de climatização.",
+          "icon": "ShieldCheck",
+          "title": "Técnicos Credenciados"
+        }
+      ],
+      "logo_url": "",
+      "team_tag": "Corpo Jurídico",
+      "whatsapp": "11999999999",
+      "cta_title": "Necessita de Defesa ou Consultoria Especializada?",
+      "instagram": "nailashopmix",
+      "subdomain": "shopmix",
+      "admin_user": "contato@shopmix.com.br",
+      "hero_badge": "Advocacia & Assessoria Jurídica",
+      "hero_style": "full",
+      "hero_title": "BEM-VINDO À NAILA SHOP MIX",
+      "promotions": {
+        "coupons": [
+          {
+            "code": "BEMVINDO10",
+            "type": "percent",
+            "uses": 0,
+            "value": 10,
+            "active": true,
+            "max_uses": 100,
+            "min_order": 100
+          },
+          {
+            "code": "FRETEOFF",
+            "type": "fixed",
+            "uses": 12,
+            "value": 20,
+            "active": true,
+            "max_uses": 50,
+            "min_order": 250
+          }
+        ],
+        "active_campaign": {
+          "title": "Semana do Consumidor",
+          "active": false,
+          "bg_color": "#971111",
+          "subtitle": "Aproveite nossa seleção com descontos exclusivos por tempo limitado!",
+          "text_color": "#ffffff",
+          "product_ids": [
+            "dceb2070-849b-4ca4-aea4-dccd486c648d",
+            "53d9295e-b4fb-4a83-8ff9-358c72beb710"
+          ]
+        }
+      },
+      "store_mode": "loja",
+      "team_title": "Sócios & Associados Sêniores",
+      "theme_mode": "light",
+      "about_title": "Excelência e Solidez Jurídica",
+      "description": "Um mix de produtos para você!",
+      "favicon_url": "",
+      "fb_pixel_id": "",
+      "font_family": "Inter",
+      "team_layout": "multiple",
+      "brands_title": "",
+      "button_color": "#a30096",
+      "button_style": "pill",
+      "cta_bg_color": "#a30096",
+      "cta_subtitle": "Relate os fatos iniciais de sua causa para nossa equipe jurídica realizar uma triagem prévia confidencial ou agende um alinhamento online com nossos sócios especialistas.",
+      "footer_links": [
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#colecao-premium",
+          "label": "Destaques"
+        },
+        {
+          "url": "",
+          "label": "Privacidade"
+        },
+        {
+          "url": "",
+          "label": "Termos"
+        }
+      ],
+      "header_links": [
+        {
+          "url": "/",
+          "label": "Home"
+        },
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#",
+          "label": "Categorias"
+        }
+      ],
+      "header_style": "center_menu",
+      "hero_banners": [
+        {
+          "title": "BEM-VINDO À NAILA SHOP MIX",
+          "subtitle": "As melhores peças com os melhores preços.",
+          "button_url": "?view=produtos",
+          "mobile_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9170fd89-a1fe-4af0-99c1-3f1acf8d363d/hero_image_mobile_url-1781737364242.png",
+          "button_text": "SAIBA MAIS",
+          "desktop_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9170fd89-a1fe-4af0-99c1-3f1acf8d363d/hero-1781737358257.png"
+        },
+        {
+          "id": "0.8739340334532593",
+          "title": "",
+          "subtitle": "",
+          "mobile_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/hero/0.9786793643169042.png",
+          "desktop_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/hero/0.7746819291366512.png"
+        }
+      ],
+      "layout_model": "modern",
+      "services_tag": "Nossos Serviços",
+      "stat_count_1": "98",
+      "stat_count_2": "1500",
+      "stat_count_3": "12",
+      "stat_count_4": "15",
+      "stat_label_1": "Casos de Sucesso",
+      "stat_label_2": "Clientes Atendidos",
+      "stat_label_3": "De Atuação",
+      "stat_label_4": "Especialistas",
+      "team_members": [
+        {
+          "desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+          "name": "Dr. Alexandre Goldmann",
+          "role": "Sócio Fundador - Direito Empresarial",
+          "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+          "name": "Dra. Beatriz D'Angelo",
+          "role": "Sócia - Direito Civil e Contratos",
+          "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+          "name": "Dr. Marcus Vinícius Prado",
+          "role": "Associado Sênior - Direito Tributário",
+          "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80"
+        }
+      ],
+      "testimonials": [
+        {
+          "name": "Roberto Camargo",
+          "role": "Diretor Executivo na Vanguarda Tech",
+          "text": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+          "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Heloísa Albuquerque",
+          "role": "Arquiteta e Sócia do Studio H+A",
+          "text": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicada e focada em resolver tudo de forma amigável.",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Carlos Mendes",
+          "role": "Diretor do Grupo Mendes & Cia",
+          "text": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+          "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
+        }
+      ],
+      "body_bg_color": "",
+      "card_bg_color": "",
+      "custom_domain": "",
+      "google_ads_id": "",
+      "google_rating": "5.0",
+      "hero_bg_color": "#000000",
+      "hero_subtitle": "As melhores peças com os melhores preços.",
+      "primary_color": "#a30096",
+      "stat_suffix_1": "+",
+      "stat_suffix_2": "+",
+      "stat_suffix_3": " anos",
+      "stat_suffix_4": "/5",
+      "team_subtitle": "Conheça os especialistas dedicados a prover representação jurídica do mais alto escalão técnico.",
+      "testimonial_1": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+      "testimonial_2": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicado e focada em resolver tudo de forma amigável.",
+      "testimonial_3": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+      "about_subtitle": "\"Nosso compromisso fundamental é a segurança jurídica absoluta de nossos clientes nas decisões mais importantes da vida e dos negócios.\"",
+      "admin_password": "senha123",
+      "button_variant": "filled",
+      "cta_btn_text_1": "Conversar com Advogado",
+      "cta_btn_text_2": "Ver Áreas de Atuação",
+      "cta_desc_color": "#ffffff",
+      "google_reviews": [
+        {
+          "id": "0.7196079944821976",
+          "text": "\"Excelente experiência de compra!\"\n\"Fiquei muito satisfeito com o atendimento e com a qualidade do produto. O pedido chegou dentro do prazo, bem embalado e exatamente como estava no anúncio. Com certeza voltarei a comprar.\"",
+          "rating": 5,
+          "author_name": "Carlos Almeida",
+          "relative_time_description": "há uma semana"
+        },
+        {
+          "id": "0.663473217156223",
+          "text": "\"Loja confiável e atendimento nota 10\"\n\"Desde o primeiro contato fui muito bem atendida. A equipe tirou todas as minhas dúvidas e o produto superou minhas expectativas. Recomendo para todos que procuram qualidade e segurança na compra.\"",
+          "rating": 5,
+          "author_name": "Mariana Souza",
+          "relative_time_description": "há uma semana"
+        },
+        {
+          "id": "0.29572538761702105",
+          "text": "\"Minha melhor experiência online\"\n\"Comprar pela internet às vezes gera dúvidas, mas essa loja me surpreendeu positivamente. Recebi meu pedido antes do esperado e fiquei muito feliz com o resultado. Já indiquei para amigos e familiares.\"",
+          "rating": 5,
+          "author_name": "Juliana Martins",
+          "relative_time_description": "há uma semana"
+        }
+      ],
+      "hero_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9170fd89-a1fe-4af0-99c1-3f1acf8d363d/hero-1781737358257.png",
+      "services_title": "Nossas Especialidades Jurídicas",
+      "show_hero_text": false,
+      "about_image_url": "",
+      "billing_enabled": false,
+      "brands_subtitle": "",
+      "cta_title_color": "#ffffff",
+      "footer_bg_color": "#a30096",
+      "footer_logo_url": "",
+      "google_place_id": "",
+      "header_bg_color": "#ffffff",
+      "secondary_color": "#0a0a0a",
+      "whatsapp_agents": [],
+      "cta_use_gradient": false,
+      "hero_title_color": "#fafafa",
+      "payment_gateways": {
+        "pix": {
+          "active": true,
+          "pix_key": "48935001794",
+          "pix_key_type": "phone",
+          "beneficiary_name": "Olzenis Ferreira Gomes",
+          "discount_percent": 5
+        },
+        "stripe": {
+          "mode": "sandbox",
+          "active": false,
+          "secret_key": "",
+          "publishable_key": ""
+        },
+        "pagseguro": {
+          "mode": "sandbox",
+          "email": "",
+          "token": "",
+          "active": false,
+          "installments": 12
+        },
+        "mercadopago": {
+          "mode": "sandbox",
+          "active": false,
+          "public_key": "",
+          "access_token": "",
+          "installments": 12
+        }
+      },
+      "sale_price_color": "#e60000",
+      "testimonials_tag": "Reconhecimento",
+      "top_bar_bg_color": "#a30096",
+      "benefits_bg_color": "#e2e8f0",
+      "button_text_color": "#ffffff",
+      "flash_deals_title": "Ofertas do Dia",
+      "footer_text_color": "#ffffff",
+      "header_icon_color": "#a30096",
+      "offer_popup_delay": 5,
+      "offer_popup_title": "Super Oferta Especial Black Friday!",
+      "services_subtitle": "Prestamos assessoria de alta performance voltada à mitigação de riscos e defesa de direitos.",
+      "shipping_gateways": {
+        "frenet": {
+          "mode": "sandbox",
+          "active": true,
+          "password": "gEBPOaaTw6HybXGlBxDVVw==",
+          "api_token": "9517D8C7RC8E6R4B7CRAA2FRA13D2BFDFFF6"
+        },
+        "correios": {
+          "mode": "sandbox",
+          "active": false,
+          "password": "",
+          "cartao_postagem": "",
+          "cod_administrativo": ""
+        },
+        "origin_zip": "88113-130",
+        "melhorenvio": {
+          "mode": "sandbox",
+          "active": false,
+          "client_id": "",
+          "bearer_token": "",
+          "client_secret": ""
+        },
+        "origin_city": "São José",
+        "custom_rules": {
+          "active": false,
+          "fixed_rate": 20,
+          "pickup_message": "Retirada em até 1 dia útil após confirmação do pagamento.",
+          "free_shipping_min": 299,
+          "enable_store_pickup": true
+        },
+        "origin_state": "SC",
+        "origin_address": "R. Nossa Sra. de Guadalupe, 76"
+      },
+      "show_new_arrivals": true,
+      "button_hover_color": "#0a0a0a",
+      "footer_description": "Shop Mix - Um mix de produtos para você!",
+      "new_arrivals_title": "Novidades",
+      "normal_price_color": "#bbbbbb",
+      "offer_popup_layout": "split",
+      "show_doc_in_footer": false,
+      "team_member_1_desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+      "team_member_1_name": "Dr. Alexandre Goldmann",
+      "team_member_1_role": "Sócio Fundador - Direito Empresarial",
+      "team_member_2_desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+      "team_member_2_name": "Dra. Beatriz D'Angelo",
+      "team_member_2_role": "Sócia - Direito Civil e Contratos",
+      "team_member_3_desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+      "team_member_3_name": "Dr. Marcus Vinícius Prado",
+      "team_member_3_role": "Associado Sênior - Direito Tributário",
+      "testimonial_1_name": "Roberto Camargo",
+      "testimonial_1_role": "Diretor Executivo na Vanguarda Tech",
+      "testimonial_2_name": "Heloísa Albuquerque",
+      "testimonial_2_role": "Arquiteta e Sócia do Studio H+A",
+      "testimonial_3_name": "Carlos Mendes",
+      "testimonial_3_role": "Diretor do Grupo Mendes & Cia",
+      "testimonials_title": "Depoimentos dos Representados",
+      "top_bar_text_color": "#ffffff",
+      "about_description_1": "Fundado sobre os pilares da ética corporativa e rigor técnico acadêmico, o escritório nasceu para preencher a necessidade de uma advocacia verdadeiramente focada nas peculiaridades de cada cliente. Não trabalhamos com soluções genéricas ou em massa.",
+      "about_description_2": "Nosso corpo de advogados assessora de forma preventiva, desenvolvendo planejamentos estratégicos contratuais, civis e tributários que impedem conflitos judiciais futuros. Em matérias contenciosas, representamos os clientes de maneira vigorosa e combativa em todas as instâncias do Poder Judiciário.",
+      "cta_button_bg_color": "#25D366",
+      "default_price_color": "#a30096",
+      "differential_1_desc": "Conduzimos cada caso com o mais alto padrão moral, mantendo o cliente informado em todas as etapas de forma clara.",
+      "differential_2_desc": "Garantia de confidencialidade absoluta em todas as consultas e processos judiciais sob nossa responsabilidade.",
+      "differential_3_desc": "Aliamos profundo conhecimento técnico com estratégia jurídica focada para maximizar as chances de sucesso.",
+      "differential_4_desc": "Respostas rápidas e suporte contínuo para garantir tranquilidade e segurança aos nossos representados.",
+      "hero_subtitle_color": "#dedede",
+      "offer_popup_enabled": true,
+      "whatsapp_hours_text": "Seg. a Sex. das 08h às 18h",
+      "button_hover_variant": "filled",
+      "differential_1_title": "Ética & Transparência",
+      "differential_2_title": "Sigilo & Confiança",
+      "differential_3_title": "Foco em Resultados",
+      "differential_4_title": "Atendimento Ágil",
+      "google_business_name": "Shop Mix",
+      "google_reviews_count": "3",
+      "offer_popup_subtitle": "Aproveite esse desconto exclusivo por tempo limitado!",
+      "team_member_1_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80",
+      "team_member_2_avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
+      "team_member_3_avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80",
+      "testimonial_1_avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+      "testimonial_2_avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+      "testimonial_3_avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+      "top_bar_announcement": "ENVIAMOS PARA TODO O BRASIL - APROVEITE AS OFERTAS!",
+      "cta_button_text_color": "#ffffff",
+      "hero_image_mobile_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9170fd89-a1fe-4af0-99c1-3f1acf8d363d/hero_image_mobile_url-1781737364242.png",
+      "offer_popup_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9170fd89-a1fe-4af0-99c1-3f1acf8d363d/offer_popup_image_url-1781737381978.png",
+      "testimonials_subtitle": "A confiança demonstrada por nossos clientes individuais e corporativos reflete nosso compromisso com a integridade.",
+      "google_reviews_enabled": true,
+      "header_whatsapp_btn_bg": "",
+      "hero_transition_effect": "slide",
+      "whatsapp_hours_enabled": true,
+      "button_hover_text_color": "#ffffff",
+      "cta_button_2_text_color": "",
+      "offer_popup_button_link": "http://nailashopmix.localhost:3000/product/camiseta-masculina-algodao-vermelha",
+      "offer_popup_button_text": "Garantir Desconto",
+      "whatsapp_floating_title": "Suporte WhatsApp",
+      "header_whatsapp_btn_text": "Falar com Especialista",
+      "whatsapp_floating_enabled": true,
+      "header_whatsapp_btn_text_color": ""
+    }
+  },
+  {
+    "id": "adbeb99c-29f8-4f61-b3f3-d19fbaf68c66",
+    "name": "Meu Catalogo",
+    "subdomain": "catalogo",
+    "settings": {
+      "cpf": "",
+      "cnpj": "",
+      "name": "Meu Catalogo",
+      "plan": "basic",
+      "email": "contato@catalogocriarlojas.com.br",
+      "ga_id": "",
+      "niche": "Catálogo Digital",
+      "phone": "11999999999",
+      "active": true,
+      "brands": [],
+      "gtm_id": "",
+      "address": "São José - SC",
+      "is_demo": true,
+      "benefits": [
+        {
+          "title": "Entrega Rápida",
+          "subtitle": "Calcule o prazo no checkout"
+        },
+        {
+          "title": "Compra Segura",
+          "subtitle": "Ambiente 100% protegido"
+        },
+        {
+          "title": "Troca Fácil",
+          "subtitle": "7 dias para devolução"
+        },
+        {
+          "title": "Pagamento Facilitado",
+          "subtitle": "Em até 12x no cartão"
+        }
+      ],
+      "bio_link": {
+        "links": [],
+        "theme": "primary",
+        "title": "Naila Shop Mix",
+        "enabled": false,
+        "description": "Um mix de produtos para você!",
+        "button_style": "rounded",
+        "social_links": {
+          "tiktok": "",
+          "youtube": "",
+          "facebook": "https://www.facebook.com/nailashopmix",
+          "whatsapp": "48984040762",
+          "instagram": "nailashopmix"
+        },
+        "custom_bg_color": "#0f172a",
+        "custom_text_color": "#ffffff",
+        "profile_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/bio-profile-1780790611372.jpg",
+        "custom_button_bg_color": "#1e293b",
+        "custom_button_text_color": "#ffffff"
+      },
+      "facebook": "https://www.facebook.com/nailashopmix",
+      "features": [
+        {
+          "desc": "Consultores técnicos prontos para analisar o seu projeto do zero ao acabamento.",
+          "icon": "Headphones",
+          "title": "Atendimento Especializado"
+        },
+        {
+          "desc": "Instalação credenciada com manutenção de garantia original dos fabricantes.",
+          "icon": "Award",
+          "title": "Garantia de Qualidade"
+        },
+        {
+          "desc": "Acompanhamento dedicado pós-venda e atendimento emergencial prioritário.",
+          "icon": "Heart",
+          "title": "Suporte Personalizado"
+        },
+        {
+          "desc": "Profissionais qualificados pelas principais marcas do mercado de climatização.",
+          "icon": "ShieldCheck",
+          "title": "Técnicos Credenciados"
+        }
+      ],
+      "logo_url": "",
+      "team_tag": "Corpo Jurídico",
+      "whatsapp": "11999999999",
+      "cta_title": "Necessita de Defesa ou Consultoria Especializada?",
+      "instagram": "nailashopmix",
+      "subdomain": "catalogo",
+      "admin_user": "contato@catalogocriarlojas.com.br",
+      "hero_badge": "Advocacia & Assessoria Jurídica",
+      "hero_style": "full",
+      "hero_title": "BEM-VINDO À NAILA SHOP MIX",
+      "promotions": {
+        "coupons": [
+          {
+            "code": "BEMVINDO10",
+            "type": "percent",
+            "uses": 0,
+            "value": 10,
+            "active": true,
+            "max_uses": 100,
+            "min_order": 100
+          },
+          {
+            "code": "FRETEOFF",
+            "type": "fixed",
+            "uses": 12,
+            "value": 20,
+            "active": true,
+            "max_uses": 50,
+            "min_order": 250
+          }
+        ],
+        "active_campaign": {
+          "title": "Semana do Consumidor",
+          "active": false,
+          "bg_color": "#971111",
+          "subtitle": "Aproveite nossa seleção com descontos exclusivos por tempo limitado!",
+          "text_color": "#ffffff",
+          "product_ids": [
+            "dceb2070-849b-4ca4-aea4-dccd486c648d",
+            "53d9295e-b4fb-4a83-8ff9-358c72beb710"
+          ]
+        }
+      },
+      "store_mode": "loja",
+      "team_title": "Sócios & Associados Sêniores",
+      "theme_mode": "light",
+      "about_title": "Excelência e Solidez Jurídica",
+      "description": "Seu catálogo de produtos completo",
+      "favicon_url": "",
+      "fb_pixel_id": "",
+      "font_family": "Inter",
+      "team_layout": "multiple",
+      "brands_title": "",
+      "button_color": "#ff7b00",
+      "button_style": "pill",
+      "cta_bg_color": "#b88032",
+      "cta_subtitle": "Relate os fatos iniciais de sua causa para nossa equipe jurídica realizar uma triagem prévia confidencial ou agende um alinhamento online com nossos sócios especialistas.",
+      "footer_links": [
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#colecao-premium",
+          "label": "Destaques"
+        },
+        {
+          "url": "",
+          "label": "Privacidade"
+        },
+        {
+          "url": "",
+          "label": "Termos"
+        }
+      ],
+      "header_links": [
+        {
+          "url": "/",
+          "label": "Home"
+        },
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#",
+          "label": "Categorias"
+        }
+      ],
+      "header_style": "center_menu",
+      "layout_model": "modern",
+      "services_tag": "Nossos Serviços",
+      "stat_count_1": "98",
+      "stat_count_2": "1500",
+      "stat_count_3": "12",
+      "stat_count_4": "15",
+      "stat_label_1": "Casos de Sucesso",
+      "stat_label_2": "Clientes Atendidos",
+      "stat_label_3": "De Atuação",
+      "stat_label_4": "Especialistas",
+      "team_members": [
+        {
+          "desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+          "name": "Dr. Alexandre Goldmann",
+          "role": "Sócio Fundador - Direito Empresarial",
+          "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+          "name": "Dra. Beatriz D'Angelo",
+          "role": "Sócia - Direito Civil e Contratos",
+          "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+          "name": "Dr. Marcus Vinícius Prado",
+          "role": "Associado Sênior - Direito Tributário",
+          "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80"
+        }
+      ],
+      "testimonials": [
+        {
+          "name": "Roberto Camargo",
+          "role": "Diretor Executivo na Vanguarda Tech",
+          "text": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+          "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Heloísa Albuquerque",
+          "role": "Arquiteta e Sócia do Studio H+A",
+          "text": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicada e focada em resolver tudo de forma amigável.",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Carlos Mendes",
+          "role": "Diretor do Grupo Mendes & Cia",
+          "text": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+          "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
+        }
+      ],
+      "body_bg_color": "",
+      "card_bg_color": "",
+      "custom_domain": "",
+      "google_ads_id": "",
+      "hero_bg_color": "#000000",
+      "hero_subtitle": "As melhores peças com os melhores preços.",
+      "primary_color": "#ff7b00",
+      "stat_suffix_1": "+",
+      "stat_suffix_2": "+",
+      "stat_suffix_3": " anos",
+      "stat_suffix_4": "/5",
+      "team_subtitle": "Conheça os especialistas dedicados a prover representação jurídica do mais alto escalão técnico.",
+      "testimonial_1": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+      "testimonial_2": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicado e focada em resolver tudo de forma amigável.",
+      "testimonial_3": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+      "about_subtitle": "\"Nosso compromisso fundamental é a segurança jurídica absoluta de nossos clientes nas decisões mais importantes da vida e dos negócios.\"",
+      "admin_password": "senha123",
+      "button_variant": "filled",
+      "cta_btn_text_1": "Conversar com Advogado",
+      "cta_btn_text_2": "Ver Áreas de Atuação",
+      "cta_desc_color": "#ffffff",
+      "hero_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/hero-1781567422949.png",
+      "services_title": "Nossas Especialidades Jurídicas",
+      "show_hero_text": false,
+      "about_image_url": "",
+      "billing_enabled": false,
+      "brands_subtitle": "",
+      "cta_title_color": "#ffffff",
+      "footer_bg_color": "#000000",
+      "footer_logo_url": "",
+      "header_bg_color": "#ff7b00",
+      "secondary_color": "#0a0a0a",
+      "whatsapp_agents": [],
+      "cta_use_gradient": false,
+      "hero_title_color": "#fafafa",
+      "payment_gateways": {
+        "pix": {
+          "active": true,
+          "pix_key": "48935001794",
+          "pix_key_type": "phone",
+          "beneficiary_name": "Olzenis Ferreira Gomes",
+          "discount_percent": 5
+        },
+        "stripe": {
+          "mode": "sandbox",
+          "active": false,
+          "secret_key": "",
+          "publishable_key": ""
+        },
+        "pagseguro": {
+          "mode": "sandbox",
+          "email": "",
+          "token": "",
+          "active": false,
+          "installments": 12
+        },
+        "mercadopago": {
+          "mode": "sandbox",
+          "active": false,
+          "public_key": "",
+          "access_token": "",
+          "installments": 12
+        }
+      },
+      "sale_price_color": "#e60000",
+      "testimonials_tag": "Reconhecimento",
+      "top_bar_bg_color": "#171716",
+      "benefits_bg_color": "#e2e8f0",
+      "button_text_color": "#ffffff",
+      "flash_deals_title": "Ofertas do Dia",
+      "footer_text_color": "#ffffff",
+      "header_icon_color": "#171716",
+      "offer_popup_delay": 5,
+      "offer_popup_title": "Oferta Especial Black Friday",
+      "services_subtitle": "Prestamos assessoria de alta performance voltada à mitigação de riscos e defesa de direitos.",
+      "shipping_gateways": {
+        "frenet": {
+          "mode": "sandbox",
+          "active": true,
+          "password": "gEBPOaaTw6HybXGlBxDVVw==",
+          "api_token": "9517D8C7RC8E6R4B7CRAA2FRA13D2BFDFFF6"
+        },
+        "correios": {
+          "mode": "sandbox",
+          "active": false,
+          "password": "",
+          "cartao_postagem": "",
+          "cod_administrativo": ""
+        },
+        "origin_zip": "88113-130",
+        "melhorenvio": {
+          "mode": "sandbox",
+          "active": false,
+          "client_id": "",
+          "bearer_token": "",
+          "client_secret": ""
+        },
+        "origin_city": "São José",
+        "custom_rules": {
+          "active": false,
+          "fixed_rate": 20,
+          "pickup_message": "Retirada em até 1 dia útil após confirmação do pagamento.",
+          "free_shipping_min": 299,
+          "enable_store_pickup": true
+        },
+        "origin_state": "SC",
+        "origin_address": "R. Nossa Sra. de Guadalupe, 76"
+      },
+      "show_new_arrivals": true,
+      "button_hover_color": "#0a0a0a",
+      "footer_description": "Catálogo Digital - Um catálogo completo de produto!",
+      "new_arrivals_title": "Novidades",
+      "normal_price_color": "#bbbbbb",
+      "offer_popup_layout": "split",
+      "show_doc_in_footer": false,
+      "team_member_1_desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+      "team_member_1_name": "Dr. Alexandre Goldmann",
+      "team_member_1_role": "Sócio Fundador - Direito Empresarial",
+      "team_member_2_desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+      "team_member_2_name": "Dra. Beatriz D'Angelo",
+      "team_member_2_role": "Sócia - Direito Civil e Contratos",
+      "team_member_3_desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+      "team_member_3_name": "Dr. Marcus Vinícius Prado",
+      "team_member_3_role": "Associado Sênior - Direito Tributário",
+      "testimonial_1_name": "Roberto Camargo",
+      "testimonial_1_role": "Diretor Executivo na Vanguarda Tech",
+      "testimonial_2_name": "Heloísa Albuquerque",
+      "testimonial_2_role": "Arquiteta e Sócia do Studio H+A",
+      "testimonial_3_name": "Carlos Mendes",
+      "testimonial_3_role": "Diretor do Grupo Mendes & Cia",
+      "testimonials_title": "Depoimentos dos Representados",
+      "top_bar_text_color": "#ffffff",
+      "about_description_1": "Fundado sobre os pilares da ética corporativa e rigor técnico acadêmico, o escritório nasceu para preencher a necessidade de uma advocacia verdadeiramente focada nas peculiaridades de cada cliente. Não trabalhamos com soluções genéricas ou em massa.",
+      "about_description_2": "Nosso corpo de advogados assessora de forma preventiva, desenvolvendo planejamentos estratégicos contratuais, civis e tributários que impedem conflitos judiciais futuros. Em matérias contenciosas, representamos os clientes de maneira vigorosa e combativa em todas as instâncias do Poder Judiciário.",
+      "cta_button_bg_color": "#25D366",
+      "default_price_color": "#b88032",
+      "differential_1_desc": "Conduzimos cada caso com o mais alto padrão moral, mantendo o cliente informado em todas as etapas de forma clara.",
+      "differential_2_desc": "Garantia de confidencialidade absoluta em todas as consultas e processos judiciais sob nossa responsabilidade.",
+      "differential_3_desc": "Aliamos profundo conhecimento técnico com estratégia jurídica focada para maximizar as chances de sucesso.",
+      "differential_4_desc": "Respostas rápidas e suporte contínuo para garantir tranquilidade e segurança aos nossos representados.",
+      "hero_subtitle_color": "#dedede",
+      "offer_popup_enabled": true,
+      "whatsapp_hours_text": "Seg. a Sex. das 08h às 18h",
+      "button_hover_variant": "filled",
+      "differential_1_title": "Ética & Transparência",
+      "differential_2_title": "Sigilo & Confiança",
+      "differential_3_title": "Foco em Resultados",
+      "differential_4_title": "Atendimento Ágil",
+      "offer_popup_subtitle": "Aproveite esse desconto exclusivo por tempo limitado!",
+      "team_member_1_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80",
+      "team_member_2_avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
+      "team_member_3_avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80",
+      "testimonial_1_avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+      "testimonial_2_avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+      "testimonial_3_avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+      "top_bar_announcement": "ENVIAMOS PARA TODO O BRASIL - APROVEITE AS OFERTAS!",
+      "cta_button_text_color": "#ffffff",
+      "hero_image_mobile_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/hero_image_mobile_url-1781567428713.png",
+      "offer_popup_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/offer_popup_image_url-1781568428055.png",
+      "testimonials_subtitle": "A confiança demonstrada por nossos clientes individuais e corporativos reflete nosso compromisso com a integridade.",
+      "header_whatsapp_btn_bg": "",
+      "whatsapp_hours_enabled": true,
+      "button_hover_text_color": "#ffffff",
+      "cta_button_2_text_color": "",
+      "offer_popup_button_link": "http://nailashopmix.localhost:3000/product/camiseta-masculina-algodao-vermelha",
+      "offer_popup_button_text": "Garantir Desconto",
+      "whatsapp_floating_title": "Suporte WhatsApp",
+      "header_whatsapp_btn_text": "Falar com Especialista",
+      "whatsapp_floating_enabled": true,
+      "header_whatsapp_btn_text_color": ""
+    }
+  },
+  {
+    "id": "9373dc38-9ade-44bf-abeb-54347c220dae",
+    "name": "Naila Shop Mix",
+    "subdomain": "nailashopmix",
+    "settings": {
+      "cpf": "",
+      "cnpj": "",
+      "name": "Naila Shop Mix",
+      "plan": "premium",
+      "email": "contato@nailashopmix.com.br",
+      "ga_id": "",
+      "niche": "Loja Virtual (Diversos)",
+      "phone": "48984040762",
+      "brands": [],
+      "gtm_id": "",
+      "address": "São José - SC",
+      "is_demo": false,
+      "benefits": [
+        {
+          "title": "Entrega Rápida",
+          "subtitle": "Calcule o prazo no checkout"
+        },
+        {
+          "title": "Compra Segura",
+          "subtitle": "Ambiente 100% protegido"
+        },
+        {
+          "title": "Troca Fácil",
+          "subtitle": "7 dias para devolução"
+        },
+        {
+          "title": "Pagamento Facilitado",
+          "subtitle": "Em até 12x no cartão"
+        }
+      ],
+      "bio_link": {
+        "links": [],
+        "theme": "primary",
+        "title": "Naila Shop Mix",
+        "enabled": false,
+        "description": "Um mix de produtos para você!",
+        "button_style": "rounded",
+        "social_links": {
+          "tiktok": "",
+          "youtube": "",
+          "facebook": "https://www.facebook.com/nailashopmix",
+          "whatsapp": "48984040762",
+          "instagram": "nailashopmix"
+        },
+        "custom_bg_color": "#0f172a",
+        "custom_text_color": "#ffffff",
+        "profile_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/bio-profile-1780790611372.jpg",
+        "custom_button_bg_color": "#1e293b",
+        "custom_button_text_color": "#ffffff"
+      },
+      "facebook": "https://www.facebook.com/nailashopmix",
+      "features": [
+        {
+          "desc": "Consultores técnicos prontos para analisar o seu projeto do zero ao acabamento.",
+          "icon": "Headphones",
+          "title": "Atendimento Especializado"
+        },
+        {
+          "desc": "Instalação credenciada com manutenção de garantia original dos fabricantes.",
+          "icon": "Award",
+          "title": "Garantia de Qualidade"
+        },
+        {
+          "desc": "Acompanhamento dedicado pós-venda e atendimento emergencial prioritário.",
+          "icon": "Heart",
+          "title": "Suporte Personalizado"
+        },
+        {
+          "desc": "Profissionais qualificados pelas principais marcas do mercado de climatização.",
+          "icon": "ShieldCheck",
+          "title": "Técnicos Credenciados"
+        }
+      ],
+      "logo_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/logo-1780604571946.png",
+      "team_tag": "Corpo Jurídico",
+      "whatsapp": "48984040762",
+      "cta_title": "Necessita de Defesa ou Consultoria Especializada?",
+      "instagram": "nailashopmix",
+      "subdomain": "nailashopmix",
+      "admin_user": "contato@nailashopmix.com.br",
+      "hero_badge": "Advocacia & Assessoria Jurídica",
+      "hero_style": "full",
+      "hero_title": "BEM-VINDO À NAILA SHOP MIX",
+      "promotions": {
+        "coupons": [
+          {
+            "code": "BEMVINDO10",
+            "type": "percent",
+            "uses": 0,
+            "value": 10,
+            "active": true,
+            "max_uses": 100,
+            "min_order": 100
+          },
+          {
+            "code": "FRETEOFF",
+            "type": "fixed",
+            "uses": 12,
+            "value": 20,
+            "active": true,
+            "max_uses": 50,
+            "min_order": 250
+          }
+        ],
+        "active_campaign": {
+          "title": "Semana do Consumidor",
+          "active": false,
+          "bg_color": "#971111",
+          "subtitle": "Aproveite nossa seleção com descontos exclusivos por tempo limitado!",
+          "text_color": "#ffffff",
+          "product_ids": [
+            "dceb2070-849b-4ca4-aea4-dccd486c648d",
+            "53d9295e-b4fb-4a83-8ff9-358c72beb710"
+          ]
+        }
+      },
+      "store_mode": "loja",
+      "team_title": "Sócios & Associados Sêniores",
+      "theme_mode": "light",
+      "about_title": "Excelência e Solidez Jurídica",
+      "description": "Um mix de produtos para você!",
+      "favicon_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/favicon-1780604603564.png",
+      "fb_pixel_id": "",
+      "font_family": "Inter",
+      "team_layout": "multiple",
+      "brands_title": "",
+      "button_color": "#b88032",
+      "button_style": "pill",
+      "cta_bg_color": "#b88032",
+      "cta_subtitle": "Relate os fatos iniciais de sua causa para nossa equipe jurídica realizar uma triagem prévia confidencial ou agende um alinhamento online com nossos sócios especialistas.",
+      "footer_links": [
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#colecao-premium",
+          "label": "Destaques"
+        },
+        {
+          "url": "",
+          "label": "Privacidade"
+        },
+        {
+          "url": "",
+          "label": "Termos"
+        }
+      ],
+      "header_links": [
+        {
+          "url": "/",
+          "label": "Home"
+        },
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#",
+          "label": "Categorias"
+        }
+      ],
+      "header_style": "center_menu",
+      "hero_banners": [
+        {
+          "title": "BEM-VINDO À NAILA SHOP MIX",
+          "subtitle": "As melhores peças com os melhores preços.",
+          "button_url": "?view=produtos",
+          "mobile_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/hero_image_mobile_url-1781567428713.png",
+          "button_text": "SAIBA MAIS",
+          "desktop_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/hero-1781567422949.png"
+        },
+        {
+          "id": "0.9691206918783754",
+          "title": "",
+          "subtitle": "",
+          "mobile_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/hero/0.15148147640834364.png",
+          "desktop_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/hero/0.6087217781890698.png"
+        }
+      ],
+      "layout_model": "modern",
+      "services_tag": "Nossos Serviços",
+      "stat_count_1": "98",
+      "stat_count_2": "1500",
+      "stat_count_3": "12",
+      "stat_count_4": "15",
+      "stat_label_1": "Casos de Sucesso",
+      "stat_label_2": "Clientes Atendidos",
+      "stat_label_3": "De Atuação",
+      "stat_label_4": "Especialistas",
+      "team_members": [
+        {
+          "desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+          "name": "Dr. Alexandre Goldmann",
+          "role": "Sócio Fundador - Direito Empresarial",
+          "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+          "name": "Dra. Beatriz D'Angelo",
+          "role": "Sócia - Direito Civil e Contratos",
+          "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+          "name": "Dr. Marcus Vinícius Prado",
+          "role": "Associado Sênior - Direito Tributário",
+          "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80"
+        }
+      ],
+      "testimonials": [
+        {
+          "name": "Roberto Camargo",
+          "role": "Diretor Executivo na Vanguarda Tech",
+          "text": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+          "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Heloísa Albuquerque",
+          "role": "Arquiteta e Sócia do Studio H+A",
+          "text": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicada e focada em resolver tudo de forma amigável.",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Carlos Mendes",
+          "role": "Diretor do Grupo Mendes & Cia",
+          "text": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+          "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
+        }
+      ],
+      "body_bg_color": "",
+      "card_bg_color": "",
+      "custom_domain": "nailashopmix.com.br",
+      "google_ads_id": "",
+      "google_rating": "5.0",
+      "hero_bg_color": "#000000",
+      "hero_subtitle": "As melhores peças com os melhores preços.",
+      "primary_color": "#b88032",
+      "stat_suffix_1": "+",
+      "stat_suffix_2": "+",
+      "stat_suffix_3": " anos",
+      "stat_suffix_4": "/5",
+      "team_subtitle": "Conheça os especialistas dedicados a prover representação jurídica do mais alto escalão técnico.",
+      "testimonial_1": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+      "testimonial_2": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicado e focada em resolver tudo de forma amigável.",
+      "testimonial_3": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+      "about_subtitle": "\"Nosso compromisso fundamental é a segurança jurídica absoluta de nossos clientes nas decisões mais importantes da vida e dos negócios.\"",
+      "admin_password": "naila@126711",
+      "button_variant": "filled",
+      "cta_btn_text_1": "Conversar com Advogado",
+      "cta_btn_text_2": "Ver Áreas de Atuação",
+      "cta_desc_color": "#ffffff",
+      "google_reviews": [
+        {
+          "id": "demo-1",
+          "text": "Excelente atendimento e serviço de alta qualidade! Fiquei muito satisfeito com o resultado final.",
+          "rating": 5,
+          "author_name": "Carlos Silva",
+          "relative_time_description": "há uma semana"
+        },
+        {
+          "id": "demo-2",
+          "text": "Super recomendo! Profissionais atenciosos, entrega rápida e suporte excelente pós-venda.",
+          "rating": 5,
+          "author_name": "Juliana Mendes",
+          "relative_time_description": "há 3 dias"
+        },
+        {
+          "id": "demo-3",
+          "text": "O melhor custo-benefício que encontrei. Trabalho muito sério e de total confiança.",
+          "rating": 5,
+          "author_name": "Roberto Souza",
+          "relative_time_description": "há um mês"
+        }
+      ],
+      "hero_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/hero-1781567422949.png",
+      "services_title": "Nossas Especialidades Jurídicas",
+      "show_hero_text": false,
+      "about_image_url": "",
+      "billing_enabled": true,
+      "brands_subtitle": "",
+      "cta_title_color": "#ffffff",
+      "footer_bg_color": "#000000",
+      "footer_logo_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/footer-logo-1780701488290.png",
+      "google_place_id": "",
+      "header_bg_color": "#ffffff",
+      "secondary_color": "#0a0a0a",
+      "whatsapp_agents": [],
+      "cta_use_gradient": false,
+      "hero_title_color": "#fafafa",
+      "payment_gateways": {
+        "pix": {
+          "active": true,
+          "pix_key": "48935001794",
+          "pix_key_type": "phone",
+          "beneficiary_name": "Olzenis Ferreira Gomes",
+          "discount_percent": 5
+        },
+        "stripe": {
+          "mode": "sandbox",
+          "active": false,
+          "secret_key": "",
+          "publishable_key": ""
+        },
+        "pagseguro": {
+          "mode": "sandbox",
+          "email": "",
+          "token": "",
+          "active": false,
+          "installments": 12
+        },
+        "mercadopago": {
+          "mode": "sandbox",
+          "active": true,
+          "public_key": "APP_USR-c0e0f9fd-312b-4037-be4f-ad7795a37645",
+          "access_token": "APP_USR-8621271936091719-071519-d2f220fa0e3a4fed6b0febbacefa4669-2699684352",
+          "installments": 12
+        }
+      },
+      "sale_price_color": "#e60000",
+      "testimonials_tag": "Reconhecimento",
+      "top_bar_bg_color": "#b88032",
+      "benefits_bg_color": "#e2e8f0",
+      "button_text_color": "#ffffff",
+      "flash_deals_title": "Ofertas do Dia",
+      "footer_text_color": "#ffffff",
+      "header_icon_color": "#171716",
+      "offer_popup_delay": 5,
+      "offer_popup_title": "Oferta Especial Black Friday",
+      "services_subtitle": "Prestamos assessoria de alta performance voltada à mitigação de riscos e defesa de direitos.",
+      "shipping_gateways": {
+        "frenet": {
+          "mode": "sandbox",
+          "active": true,
+          "password": "gEBPOaaTw6HybXGlBxDVVw==",
+          "api_token": "9517D8C7RC8E6R4B7CRAA2FRA13D2BFDFFF6"
+        },
+        "correios": {
+          "mode": "sandbox",
+          "active": false,
+          "password": "",
+          "cartao_postagem": "",
+          "cod_administrativo": ""
+        },
+        "origin_zip": "88113-130",
+        "melhorenvio": {
+          "mode": "sandbox",
+          "active": false,
+          "client_id": "",
+          "bearer_token": "",
+          "client_secret": ""
+        },
+        "origin_city": "São José",
+        "custom_rules": {
+          "active": false,
+          "fixed_rate": 20,
+          "pickup_message": "Retirada em até 1 dia útil após confirmação do pagamento.",
+          "free_shipping_min": 299,
+          "enable_store_pickup": true
+        },
+        "origin_state": "SC",
+        "origin_address": "R. Nossa Sra. de Guadalupe, 76"
+      },
+      "show_new_arrivals": true,
+      "button_hover_color": "#0a0a0a",
+      "footer_description": "Naila Shop Mix - Um mix de produtos para você!",
+      "new_arrivals_title": "Novidades",
+      "normal_price_color": "#bbbbbb",
+      "offer_popup_layout": "split",
+      "show_doc_in_footer": false,
+      "team_member_1_desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+      "team_member_1_name": "Dr. Alexandre Goldmann",
+      "team_member_1_role": "Sócio Fundador - Direito Empresarial",
+      "team_member_2_desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+      "team_member_2_name": "Dra. Beatriz D'Angelo",
+      "team_member_2_role": "Sócia - Direito Civil e Contratos",
+      "team_member_3_desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+      "team_member_3_name": "Dr. Marcus Vinícius Prado",
+      "team_member_3_role": "Associado Sênior - Direito Tributário",
+      "testimonial_1_name": "Roberto Camargo",
+      "testimonial_1_role": "Diretor Executivo na Vanguarda Tech",
+      "testimonial_2_name": "Heloísa Albuquerque",
+      "testimonial_2_role": "Arquiteta e Sócia do Studio H+A",
+      "testimonial_3_name": "Carlos Mendes",
+      "testimonial_3_role": "Diretor do Grupo Mendes & Cia",
+      "testimonials_title": "Depoimentos dos Representados",
+      "top_bar_text_color": "#ffffff",
+      "about_description_1": "Fundado sobre os pilares da ética corporativa e rigor técnico acadêmico, o escritório nasceu para preencher a necessidade de uma advocacia verdadeiramente focada nas peculiaridades de cada cliente. Não trabalhamos com soluções genéricas ou em massa.",
+      "about_description_2": "Nosso corpo de advogados assessora de forma preventiva, desenvolvendo planejamentos estratégicos contratuais, civis e tributários que impedem conflitos judiciais futuros. Em matérias contenciosas, representamos os clientes de maneira vigorosa e combativa em todas as instâncias do Poder Judiciário.",
+      "cta_button_bg_color": "#25D366",
+      "default_price_color": "#b88032",
+      "differential_1_desc": "Conduzimos cada caso com o mais alto padrão moral, mantendo o cliente informado em todas as etapas de forma clara.",
+      "differential_2_desc": "Garantia de confidencialidade absoluta em todas as consultas e processos judiciais sob nossa responsabilidade.",
+      "differential_3_desc": "Aliamos profundo conhecimento técnico com estratégia jurídica focada para maximizar as chances de sucesso.",
+      "differential_4_desc": "Respostas rápidas e suporte contínuo para garantir tranquilidade e segurança aos nossos representados.",
+      "hero_subtitle_color": "#dedede",
+      "offer_popup_enabled": true,
+      "whatsapp_hours_text": "Seg. a Sex. das 08h às 18h",
+      "button_hover_variant": "filled",
+      "differential_1_title": "Ética & Transparência",
+      "differential_2_title": "Sigilo & Confiança",
+      "differential_3_title": "Foco em Resultados",
+      "differential_4_title": "Atendimento Ágil",
+      "google_business_name": "",
+      "google_reviews_count": "3",
+      "offer_popup_subtitle": "Aproveite esse desconto exclusivo por tempo limitado!",
+      "team_member_1_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80",
+      "team_member_2_avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
+      "team_member_3_avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80",
+      "testimonial_1_avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+      "testimonial_2_avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+      "testimonial_3_avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+      "top_bar_announcement": "ENVIAMOS PARA TODO O BRASIL - APROVEITE AS OFERTAS!",
+      "cta_button_text_color": "#ffffff",
+      "hero_image_mobile_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/hero_image_mobile_url-1781567428713.png",
+      "offer_popup_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/offer_popup_image_url-1781568428055.png",
+      "testimonials_subtitle": "A confiança demonstrada por nossos clientes individuais e corporativos reflete nosso compromisso com a integridade.",
+      "google_reviews_enabled": false,
+      "header_whatsapp_btn_bg": "",
+      "hero_transition_effect": "slide",
+      "whatsapp_hours_enabled": true,
+      "button_hover_text_color": "#ffffff",
+      "cta_button_2_text_color": "",
+      "offer_popup_button_link": "http://nailashopmix.localhost:3000/product/camiseta-masculina-algodao-vermelha",
+      "offer_popup_button_text": "Garantir Desconto",
+      "whatsapp_floating_title": "Suporte WhatsApp",
+      "header_whatsapp_btn_text": "Falar com Especialista",
+      "whatsapp_floating_enabled": true,
+      "header_whatsapp_btn_text_color": ""
+    }
+  },
+  {
+    "id": "20f061bd-fb8d-47d6-b0d6-6fee80f2999d",
+    "name": "EletriMais",
+    "subdomain": "eletrimais",
+    "settings": {
+      "cpf": "",
+      "cnpj": "",
+      "name": "EletriMais",
+      "plan": "pro",
+      "email": "contato@eletrimais.com.br",
+      "ga_id": "",
+      "niche": "Eletricista",
+      "phone": "11999999999",
+      "active": true,
+      "brands": [],
+      "gtm_id": "",
+      "address": "Rua Principal, 100",
+      "is_demo": true,
+      "benefits": [
+        {
+          "title": "Entrega Rápida",
+          "subtitle": "Calcule o prazo no checkout"
+        },
+        {
+          "title": "Compra Segura",
+          "subtitle": "Ambiente 100% protegido"
+        },
+        {
+          "title": "Troca Fácil",
+          "subtitle": "7 dias para devolução"
+        },
+        {
+          "title": "Pagamento Facilitado",
+          "subtitle": "Em até 12x no cartão"
+        }
+      ],
+      "facebook": "#",
+      "features": [
+        {
+          "desc": "Consultores técnicos prontos para analisar o seu projeto do zero ao acabamento.",
+          "icon": "Headphones",
+          "title": "Atendimento Especializado"
+        },
+        {
+          "desc": "Instalação credenciada com manutenção de garantia original dos fabricantes.",
+          "icon": "Award",
+          "title": "Garantia de Qualidade"
+        },
+        {
+          "desc": "Acompanhamento dedicado pós-venda e atendimento emergencial prioritário.",
+          "icon": "Heart",
+          "title": "Suporte Personalizado"
+        },
+        {
+          "desc": "Profissionais qualificados pelas principais marcas do mercado de climatização.",
+          "icon": "ShieldCheck",
+          "title": "Técnicos Credenciados"
+        }
+      ],
+      "logo_url": "",
+      "team_tag": "Corpo Jurídico",
+      "whatsapp": "11999999999",
+      "cta_title": "Precisa de uma solução especializada?",
+      "instagram": "#",
+      "subdomain": "eletrimais",
+      "admin_user": "contato@eletrimais.com.br",
+      "hero_badge": "Eletricidade com responsabilidade",
+      "hero_style": "split",
+      "hero_title": "SOMOS ESPECIALISTAS EM ELETRICIDADES",
+      "store_mode": "loja",
+      "team_title": "Sócios & Associados Sêniores",
+      "theme_mode": "light",
+      "about_title": "Excelência e Segurança em Serviços Elétricos",
+      "description": "Loja virtual premium configurada com alta conversão.",
+      "favicon_url": "",
+      "fb_pixel_id": "",
+      "font_family": "Playfair Display",
+      "team_layout": "multiple",
+      "brands_title": "",
+      "button_color": "#111827",
+      "button_style": "pill",
+      "cta_bg_color": "#111827",
+      "cta_subtitle": "Conte com uma equipe preparada para entender sua necessidade e oferecer o serviço ideal para o seu caso. Entre em contato e agende uma avaliação personalizada com nossos especialistas.",
+      "footer_links": [
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#colecao-premium",
+          "label": "Destaques"
+        }
+      ],
+      "header_links": [
+        {
+          "url": "/",
+          "label": "Home"
+        },
+        {
+          "url": "?view=serviços",
+          "label": "Serviços"
+        },
+        {
+          "url": "?view=quem-somos",
+          "label": "Sobre nós"
+        }
+      ],
+      "header_style": "center_menu",
+      "layout_model": "electrician",
+      "services_tag": "Nossos Serviços",
+      "stat_count_1": "10",
+      "stat_count_2": "1500",
+      "stat_count_3": "100",
+      "stat_count_4": "5",
+      "stat_label_1": "ANOS DE EXPERIÊNCIA",
+      "stat_label_2": "SERVIÇOS REALIZADOS",
+      "stat_label_3": "COMPROMISSO COM A SEGURANÇA",
+      "stat_label_4": "TÉCNICOS ESPECIALIZADOS",
+      "team_members": [
+        {
+          "desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+          "name": "Dr. Alexandre Goldmann",
+          "role": "Sócio Fundador - Direito Empresarial",
+          "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+          "name": "Dra. Beatriz D'Angelo",
+          "role": "Sócia - Direito Civil e Contratos",
+          "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+          "name": "Dr. Marcus Vinícius Prado",
+          "role": "Associado Sênior - Direito Tributário",
+          "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80"
+        }
+      ],
+      "testimonials": [
+        {
+          "name": "Roberto Camargo",
+          "role": "Diretor Executivo na Vanguarda Tech",
+          "text": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+          "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Heloísa Albuquerque",
+          "role": "Arquiteta e Sócia do Studio H+A",
+          "text": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicada e focada em resolver tudo de forma amigável.",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Carlos Mendes",
+          "role": "Diretor do Grupo Mendes & Cia",
+          "text": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+          "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
+        }
+      ],
+      "body_bg_color": "",
+      "card_bg_color": "",
+      "custom_domain": "",
+      "google_ads_id": "",
+      "hero_bg_color": "#f0f0f0",
+      "hero_subtitle": "Serviços com qualidade, agilidade e confiança.",
+      "primary_color": "#111827",
+      "stat_suffix_1": "+",
+      "stat_suffix_2": "+",
+      "stat_suffix_3": "%",
+      "stat_suffix_4": "+",
+      "team_subtitle": "Conheça os especialistas dedicados a prover representação jurídica do mais alto escalão técnico.",
+      "testimonial_1": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+      "testimonial_2": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicado e focada em resolver tudo de forma amigável.",
+      "testimonial_3": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+      "about_subtitle": "\"Nosso compromisso é oferecer soluções elétricas seguras, eficientes e confiáveis, garantindo tranquilidade para residências, empresas e indústrias.\"",
+      "admin_password": "senha123",
+      "button_variant": "filled",
+      "cta_btn_text_1": "Solicitar Atendimento",
+      "cta_btn_text_2": "Ver Áreas de Atuação",
+      "cta_desc_color": "#ffffff",
+      "hero_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/20f061bd-fb8d-47d6-b0d6-6fee80f2999d/hero-1780175016274.avif",
+      "services_title": "Soluções Elétricas Seguras e Eficientes",
+      "show_hero_text": true,
+      "about_image_url": "",
+      "billing_enabled": false,
+      "brands_subtitle": "",
+      "cta_title_color": "#FBBF24",
+      "footer_bg_color": "#111827",
+      "footer_logo_url": "",
+      "header_bg_color": "#111827",
+      "secondary_color": "#FBBF24",
+      "whatsapp_agents": [
+        {
+          "name": "Pedro Paulo",
+          "role": "Técnico",
+          "phone": "11999999999"
+        },
+        {
+          "name": "Aline Bastos",
+          "role": "Suporte",
+          "phone": "11999999999"
+        }
+      ],
+      "cta_use_gradient": false,
+      "hero_title_color": "#111827",
+      "payment_gateways": {
+        "pix": {
+          "active": true,
+          "pix_key": "48935001794",
+          "pix_key_type": "phone",
+          "beneficiary_name": "",
+          "discount_percent": 5
+        },
+        "stripe": {
+          "mode": "sandbox",
+          "active": false,
+          "secret_key": "",
+          "publishable_key": ""
+        },
+        "pagseguro": {
+          "mode": "sandbox",
+          "email": "",
+          "token": "",
+          "active": false,
+          "installments": 12
+        },
+        "mercadopago": {
+          "mode": "sandbox",
+          "active": false,
+          "public_key": "",
+          "access_token": "",
+          "installments": 12
+        }
+      },
+      "sale_price_color": "#e54343",
+      "testimonials_tag": "Reconhecimento",
+      "top_bar_bg_color": "#FBBF24",
+      "benefits_bg_color": "",
+      "button_text_color": "#ffffff",
+      "flash_deals_title": "Ofertas do Dia",
+      "footer_text_color": "#FBBF24",
+      "header_icon_color": "#FBBF24",
+      "offer_popup_delay": 5,
+      "offer_popup_title": "",
+      "services_subtitle": "Conte com profissionais qualificados para realizar serviços elétricos com agilidade, segurança e excelência. Atuamos com manutenção, instalações e adequações elétricas, proporcionando tranquilidade e confiabilidade para o seu imóvel ou negócio.",
+      "show_new_arrivals": true,
+      "button_hover_color": "#030303",
+      "footer_description": "Loja virtual premium desenvolvida na plataforma Criar Lojas.",
+      "new_arrivals_title": "Novidades",
+      "normal_price_color": "#bbbbbb",
+      "offer_popup_layout": "split",
+      "show_doc_in_footer": false,
+      "team_member_1_desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+      "team_member_1_name": "Dr. Alexandre Goldmann",
+      "team_member_1_role": "Sócio Fundador - Direito Empresarial",
+      "team_member_2_desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+      "team_member_2_name": "Dra. Beatriz D'Angelo",
+      "team_member_2_role": "Sócia - Direito Civil e Contratos",
+      "team_member_3_desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+      "team_member_3_name": "Dr. Marcus Vinícius Prado",
+      "team_member_3_role": "Associado Sênior - Direito Tributário",
+      "testimonial_1_name": "Roberto Camargo",
+      "testimonial_1_role": "Diretor Executivo na Vanguarda Tech",
+      "testimonial_2_name": "Heloísa Albuquerque",
+      "testimonial_2_role": "Arquiteta e Sócia do Studio H+A",
+      "testimonial_3_name": "Carlos Mendes",
+      "testimonial_3_role": "Diretor do Grupo Mendes & Cia",
+      "testimonials_title": "Depoimentos dos Representados",
+      "top_bar_text_color": "#111827",
+      "about_description_1": "Com experiência e conhecimento técnico, atuamos na execução de serviços elétricos com alto padrão de qualidade, seguindo todas as normas de segurança e buscando sempre as melhores soluções para cada necessidade.",
+      "about_description_2": "Nossa equipe é especializada em instalações elétricas, manutenções preventivas e corretivas, adequações, projetos e serviços de alta complexidade. Trabalhamos com planejamento, responsabilidade e precisão técnica para entregar resultados seguros e duradouros.\n\nMais do que realizar serviços elétricos, buscamos construir relacionamentos de confiança com nossos clientes, oferecendo atendimento personalizado, agilidade e compromisso em cada projeto realizado.",
+      "cta_button_bg_color": "#FBBF24",
+      "default_price_color": "#000000",
+      "differential_1_desc": "Conduzimos cada caso com o mais alto padrão moral, mantendo o cliente informado em todas as etapas de forma clara.",
+      "differential_2_desc": "Garantia de confidencialidade absoluta em todas as consultas e processos judiciais sob nossa responsabilidade.",
+      "differential_3_desc": "Aliamos profundo conhecimento técnico com estratégia jurídica focada para maximizar as chances de sucesso.",
+      "differential_4_desc": "Respostas rápidas e suporte contínuo para garantir tranquilidade e segurança aos nossos representados.",
+      "hero_subtitle_color": "#222020",
+      "offer_popup_enabled": false,
+      "whatsapp_hours_text": "",
+      "button_hover_variant": "filled",
+      "differential_1_title": "Ética & Transparência",
+      "differential_2_title": "Sigilo & Confiança",
+      "differential_3_title": "Foco em Resultados",
+      "differential_4_title": "Atendimento Ágil",
+      "offer_popup_subtitle": "",
+      "team_member_1_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80",
+      "team_member_2_avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
+      "team_member_3_avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80",
+      "testimonial_1_avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+      "testimonial_2_avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+      "testimonial_3_avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+      "top_bar_announcement": "FRETE GRÁTIS PARA TODO O BRASIL EM COMPRAS ACIMA DE R$ 299",
+      "cta_button_text_color": "#111827",
+      "hero_image_mobile_url": "",
+      "offer_popup_image_url": "",
+      "testimonials_subtitle": "A confiança demonstrada por nossos clientes individuais e corporativos reflete nosso compromisso com a integridade.",
+      "header_whatsapp_btn_bg": "",
+      "whatsapp_hours_enabled": false,
+      "button_hover_text_color": "#ffffff",
+      "cta_button_2_text_color": "",
+      "offer_popup_button_link": "",
+      "offer_popup_button_text": "",
+      "whatsapp_floating_title": "Fale conosco",
+      "header_whatsapp_btn_text": "Falar com Especialista",
+      "whatsapp_floating_enabled": true,
+      "header_whatsapp_btn_text_color": ""
+    }
+  },
+  {
+    "id": "fd0a9b2a-4ddb-4b76-8da3-34e966c95790",
+    "name": "Calce Mais",
+    "subdomain": "calcemaismodelo",
+    "settings": {
+      "cpf": "",
+      "cnpj": "",
+      "name": "Calce Mais",
+      "plan": "pro",
+      "email": "contato@calcemaismodelo.com.br",
+      "ga_id": "",
+      "niche": "Loja Virtual (Diversos)",
+      "phone": "11999999999",
+      "active": true,
+      "brands": [],
+      "gtm_id": "",
+      "address": "São José - SC",
+      "is_demo": true,
+      "benefits": [
+        {
+          "title": "Entrega Rápida",
+          "subtitle": "Calcule o prazo no checkout"
+        },
+        {
+          "title": "Compra Segura",
+          "subtitle": "Ambiente 100% protegido"
+        },
+        {
+          "title": "Troca Fácil",
+          "subtitle": "7 dias para devolução"
+        },
+        {
+          "title": "Pagamento Facilitado",
+          "subtitle": "Em até 12x no cartão"
+        }
+      ],
+      "bio_link": {
+        "links": [],
+        "theme": "primary",
+        "title": "Naila Shop Mix",
+        "enabled": false,
+        "description": "Um mix de produtos para você!",
+        "button_style": "rounded",
+        "social_links": {
+          "tiktok": "",
+          "youtube": "",
+          "facebook": "https://www.facebook.com/nailashopmix",
+          "whatsapp": "48984040762",
+          "instagram": "nailashopmix"
+        },
+        "custom_bg_color": "#0f172a",
+        "custom_text_color": "#ffffff",
+        "profile_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9373dc38-9ade-44bf-abeb-54347c220dae/bio-profile-1780790611372.jpg",
+        "custom_button_bg_color": "#1e293b",
+        "custom_button_text_color": "#ffffff"
+      },
+      "facebook": "#",
+      "features": [
+        {
+          "desc": "Consultores técnicos prontos para analisar o seu projeto do zero ao acabamento.",
+          "icon": "Headphones",
+          "title": "Atendimento Especializado"
+        },
+        {
+          "desc": "Instalação credenciada com manutenção de garantia original dos fabricantes.",
+          "icon": "Award",
+          "title": "Garantia de Qualidade"
+        },
+        {
+          "desc": "Acompanhamento dedicado pós-venda e atendimento emergencial prioritário.",
+          "icon": "Heart",
+          "title": "Suporte Personalizado"
+        },
+        {
+          "desc": "Profissionais qualificados pelas principais marcas do mercado de climatização.",
+          "icon": "ShieldCheck",
+          "title": "Técnicos Credenciados"
+        }
+      ],
+      "logo_url": "",
+      "team_tag": "Corpo Jurídico",
+      "whatsapp": "11999999999",
+      "cta_title": "Necessita de Defesa ou Consultoria Especializada?",
+      "instagram": "#",
+      "subdomain": "calcemaismodelo",
+      "admin_user": "contato@calcemaismodelo.com.br",
+      "hero_badge": "Advocacia & Assessoria Jurídica",
+      "hero_style": "split",
+      "hero_title": "ELEGÂNCIA E CONFORTO AOS SEUS PÉS",
+      "promotions": {
+        "coupons": [
+          {
+            "code": "BEMVINDO10",
+            "type": "percent",
+            "uses": 0,
+            "value": 10,
+            "active": true,
+            "max_uses": 100,
+            "min_order": 100
+          },
+          {
+            "code": "FRETEOFF",
+            "type": "fixed",
+            "uses": 12,
+            "value": 20,
+            "active": true,
+            "max_uses": 50,
+            "min_order": 250
+          }
+        ],
+        "active_campaign": {
+          "title": "Semana do Consumidor",
+          "active": false,
+          "bg_color": "#971111",
+          "subtitle": "Aproveite nossa seleção com descontos exclusivos por tempo limitado!",
+          "text_color": "#ffffff",
+          "product_ids": [
+            "dceb2070-849b-4ca4-aea4-dccd486c648d",
+            "53d9295e-b4fb-4a83-8ff9-358c72beb710"
+          ]
+        }
+      },
+      "store_mode": "loja",
+      "team_title": "Sócios & Associados Sêniores",
+      "theme_mode": "light",
+      "about_title": "Excelência e Solidez Jurídica",
+      "description": "Um mix de produtos para você!",
+      "favicon_url": "",
+      "fb_pixel_id": "",
+      "font_family": "Inter",
+      "team_layout": "multiple",
+      "brands_title": "",
+      "button_color": "#ff0000",
+      "button_style": "pill",
+      "cta_bg_color": "#ff0000",
+      "cta_subtitle": "Relate os fatos iniciais de sua causa para nossa equipe jurídica realizar uma triagem prévia confidencial ou agende um alinhamento online com nossos sócios especialistas.",
+      "footer_links": [
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#colecao-premium",
+          "label": "Destaques"
+        },
+        {
+          "url": "",
+          "label": "Privacidade"
+        },
+        {
+          "url": "",
+          "label": "Termos"
+        }
+      ],
+      "header_links": [
+        {
+          "url": "/",
+          "label": "Home"
+        },
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#",
+          "label": "Categorias"
+        }
+      ],
+      "header_style": "center_menu",
+      "layout_model": "modern",
+      "services_tag": "Nossos Serviços",
+      "stat_count_1": "98",
+      "stat_count_2": "1500",
+      "stat_count_3": "12",
+      "stat_count_4": "15",
+      "stat_label_1": "Casos de Sucesso",
+      "stat_label_2": "Clientes Atendidos",
+      "stat_label_3": "De Atuação",
+      "stat_label_4": "Especialistas",
+      "team_members": [
+        {
+          "desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+          "name": "Dr. Alexandre Goldmann",
+          "role": "Sócio Fundador - Direito Empresarial",
+          "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+          "name": "Dra. Beatriz D'Angelo",
+          "role": "Sócia - Direito Civil e Contratos",
+          "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+          "name": "Dr. Marcus Vinícius Prado",
+          "role": "Associado Sênior - Direito Tributário",
+          "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80"
+        }
+      ],
+      "testimonials": [
+        {
+          "name": "Roberto Camargo",
+          "role": "Diretor Executivo na Vanguarda Tech",
+          "text": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+          "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Heloísa Albuquerque",
+          "role": "Arquiteta e Sócia do Studio H+A",
+          "text": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicada e focada em resolver tudo de forma amigável.",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Carlos Mendes",
+          "role": "Diretor do Grupo Mendes & Cia",
+          "text": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+          "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
+        }
+      ],
+      "body_bg_color": "",
+      "card_bg_color": "",
+      "custom_domain": "",
+      "google_ads_id": "",
+      "hero_bg_color": "#000000",
+      "hero_subtitle": "Os melhores calçados com os melhores preços.",
+      "primary_color": "#ff0000",
+      "stat_suffix_1": "+",
+      "stat_suffix_2": "+",
+      "stat_suffix_3": " anos",
+      "stat_suffix_4": "/5",
+      "team_subtitle": "Conheça os especialistas dedicados a prover representação jurídica do mais alto escalão técnico.",
+      "testimonial_1": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+      "testimonial_2": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicado e focada em resolver tudo de forma amigável.",
+      "testimonial_3": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+      "about_subtitle": "\"Nosso compromisso fundamental é a segurança jurídica absoluta de nossos clientes nas decisões mais importantes da vida e dos negócios.\"",
+      "admin_password": "senha123",
+      "button_variant": "filled",
+      "cta_btn_text_1": "Conversar com Advogado",
+      "cta_btn_text_2": "Ver Áreas de Atuação",
+      "cta_desc_color": "#ffffff",
+      "hero_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/fd0a9b2a-4ddb-4b76-8da3-34e966c95790/hero-1781926142999.png",
+      "services_title": "Nossas Especialidades Jurídicas",
+      "show_hero_text": true,
+      "about_image_url": "",
+      "billing_enabled": false,
+      "brands_subtitle": "",
+      "cta_title_color": "#ffffff",
+      "footer_bg_color": "#28282a",
+      "footer_logo_url": "",
+      "header_bg_color": "#ff0000",
+      "secondary_color": "#28282a",
+      "whatsapp_agents": [],
+      "cta_use_gradient": false,
+      "hero_title_color": "#fafafa",
+      "payment_gateways": {
+        "pix": {
+          "active": true,
+          "pix_key": "48935001794",
+          "pix_key_type": "phone",
+          "beneficiary_name": "Olzenis Ferreira Gomes",
+          "discount_percent": 5
+        },
+        "stripe": {
+          "mode": "sandbox",
+          "active": false,
+          "secret_key": "",
+          "publishable_key": ""
+        },
+        "pagseguro": {
+          "mode": "sandbox",
+          "email": "",
+          "token": "",
+          "active": false,
+          "installments": 12
+        },
+        "mercadopago": {
+          "mode": "sandbox",
+          "active": false,
+          "public_key": "",
+          "access_token": "",
+          "installments": 12
+        }
+      },
+      "sale_price_color": "#e60000",
+      "testimonials_tag": "Reconhecimento",
+      "top_bar_bg_color": "#28282a",
+      "benefits_bg_color": "#e2e8f0",
+      "button_text_color": "#ffffff",
+      "flash_deals_title": "Ofertas do Dia",
+      "footer_text_color": "#ffffff",
+      "header_icon_color": "#ffffff",
+      "offer_popup_delay": 5,
+      "offer_popup_title": "Super Oferta Especial Black Friday!",
+      "services_subtitle": "Prestamos assessoria de alta performance voltada à mitigação de riscos e defesa de direitos.",
+      "shipping_gateways": {
+        "frenet": {
+          "mode": "sandbox",
+          "active": true,
+          "password": "gEBPOaaTw6HybXGlBxDVVw==",
+          "api_token": "9517D8C7RC8E6R4B7CRAA2FRA13D2BFDFFF6"
+        },
+        "correios": {
+          "mode": "sandbox",
+          "active": false,
+          "password": "",
+          "cartao_postagem": "",
+          "cod_administrativo": ""
+        },
+        "origin_zip": "88113-130",
+        "melhorenvio": {
+          "mode": "sandbox",
+          "active": false,
+          "client_id": "",
+          "bearer_token": "",
+          "client_secret": ""
+        },
+        "origin_city": "São José",
+        "custom_rules": {
+          "active": false,
+          "fixed_rate": 20,
+          "pickup_message": "Retirada em até 1 dia útil após confirmação do pagamento.",
+          "free_shipping_min": 299,
+          "enable_store_pickup": true
+        },
+        "origin_state": "SC",
+        "origin_address": "R. Nossa Sra. de Guadalupe, 76"
+      },
+      "show_new_arrivals": true,
+      "button_hover_color": "#0a0a0a",
+      "footer_description": "Elegância, conforto e leve em um só lugar!",
+      "new_arrivals_title": "Novidades",
+      "normal_price_color": "#bbbbbb",
+      "offer_popup_layout": "split",
+      "show_doc_in_footer": false,
+      "team_member_1_desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+      "team_member_1_name": "Dr. Alexandre Goldmann",
+      "team_member_1_role": "Sócio Fundador - Direito Empresarial",
+      "team_member_2_desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+      "team_member_2_name": "Dra. Beatriz D'Angelo",
+      "team_member_2_role": "Sócia - Direito Civil e Contratos",
+      "team_member_3_desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+      "team_member_3_name": "Dr. Marcus Vinícius Prado",
+      "team_member_3_role": "Associado Sênior - Direito Tributário",
+      "testimonial_1_name": "Roberto Camargo",
+      "testimonial_1_role": "Diretor Executivo na Vanguarda Tech",
+      "testimonial_2_name": "Heloísa Albuquerque",
+      "testimonial_2_role": "Arquiteta e Sócia do Studio H+A",
+      "testimonial_3_name": "Carlos Mendes",
+      "testimonial_3_role": "Diretor do Grupo Mendes & Cia",
+      "testimonials_title": "Depoimentos dos Representados",
+      "top_bar_text_color": "#ffffff",
+      "about_description_1": "Fundado sobre os pilares da ética corporativa e rigor técnico acadêmico, o escritório nasceu para preencher a necessidade de uma advocacia verdadeiramente focada nas peculiaridades de cada cliente. Não trabalhamos com soluções genéricas ou em massa.",
+      "about_description_2": "Nosso corpo de advogados assessora de forma preventiva, desenvolvendo planejamentos estratégicos contratuais, civis e tributários que impedem conflitos judiciais futuros. Em matérias contenciosas, representamos os clientes de maneira vigorosa e combativa em todas as instâncias do Poder Judiciário.",
+      "cta_button_bg_color": "#25D366",
+      "default_price_color": "#28282a",
+      "differential_1_desc": "Conduzimos cada caso com o mais alto padrão moral, mantendo o cliente informado em todas as etapas de forma clara.",
+      "differential_2_desc": "Garantia de confidencialidade absoluta em todas as consultas e processos judiciais sob nossa responsabilidade.",
+      "differential_3_desc": "Aliamos profundo conhecimento técnico com estratégia jurídica focada para maximizar as chances de sucesso.",
+      "differential_4_desc": "Respostas rápidas e suporte contínuo para garantir tranquilidade e segurança aos nossos representados.",
+      "hero_subtitle_color": "#ff0000",
+      "offer_popup_enabled": true,
+      "whatsapp_hours_text": "Seg. a Sex. das 08h às 18h",
+      "button_hover_variant": "filled",
+      "differential_1_title": "Ética & Transparência",
+      "differential_2_title": "Sigilo & Confiança",
+      "differential_3_title": "Foco em Resultados",
+      "differential_4_title": "Atendimento Ágil",
+      "offer_popup_subtitle": "Aproveite esse desconto exclusivo por tempo limitado!",
+      "team_member_1_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80",
+      "team_member_2_avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
+      "team_member_3_avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80",
+      "testimonial_1_avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+      "testimonial_2_avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+      "testimonial_3_avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+      "top_bar_announcement": "ENVIAMOS PARA TODO O BRASIL - APROVEITE AS OFERTAS!",
+      "cta_button_text_color": "#ffffff",
+      "hero_image_mobile_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/fd0a9b2a-4ddb-4b76-8da3-34e966c95790/hero_image_mobile_url-1781926148065.png",
+      "offer_popup_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/9170fd89-a1fe-4af0-99c1-3f1acf8d363d/offer_popup_image_url-1781737381978.png",
+      "testimonials_subtitle": "A confiança demonstrada por nossos clientes individuais e corporativos reflete nosso compromisso com a integridade.",
+      "header_whatsapp_btn_bg": "",
+      "whatsapp_hours_enabled": true,
+      "button_hover_text_color": "#ffffff",
+      "cta_button_2_text_color": "",
+      "offer_popup_button_link": "http://nailashopmix.localhost:3000/product/camiseta-masculina-algodao-vermelha",
+      "offer_popup_button_text": "Garantir Desconto",
+      "whatsapp_floating_title": "Suporte WhatsApp",
+      "header_whatsapp_btn_text": "Falar com Especialista",
+      "whatsapp_floating_enabled": true,
+      "header_whatsapp_btn_text_color": ""
+    }
+  },
+  {
+    "id": "c62a8050-6380-4e82-a6c9-35c829644fc3",
+    "name": "Configurações da Plataforma",
+    "subdomain": "platform-settings",
+    "settings": {
+      "plans": [
+        {
+          "id": "basic",
+          "desc": "Ideal para quem está começando a sua primeira loja virtual com baixo investimento.",
+          "name": "Plano Básico",
+          "price": 29.9,
+          "active": true,
+          "popular": false,
+          "features": [
+            "Produtos ilimitado",
+            "Catálogo de produtos",
+            "Taxa de transação de 0%",
+            "Suporte via WhatsApp",
+            "Certificado SSL Grátis",
+            "Domínio Personalizado",
+            "Vendas via WhatsApp",
+            "Link da Bio",
+            "[-] Botão do WhatsApp Personalizado",
+            "[-] Recuperação de Carrinho Abandonado",
+            "[-] Pop-up de Ofertas e Promoções"
+          ],
+          "buttonText": "Contratar Plano Básico",
+          "subscribers": 0,
+          "billingCycle": "mensal",
+          "comissionRate": 0
+        },
+        {
+          "id": "pro",
+          "desc": "Perfeito para lojistas em expansão com alto volume de vendas.",
+          "name": "Plano Profissional",
+          "price": 34.9,
+          "active": true,
+          "popular": false,
+          "features": [
+            "Tudo do Plano Básico",
+            "Loja Virtual",
+            "Botão do WhatsApp Personalizado",
+            "Taxa de transação de 1.75%",
+            "Suporte via WhatsApp",
+            "Gateways de Pagamento",
+            "Integração de Frete Avançada",
+            "Loja Instagram",
+            "[-] Recuperação de Carrinho Abandonado",
+            "[-] Pop-up de Ofertas e Promoções"
+          ],
+          "buttonText": "Contratar Plano Pro",
+          "subscribers": 0,
+          "billingCycle": "mensal",
+          "comissionRate": 1.75
+        },
+        {
+          "id": "premium",
+          "desc": "Para lojas com operações de e-commerce escaláveis e tráfego pago.",
+          "name": "Plano Premium",
+          "price": 47.9,
+          "active": true,
+          "popular": true,
+          "features": [
+            "Tudo do Plano Pro",
+            "Taxa de transação 1,25%",
+            "Pixels e Tags de rastreamento",
+            "Avaliação nos Produtos",
+            "Cupom de Desconto",
+            "Campanha de Promoção",
+            "Botão do WhatsApp Personalizado",
+            "Pop-up de Ofertas e Promoções",
+            "Recuperação de Carrinho Abandonado"
+          ],
+          "buttonText": "Contratar Plano Premium",
+          "subscribers": 0,
+          "billingCycle": "mensal",
+          "comissionRate": 1.25
+        }
+      ],
+      "adminEmail": "admin@criarlojas.com.br",
+      "mainDomain": "criarlojas.com.br",
+      "supabaseUrl": "https://schcpfbnochnevsivtaj.supabase.co",
+      "platformName": "Criar Lojas E-commerce SaaS",
+      "supportEmail": "suporte@criarlojas.com.br",
+      "adminPassword": "Olz@126711",
+      "businessHours": "Online",
+      "gatewayConfig": {
+        "apiKey": "APP_USR-3177506308531857-060415-b139f066bd2e8b7be4275a8137ba6f08-668968409",
+        "pixKey": "48935001794",
+        "autoBlock": true,
+        "webhookUrl": "https://api.criarlojas.com.br/v1/webhooks/mercadopago-billing",
+        "sandboxMode": false,
+        "activeGateway": "mercadopago",
+        "toleranceDays": 3
+      },
+      "webhookSecret": "whsec_abc123xyz789criarlojas",
+      "maintenanceMode": false,
+      "whatsappSupport": "48935001794",
+      "landingPageTheme": "light",
+      "maxStoresPerUser": 10,
+      "allowNewRegistrations": true
+    }
+  },
+  {
+    "id": "acb20fa8-1e44-4ea8-80d3-13b65709f62c",
+    "name": "PetShop",
+    "subdomain": "petshop",
+    "settings": {
+      "cpf": "",
+      "cnpj": "",
+      "name": "PetShop",
+      "plan": "premium",
+      "email": "petshop@criarlojas.com.br",
+      "ga_id": "",
+      "niche": "Moda & Acessórios",
+      "phone": "11999998888",
+      "active": true,
+      "brands": [],
+      "gtm_id": "",
+      "address": "",
+      "is_demo": true,
+      "benefits": [
+        {
+          "icon": "Truck",
+          "title": "Entrega Rápida",
+          "subtitle": "Calcule o prazo no checkout"
+        },
+        {
+          "icon": "ShieldCheck",
+          "title": "Compra Segura",
+          "subtitle": "Ambiente 100% protegido"
+        },
+        {
+          "icon": "RefreshCw",
+          "title": "Troca Fácil",
+          "subtitle": "7 dias para devolução"
+        },
+        {
+          "icon": "CreditCard",
+          "title": "Pagamento Facilitado",
+          "subtitle": "Em até 12x no cartão"
+        }
+      ],
+      "facebook": "",
+      "features": [
+        {
+          "desc": "Consultores técnicos prontos para analisar o seu projeto do zero ao acabamento.",
+          "icon": "Headphones",
+          "title": "Atendimento Especializado"
+        },
+        {
+          "desc": "Instalação credenciada com manutenção de garantia original dos fabricantes.",
+          "icon": "Award",
+          "title": "Garantia de Qualidade"
+        },
+        {
+          "desc": "Acompanhamento dedicado pós-venda e atendimento emergencial prioritário.",
+          "icon": "Heart",
+          "title": "Suporte Personalizado"
+        },
+        {
+          "desc": "Profissionais qualificados pelas principais marcas do mercado de climatização.",
+          "icon": "ShieldCheck",
+          "title": "Técnicos Credenciados"
+        }
+      ],
+      "logo_url": "",
+      "team_tag": "Corpo Jurídico",
+      "whatsapp": "11999998888",
+      "cta_title": "Necessita de Defesa ou Consultoria Especializada?",
+      "instagram": "",
+      "subdomain": "petshop",
+      "admin_user": "petshop@criarlojas.com.br",
+      "hero_badge": "Advocacia & Assessoria Jurídica",
+      "hero_style": "full",
+      "hero_title": "REDEFINA SEU CONCEITO DE MODA",
+      "team_title": "Sócios & Associados Sêniores",
+      "theme_mode": "light",
+      "about_title": "Excelência e Solidez Jurídica",
+      "description": "Modelo de loja virtual clean de alta conversão.",
+      "favicon_url": "",
+      "fb_pixel_id": "",
+      "font_family": "Inter",
+      "team_layout": "multiple",
+      "brands_title": "",
+      "button_color": "#f59e0b",
+      "button_style": "rounded",
+      "cta_bg_color": "#f59e0b",
+      "cta_subtitle": "Relate os fatos iniciais de sua causa para nossa equipe jurídica realizar uma triagem prévia confidencial ou agende um alinhamento online com nossos sócios especialistas.",
+      "footer_links": [
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#colecao-premium",
+          "label": "Destaques"
+        },
+        {
+          "url": "#",
+          "label": "Privacidade"
+        },
+        {
+          "url": "#",
+          "label": "Termos"
+        },
+        {
+          "url": "#",
+          "label": "Contato"
+        }
+      ],
+      "header_links": [
+        {
+          "url": "/",
+          "label": "Home"
+        },
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#",
+          "label": "Categorias"
+        }
+      ],
+      "header_style": "modern",
+      "hero_banners": [
+        {
+          "id": "0.9807107170085233",
+          "title": "",
+          "subtitle": "",
+          "mobile_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/hero/0.4596429689579432.png",
+          "desktop_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/hero/0.11032589112055868.png"
+        }
+      ],
+      "layout_model": "modern",
+      "services_tag": "Nossos Serviços",
+      "stat_count_1": "98",
+      "stat_count_2": "1500",
+      "stat_count_3": "12",
+      "stat_count_4": "15",
+      "stat_label_1": "Casos de Sucesso",
+      "stat_label_2": "Clientes Atendidos",
+      "stat_label_3": "De Atuação",
+      "stat_label_4": "Especialistas",
+      "team_members": [
+        {
+          "desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+          "name": "Dr. Alexandre Goldmann",
+          "role": "Sócio Fundador - Direito Empresarial",
+          "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+          "name": "Dra. Beatriz D'Angelo",
+          "role": "Sócia - Direito Civil e Contratos",
+          "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+          "name": "Dr. Marcus Vinícius Prado",
+          "role": "Associado Sênior - Direito Tributário",
+          "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80"
+        }
+      ],
+      "testimonials": [
+        {
+          "name": "Roberto Camargo",
+          "role": "Diretor Executivo na Vanguarda Tech",
+          "text": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+          "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Heloísa Albuquerque",
+          "role": "Arquiteta e Sócia do Studio H+A",
+          "text": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicada e focada em resolver tudo de forma amigável.",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Carlos Mendes",
+          "role": "Diretor do Grupo Mendes & Cia",
+          "text": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+          "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
+        }
+      ],
+      "body_bg_color": "",
+      "card_bg_color": "",
+      "custom_domain": "",
+      "google_ads_id": "",
+      "google_rating": "5.0",
+      "hero_bg_color": "#ffffff",
+      "hero_subtitle": "Descubra peças selecionadas que unem conforto e sofisticação.",
+      "primary_color": "#f59e0b",
+      "stat_suffix_1": "+",
+      "stat_suffix_2": "+",
+      "stat_suffix_3": " anos",
+      "stat_suffix_4": "/5",
+      "team_subtitle": "Conheça os especialistas dedicados a prover representação jurídica do mais alto escalão técnico.",
+      "testimonial_1": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+      "testimonial_2": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicado e focada em resolver tudo de forma amigável.",
+      "testimonial_3": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+      "about_subtitle": "\"Nosso compromisso fundamental é a segurança jurídica absoluta de nossos clientes nas decisões mais importantes da vida e dos negócios.\"",
+      "admin_password": "senha123",
+      "button_variant": "filled",
+      "cta_btn_text_1": "Conversar com Advogado",
+      "cta_btn_text_2": "Ver Áreas de Atuação",
+      "cta_desc_color": "#ffffff",
+      "google_reviews": [],
+      "hero_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/hero/0.11032589112055868.png",
+      "services_title": "Nossas Especialidades Jurídicas",
+      "show_hero_text": false,
+      "about_image_url": "",
+      "billing_enabled": false,
+      "brands_subtitle": "",
+      "cta_title_color": "#ffffff",
+      "footer_bg_color": "#111111",
+      "footer_logo_url": "",
+      "google_place_id": "",
+      "header_bg_color": "#ffffff",
+      "secondary_color": "#06b6d4",
+      "whatsapp_agents": [],
+      "cta_use_gradient": false,
+      "hero_title_color": "#111111",
+      "sale_price_color": "#ef4444",
+      "testimonials_tag": "Reconhecimento",
+      "top_bar_bg_color": "#000000",
+      "benefits_bg_color": "",
+      "button_text_color": "#ffffff",
+      "flash_deals_title": "Ofertas do Dia",
+      "footer_text_color": "#ffffff",
+      "header_icon_color": "#000000",
+      "offer_popup_delay": 5,
+      "offer_popup_title": "",
+      "services_subtitle": "Prestamos assessoria de alta performance voltada à mitigação de riscos e defesa de direitos.",
+      "show_new_arrivals": true,
+      "button_hover_color": "#333333",
+      "footer_description": "",
+      "new_arrivals_title": "Novidades",
+      "normal_price_color": "#bbbbbb",
+      "offer_popup_layout": "split",
+      "show_doc_in_footer": false,
+      "team_member_1_desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+      "team_member_1_name": "Dr. Alexandre Goldmann",
+      "team_member_1_role": "Sócio Fundador - Direito Empresarial",
+      "team_member_2_desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+      "team_member_2_name": "Dra. Beatriz D'Angelo",
+      "team_member_2_role": "Sócia - Direito Civil e Contratos",
+      "team_member_3_desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+      "team_member_3_name": "Dr. Marcus Vinícius Prado",
+      "team_member_3_role": "Associado Sênior - Direito Tributário",
+      "testimonial_1_name": "Roberto Camargo",
+      "testimonial_1_role": "Diretor Executivo na Vanguarda Tech",
+      "testimonial_2_name": "Heloísa Albuquerque",
+      "testimonial_2_role": "Arquiteta e Sócia do Studio H+A",
+      "testimonial_3_name": "Carlos Mendes",
+      "testimonial_3_role": "Diretor do Grupo Mendes & Cia",
+      "testimonials_title": "Depoimentos dos Representados",
+      "top_bar_text_color": "#ffffff",
+      "about_description_1": "Fundado sobre os pilares da ética corporativa e rigor técnico acadêmico, o escritório nasceu para preencher a necessidade de uma advocacia verdadeiramente focada nas peculiaridades de cada cliente. Não trabalhamos com soluções genéricas ou em massa.",
+      "about_description_2": "Nosso corpo de advogados assessora de forma preventiva, desenvolvendo planejamentos estratégicos contratuais, civis e tributários que impedem conflitos judiciais futuros. Em matérias contenciosas, representamos os clientes de maneira vigorosa e combativa em todas as instâncias do Poder Judiciário.",
+      "cta_button_bg_color": "#25D366",
+      "default_price_color": "#000000",
+      "differential_1_desc": "Conduzimos cada caso com o mais alto padrão moral, mantendo o cliente informado em todas as etapas de forma clara.",
+      "differential_2_desc": "Garantia de confidencialidade absoluta em todas as consultas e processos judiciais sob nossa responsabilidade.",
+      "differential_3_desc": "Aliamos profundo conhecimento técnico com estratégia jurídica focada para maximizar as chances de sucesso.",
+      "differential_4_desc": "Respostas rápidas e suporte contínuo para garantir tranquilidade e segurança aos nossos representados.",
+      "hero_subtitle_color": "#555555",
+      "offer_popup_enabled": false,
+      "whatsapp_hours_text": "",
+      "button_hover_variant": "filled",
+      "differential_1_title": "Ética & Transparência",
+      "differential_2_title": "Sigilo & Confiança",
+      "differential_3_title": "Foco em Resultados",
+      "differential_4_title": "Atendimento Ágil",
+      "google_business_name": "",
+      "google_reviews_count": "1",
+      "offer_popup_subtitle": "",
+      "team_member_1_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80",
+      "team_member_2_avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
+      "team_member_3_avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80",
+      "testimonial_1_avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+      "testimonial_2_avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+      "testimonial_3_avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+      "top_bar_announcement": "FRETE GRÁTIS PARA TODO O BRASIL EM COMPRAS ACIMA DE R$ 299",
+      "cta_button_text_color": "#ffffff",
+      "hero_image_mobile_url": "",
+      "offer_popup_image_url": "",
+      "testimonials_subtitle": "A confiança demonstrada por nossos clientes individuais e corporativos reflete nosso compromisso com a integridade.",
+      "google_reviews_enabled": false,
+      "header_whatsapp_btn_bg": "",
+      "hero_transition_effect": "fade",
+      "whatsapp_hours_enabled": false,
+      "button_hover_text_color": "#ffffff",
+      "cta_button_2_text_color": "",
+      "offer_popup_button_link": "",
+      "offer_popup_button_text": "",
+      "whatsapp_floating_title": "Suporte WhatsApp",
+      "header_whatsapp_btn_text": "Falar com Especialista",
+      "whatsapp_floating_enabled": true,
+      "header_whatsapp_btn_text_color": ""
+    }
+  },
+  {
+    "id": "6eb86fc2-defd-4987-99a5-9061b50456da",
+    "name": "TechStore Prime",
+    "subdomain": "tech",
+    "settings": {
+      "cpf": "",
+      "cnpj": "",
+      "name": "TechStore Prime",
+      "plan": "pro",
+      "email": "contato@techstoreprime.com.br",
+      "ga_id": "",
+      "model": "tech",
+      "niche": "Moda & Acessórios Premium",
+      "phone": "5511999992222",
+      "active": true,
+      "brands": [],
+      "gtm_id": "",
+      "address": "",
+      "is_demo": false,
+      "benefits": [
+        {
+          "icon": "Truck",
+          "title": "Entrega Rápida",
+          "subtitle": "Calcule o prazo no checkout"
+        },
+        {
+          "icon": "ShieldCheck",
+          "title": "Compra Segura",
+          "subtitle": "Ambiente 100% protegido"
+        },
+        {
+          "icon": "RefreshCw",
+          "title": "Troca Fácil",
+          "subtitle": "7 dias para devolução"
+        },
+        {
+          "icon": "CreditCard",
+          "title": "Pagamento Facilitado",
+          "subtitle": "Em até 12x no cartão"
+        }
+      ],
+      "facebook": "",
+      "features": [
+        {
+          "desc": "Consultores técnicos prontos para analisar o seu projeto do zero ao acabamento.",
+          "icon": "Headphones",
+          "title": "Atendimento Especializado"
+        },
+        {
+          "desc": "Instalação credenciada com manutenção de garantia original dos fabricantes.",
+          "icon": "Award",
+          "title": "Garantia de Qualidade"
+        },
+        {
+          "desc": "Acompanhamento dedicado pós-venda e atendimento emergencial prioritário.",
+          "icon": "Heart",
+          "title": "Suporte Personalizado"
+        },
+        {
+          "desc": "Profissionais qualificados pelas principais marcas do mercado de climatização.",
+          "icon": "ShieldCheck",
+          "title": "Técnicos Credenciados"
+        }
+      ],
+      "logo_url": "",
+      "team_tag": "Corpo Jurídico",
+      "whatsapp": "5511999992222",
+      "cta_title": "Necessita de Defesa ou Consultoria Especializada?",
+      "instagram": "",
+      "subdomain": "tech",
+      "admin_user": "contato@techstoreprime.com.br",
+      "hero_badge": "Advocacia & Assessoria Jurídica",
+      "hero_style": "full",
+      "hero_title": "REDEFINA SEU CONCEITO DE MODA",
+      "store_mode": "loja",
+      "team_title": "Sócios & Associados Sêniores",
+      "theme_mode": "dark",
+      "about_title": "Excelência e Solidez Jurídica",
+      "description": "Loja virtual premium configurada com alta conversão.",
+      "favicon_url": "",
+      "fb_pixel_id": "",
+      "font_family": "Inter",
+      "team_layout": "multiple",
+      "brands_title": "",
+      "button_color": "#00d6d3",
+      "button_style": "rounded",
+      "cta_bg_color": "#00d6d3",
+      "cta_subtitle": "Relate os fatos iniciais de sua causa para nossa equipe jurídica realizar uma triagem prévia confidencial ou agende um alinhamento online com nossos sócios especialistas.",
+      "footer_links": [
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#colecao-premium",
+          "label": "Destaques"
+        },
+        {
+          "url": "#",
+          "label": "Privacidade"
+        },
+        {
+          "url": "#",
+          "label": "Termos"
+        },
+        {
+          "url": "#",
+          "label": "Contato"
+        }
+      ],
+      "header_links": [
+        {
+          "url": "/",
+          "label": "Home"
+        },
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#",
+          "label": "Categorias"
+        }
+      ],
+      "header_style": "modern",
+      "layout_model": "tech",
+      "primaryColor": "#10b981",
+      "services_tag": "Nossos Serviços",
+      "stat_count_1": "98",
+      "stat_count_2": "1500",
+      "stat_count_3": "12",
+      "stat_count_4": "15",
+      "stat_label_1": "Casos de Sucesso",
+      "stat_label_2": "Clientes Atendidos",
+      "stat_label_3": "De Atuação",
+      "stat_label_4": "Especialistas",
+      "team_members": [
+        {
+          "desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+          "name": "Dr. Alexandre Goldmann",
+          "role": "Sócio Fundador - Direito Empresarial",
+          "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+          "name": "Dra. Beatriz D'Angelo",
+          "role": "Sócia - Direito Civil e Contratos",
+          "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+          "name": "Dr. Marcus Vinícius Prado",
+          "role": "Associado Sênior - Direito Tributário",
+          "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80"
+        }
+      ],
+      "testimonials": [
+        {
+          "name": "Roberto Camargo",
+          "role": "Diretor Executivo na Vanguarda Tech",
+          "text": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+          "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Heloísa Albuquerque",
+          "role": "Arquiteta e Sócia do Studio H+A",
+          "text": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicada e focada em resolver tudo de forma amigável.",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Carlos Mendes",
+          "role": "Diretor do Grupo Mendes & Cia",
+          "text": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+          "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
+        }
+      ],
+      "body_bg_color": "",
+      "card_bg_color": "",
+      "custom_domain": "",
+      "google_ads_id": "",
+      "hero_bg_color": "#121212",
+      "hero_subtitle": "Descubra peças selecionadas que unem conforto e sofisticação.",
+      "paid_invoices": {
+        "INV-2026-005": {
+          "paidAt": "04/06/2026, 23:57",
+          "paymentMethod": "PIX"
+        }
+      },
+      "primary_color": "#06b6d4",
+      "stat_suffix_1": "+",
+      "stat_suffix_2": "+",
+      "stat_suffix_3": " anos",
+      "stat_suffix_4": "/5",
+      "team_subtitle": "Conheça os especialistas dedicados a prover representação jurídica do mais alto escalão técnico.",
+      "testimonial_1": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+      "testimonial_2": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicado e focada em resolver tudo de forma amigável.",
+      "testimonial_3": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+      "about_subtitle": "\"Nosso compromisso fundamental é a segurança jurídica absoluta de nossos clientes nas decisões mais importantes da vida e dos negócios.\"",
+      "admin_password": "senha123",
+      "button_variant": "filled",
+      "cta_btn_text_1": "Conversar com Advogado",
+      "cta_btn_text_2": "Ver Áreas de Atuação",
+      "cta_desc_color": "#ffffff",
+      "hero_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/6eb86fc2-defd-4987-99a5-9061b50456da/hero-1781927320145.png",
+      "services_title": "Nossas Especialidades Jurídicas",
+      "show_hero_text": false,
+      "about_image_url": "",
+      "billing_enabled": true,
+      "brands_subtitle": "",
+      "cta_title_color": "#ffffff",
+      "footer_bg_color": "#111111",
+      "footer_logo_url": "",
+      "header_bg_color": "#ffffff",
+      "secondary_color": "#ffffff",
+      "whatsapp_agents": [],
+      "cta_use_gradient": false,
+      "hero_title_color": "#06b6d4",
+      "sale_price_color": "#ef4444",
+      "testimonials_tag": "Reconhecimento",
+      "top_bar_bg_color": "#000000",
+      "benefits_bg_color": "",
+      "button_text_color": "#ffffff",
+      "flash_deals_title": "Ofertas do Dia",
+      "footer_text_color": "#ffffff",
+      "header_icon_color": "#000000",
+      "offer_popup_delay": 5,
+      "offer_popup_title": "",
+      "services_subtitle": "Prestamos assessoria de alta performance voltada à mitigação de riscos e defesa de direitos.",
+      "show_new_arrivals": true,
+      "button_hover_color": "#333333",
+      "footer_description": "Loja virtual premium desenvolvida na plataforma Na Loja Virtual.",
+      "new_arrivals_title": "Novidades",
+      "normal_price_color": "#bbbbbb",
+      "offer_popup_layout": "split",
+      "show_doc_in_footer": false,
+      "team_member_1_desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+      "team_member_1_name": "Dr. Alexandre Goldmann",
+      "team_member_1_role": "Sócio Fundador - Direito Empresarial",
+      "team_member_2_desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+      "team_member_2_name": "Dra. Beatriz D'Angelo",
+      "team_member_2_role": "Sócia - Direito Civil e Contratos",
+      "team_member_3_desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+      "team_member_3_name": "Dr. Marcus Vinícius Prado",
+      "team_member_3_role": "Associado Sênior - Direito Tributário",
+      "testimonial_1_name": "Roberto Camargo",
+      "testimonial_1_role": "Diretor Executivo na Vanguarda Tech",
+      "testimonial_2_name": "Heloísa Albuquerque",
+      "testimonial_2_role": "Arquiteta e Sócia do Studio H+A",
+      "testimonial_3_name": "Carlos Mendes",
+      "testimonial_3_role": "Diretor do Grupo Mendes & Cia",
+      "testimonials_title": "Depoimentos dos Representados",
+      "top_bar_text_color": "#ffffff",
+      "about_description_1": "Fundado sobre os pilares da ética corporativa e rigor técnico acadêmico, o escritório nasceu para preencher a necessidade de uma advocacia verdadeiramente focada nas peculiaridades de cada cliente. Não trabalhamos com soluções genéricas ou em massa.",
+      "about_description_2": "Nosso corpo de advogados assessora de forma preventiva, desenvolvendo planejamentos estratégicos contratuais, civis e tributários que impedem conflitos judiciais futuros. Em matérias contenciosas, representamos os clientes de maneira vigorosa e combativa em todas as instâncias do Poder Judiciário.",
+      "cta_button_bg_color": "#25D366",
+      "default_price_color": "#06b6d4",
+      "differential_1_desc": "Conduzimos cada caso com o mais alto padrão moral, mantendo o cliente informado em todas as etapas de forma clara.",
+      "differential_2_desc": "Garantia de confidencialidade absoluta em todas as consultas e processos judiciais sob nossa responsabilidade.",
+      "differential_3_desc": "Aliamos profundo conhecimento técnico com estratégia jurídica focada para maximizar as chances de sucesso.",
+      "differential_4_desc": "Respostas rápidas e suporte contínuo para garantir tranquilidade e segurança aos nossos representados.",
+      "hero_subtitle_color": "#ffffff",
+      "offer_popup_enabled": false,
+      "whatsapp_hours_text": "",
+      "button_hover_variant": "filled",
+      "differential_1_title": "Ética & Transparência",
+      "differential_2_title": "Sigilo & Confiança",
+      "differential_3_title": "Foco em Resultados",
+      "differential_4_title": "Atendimento Ágil",
+      "offer_popup_subtitle": "",
+      "team_member_1_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80",
+      "team_member_2_avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
+      "team_member_3_avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80",
+      "testimonial_1_avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+      "testimonial_2_avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+      "testimonial_3_avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+      "top_bar_announcement": "OFERTAS ESPECIAIS EM GADGETS E ELETRÔNICOS",
+      "cta_button_text_color": "#ffffff",
+      "hero_image_mobile_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/6eb86fc2-defd-4987-99a5-9061b50456da/hero_image_mobile_url-1781926664185.avif",
+      "offer_popup_image_url": "",
+      "testimonials_subtitle": "A confiança demonstrada por nossos clientes individuais e corporativos reflete nosso compromisso com a integridade.",
+      "header_whatsapp_btn_bg": "",
+      "whatsapp_hours_enabled": false,
+      "button_hover_text_color": "#ffffff",
+      "cta_button_2_text_color": "",
+      "offer_popup_button_link": "",
+      "offer_popup_button_text": "",
+      "whatsapp_floating_title": "Suporte WhatsApp",
+      "header_whatsapp_btn_text": "Falar com Especialista",
+      "whatsapp_floating_enabled": true,
+      "header_whatsapp_btn_text_color": ""
+    }
+  },
+  {
+    "id": "3431132f-7d7b-43e2-be66-bc1786721080",
+    "name": "Configurações da Plataforma",
+    "subdomain": "platformsettings",
+    "settings": {
+      "name": "Configurações da Plataforma",
+      "plan": "basic",
+      "email": "contato@sualoja.com.br",
+      "niche": "Moda & Acessórios Premium",
+      "phone": "48935001794",
+      "plans": [
+        {
+          "id": "basic",
+          "desc": "Ideal para quem está começando a sua primeira loja virtual com baixo investimento.",
+          "name": "Plano Básico",
+          "price": 49,
+          "active": true,
+          "popular": false,
+          "features": [
+            "Até 50 produtos cadastrados",
+            "Taxa de transação de 2.0%",
+            "Suporte via E-mail",
+            "Certificado SSL Grátis",
+            "Gateway Mercado Pago",
+            "Checkout Transparente"
+          ],
+          "buttonText": "Contratar Plano Básico",
+          "subscribers": 0,
+          "billingCycle": "mensal",
+          "comissionRate": 2
+        },
+        {
+          "id": "pro",
+          "desc": "Perfeito para lojistas em expansão com alto volume de vendas e tráfego pago.",
+          "name": "Plano Profissional",
+          "price": 149,
+          "active": true,
+          "popular": true,
+          "features": [
+            "Até 500 produtos cadastrados",
+            "Taxa de transação de 1.0%",
+            "Suporte Prioritário WhatsApp",
+            "Todos os Gateways de Pagamento",
+            "Integração de Frete Avançada",
+            "Recuperação de Carrinho Abandonado",
+            "Vitrine Personalizada"
+          ],
+          "buttonText": "Contratar Plano Pro",
+          "subscribers": 0,
+          "billingCycle": "mensal",
+          "comissionRate": 1
+        },
+        {
+          "id": "premium",
+          "desc": "Para redes de lojas, grandes marcas e operações de e-commerce escaláveis.",
+          "name": "Premium Ilimitado",
+          "price": 299,
+          "active": true,
+          "popular": false,
+          "features": [
+            "Produtos e Variações Ilimitadas",
+            "Taxa de transação ZERO (0%)",
+            "Suporte VIP 24/7 Dedicado",
+            "Gerente de Contas Exclusivo",
+            "Acesso Antecipado a Novas Features",
+            "Servidor Dedicado de Alta Performance",
+            "Multi-Lojas e Filiais"
+          ],
+          "buttonText": "Contratar Premium VIP",
+          "subscribers": 0,
+          "billingCycle": "mensal",
+          "comissionRate": 0
+        }
+      ],
+      "active": true,
+      "is_demo": false,
+      "whatsapp": "48935001794",
+      "subdomain": "platformsettings",
+      "adminEmail": "admin@criarlojas.com.br",
+      "admin_user": "contato@sualoja.com.br",
+      "mainDomain": "criarlojas.com.br",
+      "description": "Loja virtual premium configurada com alta conversão.",
+      "supabaseUrl": "https://schcpfbnochnevsivtaj.supabase.co",
+      "button_color": "#0ea5e9",
+      "layout_model": "modern",
+      "platformName": "Criar Lojas E-commerce SaaS",
+      "supportEmail": "suporte@criarlojas.com.br",
+      "adminPassword": "admin",
+      "businessHours": "Seg - Sex, das 9h às 18h",
+      "primary_color": "#0ea5e9",
+      "webhookSecret": "whsec_abc123xyz789criarlojas",
+      "admin_password": "senha123",
+      "billing_enabled": false,
+      "maintenanceMode": false,
+      "whatsappSupport": "5511999998888",
+      "maxStoresPerUser": 10,
+      "allowNewRegistrations": true
+    }
+  },
+  {
+    "id": "c18d94c0-54a8-4221-a7b6-c5c8f6cfbc83",
+    "name": "Refri Service",
+    "subdomain": "refri",
+    "settings": {
+      "cpf": "",
+      "cnpj": "",
+      "name": "Refri Service",
+      "plan": "pro",
+      "email": "contato@refriservice.com.br",
+      "ga_id": "",
+      "niche": "Refrigeração",
+      "phone": "5511999994444",
+      "brands": [],
+      "gtm_id": "",
+      "address": "",
+      "is_demo": true,
+      "benefits": [
+        {
+          "title": "Entrega Rápida",
+          "subtitle": "Calcule o prazo no checkout"
+        },
+        {
+          "title": "Compra Segura",
+          "subtitle": "Ambiente 100% protegido"
+        },
+        {
+          "title": "Troca Fácil",
+          "subtitle": "7 dias para devolução"
+        },
+        {
+          "title": "Pagamento Facilitado",
+          "subtitle": "Em até 12x no cartão"
+        }
+      ],
+      "facebook": "",
+      "features": [
+        {
+          "desc": "Equipe técnica preparada para identificar a melhor solução para cada ambiente.",
+          "icon": "Headphones",
+          "title": "Atendimento Especializado"
+        },
+        {
+          "desc": "Serviços realizados conforme as normas dos fabricantes e com garantia.",
+          "icon": "Award",
+          "title": "Garantia de Qualidade"
+        },
+        {
+          "desc": "Atendimento ágil para manutenção preventiva, corretiva e emergencial.",
+          "icon": "Phone",
+          "title": "Suporte Rápido"
+        },
+        {
+          "desc": "Profissionais treinados para trabalhar com as principais marcas do mercado.",
+          "icon": "ShieldCheck",
+          "title": "Técnicos Credenciados"
+        }
+      ],
+      "logo_url": "",
+      "team_tag": "Corpo Jurídico",
+      "whatsapp": "5511999994444",
+      "cta_title": "Precisa de uma solução especializada?",
+      "instagram": "",
+      "subdomain": "refri",
+      "admin_user": "admin@refriservice.com.br",
+      "hero_badge": "Especialistas em Refrigeração e Climatização",
+      "hero_style": "split",
+      "hero_title": "SOMOS ESPECIALISTAS EM AR-CONDICIONADO E CLIMATIZAÇÃO",
+      "store_mode": "loja",
+      "team_title": "Sócios & Associados Sêniores",
+      "theme_mode": "light",
+      "about_title": "Especialistas em Refrigeração e Climatização",
+      "description": "Especialistas em climatização residencial e comercial. Agende serviços de instalação e manutenção, ou compre peças e acessórios originais.",
+      "favicon_url": "",
+      "fb_pixel_id": "",
+      "font_family": "Inter",
+      "team_layout": "multiple",
+      "brands_title": "",
+      "button_color": "#0284c7",
+      "button_style": "rounded",
+      "cta_bg_color": "#0284c7",
+      "cta_subtitle": "Solicite agora um orçamento sem compromisso e tenha atendimento rápido de especialistas em refrigeração.",
+      "footer_links": [
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#colecao-premium",
+          "label": "Destaques"
+        },
+        {
+          "url": "#",
+          "label": "Privacidade"
+        },
+        {
+          "url": "#",
+          "label": "Termos"
+        },
+        {
+          "url": "#",
+          "label": "Contato"
+        }
+      ],
+      "header_links": [
+        {
+          "url": "/",
+          "label": "Home"
+        },
+        {
+          "url": "?view=produtos",
+          "label": "Produtos"
+        },
+        {
+          "url": "#",
+          "label": "Categorias"
+        }
+      ],
+      "header_style": "center_menu",
+      "layout_model": "services",
+      "services_tag": "Nossos Serviços",
+      "stat_count_1": "500",
+      "stat_count_2": "1200",
+      "stat_count_3": "12",
+      "stat_count_4": "100",
+      "stat_label_1": "Serviços Realizados",
+      "stat_label_2": "Clientes Atendidos",
+      "stat_label_3": "De Atuação",
+      "stat_label_4": "Satisfação Garantida",
+      "team_members": [
+        {
+          "desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+          "name": "Dr. Alexandre Goldmann",
+          "role": "Sócio Fundador - Direito Empresarial",
+          "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+          "name": "Dra. Beatriz D'Angelo",
+          "role": "Sócia - Direito Civil e Contratos",
+          "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+          "name": "Dr. Marcus Vinícius Prado",
+          "role": "Associado Sênior - Direito Tributário",
+          "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80"
+        }
+      ],
+      "testimonials": [
+        {
+          "name": "Roberto Camargo",
+          "role": "Diretor Executivo na Vanguarda Tech",
+          "text": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+          "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+          "rating": "5"
+        },
+        {
+          "name": "Heloísa Albuquerque",
+          "role": "Arquiteta e Sócia do Studio H+A",
+          "text": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicada e focada em resolver tudo de forma amigável.",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Carlos Mendes",
+          "role": "Diretor do Grupo Mendes & Cia",
+          "text": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+          "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
+        }
+      ],
+      "body_bg_color": "",
+      "card_bg_color": "",
+      "custom_domain": "",
+      "google_ads_id": "",
+      "hero_bg_color": "#ffffff",
+      "hero_subtitle": "Instalação, manutenção preventiva, limpeza e assistência técnica com profissionais qualificados.",
+      "primary_color": "#0284c7",
+      "stat_suffix_1": "+",
+      "stat_suffix_2": "+",
+      "stat_suffix_3": " anos",
+      "stat_suffix_4": "%",
+      "team_subtitle": "Conheça os especialistas dedicados a prover representação jurídica do mais alto escalão técnico.",
+      "testimonial_1": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+      "testimonial_2": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicado e focada em resolver tudo de forma amigável.",
+      "testimonial_3": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+      "about_subtitle": "Somos uma empresa especializada em instalação, manutenção e higienização de sistemas de climatização residencial e comercial.",
+      "admin_password": "senha123",
+      "button_variant": "filled",
+      "cta_btn_text_1": "Falar com um técnico",
+      "cta_btn_text_2": "Ver Produtos",
+      "cta_desc_color": "#ffffff",
+      "hero_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/c18d94c0-54a8-4221-a7b6-c5c8f6cfbc83/hero-1781737771002.png",
+      "services_title": "Soluções Completas em Refrigeração",
+      "show_hero_text": true,
+      "about_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/c18d94c0-54a8-4221-a7b6-c5c8f6cfbc83/about_image_url-1781748305054.png",
+      "billing_enabled": false,
+      "brands_subtitle": "",
+      "cta_title_color": "#ffffff",
+      "footer_bg_color": "#111111",
+      "footer_logo_url": "",
+      "header_bg_color": "#0284c7",
+      "secondary_color": "#06b6d4",
+      "whatsapp_agents": [
+        {
+          "name": "Marcelo",
+          "role": "Técnico",
+          "phone": "11999999999"
+        }
+      ],
+      "cta_use_gradient": false,
+      "hero_title_color": "#111111",
+      "sale_price_color": "#ef4444",
+      "testimonials_tag": "Reconhecimento",
+      "top_bar_bg_color": "#b6ddfb",
+      "benefits_bg_color": "",
+      "button_text_color": "#ffffff",
+      "flash_deals_title": "Ofertas do Dia",
+      "footer_text_color": "#ffffff",
+      "header_icon_color": "#ffffff",
+      "offer_popup_delay": 5,
+      "offer_popup_title": "",
+      "services_subtitle": "Oferecemos serviços especializados para garantir o máximo desempenho, economia e durabilidade dos seus equipamentos.",
+      "show_new_arrivals": true,
+      "button_hover_color": "#333333",
+      "footer_description": "RefriService Prime - Soluções em Climatização e Peças.",
+      "new_arrivals_title": "Novidades",
+      "normal_price_color": "#bbbbbb",
+      "offer_popup_layout": "split",
+      "show_doc_in_footer": false,
+      "team_member_1_desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+      "team_member_1_name": "Dr. Alexandre Goldmann",
+      "team_member_1_role": "Sócio Fundador - Direito Empresarial",
+      "team_member_2_desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+      "team_member_2_name": "Dra. Beatriz D'Angelo",
+      "team_member_2_role": "Sócia - Direito Civil e Contratos",
+      "team_member_3_desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+      "team_member_3_name": "Dr. Marcus Vinícius Prado",
+      "team_member_3_role": "Associado Sênior - Direito Tributário",
+      "testimonial_1_name": "Roberto Camargo",
+      "testimonial_1_role": "Diretor Executivo na Vanguarda Tech",
+      "testimonial_2_name": "Heloísa Albuquerque",
+      "testimonial_2_role": "Arquiteta e Sócia do Studio H+A",
+      "testimonial_3_name": "Carlos Mendes",
+      "testimonial_3_role": "Diretor do Grupo Mendes & Cia",
+      "testimonials_title": "Depoimentos dos Representados",
+      "top_bar_text_color": "#000000",
+      "about_description_1": "Nossa missão é proporcionar conforto térmico, bem-estar e qualidade do ar para nossos clientes, por meio de soluções eficientes em climatização e refrigeração. Trabalhamos com foco na excelência, segurança e responsabilidade, garantindo serviços de alta qualidade que contribuem para a economia de energia, o melhor desempenho dos equipamentos e a satisfação de quem confia em nosso trabalho.",
+      "about_description_2": "Atendemos residências, escritórios, comércios, indústrias, condomínios e diversos segmentos empresariais, oferecendo soluções personalizadas de acordo com as necessidades de cada ambiente. Nosso compromisso é entregar serviços confiáveis, atendimento ágil e resultados que proporcionem mais conforto, eficiência e tranquilidade para nossos clientes.\n\nMais do que prestar serviços, buscamos construir relacionamentos duradouros baseados na confiança, transparência e qualidade, tornando-nos uma referência em refrigeração e climatização na região.",
+      "cta_button_bg_color": "#10a00e",
+      "default_price_color": "#000000",
+      "differential_1_desc": "Conduzimos cada caso com o mais alto padrão moral, mantendo o cliente informado em todas as etapas de forma clara.",
+      "differential_2_desc": "Garantia de confidencialidade absoluta em todas as consultas e processos judiciais sob nossa responsabilidade.",
+      "differential_3_desc": "Aliamos profundo conhecimento técnico com estratégia jurídica focada para maximizar as chances de sucesso.",
+      "differential_4_desc": "Respostas rápidas e suporte contínuo para garantir tranquilidade e segurança aos nossos representados.",
+      "hero_subtitle_color": "#555555",
+      "offer_popup_enabled": false,
+      "whatsapp_hours_text": "Seg. a Sex. das 08h às 18h",
+      "button_hover_variant": "filled",
+      "differential_1_title": "Ética & Transparência",
+      "differential_2_title": "Sigilo & Confiança",
+      "differential_3_title": "Foco em Resultados",
+      "differential_4_title": "Atendimento Ágil",
+      "offer_popup_subtitle": "",
+      "team_member_1_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80",
+      "team_member_2_avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
+      "team_member_3_avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80",
+      "testimonial_1_avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+      "testimonial_2_avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+      "testimonial_3_avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+      "top_bar_announcement": "❄️ PRECISA DE SUPORTE? AGENDE SUA INSTALAÇÃO OU MANUTENÇÃO PELO WHATSAPP!",
+      "cta_button_text_color": "#ffffff",
+      "hero_image_mobile_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/c18d94c0-54a8-4221-a7b6-c5c8f6cfbc83/hero_image_mobile_url-1781737776660.png",
+      "offer_popup_image_url": "",
+      "testimonials_subtitle": "A confiança demonstrada por nossos clientes individuais e corporativos reflete nosso compromisso com a integridade.",
+      "header_whatsapp_btn_bg": "",
+      "whatsapp_hours_enabled": true,
+      "button_hover_text_color": "#ffffff",
+      "cta_button_2_text_color": "",
+      "offer_popup_button_link": "",
+      "offer_popup_button_text": "",
+      "whatsapp_floating_title": "Fale com o Suporte",
+      "header_whatsapp_btn_text": "Falar com Especialista",
+      "whatsapp_floating_enabled": true,
+      "header_whatsapp_btn_text_color": ""
+    }
+  },
+  {
+    "id": "35df0511-509c-4ed3-bbda-6c365b6d4e21",
+    "name": "Advocacia",
+    "subdomain": "advocacia",
+    "settings": {
+      "cpf": "",
+      "cnpj": "",
+      "name": "Advocacia",
+      "plan": "premium",
+      "email": "contato@advocacia.com.br",
+      "ga_id": "",
+      "niche": "Advocacia",
+      "phone": "11999999999",
+      "gtm_id": "",
+      "address": "Rua Principal, 100",
+      "is_demo": true,
+      "benefits": [
+        {
+          "icon": "Shield",
+          "title": "Defesa dos Seus Direitos",
+          "subtitle": "Soluções jurídicas estratégicas para proteger seus interesses."
+        },
+        {
+          "icon": "ShieldCheck",
+          "title": "Total Confidencialidade",
+          "subtitle": "Tratamento seguro e sigiloso de todas as informações."
+        },
+        {
+          "icon": "Star",
+          "title": "Excelência Jurídica",
+          "subtitle": "Atuação baseada em conhecimento, experiência e responsabilidade."
+        },
+        {
+          "icon": "Headphones",
+          "title": "Atendimento Humano",
+          "subtitle": "Relacionamento próximo e acompanhamento transparente."
+        }
+      ],
+      "facebook": "#",
+      "features": [
+        {
+          "desc": "Consultores técnicos prontos para analisar o seu projeto do zero ao acabamento.",
+          "icon": "Headphones",
+          "title": "Atendimento Especializado"
+        },
+        {
+          "desc": "Instalação credenciada com manutenção de garantia original dos fabricantes.",
+          "icon": "Award",
+          "title": "Garantia de Qualidade"
+        },
+        {
+          "desc": "Acompanhamento dedicado pós-venda e atendimento emergencial prioritário.",
+          "icon": "Heart",
+          "title": "Suporte Personalizado"
+        },
+        {
+          "desc": "Profissionais qualificados pelas principais marcas do mercado de climatização.",
+          "icon": "ShieldCheck",
+          "title": "Técnicos Credenciados"
+        }
+      ],
+      "logo_url": "",
+      "team_tag": "Corpo Jurídico",
+      "whatsapp": "11999999999",
+      "cta_title": "Necessita de Defesa ou Consultoria Especializada?",
+      "instagram": "#",
+      "subdomain": "advocacia",
+      "admin_user": "contato@advocacia.com.br",
+      "hero_badge": "Advocacia & Assessoria Jurídica",
+      "hero_style": "split",
+      "hero_title": "Excelência Jurídica e Defesa Definitiva Dos Seus Direitos.",
+      "store_mode": "loja",
+      "team_title": "Sócios & Associados Sêniores",
+      "theme_mode": "dark",
+      "about_title": "Excelência e Solidez Jurídica",
+      "description": "Loja virtual premium configurada com alta conversão.",
+      "favicon_url": "",
+      "fb_pixel_id": "",
+      "font_family": "Playfair Display",
+      "team_layout": "multiple",
+      "button_color": "#a27906",
+      "button_style": "pill",
+      "cta_bg_color": "#1F2937",
+      "cta_subtitle": "Relate os fatos iniciais de sua causa para nossa equipe jurídica realizar uma triagem prévia confidencial ou agende um alinhamento online com nossos sócios especialistas.",
+      "footer_links": [
+        {
+          "url": "?view=produtos#areas",
+          "label": "Áreas de atuação"
+        },
+        {
+          "url": "#equipe",
+          "label": "Advogados"
+        },
+        {
+          "url": "#sobre",
+          "label": "Quem somos"
+        }
+      ],
+      "header_links": [
+        {
+          "url": "/",
+          "label": "Home"
+        },
+        {
+          "url": "?view=produtos#areas",
+          "label": "Áreas de Atuação"
+        },
+        {
+          "url": "#sobre",
+          "label": "Quem somos"
+        },
+        {
+          "url": "#equipe",
+          "label": "Advogados"
+        }
+      ],
+      "header_style": "center_menu",
+      "layout_model": "lawyer",
+      "services_tag": "Nossos Serviços",
+      "stat_count_1": "98",
+      "stat_count_2": "1500",
+      "stat_count_3": "12",
+      "stat_count_4": "15",
+      "stat_label_1": "Casos de Sucesso",
+      "stat_label_2": "Clientes Atendidos",
+      "stat_label_3": "Anos de Atuação",
+      "stat_label_4": "Especialistas",
+      "team_members": [
+        {
+          "desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+          "name": "Dr. Alexandre Goldmann",
+          "role": "Sócio Fundador - Direito Empresarial",
+          "avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+          "name": "Dra. Beatriz D'Angelo",
+          "role": "Sócia - Direito Civil e Contratos",
+          "avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80"
+        },
+        {
+          "desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+          "name": "Dr. Marcus Vinícius Prado",
+          "role": "Associado Sênior - Direito Tributário",
+          "avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80"
+        }
+      ],
+      "testimonials": [
+        {
+          "name": "Roberto Camargo",
+          "role": "Diretor Executivo na Vanguarda Tech",
+          "text": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+          "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Heloísa Albuquerque",
+          "role": "Arquiteta e Sócia do Studio H+A",
+          "text": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicado e focada em resolver tudo de forma amigável.",
+          "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
+        },
+        {
+          "name": "Carlos Mendes",
+          "role": "Diretor do Grupo Mendes & Cia",
+          "text": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+          "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
+        }
+      ],
+      "body_bg_color": "",
+      "card_bg_color": "",
+      "custom_domain": "",
+      "google_ads_id": "",
+      "hero_bg_color": "#111827",
+      "hero_subtitle": "Oferecemos soluções jurídicas estratégicas com alto padrão de ética, transparência e comprometimento absoluto com os resultados e a segurança de nossos representados.",
+      "primary_color": "#a27906",
+      "stat_suffix_1": "+",
+      "stat_suffix_2": "+",
+      "stat_suffix_3": " anos",
+      "stat_suffix_4": "/5",
+      "team_subtitle": "Conheça os especialistas dedicados a prover representação jurídica do mais alto escalão técnico.",
+      "testimonial_1": "A atuação do escritório na reestruturação societária da nossa empresa foi impecável. Conduziram o processo com discrição, ética e um nível de detalhismo que evitou passivos futuros significativos.",
+      "testimonial_2": "Fui assessorado no processo de partilha de bens e inventário familiar. Toda a equipe se mostrou extremamente humana, sensível ao momento delicado e focada em resolver tudo de forma amigável.",
+      "testimonial_3": "Excelente suporte na defesa de uma autuação fiscal injusta. O profundo conhecimento técnico do Dr. Marcus fez toda a diferença na vitória administrativa junto ao conselho fiscal.",
+      "about_subtitle": "\"Nosso compromisso fundamental é a segurança jurídica absoluta de nossos clientes nas decisões mais importantes da vida e dos negócios.\"",
+      "admin_password": "senha123",
+      "button_variant": "filled",
+      "cta_btn_text_1": "Conversar com Advogado",
+      "cta_btn_text_2": "Ver Áreas de Atuação",
+      "cta_desc_color": "#ffffff",
+      "hero_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/35df0511-509c-4ed3-bbda-6c365b6d4e21/hero-1779560333178.avif",
+      "services_title": "Nossas Especialidades Jurídicas",
+      "show_hero_text": true,
+      "about_image_url": "https://schcpfbnochnevsivtaj.supabase.co/storage/v1/object/public/store-assets/35df0511-509c-4ed3-bbda-6c365b6d4e21/about_image_url-1781371820902.avif",
+      "billing_enabled": false,
+      "cta_title_color": "#ffffff",
+      "footer_bg_color": "#1F2937",
+      "footer_logo_url": "",
+      "header_bg_color": "#bab5b5",
+      "secondary_color": "#1F2937",
+      "whatsapp_agents": [
+        {
+          "name": "Dr. Alexandre",
+          "role": "Direito Empresarial",
+          "phone": "11999999999"
+        },
+        {
+          "name": "Dra. Beatriz",
+          "role": "Direito Civil e Contratos",
+          "phone": "11999999999"
+        },
+        {
+          "name": "Dr. Marcus",
+          "role": "Direito Tributário",
+          "phone": "11999999999"
+        }
+      ],
+      "cta_use_gradient": false,
+      "hero_title_color": "#f5f5f5",
+      "payment_gateways": {
+        "pix": {
+          "active": true,
+          "pix_key": "48935001794",
+          "pix_key_type": "phone",
+          "beneficiary_name": "",
+          "discount_percent": 5
+        },
+        "stripe": {
+          "mode": "sandbox",
+          "active": false,
+          "secret_key": "",
+          "publishable_key": ""
+        },
+        "pagseguro": {
+          "mode": "sandbox",
+          "email": "",
+          "token": "",
+          "active": false,
+          "installments": 12
+        },
+        "mercadopago": {
+          "mode": "sandbox",
+          "active": false,
+          "public_key": "",
+          "access_token": "",
+          "installments": 12
+        }
+      },
+      "sale_price_color": "#e60000",
+      "testimonials_tag": "Reconhecimento",
+      "top_bar_bg_color": "#1F2937",
+      "benefits_bg_color": "",
+      "button_text_color": "#ffffff",
+      "flash_deals_title": "Ofertas do Dia",
+      "footer_text_color": "#ffffff",
+      "header_icon_color": "#1F2937",
+      "services_subtitle": "Prestamos assessoria de alta performance voltada à mitigação de riscos e defesa de direitos.",
+      "show_new_arrivals": true,
+      "button_hover_color": "#030303",
+      "footer_description": "Loja virtual premium desenvolvida na plataforma Criar Lojas.",
+      "new_arrivals_title": "Novidades",
+      "normal_price_color": "#bbbbbb",
+      "show_doc_in_footer": false,
+      "team_member_1_desc": "Mestre em Direito Comercial pela USP, com mais de 15 anos de experiência em reestruturações societárias e fusões de grandes corporações.",
+      "team_member_1_name": "Dr. Alexandre Goldmann",
+      "team_member_1_role": "Sócio Fundador - Direito Empresarial",
+      "team_member_2_desc": "Especialista em Direito Processual Civil, atuante na assessoria de contratos nacionais e internacionais de alta complexidade e direito de família.",
+      "team_member_2_name": "Dra. Beatriz D'Angelo",
+      "team_member_2_role": "Sócia - Direito Civil e Contratos",
+      "team_member_3_desc": "Pós-graduado em Gestão Tributária, focado em planejamento fiscal preventivo para grandes grupos econômicos e contencioso administrativo.",
+      "team_member_3_name": "Dr. Marcus Vinícius Prado",
+      "team_member_3_role": "Associado Sênior - Direito Tributário",
+      "testimonial_1_name": "Roberto Camargo",
+      "testimonial_1_role": "Diretor Executivo na Vanguarda Tech",
+      "testimonial_2_name": "Heloísa Albuquerque",
+      "testimonial_2_role": "Arquiteta e Sócia do Studio H+A",
+      "testimonial_3_name": "Carlos Mendes",
+      "testimonial_3_role": "Diretor do Grupo Mendes & Cia",
+      "testimonials_title": "Depoimentos dos Representados",
+      "top_bar_text_color": "#ffffff",
+      "about_description_1": "Fundado sobre os pilares da ética corporativa e rigor técnico acadêmico, o escritório nasceu para preencher a necessidade de uma advocacia verdadeiramente focada nas peculiaridades de cada cliente. Não trabalhamos com soluções genéricas ou em massa.",
+      "about_description_2": "Nosso corpo de advogados assessora de forma preventiva, desenvolvendo planejamentos estratégicos contratuais, civis e tributários que impedem conflitos judiciais futuros. Em matérias contenciosas, representamos os clientes de maneira vigorosa e combativa em todas as instâncias do Poder Judiciário.",
+      "cta_button_bg_color": "#a27906",
+      "default_price_color": "#000000",
+      "differential_1_desc": "Conduzimos cada caso com o mais alto padrão moral, mantendo o cliente informado em todas as etapas de forma clara.",
+      "differential_2_desc": "Garantia de confidencialidade absoluta em todas as consultas e processos judiciais sob nossa responsabilidade.",
+      "differential_3_desc": "Aliamos profundo conhecimento técnico com estratégia jurídica focada para maximizar as chances de sucesso.",
+      "differential_4_desc": "Respostas rápidas e suporte contínuo para garantir tranquilidade e segurança aos nossos representados.",
+      "hero_subtitle_color": "#a27906",
+      "button_hover_variant": "filled",
+      "differential_1_title": "Ética & Transparência",
+      "differential_2_title": "Sigilo & Confiança",
+      "differential_3_title": "Foco em Resultados",
+      "differential_4_title": "Atendimento Ágil",
+      "team_member_1_avatar": "https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=300&q=80",
+      "team_member_2_avatar": "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80",
+      "team_member_3_avatar": "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=300&q=80",
+      "testimonial_1_avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80",
+      "testimonial_2_avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80",
+      "testimonial_3_avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80",
+      "top_bar_announcement": "AQUI SEU DIREITO EM PRIMEIRO LUGAR!",
+      "cta_button_text_color": "#ffffff",
+      "testimonials_subtitle": "A confiança demonstrada por nossos clientes individuais e corporativos reflete nosso compromisso com a integridade.",
+      "header_whatsapp_btn_bg": "",
+      "button_hover_text_color": "#ffffff",
+      "cta_button_2_text_color": "#ffffff",
+      "whatsapp_floating_title": "Fale com um especialista",
+      "header_whatsapp_btn_text": "Falar com Especialista",
+      "whatsapp_floating_enabled": true,
+      "header_whatsapp_btn_text_color": "#ffffff"
+    }
+  }
+]

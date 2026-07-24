@@ -251,6 +251,22 @@ export default function NewProduct() {
     setLoading(true)
 
     try {
+      // Se for plano gratuito, validar o limite de 25 produtos
+      const plan = store.settings?.plan || 'free'
+      if (plan === 'free') {
+        const { count, error: countErr } = await supabase
+          .from('products')
+          .select('id', { count: 'exact', head: true })
+          .eq('store_id', store.id)
+        
+        if (countErr) throw countErr
+        if (count !== null && count >= 25) {
+          toast.error('Limite atingido: O plano gratuito permite cadastrar no máximo 25 produtos.')
+          setLoading(false)
+          return
+        }
+      }
+
       const newUrls = []
       for (const file of images) {
         const compressed = await compressImage(file)

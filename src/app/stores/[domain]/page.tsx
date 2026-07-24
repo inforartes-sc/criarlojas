@@ -22,7 +22,7 @@ async function getStoreData(domain: string) {
     .from('stores')
     .select('*')
     .or(`subdomain.eq.${subdomainOnly},subdomain.eq.${domain},custom_domain.eq.${domain}`)
-    .single()
+    .maybeSingle()
   return data
 }
 
@@ -185,7 +185,7 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
   const heroTitleColor = settings.hero_title_color || (isDark ? '#ffffff' : '#111111')
   const heroSubtitleColor = settings.hero_subtitle_color || (isDark ? '#cbd5e1' : '#555555')
   const plan = store?.settings?.plan || 'basic'
-  const storeMode = plan === 'basic' ? 'catalogo' : (settings.store_mode || 'loja')
+  const storeMode = (plan === 'basic' || plan === 'free') ? 'catalogo' : (settings.store_mode || 'loja')
   const storeWhatsapp = settings.whatsapp || ''
   const isCatalogo = storeMode === 'catalogo'
   const isProductsView = resolvedSearchParams.view === 'produtos' || !!categoryFilter || !!searchFilter

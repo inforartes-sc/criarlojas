@@ -32,6 +32,19 @@ export default function SuperAdminPlans() {
 
       const defaultPlans = [
         {
+          id: 'free',
+          name: 'Plano Gratuito',
+          price: 0.00,
+          billingCycle: 'mensal',
+          desc: 'Experimente a plataforma sem custo inicial. Crie seu catálogo básico e comece a divulgar.',
+          features: ['Até 10 produtos cadastrados', 'Taxa de transação de 3.0%', 'Suporte via Painel', '[-] Domínio Personalizado', '[-] Checkout Transparente e Carrinho', '[-] Cálculo de Frete Integrado', '[-] Botão do WhatsApp Personalizado', '[-] Recuperação de Carrinho Abandonado', '[-] Pop-up de Ofertas e Promoções'],
+          active: true,
+          subscribers: 0,
+          popular: false,
+          buttonText: 'Começar Grátis',
+          comissionRate: 3.0
+        },
+        {
           id: 'basic',
           name: 'Plano Básico',
           price: 29.90,
@@ -50,7 +63,7 @@ export default function SuperAdminPlans() {
           price: 34.90,
           billingCycle: 'mensal',
           desc: 'Perfeito para lojistas em expansão com alto volume de vendas, checkout e frete integrado.',
-          features: ['Até 500 produtos cadastrados', 'Taxa de transação de 1.0%', 'Suporte Prioritário WhatsApp', 'Checkout Transparente e Carrinho', 'Gateways Mercado Pago & Asaas', 'Cálculo de Frete Integrado', 'Botão do WhatsApp Personalizado', '[-] Cupons de Desconto & Pixels', '[-] Recuperação de Carrinho Abandonado', '[-] Pop-up de Ofertas e Promoções'],
+          features: ['Até 500 produtos cadastrados', 'Taxa de transação of 1.0%', 'Suporte Prioritário WhatsApp', 'Checkout Transparente e Carrinho', 'Gateways Mercado Pago & Asaas', 'Cálculo de Frete Integrado', 'Botão do WhatsApp Personalizado', '[-] Cupons de Desconto & Pixels', '[-] Recuperação de Carrinho Abandonado', '[-] Pop-up de Ofertas e Promoções'],
           active: true,
           subscribers: 0,
           popular: true,
@@ -89,13 +102,27 @@ export default function SuperAdminPlans() {
           setGlobalSettings(updatedSettings)
           setPlans(defaultPlans)
         } else {
-          const updatedPlans = s.plans.map((p: any) => {
+          // Se planos existem mas não tem o plano gratuito, adiciona ele no início
+          let updatedPlansList = [...s.plans]
+          const hasFree = updatedPlansList.some((p: any) => p.id === 'free')
+          if (!hasFree) {
+            updatedPlansList = [defaultPlans[0], ...updatedPlansList]
+            const updatedSettings = { ...s, plans: updatedPlansList }
+            const { error: updateError } = await supabase
+              .from('stores')
+              .update({ settings: updatedSettings })
+              .eq('id', data.id)
+            if (updateError) console.error('Erro ao migrar plano gratuito:', updateError)
+            setGlobalSettings(updatedSettings)
+          }
+
+          const updatedPlans = updatedPlansList.map((p: any) => {
             let features = p.features || []
             const hasWhatsapp = features.some((f: any) => typeof f === 'string' && f.includes('Botão do WhatsApp Personalizado'));
             if (!hasWhatsapp) {
               features = [
                 ...features,
-                p.id === 'basic' ? '[-] Botão do WhatsApp Personalizado' : 'Botão do WhatsApp Personalizado'
+                p.id === 'free' || p.id === 'basic' ? '[-] Botão do WhatsApp Personalizado' : 'Botão do WhatsApp Personalizado'
               ]
             }
             const hasCart = features.some((f: any) => typeof f === 'string' && f.includes('Carrinho Abandonado'));
@@ -311,7 +338,7 @@ export default function SuperAdminPlans() {
       </header>
 
       {/* Grid de Planos */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '2rem' }}>
         {plans.map((plan) => (
           <div key={plan.id} className="glass-card plan-card" style={{ padding: '2.5rem', border: plan.popular ? '2px solid #10b981' : '1px solid var(--border)', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', borderRadius: '16px', overflow: 'hidden', transition: 'transform 0.2s, box-shadow 0.2s' }}>
             {plan.popular && (
@@ -397,59 +424,60 @@ export default function SuperAdminPlans() {
             <thead>
               <tr style={{ borderBottom: '2px solid var(--border)' }}>
                 <th style={{ padding: '1.25rem 1rem', fontWeight: 700, color: 'var(--muted)', fontSize: '0.85rem', textTransform: 'uppercase' }}>Funcionalidade / Recurso</th>
-                <th style={{ padding: '1.25rem 1rem', fontWeight: 800, color: 'var(--foreground)', fontSize: '1rem', textAlign: 'center', width: '22%' }}>Básico <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: 'var(--muted)', marginTop: '0.25rem' }}>R$ 29,90/mês</span></th>
-                <th style={{ padding: '1.25rem 1rem', fontWeight: 800, color: '#10b981', fontSize: '1rem', textAlign: 'center', width: '22%' }}>Profissional <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: 'var(--muted)', marginTop: '0.25rem' }}>R$ 34,90/mês</span></th>
-                <th style={{ padding: '1.25rem 1rem', fontWeight: 800, color: '#0ea5e9', fontSize: '1rem', textAlign: 'center', width: '22%' }}>Premium <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: 'var(--muted)', marginTop: '0.25rem' }}>R$ 47,90/mês</span></th>
+                <th style={{ padding: '1.25rem 1rem', fontWeight: 800, color: '#94a3b8', fontSize: '1rem', textAlign: 'center', width: '18%' }}>Gratuito <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: 'var(--muted)', marginTop: '0.25rem' }}>R$ 0,00/mês</span></th>
+                <th style={{ padding: '1.25rem 1rem', fontWeight: 800, color: 'var(--foreground)', fontSize: '1rem', textAlign: 'center', width: '18%' }}>Básico <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: 'var(--muted)', marginTop: '0.25rem' }}>R$ 29,90/mês</span></th>
+                <th style={{ padding: '1.25rem 1rem', fontWeight: 800, color: '#10b981', fontSize: '1rem', textAlign: 'center', width: '18%' }}>Profissional <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: 'var(--muted)', marginTop: '0.25rem' }}>R$ 34,90/mês</span></th>
+                <th style={{ padding: '1.25rem 1rem', fontWeight: 800, color: '#0ea5e9', fontSize: '1rem', textAlign: 'center', width: '18%' }}>Premium <span style={{ display: 'block', fontSize: '0.85rem', fontWeight: 500, color: 'var(--muted)', marginTop: '0.25rem' }}>R$ 47,90/mês</span></th>
               </tr>
             </thead>
             {[
               {
                 cat: 'Vendas & Checkout',
                 items: [
-                  { name: 'Catálogo Digital (Pedidos via WhatsApp)', basic: true, pro: true, premium: true },
-                  { name: 'Carrinho de Compras & Checkout Online', basic: false, pro: true, premium: true },
-                  { name: 'Integração de Gateways (Mercado Pago, Asaas)', basic: false, pro: true, premium: true },
-                  { name: 'Cálculo de Envio & Frete (Correios/Melhor Envio)', basic: false, pro: true, premium: true }
+                  { name: 'Catálogo Digital (Pedidos via WhatsApp)', free: true, basic: true, pro: true, premium: true },
+                  { name: 'Carrinho de Compras & Checkout Online', free: false, basic: false, pro: true, premium: true },
+                  { name: 'Integração de Gateways (Mercado Pago, Asaas)', free: false, basic: false, pro: true, premium: true },
+                  { name: 'Cálculo de Envio & Frete (Correios/Melhor Envio)', free: false, basic: false, pro: true, premium: true }
                 ]
               },
               {
                 cat: 'Marketing & Conversão',
                 items: [
-                  { name: 'Cupons de Desconto Personalizados', basic: false, pro: false, premium: true },
-                  { name: 'Avaliação de Produtos (Reviews de Clientes)', basic: false, pro: false, premium: true },
-                  { name: 'Campanhas de Promoção & Banner Superior', basic: false, pro: false, premium: true },
-                  { name: 'Pixels de Rastreamento (Meta, Google, TikTok)', basic: false, pro: false, premium: true },
-                  { name: 'Botão do WhatsApp Personalizado', basic: false, pro: true, premium: true },
-                  { name: 'Recuperação de Carrinho Abandonado', basic: false, pro: false, premium: true },
-                  { name: 'Pop-up de Ofertas e Promoções', basic: false, pro: false, premium: true }
+                  { name: 'Cupons de Desconto Personalizados', free: false, basic: false, pro: false, premium: true },
+                  { name: 'Avaliação de Produtos (Reviews de Clientes)', free: false, basic: false, pro: false, premium: true },
+                  { name: 'Campanhas de Promoção & Banner Superior', free: false, basic: false, pro: false, premium: true },
+                  { name: 'Pixels de Rastreamento (Meta, Google, TikTok)', free: false, basic: false, pro: false, premium: true },
+                  { name: 'Botão do WhatsApp Personalizado', free: false, basic: false, pro: true, premium: true },
+                  { name: 'Recuperação de Carrinho Abandonado', free: false, basic: false, pro: false, premium: true },
+                  { name: 'Pop-up de Ofertas e Promoções', free: false, basic: false, pro: false, premium: true }
                 ]
               },
               {
                 cat: 'Limites & Taxas',
                 items: [
-                  { name: 'Cadastro de Produtos', basic: 'Até 50', pro: 'Até 500', premium: 'Ilimitado' },
-                  { name: 'Taxa de Transação da Plataforma', basic: '2.0% de comissão', pro: '1.0% de comissão', premium: 'Taxa Zero (0.0%)' },
-                  { name: 'Suporte Técnico', basic: 'E-mail', pro: 'WhatsApp Prioritário', premium: 'WhatsApp VIP 24/7' }
+                  { name: 'Cadastro de Produtos', free: 'Até 10', basic: 'Até 50', pro: 'Até 500', premium: 'Ilimitado' },
+                  { name: 'Taxa de Transação da Plataforma', free: '3.0% de comissão', basic: '2.0% de comissão', pro: '1.0% de comissão', premium: 'Taxa Zero (0.0%)' },
+                  { name: 'Suporte Técnico', free: 'Painel', basic: 'E-mail', pro: 'WhatsApp Prioritário', premium: 'WhatsApp VIP 24/7' }
                 ]
               }
             ].map((category, idx) => (
               <tbody key={idx} style={{ fontSize: '0.95rem' }}>
                 <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                  <td colSpan={4} style={{ padding: '0.75rem 1rem', fontWeight: 800, color: '#10b981', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid var(--border)' }}>
+                  <td colSpan={5} style={{ padding: '0.75rem 1rem', fontWeight: 800, color: '#10b981', fontSize: '0.8rem', textTransform: 'uppercase', letterSpacing: '0.5px', borderBottom: '1px solid var(--border)' }}>
                     {category.cat}
                   </td>
                 </tr>
                 {category.items.map((item, itemIdx) => (
                   <tr key={itemIdx} style={{ borderBottom: '1px solid var(--border)' }} className="table-row-hover">
                     <td style={{ padding: '1rem', fontWeight: 600, color: 'var(--foreground)' }}>{item.name}</td>
-                    {[item.basic, item.pro, item.premium].map((val, valIdx) => (
+                    {[item.free, item.basic, item.pro, item.premium].map((val, valIdx) => (
                       <td key={valIdx} style={{ padding: '1rem', textAlign: 'center' }}>
                         {typeof val === 'boolean' ? (
                           <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', width: '24px', height: '24px', borderRadius: '50%', background: val ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)', color: val ? '#10b981' : '#ef4444' }}>
                             {val ? <Check size={14} strokeWidth={3} /> : <X size={14} strokeWidth={3} />}
                           </div>
                         ) : (
-                          <span style={{ fontWeight: 700, color: valIdx === 0 ? 'var(--foreground)' : valIdx === 1 ? '#10b981' : '#0ea5e9' }}>
+                          <span style={{ fontWeight: 700, color: valIdx === 0 ? 'var(--muted)' : valIdx === 1 ? 'var(--foreground)' : valIdx === 2 ? '#10b981' : '#0ea5e9' }}>
                             {val}
                           </span>
                         )}

@@ -137,7 +137,7 @@ export default function PromotionsPage() {
         </div>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginBottom: '0.75rem' }}>Recurso Exclusivo do Plano Premium</h2>
         <p style={{ color: 'var(--muted)', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '2rem' }}>
-          Campanhas de promoções e cupons de desconto não estão ativos no seu plano atual (<strong>{plan === 'pro' ? 'Profissional' : 'Básico'}</strong>). Faça um upgrade agora mesmo para liberar todas as ferramentas de conversão da plataforma.
+          Campanhas de promoções e cupons de desconto não estão ativos no seu plano atual (<strong>{plan === 'pro' ? 'Profissional' : (plan === 'free' ? 'Gratuito' : 'Básico')}</strong>). Faça um upgrade agora mesmo para liberar todas as ferramentas de conversão da plataforma.
         </p>
         <Link href="/admin/subscription" style={{ display: 'inline-block', padding: '0.85rem 2rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)', transition: '0.2s' }}>
           Ver Planos & Fazer Upgrade

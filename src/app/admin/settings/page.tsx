@@ -31,6 +31,7 @@ export default function SettingsPage() {
     name: '',
     subdomain: '',
     custom_domain: '',
+    niche: '',
     logo_url: '',
     favicon_url: '',
     primary_color: '#6366f1',
@@ -266,6 +267,8 @@ export default function SettingsPage() {
         favicon_url: s.favicon_url || '',
         primary_color: s.primary_color || '#6366f1',
         secondary_color: s.secondary_color || '#06b6d4',
+        layout_model: s.layout_model || 'modern',
+        niche: s.niche || '',
         theme_mode: s.theme_mode || 'light',
         cta_bg_color: s.cta_bg_color || s.primary_color || '#6366f1',
         cta_use_gradient: s.cta_use_gradient || false,
@@ -766,6 +769,12 @@ export default function SettingsPage() {
     e.preventDefault()
     setSaving(true)
     try {
+      if (formData.custom_domain && (plan === 'free')) {
+        toast.error('O recurso de Domínio Próprio é exclusivo dos planos Básico, Profissional e Premium.')
+        setSaving(false)
+        return
+      }
+
       // Se o domínio customizado mudou, atualizamos na Vercel
       if (formData.custom_domain !== initialCustomDomain) {
         if (formData.custom_domain) {
@@ -817,9 +826,18 @@ export default function SettingsPage() {
 
       if (fetchError) throw fetchError
 
+      let syncedHeroImageUrl = currentStore?.settings?.hero_image_url || ''
+      if (formData.hero_banners && formData.hero_banners.length > 0) {
+        const firstBanner = formData.hero_banners[0]
+        if (firstBanner && firstBanner.desktop_url) {
+          syncedHeroImageUrl = firstBanner.desktop_url
+        }
+      }
+
       const mergedSettings = {
         ...(currentStore?.settings || {}),
-        ...formData
+        ...formData,
+        hero_image_url: syncedHeroImageUrl
       }
 
       const { error } = await supabase
@@ -1203,32 +1221,32 @@ export default function SettingsPage() {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                   <label 
                     onClick={() => {
-                      if (plan === 'basic') {
+                      if (plan === 'basic' || plan === 'free') {
                         toast.error('O Modo Loja Virtual requer upgrade para o Plano Profissional ou Premium.')
                       }
                     }}
-                    style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem', border: formData.store_mode === 'loja' ? '2px solid var(--primary)' : '1px solid var(--border)', borderRadius: '12px', cursor: plan === 'basic' ? 'not-allowed' : 'pointer', backgroundColor: formData.store_mode === 'loja' ? 'rgba(99, 102, 241, 0.05)' : 'transparent', opacity: plan === 'basic' ? 0.6 : 1 }}
+                    style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem', border: formData.store_mode === 'loja' ? '2px solid var(--primary)' : '1px solid var(--border)', borderRadius: '12px', cursor: (plan === 'basic' || plan === 'free') ? 'not-allowed' : 'pointer', backgroundColor: formData.store_mode === 'loja' ? 'rgba(99, 102, 241, 0.05)' : 'transparent', opacity: (plan === 'basic' || plan === 'free') ? 0.6 : 1 }}
                   >
                     <input 
                       type="radio" 
                       name="store_mode" 
-                      disabled={plan === 'basic'}
-                      checked={plan !== 'basic' && formData.store_mode === 'loja'} 
+                      disabled={plan === 'basic' || plan === 'free'}
+                      checked={plan !== 'basic' && plan !== 'free' && formData.store_mode === 'loja'} 
                       onChange={() => setFormData({...formData, store_mode: 'loja'})} 
                     />
                     <div>
                       <div style={{ fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
                         <span>Loja Virtual Completa</span>
-                        {plan === 'basic' && <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.5rem', background: '#ef4444', color: 'white', borderRadius: '4px' }}>PRO / PREMIUM</span>}
+                        {(plan === 'basic' || plan === 'free') && <span style={{ fontSize: '0.7rem', padding: '0.1rem 0.5rem', background: '#ef4444', color: 'white', borderRadius: '4px' }}>PRO / PREMIUM</span>}
                       </div>
                       <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Carrinho, checkout e layout completo com banners.</div>
                     </div>
                   </label>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem', border: (plan === 'basic' || formData.store_mode === 'catalogo') ? '2px solid var(--primary)' : '1px solid var(--border)', borderRadius: '12px', cursor: 'pointer', backgroundColor: (plan === 'basic' || formData.store_mode === 'catalogo') ? 'rgba(99, 102, 241, 0.05)' : 'transparent' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem', border: (plan === 'basic' || plan === 'free' || formData.store_mode === 'catalogo') ? '2px solid var(--primary)' : '1px solid var(--border)', borderRadius: '12px', cursor: 'pointer', backgroundColor: (plan === 'basic' || plan === 'free' || formData.store_mode === 'catalogo') ? 'rgba(99, 102, 241, 0.05)' : 'transparent' }}>
                     <input 
                       type="radio" 
                       name="store_mode" 
-                      checked={plan === 'basic' || formData.store_mode === 'catalogo'} 
+                      checked={plan === 'basic' || plan === 'free' || formData.store_mode === 'catalogo'} 
                       onChange={() => setFormData({...formData, store_mode: 'catalogo'})} 
                     />
                     <div>
@@ -2764,14 +2782,14 @@ export default function SettingsPage() {
           )}
 
           {activeTab === 'whatsapp_floating' && (
-            plan === 'basic' ? (
+            (plan === 'basic' || plan === 'free') ? (
               <div className="glass-card" style={{ padding: '3.5rem 2.5rem', textAlign: 'center', borderRadius: '16px', border: '1px solid var(--border)' }}>
                 <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', color: '#6366f1' }}>
                   <Sparkles size={32} />
                 </div>
                 <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginBottom: '0.75rem' }}>Recurso Exclusivo do Plano Profissional / Premium</h2>
                 <p style={{ color: 'var(--muted)', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '2rem' }}>
-                  A personalização do Botão do WhatsApp (suporte a múltiplos atendentes e títulos personalizados) não está ativa no seu plano atual (<strong>Básico</strong>). Faça um upgrade agora mesmo para estruturar sua equipe de atendimento e turbinar suas conversões!
+                  A personalização do Botão do WhatsApp (suporte a múltiplos atendentes e títulos personalizados) não está ativa no seu plano atual (<strong>{plan === 'free' ? 'Gratuito' : 'Básico'}</strong>). Faça um upgrade agora mesmo para estruturar sua equipe de atendimento e turbinar suas conversões!
                 </p>
                 <Link href="/admin/subscription" style={{ display: 'inline-block', padding: '0.85rem 2rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)', transition: '0.2s' }}>
                   Ver Planos & Fazer Upgrade
@@ -3333,15 +3351,21 @@ export default function SettingsPage() {
               </div>
 
               <div className="form-group" style={{ marginTop: '1rem' }}>
-                <label style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--foreground)' }}>Domínio Próprio Registrado (Opcional)</label>
+                <label style={{ fontSize: '0.9rem', fontWeight: 700, color: 'var(--foreground)', opacity: plan === 'free' ? 0.6 : 1 }}>Domínio Próprio Registrado (Opcional)</label>
                 <input 
                   type="text" 
-                  value={formData.custom_domain} 
+                  value={plan === 'free' ? '' : formData.custom_domain} 
+                  disabled={plan === 'free'}
                   onChange={e => setFormData({...formData, custom_domain: e.target.value.toLowerCase().replace(/^(https?:\/\/)?(www\.)?/, '')})} 
-                  placeholder="ex: sualoja.com.br"
-                  style={{ fontWeight: 600, fontSize: '1rem' }}
+                  placeholder={plan === 'free' ? 'Indisponível no plano gratuito' : 'ex: sualoja.com.br'}
+                  style={{ fontWeight: 600, fontSize: '1rem', cursor: plan === 'free' ? 'not-allowed' : 'text', opacity: plan === 'free' ? 0.6 : 1 }}
                 />
                 <span style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '0.25rem' }}>Digite apenas o domínio sem www ou https:// (ex: minhaloja.com.br). Lembre-se de clicar em 'Salvar Tudo' no topo para aplicar.</span>
+                {plan === 'free' && (
+                  <div style={{ color: '#ef4444', fontSize: '0.8rem', fontWeight: 700, marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    <span>⚠️ Recurso indisponível no Plano Gratuito. Faça upgrade para utilizar domínio próprio.</span>
+                  </div>
+                )}
               </div>
 
               <div style={{ background: 'rgba(16, 185, 129, 0.08)', border: '1px solid rgba(16, 185, 129, 0.2)', padding: '1.5rem', borderRadius: '14px', marginTop: '1.25rem' }}>

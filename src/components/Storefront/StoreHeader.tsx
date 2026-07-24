@@ -110,7 +110,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories,
   }, [])
 
   const plan = store?.settings?.plan || 'basic'
-  const storeMode = plan === 'basic' ? 'catalogo' : (settings.store_mode || 'loja')
+  const storeMode = (plan === 'basic' || plan === 'free') ? 'catalogo' : (settings.store_mode || 'loja')
   const isCatalogo = storeMode === 'catalogo'
 
   const handleCartCheckoutWhatsapp = () => {

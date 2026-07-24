@@ -57,8 +57,12 @@ export default function SuperAdminRequests() {
       if (error) throw error
 
       const storesList = data || []
-      // Filtra apenas os registros que são solicitações pendentes de criação OU de cancelamento
-      const pendingList = storesList.filter(store => store.settings?.is_pending_request === true || store.settings?.is_pending_cancellation === true)
+      // Filtra apenas os registros que são solicitações pendentes de criação, cancelamento OU serviço VIP
+      const pendingList = storesList.filter(store => 
+        store.settings?.is_pending_request === true || 
+        store.settings?.is_pending_cancellation === true ||
+        store.settings?.vip_request_status === 'pending'
+      )
       setRequests(pendingList)
     } catch (err: any) {
       console.error('Erro ao buscar solicitações:', err)
@@ -185,9 +189,9 @@ export default function SuperAdminRequests() {
   }
 
   return (
-    <div style={{ display: 'grid', gap: '2.5rem' }}>
+    <div style={{ display: 'grid', gap: '2.5rem' }} className="requests-page-container">
       {/* Cabeçalho */}
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <header className="req-header-flex" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <UserPlus size={26} color="#10b981" />
@@ -198,8 +202,8 @@ export default function SuperAdminRequests() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <div style={{ position: 'relative', width: '320px' }}>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }} className="req-header-search-container">
+          <div style={{ position: 'relative', width: '320px' }} className="req-search-box">
             <Search size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--muted)' }} />
             <input 
               type="text" 
@@ -213,7 +217,7 @@ export default function SuperAdminRequests() {
       </header>
 
       {/* Cards de Resumo */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
+      <div className="req-summary-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1.5rem' }}>
         <div className="glass-card" style={{ padding: '1.5rem', borderRadius: '16px', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981' }}>
             <Clock size={24} />
@@ -272,12 +276,13 @@ export default function SuperAdminRequests() {
                   const planName = s.plan === 'premium' ? 'Premium Ilimitado' : s.plan === 'pro' ? 'Plano Profissional' : 'Plano Básico'
                   const modelName = s.model === 'fashion' ? 'Moda & Boutique' : s.model === 'tech' ? 'Tecnologia & Eletrônicos' : 'Moderno / Geral'
                   const isCancel = s.is_pending_cancellation === true
+                  const isVip = s.vip_request_status === 'pending'
 
                   return (
                     <tr key={req.id} style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)', transition: 'background 0.2s' }} className="request-row">
                       <td style={{ padding: '1.25rem 1rem' }}>
                         <div style={{ fontWeight: 800, color: 'var(--foreground)', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <Store size={18} color={isCancel ? "#ef4444" : "#10b981"} />
+                          <Store size={18} color={isCancel ? "#ef4444" : (isVip ? "#a855f7" : "#10b981")} />
                           <span>{s.name || req.name}</span>
                         </div>
                         <div style={{ margin: '0.35rem 0' }}>
@@ -285,6 +290,11 @@ export default function SuperAdminRequests() {
                             <span style={{ padding: '0.2rem 0.6rem', background: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', borderRadius: '6px', fontWeight: 800, fontSize: '0.75rem', border: '1px solid rgba(239, 68, 68, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
                               <AlertTriangle size={12} />
                               Solicitação de Cancelamento
+                            </span>
+                          ) : isVip ? (
+                            <span style={{ padding: '0.2rem 0.6rem', background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7', borderRadius: '6px', fontWeight: 800, fontSize: '0.75rem', border: '1px solid rgba(168, 85, 247, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
+                              <Sparkles size={12} />
+                              Personalização VIP (Setup VIP)
                             </span>
                           ) : (
                             <span style={{ padding: '0.2rem 0.6rem', background: 'rgba(16, 185, 129, 0.15)', color: '#10b981', borderRadius: '6px', fontWeight: 800, fontSize: '0.75rem', border: '1px solid rgba(16, 185, 129, 0.3)', display: 'inline-flex', alignItems: 'center', gap: '0.25rem' }}>
@@ -309,12 +319,14 @@ export default function SuperAdminRequests() {
                       </td>
                       <td style={{ padding: '1.25rem 1rem', fontWeight: 700 }}>
                         <span style={{ padding: '0.35rem 0.75rem', borderRadius: '20px', background: s.plan === 'premium' ? 'rgba(16, 185, 129, 0.1)' : 'rgba(99, 102, 241, 0.1)', color: s.plan === 'premium' ? '#10b981' : '#6366f1', border: s.plan === 'premium' ? '1px solid rgba(16, 185, 129, 0.2)' : '1px solid rgba(99, 102, 241, 0.2)', fontSize: '0.8rem' }}>
-                          {planName}
+                           {planName}
                         </span>
                       </td>
                       <td style={{ padding: '1.25rem 1rem', color: 'var(--muted)', fontSize: '0.85rem' }}>
                         {isCancel ? (
                           s.cancellation_request_date ? new Date(s.cancellation_request_date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : new Date().toLocaleDateString('pt-BR')
+                        ) : isVip ? (
+                          s.vip_request_date ? new Date(s.vip_request_date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : new Date().toLocaleDateString('pt-BR')
                         ) : (
                           s.request_date ? new Date(s.request_date).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : new Date(req.created_at).toLocaleDateString('pt-BR')
                         )}
@@ -340,6 +352,38 @@ export default function SuperAdminRequests() {
                             >
                               {activatingId === req.id ? <Loader2 size={16} className="animate-spin" /> : <XCircle size={16} />}
                               <span>Cancelar Plano</span>
+                            </button>
+                          ) : isVip ? (
+                            <button 
+                              onClick={async () => {
+                                if (!confirm(`Deseja marcar a personalização VIP da loja "${s.name || req.name}" como concluída?`)) return
+                                setActivatingId(req.id)
+                                try {
+                                  const updatedSettings = {
+                                    ...s,
+                                    vip_request_status: 'completed',
+                                    vip_completed_at: new Date().toISOString()
+                                  }
+                                  const { error } = await supabase
+                                    .from('stores')
+                                    .update({ settings: updatedSettings })
+                                    .eq('id', req.id)
+                                  if (error) throw error
+                                  toast.success(`Setup VIP da loja "${s.name || req.name}" concluído!`)
+                                  setRequests(prev => prev.filter(item => item.id !== req.id))
+                                } catch (err) {
+                                  toast.error('Erro ao salvar status VIP.')
+                                } finally {
+                                  setActivatingId(null)
+                                }
+                              }}
+                              disabled={activatingId === req.id}
+                              title="Concluir Personalização VIP" 
+                              style={{ padding: '0.6rem 1rem', background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7', border: '1px solid rgba(168, 85, 247, 0.3)', borderRadius: '10px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700 }}
+                              className="btn-action"
+                            >
+                              {activatingId === req.id ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle2 size={16} />}
+                              <span>Concluir</span>
                             </button>
                           ) : (
                             <button 
@@ -425,7 +469,7 @@ export default function SuperAdminRequests() {
               </div>
             ) : (
               /* DETALHES DO ONBOARDING (NOVA LOJA) */
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2.5rem' }}>
+              <div className="req-modal-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '2.5rem' }}>
                 <div style={{ background: 'rgba(255, 255, 255, 0.05)', padding: '1.25rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.1)' }}>
                   <div style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', marginBottom: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                     <Store size={14} color="#10b981" />
@@ -498,7 +542,7 @@ export default function SuperAdminRequests() {
               </div>
             )}
 
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '2rem' }}>
+            <div className="req-modal-footer" style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', borderTop: '1px solid rgba(255, 255, 255, 0.1)', paddingTop: '2rem' }}>
               {selectedRequest.settings?.is_pending_cancellation ? (
                 <>
                   <button 
@@ -514,6 +558,55 @@ export default function SuperAdminRequests() {
                   >
                     {activatingId === selectedRequest.id ? <Loader2 size={18} className="animate-spin" /> : <XCircle size={18} />}
                     <span>Confirmar Cancelamento (Desativar Loja)</span>
+                  </button>
+                </>
+              ) : selectedRequest.settings?.vip_request_status === 'pending' ? (
+                <>
+                  <button 
+                    onClick={() => { setShowModal(false); setSelectedRequest(null); }}
+                    style={{ padding: '0.8rem 1.5rem', background: 'transparent', color: '#cbd5e1', border: '1px solid rgba(255, 255, 255, 0.15)', borderRadius: '12px', fontWeight: 700, cursor: 'pointer' }}
+                  >
+                    Voltar
+                  </button>
+                  <a 
+                    href={`https://wa.me/${(selectedRequest.settings?.whatsapp || selectedRequest.settings?.phone || '').replace(/\D/g, '')}?text=Olá! Sou o suporte do CriarLojas. Recebemos seu pedido de personalização VIP para a loja *${selectedRequest.settings?.name || selectedRequest.name}*. Vamos alinhar os detalhes?`}
+                    target="_blank" 
+                    rel="noreferrer"
+                    style={{ textDecoration: 'none', padding: '0.8rem 1.5rem', background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7', border: '1px solid rgba(168, 85, 247, 0.3)', borderRadius: '12px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                  >
+                    <Send size={18} />
+                    <span>Falar no WhatsApp</span>
+                  </a>
+                  <button 
+                    onClick={async () => {
+                      if (!confirm(`Deseja marcar a personalização VIP da loja "${selectedRequest.settings?.name || selectedRequest.name}" como concluída?`)) return
+                      setActivatingId(selectedRequest.id)
+                      try {
+                        const updatedSettings = {
+                          ...selectedRequest.settings,
+                          vip_request_status: 'completed',
+                          vip_completed_at: new Date().toISOString()
+                        }
+                        const { error } = await supabase
+                          .from('stores')
+                          .update({ settings: updatedSettings })
+                          .eq('id', selectedRequest.id)
+                        if (error) throw error
+                        toast.success(`Setup VIP concluído!`)
+                        setRequests(prev => prev.filter(item => item.id !== selectedRequest.id))
+                        setShowModal(false)
+                        setSelectedRequest(null)
+                      } catch (err) {
+                        toast.error('Erro ao salvar status VIP.')
+                      } finally {
+                        setActivatingId(null)
+                      }
+                    }}
+                    disabled={activatingId === selectedRequest.id}
+                    style={{ padding: '0.8rem 2rem', background: 'linear-gradient(135deg, #a855f7, #6366f1)', color: 'white', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(168, 85, 247, 0.4)' }}
+                  >
+                    {activatingId === selectedRequest.id ? <Loader2 size={18} className="animate-spin" /> : <CheckCircle2 size={18} />}
+                    <span>Marcar como Concluído</span>
                   </button>
                 </>
               ) : (
@@ -550,6 +643,42 @@ export default function SuperAdminRequests() {
           </div>
         </div>
       )}
+
+      {/* MOBILE ADAPTATIVE CSS INJECTED */}
+      <style>{`
+        @media (max-width: 1024px) {
+          .req-header-flex {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 1.5rem !important;
+          }
+          .req-header-search-container, .req-search-box {
+            width: 100% !important;
+          }
+          .req-summary-grid {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 1rem !important;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .req-summary-grid {
+            grid-template-columns: 1fr !important;
+          }
+          .req-modal-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+          }
+          .req-modal-footer {
+            flex-direction: column !important;
+            gap: 1rem !important;
+          }
+          .req-modal-footer button, .req-modal-footer a {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+        }
+      `}</style>
     </div>
   )
 }

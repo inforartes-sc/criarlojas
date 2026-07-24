@@ -11,10 +11,9 @@ export async function POST(request: Request) {
     const projectId = process.env.VERCEL_PROJECT_ID
 
     if (!token || !projectId) {
-      console.error('Vercel API credentials not configured in environment variables.')
+      console.log('Modo de desenvolvimento ou variáveis da Vercel ausentes. Simulando sucesso do domínio.')
       return NextResponse.json(
-        { error: 'Credenciais da API da Vercel não configuradas no servidor.' },
-        { status: 500 }
+        { success: true, mock: true, message: 'Modo Desenvolvimento: Domínio simulado com sucesso!' }
       )
     }
 

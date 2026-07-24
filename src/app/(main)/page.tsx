@@ -38,79 +38,161 @@ import {
   Palette,
   Clock,
   MessageCircle,
-  Loader2
+  Loader2,
+  ArrowUpRight,
+  CheckCircle,
+  ThumbsUp,
+  Brain,
+  Sparkle,
+  CreditCard
 } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 import { getDomainSuffix, getAbsoluteUrl } from '@/lib/getDomainSuffix'
 
+// Vitrines / Lojas Modelo (Fallback Estático)
+const initialDemoStores = [
+  {
+    id: 'fashion',
+    name: 'Boutique Elegance',
+    subdomain: 'moda',
+    niche: 'Moda & Vestuário',
+    img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=600&q=80',
+    color: '#f43f5e',
+    desc: 'Design clean e minimalista, perfeito para marcas de roupa e acessórios conceituais.'
+  },
+  {
+    id: 'cosmetics',
+    name: 'Glow Cosmetics',
+    subdomain: 'cosmeticos',
+    niche: 'Cosméticos & Maquiagem',
+    img: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?auto=format&fit=crop&w=600&q=80',
+    color: '#10b981',
+    desc: 'Cores suaves e foco visual em texturas, ideal para produtos de beleza e bem-estar.'
+  },
+  {
+    id: 'jewelry',
+    name: 'Aurum Semijoias',
+    subdomain: 'semijoias',
+    niche: 'Semijoias & Joias',
+    img: 'https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?auto=format&fit=crop&w=600&q=80',
+    color: '#f59e0b',
+    desc: 'Sofisticação escura e iluminação de contraste para destacar detalhes luxuosos das peças.'
+  },
+  {
+    id: 'pet',
+    name: 'PetFamily Store',
+    subdomain: 'pet',
+    niche: 'Pet Shop',
+    img: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80',
+    color: '#0ea5e9',
+    desc: 'Navegação descontraída e amigável para petiscos, brinquedos e acessórios para pets.'
+  },
+  {
+    id: 'doces',
+    name: 'Cacau Gourmet',
+    subdomain: 'doces',
+    niche: 'Doces & Confeitaria',
+    img: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=600&q=80',
+    color: '#ec4899',
+    desc: 'Cardápio irresistível focado em fotos grandes e finalização ágil via Pix.'
+  },
+  {
+    id: 'auto',
+    name: 'Piston Autopeças',
+    subdomain: 'autopecas',
+    niche: 'Autopeças & Moto',
+    img: 'https://images.unsplash.com/photo-1486006920555-c77dce18193b?auto=format&fit=crop&w=600&q=80',
+    color: '#334155',
+    desc: 'Grade técnica robusta, filtragem direta e compatibilidade de componentes visível.'
+  },
+  {
+    id: 'dropshipping',
+    name: 'Express Imports',
+    subdomain: 'dropshipping',
+    niche: 'Dropshipping Geral',
+    img: 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=600&q=80',
+    color: '#6366f1',
+    desc: 'Elementos fortes de prova social, escassez imediata e ofertas integradas de alta conversão.'
+  }
+]
+
 export default function SaaSCommercialPortal() {
   const [domainSuffix, setDomainSuffix] = useState('.localhost:3000')
   const [showMobileMenu, setShowMobileMenu] = useState(false)
-  const [isDemoBtnHovered, setIsDemoBtnHovered] = useState(false)
-  const [isHeroBtnHovered, setIsHeroBtnHovered] = useState(false)
+  
+  // Mocks interativos do celular (Hero Showcase)
+  const [mockCartCount, setMockCartCount] = useState(0)
+  const [showMockCheckout, setShowMockCheckout] = useState(false)
+  const [mockCheckoutStep, setMockCheckoutStep] = useState(0) // 0: add to cart, 1: details, 2: success/Pix
 
+  // Segmento selecionado para a seção "Transforme sua ideia em negócio"
+  const [activeSegmentTab, setActiveSegmentTab] = useState('todos')
+  const [demoStores, setDemoStores] = useState<any[]>([])
+  const [loadingStores, setLoadingStores] = useState(true)
+  const [visibleDemoLimit, setVisibleDemoLimit] = useState(3)
   useEffect(() => {
     setDomainSuffix(getDomainSuffix())
+    
+    async function loadDemoStores() {
+      try {
+        const { data, error } = await supabase
+          .from('stores')
+          .select('*')
+          .order('created_at', { ascending: true })
+        
+        let dbFormatted: any[] = []
+        if (!error && data) {
+          const dbDemos = data.filter(s => s.settings?.is_demo === true)
+          dbFormatted = dbDemos.map(s => {
+            const settings = s.settings || {}
+            return {
+              id: s.id,
+              name: s.name || settings.name,
+              subdomain: s.subdomain,
+              niche: settings.niche || 'Moda & Acessórios',
+              img: settings.hero_image_url || 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=600&q=80',
+              color: settings.primary_color || '#10b981',
+              desc: settings.description || 'Loja conceito de alta conversão.'
+            }
+          })
+        }
+        setDemoStores(dbFormatted)
+      } catch (err) {
+        console.error('Error loading demo stores:', err)
+        setDemoStores([])
+      } finally {
+        setLoadingStores(false)
+      }
+    }
+    loadDemoStores()
   }, [])
-
-  // Ref e função para o Carrossel Horizontal de Vitrines
+  // Ref e função para o Carrossel Horizontal de Lojas Modelo
   const carouselRef = useRef<HTMLDivElement>(null)
   const scrollCarousel = (direction: 'left' | 'right') => {
     if (carouselRef.current) {
       const firstCard = carouselRef.current.children[0] as HTMLElement
       if (firstCard) {
-        const cardWidth = firstCard.offsetWidth + 40 // 40px de gap (2.5rem)
+        const cardWidth = firstCard.offsetWidth + 40 // 40px de gap
         const scrollAmount = direction === 'left' ? -cardWidth : cardWidth
         carouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
       }
     }
   }
 
-  // Ref e função para o Carrossel Horizontal de Clientes Ativos
-  const clientsCarouselRef = useRef<HTMLDivElement>(null)
-  const scrollClientsCarousel = (direction: 'left' | 'right') => {
-    if (clientsCarouselRef.current) {
-      const firstCard = clientsCarouselRef.current.children[0] as HTMLElement
-      if (firstCard) {
-        const cardWidth = firstCard.offsetWidth + 40 // 40px de gap (2.5rem)
-        const scrollAmount = direction === 'left' ? -cardWidth : cardWidth
-        clientsCarouselRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' })
-      }
-    }
-  }
-
-  // Estado para os clientes ativos / em faturamento
-  const [activeClientsList, setActiveClientsList] = useState<any[]>([])
-
   // Estado para as configurações globais de contato (conectado com o Super Admin)
-  const [platformSettings, setPlatformSettings] = useState(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const saved = localStorage.getItem('superadmin_global_settings')
-        if (saved) {
-          const parsed = JSON.parse(saved)
-          return {
-            supportEmail: parsed.supportEmail || 'contato@criarlojas.com.br',
-            whatsappSupport: parsed.whatsappSupport || '(11) 99999-8888',
-            businessHours: parsed.businessHours || 'Seg - Sex, das 9h às 18h',
-            landingPageTheme: parsed.landingPageTheme || 'light'
-          }
-        }
-      } catch (e) {
-        console.error(e)
-      }
-    }
-    return {
-      supportEmail: 'contato@criarlojas.com.br',
-      whatsappSupport: '(11) 99999-8888',
-      businessHours: 'Seg - Sex, das 9h às 18h',
-      landingPageTheme: 'light'
-    }
+  const [platformSettings, setPlatformSettings] = useState({
+    supportEmail: 'contato@criarlojas.com.br',
+    whatsappSupport: '(11) 99999-8888',
+    businessHours: 'Seg - Sex, das 9h às 18h',
+    landingPageTheme: 'light'
   })
 
+  // Estado para os planos dinâmicos carregados do banco
+  const [plans, setPlans] = useState<any[]>([])
+
   useEffect(() => {
-    async function fetchPlatformSettings() {
+    async function fetchPlatformSettingsAndPlans() {
       try {
         const { data, error } = await supabase
           .from('stores')
@@ -120,47 +202,39 @@ export default function SaaSCommercialPortal() {
         
         if (data && data.settings) {
           const s = data.settings
-          const themeVal = s.landingPageTheme || 'light'
           setPlatformSettings({
             supportEmail: s.supportEmail || 'contato@criarlojas.com.br',
             whatsappSupport: s.whatsappSupport || '5511999998888',
             businessHours: s.businessHours || 'Seg - Sex, das 9h às 18h',
-            landingPageTheme: themeVal
+            landingPageTheme: 'light'
           })
-          
-          // Save to localStorage for instant load next time
-          try {
-            localStorage.setItem('superadmin_global_settings', JSON.stringify({
-              supportEmail: s.supportEmail,
-              whatsappSupport: s.whatsappSupport,
-              businessHours: s.businessHours,
-              landingPageTheme: themeVal
+
+          if (s.plans && Array.isArray(s.plans) && s.plans.length > 0) {
+            // Filtrar apenas planos ativos
+            const activePlans = s.plans.filter((p: any) => p.active !== false)
+            const mapped = activePlans.map((p: any) => ({
+              id: p.id,
+              name: p.name,
+              priceMonthly: p.price,
+              priceAnnual: p.price * 0.8, // 20% de desconto
+              desc: p.desc,
+              features: p.features || [],
+              popular: p.popular || false,
+              buttonText: p.buttonText || 'Começar Agora'
             }))
-          } catch (e) {}
-          return
+            setPlans(mapped)
+          } else {
+            setPlans(fallbackPlans)
+          }
+        } else {
+          setPlans(fallbackPlans)
         }
       } catch (err) {
-        console.error('Erro ao carregar configurações da plataforma do Supabase:', err)
-      }
-
-      // Fallback para localStorage/padrões em caso de falha na rede
-      try {
-        const saved = localStorage.getItem('superadmin_global_settings')
-        if (saved) {
-          const parsed = JSON.parse(saved)
-          setPlatformSettings({
-            supportEmail: parsed.supportEmail || 'contato@criarlojas.com.br',
-            whatsappSupport: parsed.whatsappSupport || '(11) 99999-8888',
-            businessHours: parsed.businessHours || 'Seg - Sex, das 9h às 18h',
-            landingPageTheme: parsed.landingPageTheme || 'light'
-          })
-        }
-      } catch (e) {
-        console.error('Erro ao carregar configurações globais do localStorage:', e)
+        console.error('Erro ao carregar configurações/planos:', err)
+        setPlans(fallbackPlans)
       }
     }
-
-    fetchPlatformSettings()
+    fetchPlatformSettingsAndPlans()
   }, [])
 
   // Estado e efeito para o botão Voltar para o Topo
@@ -177,21 +251,6 @@ export default function SaaSCommercialPortal() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
-  // Função auxiliar para calcular o contraste ideal do texto (branco ou escuro) com base na cor de fundo
-  const getContrastTextColor = (hexColor: string) => {
-    const cleanHex = hexColor.replace('#', '')
-    const r = parseInt(cleanHex.substring(0, 2), 16) || 0
-    const g = parseInt(cleanHex.substring(2, 4), 16) || 0
-    const b = parseInt(cleanHex.substring(4, 6), 16) || 0
-    const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000
-    return yiq >= 128 ? '#0f172a' : '#ffffff'
-  }
-
-  // Formata o número do WhatsApp sem duplicar o DDI 55
   const formatWhatsappNumber = (phone: string) => {
     const cleaned = phone.replace(/\D/g, '')
     if (cleaned.startsWith('55') && cleaned.length >= 12) {
@@ -200,18 +259,57 @@ export default function SaaSCommercialPortal() {
     return '55' + cleaned
   }
 
-  // Estado da categoria selecionada para filtro
-  const [selectedCategory, setSelectedCategory] = useState<string>('all')
-
-  // Estado para ciclo de cobrança dos planos (Mensal vs Anual com 20% OFF)
   const [billingCycle, setBillingCycle] = useState<'mensal' | 'anual'>('mensal')
 
-  // Estado para a Calculadora de ROI
-  const [monthlyOrders, setMonthlyOrders] = useState(250)
-  const [averageTicket, setAverageTicket] = useState(150)
-
-  // Estado para o FAQ
+  // FAQ
   const [openFaq, setOpenFaq] = useState<number | null>(null)
+
+  // Calculadora de Economia e Tabela Comparativa
+  const [salesPerMonth, setSalesPerMonth] = useState(250)
+  const [averageTicket, setAverageTicket] = useState(150)
+  const [showFullComparison, setShowFullComparison] = useState(true)
+
+  // Estado para o Modal de Domínio Próprio
+  const [showDomainModal, setShowDomainModal] = useState(false)
+  const [isCheckingDomain, setIsCheckingDomain] = useState(false)
+  const [isSubmittingDomain, setIsSubmittingDomain] = useState(false)
+  const [domainData, setDomainData] = useState({
+    desiredDomain: '',
+    fullName: '',
+    whatsapp: '',
+    email: '',
+    notes: ''
+  })
+
+  const handleVerifyDomain = (e: React.MouseEvent) => {
+    e.preventDefault()
+    if (!domainData.desiredDomain) {
+      toast.error('Digite o domínio desejado para verificar.')
+      return
+    }
+    setIsCheckingDomain(true)
+    setTimeout(() => {
+      setIsCheckingDomain(false)
+      toast.success('Domínio disponível para registro!')
+    }, 1200)
+  }
+
+  const handleDomainSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsSubmittingDomain(true)
+    setTimeout(() => {
+      setIsSubmittingDomain(false)
+      setShowDomainModal(false)
+      setDomainData({
+        desiredDomain: '',
+        fullName: '',
+        whatsapp: '',
+        email: '',
+        notes: ''
+      })
+      toast.success('Solicitação enviada! Entraremos em contato via WhatsApp com as opções.')
+    }, 1500)
+  }
 
   // Estado para o Modal de Solicitação / Contratação de Loja
   const [showLeadModal, setShowLeadModal] = useState(false)
@@ -219,50 +317,36 @@ export default function SaaSCommercialPortal() {
     name: '',
     whatsapp: '',
     email: '',
-    storeName: '', // Nome da Loja
-    subdomain: '', // Subdomínio
-    primaryColor: '#10b981', // Cor Padrão (Esmeralda por padrão)
-    selectedModel: 'modern', // modern, fashion, tech
-    selectedPlan: 'pro',
+    storeName: '',
+    subdomain: '',
+    primaryColor: '#10b981',
+    selectedModel: '', // Será preenchido na abertura
+    selectedPlan: 'free', // Default is free!
+    password: '',
     notes: '',
-    wantsConcierge: false
+    wantsConcierge: true
   })
   const [isSubmittingLead, setIsSubmittingLead] = useState(false)
   const [leadSubmitted, setLeadSubmitted] = useState(false)
-  const [showComparison, setShowComparison] = useState(false)
+  const [checkoutPending, setCheckoutPending] = useState(false)
+  const [createdStoreData, setCreatedStoreData] = useState<any>(null)
 
-  // Função para abrir o modal pré-selecionando modelo ou plano
-  const handleOpenLeadModal = (modelKey: string = 'modern', planKey: string = 'pro', concierge: boolean = false) => {
+  const handleOpenLeadModal = (modelKey: string = 'fashion', planKey: string = 'free', concierge: boolean = true) => {
+    const matchedModel = demoStores.find(s => s.id === modelKey || s.subdomain === modelKey)
+    const finalModelKey = matchedModel ? matchedModel.id : (demoStores[0]?.id || '')
+
     setLeadData(prev => ({
       ...prev,
-      selectedModel: modelKey,
+      selectedModel: finalModelKey,
       selectedPlan: planKey,
-      wantsConcierge: concierge
+      wantsConcierge: concierge,
+      password: ''
     }))
+    setCheckoutPending(false)
     setLeadSubmitted(false)
     setShowLeadModal(true)
   }
 
-  // Estado para o Modal de Solicitação de Registro de Domínio Próprio
-  const [showDomainModal, setShowDomainModal] = useState(false)
-  const [domainData, setDomainData] = useState({
-    name: '',
-    whatsapp: '',
-    email: '',
-    domainName: '', // ex: minhamarca.com.br
-    notes: ''
-  })
-  const [isSubmittingDomain, setIsSubmittingDomain] = useState(false)
-  const [domainSubmitted, setDomainSubmitted] = useState(false)
-  const [localChecking, setLocalChecking] = useState(false)
-  const [localCheckResult, setLocalCheckResult] = useState<any>(null)
-
-  const handleOpenDomainModal = () => {
-    setDomainSubmitted(false)
-    setShowDomainModal(true)
-  }
-
-  // Paleta de Cores Rápidas para o Seletor de Identidade Visual
   const colorPresets = [
     { name: 'Esmeralda', hex: '#10b981' },
     { name: 'Azul Oceano', hex: '#0ea5e9' },
@@ -272,580 +356,507 @@ export default function SaaSCommercialPortal() {
     { name: 'Grafite Premium', hex: '#334155' },
   ]
 
-  const defaultPlans = [
+  // Estrutura de planos padrão (fallback)
+  const fallbackPlans = [
     {
-      id: 'basic',
-      name: 'Plano Básico',
+      id: 'inicial',
+      name: 'Plano Inicial',
       priceMonthly: 29.90,
-      priceAnnual: 23.92, // 20% OFF
-      desc: 'Ideal para quem deseja vender pelo catálogo do WhatsApp de forma rápida.',
-      features: ['Catálogo online no WhatsApp', 'Produtos cadastrados ilimitados', 'Domínio personalizado ou grátis', 'Certificado SSL incluso', '[-] Checkout integrado na loja', '[-] Cupons de Desconto e Pixels', '[-] Avaliações de Produtos (Reviews)', '[-] Campanhas de Promoções', '[-] Botão do WhatsApp Personalizado', '[-] Recuperação de Carrinho Abandonado', '[-] Pop-up de Ofertas e Promoções'],
+      priceAnnual: 23.92,
+      desc: 'Ideal para autônomos e iniciantes que vendem pelo catálogo do WhatsApp.',
+      features: ['Seu Instagram vira vitrine', 'Receba pedidos direto no WhatsApp', 'Produtos cadastrados ilimitados', 'Seus clientes compram com segurança (SSL incluso)', 'Botão do WhatsApp integrado', 'Suporte por e-mail e painel', '[-] Checkout integrado na loja', '[-] Recuperação de carrinho por IA', '[-] Domínio personalizado próprio'],
       popular: false,
-      buttonText: 'Contratar Plano Básico'
+      buttonText: 'Começar Agora'
     },
     {
       id: 'pro',
       name: 'Plano Profissional',
       priceMonthly: 34.90,
-      priceAnnual: 27.92, // 20% OFF
-      desc: 'Loja virtual completa com checkout integrado, pagamento e frete.',
-      features: ['Loja com Checkout Integrado', 'Integração Correios e Melhor Envio', 'Mercado Pago e outros gateways', 'Produtos cadastrados ilimitados', 'Domínio personalizado ou grátis', 'Certificado SSL incluso', 'Botão do WhatsApp Personalizado', '[-] Cupons de Desconto e Pixels', '[-] Avaliações de Produtos (Reviews)', '[-] Recuperação de Carrinho Abandonado', '[-] Pop-up de Ofertas e Promoções'],
+      priceAnnual: 27.92,
+      desc: 'Loja virtual completa com checkout integrado para quem quer faturamento profissional.',
+      features: ['Tudo do Plano Inicial', 'Mais confiança com Checkout Transparente', 'Pagamentos em PIX e Cartão de Crédito', 'Cálculo de frete automático (Correios/Melhor Envio)', 'Use seu domínio próprio (ex: www.suamarca.com.br)', 'Cupons de desconto para alavancar vendas', 'Relatório completo de faturamento', '[-] Descrições de produtos geradas por IA'],
       popular: true,
-      buttonText: 'Contratar Plano Pro'
+      buttonText: 'Começar Grátis'
     },
     {
-      id: 'premium',
-      name: 'Plano Premium',
+      id: 'business',
+      name: 'Plano Business',
       priceMonthly: 47.90,
-      priceAnnual: 38.32, // 20% OFF
-      desc: 'Tudo do Pro mais ferramentas completas de marketing e reviews para decolar.',
-      features: ['Tudo do Plano Pro incluso', 'Cupons de Desconto ilimitados', 'Pixels (Facebook, Google, etc)', 'Avaliações de Clientes (Reviews)', 'Campanhas de Promoções', 'Suporte Prioritário VIP', 'Produtos cadastrados ilimitados', 'Botão do WhatsApp Personalizado', 'Recuperação de Carrinho Abandonado', 'Pop-up de Ofertas e Promoções'],
+      priceAnnual: 38.32,
+      desc: 'Para negócios estruturados que precisam de ferramentas avançadas de marketing e escala.',
+      features: ['Tudo do Plano Profissional', 'Recuperação automática de carrinho abandonado', 'Pixels de rastreamento (Facebook, Google, TikTok)', 'Banner inteligente e Pop-up de ofertas', 'Avaliações e reviews de clientes na loja', 'Suporte prioritário VIP no WhatsApp', 'Setup VIP Assistido incluso', '[-] Inteligência Artificial integrada'],
       popular: false,
-      buttonText: 'Contratar Plano Premium'
-    }
-  ]
-
-  const [plans, setPlans] = useState<any[]>([])
-  const [loadingPlans, setLoadingPlans] = useState(true)
-
-  useEffect(() => {
-    async function loadPlans() {
-      try {
-        const { data, error } = await supabase
-          .from('stores')
-          .select('*')
-          .eq('subdomain', 'platform-settings')
-          .single()
-
-        if (data && data.settings && data.settings.plans && Array.isArray(data.settings.plans)) {
-          const dbPlans = data.settings.plans.map((p: any) => {
-            const price = Number(p.price || 0)
-            let features = p.features || []
-            const hasFeature = features.some((f: any) => typeof f === 'string' && f.includes('Botão do WhatsApp Personalizado'));
-            if (!hasFeature) {
-              features = [
-                ...features,
-                p.id === 'basic' ? '[-] Botão do WhatsApp Personalizado' : 'Botão do WhatsApp Personalizado'
-              ]
-            }
-            const hasCart = features.some((f: any) => typeof f === 'string' && f.includes('Carrinho Abandonado'));
-            if (!hasCart) {
-              features = [
-                ...features,
-                p.id === 'premium' ? 'Recuperação de Carrinho Abandonado' : '[-] Recuperação de Carrinho Abandonado'
-              ]
-            }
-            const hasPopup = features.some((f: any) => typeof f === 'string' && (f.includes('Pop-up de Ofertas') || f.includes('Popup de Ofertas')));
-            if (!hasPopup) {
-              features = [
-                ...features,
-                p.id === 'premium' ? 'Pop-up de Ofertas e Promoções' : '[-] Pop-up de Ofertas e Promoções'
-              ]
-            }
-            return {
-              id: p.id,
-              name: p.name,
-              priceMonthly: price,
-              priceAnnual: Number((price * 0.8).toFixed(2)),
-              desc: p.desc || '',
-              features: features,
-              popular: p.popular || false,
-              buttonText: p.buttonText || `Contratar ${p.name}`
-            }
-          })
-          setPlans(dbPlans)
-        } else {
-          setPlans(defaultPlans)
-        }
-      } catch (err) {
-        console.error('Erro ao carregar planos da plataforma:', err)
-        setPlans(defaultPlans)
-      } finally {
-        setLoadingPlans(false)
-      }
-    }
-    loadPlans()
-  }, [])
-
-  // Vitrines / Lojas Modelo para Demonstração
-  const initialDemoStores = [
-    {
-      id: 'tech',
-      name: 'TechStore Prime',
-      subdomain: 'tech',
-      niche: 'Tecnologia & Eletrônicos',
-      img: 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?auto=format&fit=crop&w=600&q=80',
-      color: '#10b981',
-      desc: 'Estrutura moderna com especificações técnicas detalhadas e destaque para gadgets.'
+      buttonText: 'Assinar Business'
     },
     {
-      id: 'modern',
-      name: 'Boutique Elegance',
-      subdomain: 'moda',
-      niche: 'Vestuário & Alta Costura',
-      img: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=600&q=80',
-      color: '#f43f5e',
-      desc: 'Design minimalista e sofisticado, ideal para marcas conceituais e produtos premium.'
+      id: 'ia',
+      name: 'Plano IA (Cérebro)',
+      priceMonthly: 69.90,
+      priceAnnual: 55.92,
+      desc: 'A tecnologia do futuro no seu negócio: descrições, SEO, posts e banners gerados automaticamente.',
+      features: ['Tudo do Plano Business', 'Gerador de descrição de produtos por IA', 'SEO automatizado para aparecer no Google', 'Criador de campanhas e posts de vendas por IA', 'Sugestão inteligente de preços e categorias', 'Banner rotativo gerado por IA', 'Suporte VIP com Engenheiro de Onboarding dedicado', 'Atualizações prioritárias grátis'],
+      popular: false,
+      buttonText: 'Assinar Plano IA'
     }
   ]
 
-
-  const [demoStoresList, setDemoStoresList] = useState(initialDemoStores)
-
-  useEffect(() => {
-    async function fetchDemoStores() {
-      try {
-        const { data, error } = await supabase
-          .from('stores')
-          .select('*')
-        
-        if (error || !data) return
-
-        // Map database stores by subdomain
-        const dbStoresMap = new Map<string, any>()
-        data.forEach((store: any) => {
-          if (store.subdomain) {
-            dbStoresMap.set(store.subdomain, store)
-          }
-        })
-
-        // Build the demo list
-        const demoList: any[] = []
-
-        // First, check the database for any store with is_demo === true and active !== false
-        data.forEach((store: any) => {
-          const isActive = store.settings?.active !== false
-          const isDemoStore = store.settings?.is_demo === true
-          if (isActive && isDemoStore) {
-            const s = store.settings || {}
-            let specialId = store.subdomain || store.id
-            if (store.subdomain === 'teste') specialId = 'fashion'
-            if (store.subdomain === 'tech') specialId = 'tech'
-            if (store.subdomain === 'moda') specialId = 'modern'
-
-            demoList.push({
-              id: specialId,
-              name: store.name || s.name || store.subdomain || 'Loja Modelo',
-              subdomain: store.subdomain || 'demo',
-              niche: s.niche || 'Geral / Conceito',
-              img: s.hero_image_url || s.logo_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80',
-              color: s.primary_color || s.button_color || '#10b981',
-              desc: s.description || s.hero_subtitle || 'Loja virtual premium configurada com alta conversão.'
-            })
-          }
-        })
-
-        // For the hardcoded ones, if they are NOT in the database at all, we can include them as fallbacks
-        initialDemoStores.forEach(fallback => {
-          if (!dbStoresMap.has(fallback.subdomain)) {
-            demoList.push(fallback)
-          }
-        })
-
-        setDemoStoresList(demoList)
-
-        // Filtra as lojas que estão ativas, NÃO SÃO demo / modelo e têm faturamento ativo (billing_enabled === true)
-        const fetchedClients = data.filter((store: any) => {
-          const isActive = store.settings?.active !== false
-          const isDemoStore = store.settings?.is_demo === true
-          const hasBilling = store.settings?.billing_enabled === true
-          return isActive && !isDemoStore && hasBilling
-        })
-
-        const formattedClients = fetchedClients.map((store: any) => {
-          const s = store.settings || {}
-          return {
-            id: store.id,
-            name: store.name || s.name || store.subdomain || 'Loja Parceira',
-            subdomain: store.subdomain,
-            niche: s.niche || 'E-commerce Verificado',
-            img: s.hero_image_url || s.logo_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=600&q=80',
-            color: s.primary_color || s.button_color || '#3b82f6',
-            desc: s.description || 'Loja virtual em pleno faturamento na plataforma Criar Lojas.',
-            ordersCount: 'Em Faturamento 🚀'
-          }
-        })
-
-        setActiveClientsList(formattedClients)
-      } catch (err) {
-        console.error('Erro ao buscar lojas modelo:', err)
-      }
-    }
-    fetchDemoStores()
-  }, [])
-
-  // Garantir que o carrossel de modelos sempre inicie no slide 0
-  useEffect(() => {
-    if (carouselRef.current) {
-      carouselRef.current.scrollLeft = 0
-    }
-  }, [demoStoresList])
+  // Vitrines / Lojas Modelo carregadas dinamicamente
 
   // FAQs
   const faqs = [
     {
-      q: 'Como faço para ter uma loja na plataforma Criar Lojas?',
-      a: 'O processo é focado em consultoria e qualidade. Você escolhe uma de nossas Lojas Modelo (Vitrines), entra em contato com nossa equipe solicitando o modelo desejado, e nosso Admin Master cria sua estrutura e entrega a loja pronta para você. A partir daí, você tem total autonomia para alterar banners, produtos e cores no seu painel exclusivo.'
+      q: 'Preciso saber programar ou contratar um desenvolvedor?',
+      a: 'Não! Absolutamente nada. A CriarLojas foi criada especificamente para quem não entende de tecnologia. Nós entregamos um negócio praticamente montado e pronto para você colocar seus produtos e começar a vender em poucos minutos.'
     },
     {
-      q: 'Por que não posso criar a loja sozinho no site?',
-      a: 'Para garantir que todo lojista receba uma infraestrutura de banco de dados perfeitamente configurada, com gateways de pagamento ativados e layout de alta conversão sem erros. Nosso setup assistido garante que você comece a vender em pouco tempo com padrão profissional.'
+      q: 'Posso conectar meu domínio próprio (.com.br)?',
+      a: 'Sim! Você receberá um subdomínio gratuito (ex: sualoja.criarlojas.com.br) para usar imediatamente. A qualquer momento, você pode apontar o seu domínio próprio (.com.br ou .com) no painel administrativo de forma simples, ou deixar que nossa equipe configure para você.'
     },
     {
-      q: 'Posso conectar meu próprio domínio personalizado?',
-      a: 'Sim! Você pode usar nosso subdomínio gratuito (ex: sualoja.criarlojas.com.br) ou apontar seu próprio domínio (ex: www.sualoja.com.br) diretamente no painel de configurações da sua loja após a entrega.'
+      q: 'A plataforma aceita PIX e Cartão com checkout transparente?',
+      a: 'Sim. Oferecemos checkout integrado e transparente. Seus clientes pagam por PIX ou cartão sem sair da sua loja virtual, aumentando em até 3x a chance de finalizar a compra sem abandono de carrinho.'
     },
     {
-      q: 'Quais gateways de pagamento estão disponíveis?',
-      a: 'Oferecemos integração nativa com Mercado Pago, Asaas, Stripe e Pagar.me. Você recebe pagamentos via PIX instantâneo, Cartão de Crédito em até 12x e Boleto Bancário com baixa automática.'
+      q: 'Tem integração automática de cálculo de frete e Correios?',
+      a: 'Sim! A loja calcula automaticamente o valor do frete e o prazo de entrega com base no CEP do cliente. Oferecemos suporte aos Correios e integradores de etiqueta de desconto (como Melhor Envio) para você economizar nos despachos.'
+    },
+    {
+      q: 'Quanto tempo leva para minha loja virtual ficar ativa?',
+      a: 'Imediato. Logo após a confirmação dos dados na plataforma, o nosso Admin Master clona e provisiona toda a sua vitrine conceito. Você recebe os acessos do painel e do site no mesmo dia.'
+    },
+    {
+      q: 'Posso cancelar minha assinatura quando quiser?',
+      a: 'Sim. Nossos planos não possuem fidelidade ou multas de cancelamento. Você pode solicitar o cancelamento diretamente no painel administrativo a qualquer momento.'
+    },
+    {
+      q: 'Tenho suporte técnico caso precise de ajuda?',
+      a: 'Com certeza! Nosso suporte é 100% humano e feito em português via e-mail, painel e WhatsApp direto. Não usamos robôs ineficientes que te deixam sem resposta por dias.'
+    },
+    {
+      q: 'Posso vender qualquer tipo de produto na plataforma?',
+      a: 'Sim, você pode vender produtos físicos (roupas, perfumes, eletrônicos, doces, autopeças, etc.) ou digitais, sem qualquer limite de variações de tamanho, cor ou voltagem.'
     }
   ]
 
-  // Cálculo da Calculadora de ROI
-  const totalRevenue = monthlyOrders * averageTicket
-  const otherPlatformCost = (totalRevenue * 0.05) + (monthlyOrders * 1)
-  const storeproCost = totalRevenue * 0.0125
-  const monthlySavings = otherPlatformCost - storeproCost
-  const annualSavings = monthlySavings * 12
+  const getPlanPrice = (planCode: string) => {
+    switch (planCode) {
+      case 'basic': return 29.90
+      case 'pro': return 34.90
+      case 'premium': return 47.90
+      default: return 0.00
+    }
+  }
 
-  // Envio do formulário de solicitação (Lead)
+  const getPlanName = (planCode: string) => {
+    switch (planCode) {
+      case 'basic': return 'Plano Básico'
+      case 'pro': return 'Plano Profissional'
+      case 'premium': return 'Premium Ilimitado'
+      default: return 'Plano Gratuito'
+    }
+  }
+
+  const createAndProvisionStore = async (cleanSub: string, planCode: string) => {
+    try {
+      setIsSubmittingLead(true)
+      
+      // Buscar as configurações e dados da loja modelo
+      const selectedModelId = leadData.selectedModel
+      let modelStore: any = null
+
+      if (selectedModelId) {
+        const { data: dbModel } = await supabase
+          .from('stores')
+          .select('*')
+          .eq('id', selectedModelId)
+          .maybeSingle()
+        modelStore = dbModel
+      } else if (demoStores.length > 0) {
+        // Se nenhum selecionado, pega o primeiro
+        const { data: dbModel } = await supabase
+          .from('stores')
+          .select('*')
+          .eq('id', demoStores[0].id)
+          .maybeSingle()
+        modelStore = dbModel
+      }
+
+      const baseSettings = modelStore?.settings || {}
+
+      const initialSettings = {
+        address: "Rua Principal, 100",
+        benefits: [
+          { title: "Entrega Rápida", subtitle: "Calcule o prazo no checkout" },
+          { title: "Compra Segura", subtitle: "Ambiente 100% protegido" },
+          { title: "Troca Fácil", subtitle: "7 dias para devolução" },
+          { title: "Pagamento Facilitado", subtitle: "Em até 12x no cartão" }
+        ],
+        facebook: "#",
+        instagram: "#",
+        hero_style: "split",
+        hero_title: "BEM-VINDO À " + leadData.storeName.toUpperCase(),
+        promotions: {
+          coupons: [],
+          active_campaign: { active: false }
+        },
+        store_mode: planCode === 'free' ? "catalogo" : "loja",
+        description: "Sua loja virtual configurada com sucesso!",
+        niche: baseSettings.niche || "Moda & Acessórios Premium",
+        font_family: "Inter",
+        button_style: "pill",
+        footer_links: [
+          { url: "?view=produtos", label: "Produtos" },
+        ],
+        header_links: [
+          { url: "/", label: "Home" },
+          { url: "?view=produtos", label: "Produtos" }
+        ],
+        header_style: "center_menu",
+        hero_bg_color: "#141414",
+        hero_subtitle: "As melhores peças com os melhores preços.",
+        button_variant: "filled",
+        show_hero_text: true,
+        footer_bg_color: "#171717",
+        header_bg_color: "#ffffff",
+        hero_title_color: "#f5f5f5",
+        sale_price_color: "#e60000",
+        top_bar_bg_color: "#000000",
+        button_text_color: "#ffffff",
+        flash_deals_title: "Ofertas do Dia",
+        footer_text_color: "#ffffff",
+        header_icon_color: "#171716",
+        show_new_arrivals: true,
+        button_hover_color: "#030303",
+        footer_description: "Loja virtual premium desenvolvida na plataforma Criar Lojas.",
+        new_arrivals_title: "Novidades",
+        normal_price_color: "#bbbbbb",
+        top_bar_text_color: "#ffffff",
+        default_price_color: "#000000",
+        hero_subtitle_color: "#d10000",
+        top_bar_announcement: "FRETE GRÁTIS PARA TODO O BRASIL EM COMPRAS ACIMA DE R$ 299",
+        ...baseSettings,
+        name: leadData.storeName,
+        email: leadData.email,
+        phone: leadData.whatsapp,
+        whatsapp: leadData.whatsapp,
+        subdomain: cleanSub,
+        primary_color: leadData.primaryColor,
+        button_color: leadData.primaryColor,
+        active: true,
+        plan: planCode,
+        is_demo: false,
+        billing_enabled: planCode !== 'free',
+        admin_user: leadData.email,
+        admin_password: leadData.password
+      }
+
+      // Inserir a nova loja
+      const { data: newStore, error: insertErr } = await supabase
+        .from('stores')
+        .insert({
+          name: leadData.storeName,
+          subdomain: cleanSub,
+          settings: initialSettings
+        })
+        .select()
+        .single()
+
+      if (insertErr) throw insertErr
+
+      // Clonar Produtos e Categorias se houver modelo
+      if (modelStore) {
+        // 1. Clonar Categorias
+        const { data: originalCategories } = await supabase
+          .from('categories')
+          .select('*')
+          .eq('store_id', modelStore.id)
+
+        if (originalCategories && originalCategories.length > 0) {
+          const categoriesToInsert = originalCategories.map(cat => ({
+            name: cat.name,
+            image_url: cat.image_url,
+            store_id: newStore.id
+          }))
+          await supabase.from('categories').insert(categoriesToInsert)
+        }
+
+        // 2. Clonar Produtos
+        const { data: originalProducts } = await supabase
+          .from('products')
+          .select('*')
+          .eq('store_id', modelStore.id)
+
+        if (originalProducts && originalProducts.length > 0) {
+          const productsToClone = planCode === 'free' ? originalProducts.slice(0, 25) : originalProducts
+          const productsToInsert = productsToClone.map(prod => ({
+            store_id: newStore.id,
+            name: prod.name,
+            slug: prod.slug,
+            price: prod.price,
+            short_description: prod.short_description,
+            description: prod.description,
+            stock_quantity: prod.stock_quantity,
+            sku: prod.sku,
+            category: prod.category,
+            sale_price: prod.sale_price,
+            weight: prod.weight,
+            length: prod.length,
+            width: prod.width,
+            height: prod.height,
+            is_active: prod.is_active,
+            is_featured: prod.is_featured,
+            is_service: prod.is_service,
+            images: prod.images,
+            has_variations: prod.has_variations,
+            variation_options: prod.variation_options,
+            variation_skus: prod.variation_skus
+          }))
+          await supabase.from('products').insert(productsToInsert)
+        }
+      }
+
+      setCreatedStoreData(newStore)
+      setLeadSubmitted(true)
+      setCheckoutPending(false)
+      toast.success('Sua loja virtual foi criada e configurada com sucesso!')
+    } catch (err: any) {
+      console.error('Erro no provisionamento da loja:', err)
+      toast.error('Erro ao provisionar a loja: ' + err.message)
+    } finally {
+      setIsSubmittingLead(false)
+    }
+  }
+
+  // Envio do Lead / Criação de Loja
   const handleLeadSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (!leadData.name.trim() || !leadData.whatsapp.trim() || !leadData.email.trim() || !leadData.storeName.trim() || !leadData.subdomain.trim()) {
-      toast.error('Por favor, preencha todos os campos obrigatórios da solicitação.')
+    if (!leadData.name.trim() || !leadData.whatsapp.trim() || !leadData.email.trim() || !leadData.storeName.trim() || !leadData.subdomain.trim() || !leadData.password.trim()) {
+      toast.error('Por favor, preencha todos os campos obrigatórios.')
       return
     }
 
     setIsSubmittingLead(true)
     try {
       const cleanSub = leadData.subdomain.toLowerCase().replace(/[^a-z0-9]/g, '')
-      const { error } = await supabase.from('stores').insert({
-        name: leadData.storeName.trim(),
-        subdomain: `req-${cleanSub}-${Date.now().toString().slice(-6)}`,
-        settings: {
-          is_pending_request: true,
-          name: leadData.storeName.trim(),
-          subdomain: cleanSub,
-          admin_user: leadData.name.trim(),
-          email: leadData.email.trim(),
-          whatsapp: leadData.whatsapp.trim(),
-          plan: leadData.selectedPlan,
-          model: leadData.selectedModel,
-          primaryColor: leadData.primaryColor,
-          notes: leadData.notes,
-          wants_concierge: leadData.wantsConcierge,
-          request_date: new Date().toISOString()
-        }
-      })
+      
+      // Validar se subdomínio já existe
+      const { data: existing, error: checkErr } = await supabase
+        .from('stores')
+        .select('id')
+        .eq('subdomain', cleanSub)
+        .limit(1)
 
-      if (error) throw error
+      if (checkErr) throw checkErr
+      if (existing && existing.length > 0) {
+        toast.error('Este subdomínio já está em uso por outra loja.')
+        setIsSubmittingLead(false)
+        return
+      }
 
-      setLeadSubmitted(true)
-      toast.success('Solicitação enviada com sucesso ao Admin Master!')
+      if (leadData.selectedPlan === 'free') {
+        await createAndProvisionStore(cleanSub, 'free')
+      } else {
+        setCheckoutPending(true)
+        setIsSubmittingLead(false)
+      }
     } catch (err: any) {
-      console.error('Erro ao enviar solicitação:', err)
-      toast.error('Erro ao enviar solicitação. Tente novamente ou use o WhatsApp.')
-    } finally {
+      console.error('Erro na validação da loja:', err)
+      toast.error('Erro ao processar criação da loja: ' + err.message)
       setIsSubmittingLead(false)
     }
   }
 
-  // Monta mensagem completa para WhatsApp direto do Admin
   const getWhatsappLink = () => {
     const cleanSub = leadData.subdomain.toLowerCase().replace(/[^a-z0-9]/g, '')
-    const selectedStoreObj = demoStoresList.find(s => s.id === leadData.selectedModel) || { name: leadData.selectedModel }
-    const text = `Olá Admin Criar Lojas! Gostaria de solicitar a criação da minha loja virtual com setup assistido.%0A%0A*👤 Responsável:* ${leadData.name}%0A*📱 WhatsApp:* ${leadData.whatsapp}%0A*✉️ E-mail:* ${leadData.email}%0A%0A*🛍️ Nome da Loja:* ${leadData.storeName}%0A*🌐 Subdomínio Desejado:* ${cleanSub}${domainSuffix}%0A*🎨 Cor Padrão Escolhida:* ${leadData.primaryColor}%0A%0A*📁 Vitrine Modelo:* ${selectedStoreObj.name} (${leadData.selectedModel})%0A*💎 Plano Escolhido:* ${leadData.selectedPlan}%0A*🛠️ Serviço VIP Concierge:* ${leadData.wantsConcierge ? 'SIM (Quero Setup VIP Chave na Mão)' : 'NÃO (Vou personalizar sozinho)'}%0A%0A*📝 Observações:* ${leadData.notes || 'Nenhuma'}`
-    const formattedPhone = formatWhatsappNumber(platformSettings.whatsappSupport)
-    return `https://wa.me/${formattedPhone}?text=${text}`
+    const selectedStoreObj = demoStores.find(s => s.id === leadData.selectedModel) || { name: leadData.selectedModel }
+    const text = `Olá Admin Criar Lojas! Acabei de solicitar a criação da minha loja virtual pronta.%0A%0A*👤 Responsável:* ${leadData.name}%0A*📱 WhatsApp:* ${leadData.whatsapp}%0A*✉️ E-mail:* ${leadData.email}%0A%0A*🛍️ Nome da Loja:* ${leadData.storeName}%0A*🌐 Subdomínio Desejado:* ${cleanSub}${domainSuffix}%0A*🎨 Cor Escolhida:* ${leadData.primaryColor}%0A%0A*📁 Modelo:* ${selectedStoreObj.name}%0A*💎 Plano:* ${leadData.selectedPlan}%0A*🛠️ Setup Assistido VIP:* ${leadData.wantsConcierge ? 'SIM' : 'NÃO'}`
+    return `https://wa.me/${formatWhatsappNumber(platformSettings.whatsappSupport)}?text=${text}`
   }
-
-  // Envio do formulário de solicitação de Registro de Domínio
-  const handleDomainSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (!domainData.name.trim() || !domainData.whatsapp.trim() || !domainData.email.trim() || !domainData.domainName.trim()) {
-      toast.error('Por favor, preencha todos os campos obrigatórios para o registro de domínio.')
-      return
-    }
-
-    setIsSubmittingDomain(true)
-    try {
-      const cleanDomain = domainData.domainName.toLowerCase().replace(/[^a-z0-9.-]/g, '')
-      const { error } = await supabase.from('stores').insert({
-        name: `Registro de Domínio: ${cleanDomain}`,
-        subdomain: `dom-${Date.now().toString().slice(-6)}`,
-        settings: {
-          is_domain_request: true,
-          is_pending_request: true,
-          domain_requested: cleanDomain,
-          admin_user: domainData.name.trim(),
-          email: domainData.email.trim(),
-          whatsapp: domainData.whatsapp.trim(),
-          notes: domainData.notes,
-          request_date: new Date().toISOString()
-        }
-      })
-
-      if (error) throw error
-
-      setDomainSubmitted(true)
-      toast.success('Solicitação de registro de domínio enviada com sucesso!')
-    } catch (err: any) {
-      console.error('Erro ao enviar solicitação de domínio:', err)
-      toast.error('Erro ao enviar solicitação. Tente novamente ou use o WhatsApp.')
-    } finally {
-      setIsSubmittingDomain(false)
-    }
-  }
-
-  const handleCheckDomainCommercial = async () => {
-    const domain = domainData.domainName.trim()
-    if (!domain) {
-      toast.error('Por favor, digite um domínio primeiro.')
-      return
-    }
-
-    setLocalChecking(true)
-    setLocalCheckResult(null)
-
-    try {
-      const response = await fetch(`/api/domain/check?domain=${encodeURIComponent(domain)}`)
-      const data = await response.json()
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erro ao consultar domínio.')
-      }
-
-      setLocalCheckResult(data)
-    } catch (err: any) {
-      setLocalCheckResult({ error: err.message || 'Erro ao verificar disponibilidade.' })
-    } finally {
-      setLocalChecking(false)
-    }
-  }
-
-  const getDomainWhatsappLink = () => {
-    const cleanDomain = domainData.domainName.toLowerCase().replace(/[^a-z0-9.-]/g, '')
-    const text = `Olá Admin Criar Lojas! Gostaria de solicitar o registro e configuração do meu domínio próprio.%0A%0A*👤 Lojista / Responsável:* ${domainData.name}%0A*📱 WhatsApp:* ${domainData.whatsapp}%0A*✉️ E-mail:* ${domainData.email}%0A%0A*🌐 Domínio Desejado:* ${cleanDomain}%0A%0A*📝 Observações:* ${domainData.notes || 'Nenhuma'}`
-    const formattedPhone = formatWhatsappNumber(platformSettings.whatsappSupport)
-    return `https://wa.me/${formattedPhone}?text=${text}`
-  }
-
-  const isLightTheme = platformSettings.landingPageTheme === 'light'
 
   return (
     <div 
-      className={isLightTheme ? 'light-theme' : 'dark-theme'}
+      className="light-theme"
       style={{ 
-        backgroundColor: 'var(--bg-color)', 
-        color: 'var(--text-primary)', 
+        backgroundColor: '#f8fafc', 
+        color: '#0f172a', 
         minHeight: '100vh', 
-        fontFamily: 'var(--font-sans), sans-serif', 
+        fontFamily: 'Inter, system-ui, sans-serif', 
         overflowX: 'hidden' 
       }}
     >
+      {/* CSS CUSTOMIZADO PARA DESIGN CLEAN PREMIUM (LIGHT THEME) */}
       <style>{`
-        :root, .dark-theme {
-          --bg-color: #090d16;
-          --text-primary: #f8fafc;
-          --text-secondary: #cbd5e1;
-          --text-muted: #94a3b8;
-          --card-bg: rgba(15, 23, 42, 0.6);
-          --card-bg-solid: #0f172a;
-          --navbar-bg: rgba(9, 13, 22, 0.85);
-          --border-color: rgba(255, 255, 255, 0.08);
-          --hero-bg-overlay: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, rgba(14, 165, 233, 0.1) 40%, transparent 70%);
-          --section-alt-bg: rgba(255, 255, 255, 0.02);
-          --input-bg-val: rgba(255, 255, 255, 0.03);
-          --nav-link-color: #cbd5e1;
-          --price-text-color: #f8fafc;
-          --feature-card-hover-bg: rgba(255, 255, 255, 0.02);
-          --logo-text-color: #f8fafc;
+        html {
+          scroll-behavior: smooth;
         }
-        .light-theme {
-          --bg-color: #f8fafc;
-          --text-primary: #0f172a;
-          --text-secondary: #334155;
-          --text-muted: #64748b;
-          --card-bg: rgba(255, 255, 255, 0.85);
-          --card-bg-solid: #ffffff;
-          --navbar-bg: rgba(248, 250, 252, 0.9);
-          --border-color: rgba(15, 23, 42, 0.08);
-          --hero-bg-overlay: none;
-          --section-alt-bg: rgba(15, 23, 42, 0.02);
-          --input-bg-val: #ffffff;
-          --nav-link-color: #334155;
-          --price-text-color: #0f172a;
-          --feature-card-hover-bg: #ffffff;
-          --logo-text-color: #0f172a;
+        
+        /* Clean Light Card */
+        .glass-card {
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 20px;
+          box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.04), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+          transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .light-theme .nav-link { color: var(--nav-link-color) !important; }
-        .light-theme .nav-link:hover { color: #10b981 !important; }
         
-        .light-theme .saas-hero-checks span, .light-theme .saas-hero-checks div span { color: var(--text-secondary) !important; }
+        .glass-card:hover {
+          border-color: #10b981;
+          box-shadow: 0 20px 35px -5px rgba(16, 185, 129, 0.08), 0 4px 12px -2px rgba(16, 185, 129, 0.02);
+          transform: translateY(-4px);
+        }
 
-        /* Uniform Feature Cards in Light Theme (Light Green) */
-        .light-theme .feature-card { background: rgba(16, 185, 129, 0.06) !important; border-color: rgba(16, 185, 129, 0.15) !important; }
-        .light-theme .feature-card h3 { color: var(--text-primary) !important; }
-        .light-theme .feature-card p { color: var(--text-secondary) !important; }
-        .light-theme .feature-card div { border-color: var(--border-color) !important; }
+        .gradient-text-green {
+          background: linear-gradient(135deg, #059669 0%, #0284c7 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
 
-        .light-theme .demo-card { border-color: var(--border-color) !important; }
-        .light-theme .demo-card:hover { border-color: rgba(16, 185, 129, 0.3) !important; box-shadow: 0 12px 25px rgba(0,0,0,0.08) !important; }
-        .light-theme .demo-card h3 { color: var(--text-primary) !important; }
-        .light-theme .demo-card p { color: var(--text-secondary) !important; }
-        .light-theme .demo-card a:not(.btn-visit) { border-color: var(--border-color) !important; color: var(--text-primary) !important; }
-        .light-theme .demo-card .btn-visit { color: #ffffff !important; }
+        .btn-premium-green {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          color: white;
+          box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+          transition: all 0.2s ease;
+          border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+        .btn-premium-green:hover {
+          background: #059669;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.35);
+        }
 
-        .light-theme #vitrine { background: linear-gradient(to bottom, #ffffff, rgba(16, 185, 129, 0.03)) !important; }
-        .light-theme #vitrine h2 { color: var(--text-primary) !important; }
-        .light-theme #vitrine p { color: var(--text-muted) !important; }
-        .light-theme .no-scrollbar button:not([style*="linear-gradient"]) { background: rgba(16, 185, 129, 0.08) !important; color: #10b981 !important; border-color: rgba(16, 185, 129, 0.2) !important; }
+        .btn-premium-outline {
+          background: #ffffff;
+          color: #475569;
+          border: 1px solid #cbd5e1;
+          transition: all 0.2s ease;
+        }
+        .btn-premium-outline:hover {
+          background: #f8fafc;
+          border-color: #0ea5e9;
+          color: #0ea5e9;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(14, 165, 233, 0.15);
+        }
+
+        /* Smartphone Bezel Prateado e Clean */
+        .phone-mockup {
+          border: 12px solid #cbd5e1;
+          border-radius: 40px;
+          box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05) inset;
+          overflow: hidden;
+          background: #ffffff;
+          position: relative;
+        }
+
+        .phone-notch {
+          width: 120px;
+          height: 25px;
+          background: #cbd5e1;
+          border-radius: 0 0 16px 16px;
+          position: absolute;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          z-index: 99;
+        }
+
+        .carousel-container {
+          display: flex;
+          gap: 2.5rem;
+          overflow-x: auto;
+          scroll-behavior: smooth;
+          scroll-snap-type: x mandatory;
+          padding-bottom: 2rem;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .carousel-container::-webkit-scrollbar {
+          display: none;
+        }
+
+        .demo-card-slide {
+          flex: 0 0 calc((100% - 5rem) / 3);
+          scroll-snap-align: start;
+        }
+
+        @media (max-width: 1024px) {
+          .demo-card-slide {
+            flex: 0 0 calc((100% - 2.5rem) / 2);
+          }
+        }
+
+        @media (max-width: 640px) {
+          .demo-card-slide {
+            flex: 0 0 100%;
+          }
+        }
+
+        /* Comparativo Table Styles */
+        .comparison-table th, .comparison-table td {
+          padding: 1.25rem;
+          border-bottom: 1px solid #e2e8f0;
+        }
+        .comparison-table tr:hover td {
+          background: #f8fafc;
+        }
+
+        /* Pulsing animation */
+        @keyframes subtle-pulse {
+          0%, 100% { transform: scale(1); opacity: 0.95; }
+          50% { transform: scale(1.03); opacity: 1; }
+        }
+        .pulse-effect {
+          animation: subtle-pulse 2s infinite ease-in-out;
+        }
         
-        .light-theme .btn-admin { background: rgba(0, 0, 0, 0.04) !important; color: var(--text-secondary) !important; border-color: var(--border-color) !important; }
-        .light-theme .btn-admin:hover { background: rgba(0, 0, 0, 0.08) !important; }
+        .whatsapp-floating-btn:hover {
+          transform: scale(1.1) rotate(5deg);
+        }
 
-        .light-theme #clientes { background: linear-gradient(to bottom, rgba(14, 165, 233, 0.03), #ffffff) !important; }
-        .light-theme #clientes h2 { color: var(--text-primary) !important; }
-        .light-theme #clientes p { color: var(--text-muted) !important; }
-
-        .light-theme #funcionalidades h2 { color: var(--text-primary) !important; }
-        .light-theme #funcionalidades p { color: var(--text-muted) !important; }
-
-        .light-theme #calculadora h2 { color: var(--text-primary) !important; }
-        .light-theme #calculadora p { color: var(--text-muted) !important; }
-        .light-theme #calculadora label { color: var(--text-secondary) !important; }
-        .light-theme #calculadora span { color: var(--text-primary) !important; }
-        
-        .light-theme .roi-input-card { background: linear-gradient(135deg, rgba(16, 185, 129, 0.05), rgba(14, 165, 233, 0.05)) !important; border-color: rgba(16, 185, 129, 0.15) !important; }
-        
-        /* ROI Calculator Right Card overrides to retain white/light text inside the dark card */
-        .light-theme #calculadora .roi-result-card,
-        .light-theme #calculadora .roi-result-card span,
-        .light-theme #calculadora .roi-result-card div { color: #f8fafc !important; }
-        .light-theme #calculadora .roi-result-card .roi-monthly-value { color: #ffffff !important; }
-        .light-theme #calculadora .roi-result-card .roi-annual-value { color: #ffffff !important; }
-        .light-theme #calculadora .roi-result-card span[style*="#ef4444"] { color: #ef4444 !important; }
-        .light-theme #calculadora .roi-result-card span[style*="#10b981"] { color: #10b981 !important; }
-
-        .light-theme #precos > div > div:first-child p { color: var(--text-muted) !important; }
-        
-
-
-        .light-theme .comparison-toggle-btn { background: rgba(16, 185, 129, 0.08) !important; border-color: rgba(16, 185, 129, 0.2) !important; color: #10b981 !important; }
-        .light-theme .comparison-toggle-btn:hover { background: rgba(16, 185, 129, 0.15) !important; }
-        .light-theme table th { color: var(--text-primary) !important; }
-        .light-theme table td { color: var(--text-secondary) !important; }
-        .light-theme table td .lucide-check { color: #10b981 !important; }
-        .light-theme table td .lucide-x { color: #ef4444 !important; }
-        
-        .light-theme #faq h2 { color: var(--text-primary) !important; }
-        .light-theme #faq p { color: var(--text-muted) !important; }
-        .light-theme .faq-item { background: #10b981 !important; border-color: rgba(255, 255, 255, 0.2) !important; }
-        .light-theme .faq-item button { color: #ffffff !important; }
-        .light-theme .faq-item p { color: #e6fffa !important; }
-        .light-theme .faq-item button svg { color: #ffffff !important; }
-
-        .light-theme #concierge { background: linear-gradient(135deg, rgba(16, 185, 129, 0.06) 0%, #ffffff 100%) !important; border-top: 1px solid rgba(16, 185, 129, 0.15) !important; border-bottom: 1px solid rgba(16, 185, 129, 0.15) !important; }
-        .light-theme #concierge h2, .light-theme #concierge h3 { color: var(--text-primary) !important; }
-        .light-theme #concierge p, .light-theme #concierge .info-card p { color: var(--text-secondary) !important; }
-        .light-theme #concierge .info-card { background: rgba(16, 185, 129, 0.06) !important; border-color: rgba(16, 185, 129, 0.2) !important; }
-
-        .light-theme #dominio { background: linear-gradient(135deg, rgba(14, 165, 233, 0.06) 0%, #ffffff 100%) !important; border-bottom: 1px solid rgba(14, 165, 233, 0.15) !important; }
-        .light-theme #dominio h2, .light-theme #dominio h3 { color: var(--text-primary) !important; }
-        .light-theme #dominio p, .light-theme #dominio .info-card p { color: var(--text-secondary) !important; }
-        .light-theme #dominio .info-card { background: rgba(14, 165, 233, 0.06) !important; border-color: rgba(14, 165, 233, 0.2) !important; }
-
-        .light-theme #onboarding { background: radial-gradient(circle at center, rgba(16, 185, 129, 0.08) 0%, #f8fafc 70%) !important; }
-        .light-theme #onboarding h2 { color: #064e3b !important; }
-        .light-theme #onboarding p { color: #0f533e !important; }
-        .light-theme .saas-onboarding-card { background: #e6fcf5 !important; border-color: rgba(16, 185, 129, 0.25) !important; box-shadow: 0 25px 50px rgba(16, 185, 129, 0.08) !important; }
-        .light-theme .saas-onboarding-card .onboarding-btn-blue { background: #0ea5e9 !important; color: #ffffff !important; border-color: transparent !important; }
-        .light-theme .saas-onboarding-card .onboarding-btn-blue:hover { background: #0284c7 !important; color: #ffffff !important; }
-        .light-theme .saas-onboarding-card .onboarding-btn-green { background: #10b981 !important; color: #ffffff !important; }
-        .light-theme .saas-onboarding-card .onboarding-btn-green:hover { background: #059669 !important; color: #ffffff !important; }
-        
-        .onboarding-btn-green { background: #10b981 !important; color: #ffffff !important; border: none !important; transition: all 0.2s !important; }
-        .onboarding-btn-green:hover { transform: translateY(-2px) scale(1.02) !important; filter: brightness(1.1) !important; box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3) !important; }
-        
-        .onboarding-btn-blue { background: #0ea5e9 !important; color: #ffffff !important; border: none !important; transition: all 0.2s !important; }
-        .onboarding-btn-blue:hover { transform: translateY(-2px) scale(1.02) !important; filter: brightness(1.1) !important; box-shadow: 0 8px 25px rgba(14, 165, 233, 0.3) !important; }
-
-        .light-theme .lead-modal-content { background: #ffffff !important; border-color: rgba(16, 185, 129, 0.3) !important; color: var(--text-primary) !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06) !important; }
-        .light-theme .domain-modal-content { background: #ffffff !important; border-color: rgba(14, 165, 233, 0.3) !important; color: var(--text-primary) !important; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06) !important; }
-        .light-theme #concierge img { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important; }
-        .light-theme #dominio img { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important; }
-        .light-theme .plan-card-portal { box-shadow: 0 6px 18px rgba(0, 0, 0, 0.03) !important; }
-        .light-theme .plan-card-portal:hover { box-shadow: 0 8px 25px rgba(16, 185, 129, 0.08) !important; }
-        .light-theme .roi-result-card { box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important; }
-        .light-theme .mobile-menu-drawer { box-shadow: 0 6px 15px rgba(0, 0, 0, 0.04) !important; }
-        .light-theme .mobile-menu-toggle { color: var(--text-primary) !important; border-color: rgba(15, 23, 42, 0.1) !important; background: rgba(15, 23, 42, 0.05) !important; }
-        .light-theme .lead-modal-content h3, .light-theme .domain-modal-content h3 { color: var(--text-primary) !important; }
-        .light-theme .lead-modal-content h4, .light-theme .domain-modal-content h4 { color: var(--text-primary) !important; border-color: rgba(0,0,0,0.08) !important; }
-        .light-theme .lead-modal-content p, .light-theme .domain-modal-content p { color: var(--text-secondary) !important; }
-        .light-theme .lead-modal-content label, .light-theme .domain-modal-content label { color: var(--text-secondary) !important; }
-        .light-theme .lead-modal-content input, .light-theme .lead-modal-content select, .light-theme .lead-modal-content textarea, .light-theme .domain-modal-content input, .light-theme .domain-modal-content textarea { background: #f1f5f9 !important; border-color: rgba(0,0,0,0.1) !important; color: var(--text-primary) !important; }
-        .light-theme .subdomain-container { background: #f1f5f9 !important; border-color: rgba(0,0,0,0.1) !important; color: var(--text-primary) !important; }
-        .light-theme .subdomain-container input { color: var(--text-primary) !important; }
-        .light-theme .subdomain-container span { background: rgba(0,0,0,0.03) !important; border-left-color: rgba(0,0,0,0.1) !important; color: #0ea5e9 !important; }
-        .light-theme .modal-panel { background: rgba(16, 185, 129, 0.03) !important; border-color: rgba(16, 185, 129, 0.1) !important; }
-        .light-theme .custom-color-row { background: #f8fafc !important; border-color: rgba(0,0,0,0.08) !important; }
-        .light-theme .cancel-btn { color: var(--text-secondary) !important; border-color: rgba(0,0,0,0.1) !important; }
-        .light-theme .cancel-btn:hover { background: rgba(0,0,0,0.03) !important; }
-        .light-theme .close-btn { background: rgba(0,0,0,0.05) !important; border-color: rgba(0,0,0,0.1) !important; color: var(--text-secondary) !important; }
-        .light-theme .close-btn:hover { background: rgba(0,0,0,0.08) !important; }
-        .light-theme .color-presets-grid button { background: #ffffff !important; border-color: rgba(0,0,0,0.1) !important; color: var(--text-primary) !important; }
-        .light-theme .color-presets-grid button[style*="2px solid"] { border-width: 2px !important; }
-
-        .light-theme footer { background: #e6fcf5 !important; border-color: rgba(16, 185, 129, 0.2) !important; }
-        .light-theme footer h4 { color: #064e3b !important; }
-        .light-theme footer span:not([style*="#10b981"]) { color: #064e3b !important; }
-        .light-theme footer p { color: #0f533e !important; }
-        .light-theme footer a { color: #0f533e !important; }
-        .light-theme footer a:hover { color: #10b981 !important; }
-        .light-theme footer .desktop-copyright, .light-theme footer .mobile-copyright { color: #64748b !important; }
-        .light-theme footer div { color: #0f533e !important; }
+        /* Grid layouts */
+        .grid-custom-3 {
+          display: grid !important;
+          grid-template-columns: repeat(3, 1fr) !important;
+          gap: 2.5rem;
+        }
+        @media (max-width: 768px) {
+          .grid-custom-3 { grid-template-columns: 1fr !important; }
+        }
       `}</style>
 
-      {/* NAVBAR PREMIUM */}
-      <nav className="saas-navbar" style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 50, background: 'var(--navbar-bg)', backdropFilter: 'blur(12px)', borderBottom: '1px solid var(--border-color)', padding: '1rem 0' }}>
-        <div className="saas-nav-container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      {/* NAVBAR */}
+      <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0', padding: '1.25rem 0' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.4)' }}>
+            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}>
               <ShoppingBag size={22} color="#ffffff" />
             </div>
-            <span style={{ fontSize: '1.5rem', fontWeight: 800, background: 'linear-gradient(to right, #10b981, #0ea5e9)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.5px' }}>
-              Criar Lojas
+            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>
+              CriarLojas
             </span>
           </div>
 
-          <div className="saas-nav-links" style={{ display: 'flex', gap: '2.5rem', alignItems: 'center' }}>
-            <a href="#funcionalidades" style={{ color: 'var(--nav-link-color)', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }} className="nav-link">Funcionalidades</a>
-            <a href="#vitrine" style={{ color: 'var(--nav-link-color)', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }} className="nav-link">Lojas Modelo</a>
-            <a href="#calculadora" style={{ color: 'var(--nav-link-color)', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }} className="nav-link">Calculadora de ROI</a>
-            <a href="#precos" style={{ color: 'var(--nav-link-color)', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }} className="nav-link">Planos</a>
+          <div className="saas-nav-links" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
+            <a href="#comece" style={{ color: '#475569', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }}>Modelos Prontos</a>
+            <a href="#funcionamento" style={{ color: '#475569', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }}>Como Funciona</a>
+            <a href="#beneficios" style={{ color: '#475569', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }}>Vantagens</a>
+            <a href="#comparacao" style={{ color: '#475569', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }}>Comparativo</a>
+            <a href="#planos" style={{ color: '#475569', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 600, transition: 'color 0.2s' }}>Planos</a>
           </div>
 
-          <div className="saas-nav-actions" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-            <button onClick={() => handleOpenLeadModal('modern', 'pro')} style={{ background: 'linear-gradient(135deg, #10b981, #0ea5e9)', color: 'white', border: 'none', cursor: 'pointer', fontSize: '0.95rem', fontWeight: 800, padding: '0.65rem 1.5rem', borderRadius: '10px', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)', transition: 'all 0.2s' }} className="cta-btn">
-              Solicitar Minha Loja
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <button 
+              onClick={() => handleOpenLeadModal('fashion', 'pro')} 
+              className="btn-premium-green desktop-only-btn"
+              style={{ padding: '0.65rem 1.5rem', borderRadius: '10px', fontSize: '0.95rem', fontWeight: 800, border: 'none', cursor: 'pointer' }}
+            >
+              Criar Loja Grátis
             </button>
             <button 
               onClick={() => setShowMobileMenu(!showMobileMenu)}
-              className="mobile-menu-toggle"
-              style={{
-                background: 'rgba(255, 255, 255, 0.05)',
-                border: '1px solid rgba(255, 255, 255, 0.1)',
-                color: '#f8fafc',
-                padding: '0.5rem',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                display: 'none',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-              aria-label="Menu"
+              style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', color: '#0f172a', padding: '0.5rem', borderRadius: '8px', cursor: 'pointer', display: 'none' }}
+              className="mobile-menu-toggle-btn"
             >
               {showMobileMenu ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -853,280 +864,195 @@ export default function SaaSCommercialPortal() {
         </div>
       </nav>
 
-      {/* Mobile Menu Drawer */}
+      {/* MOBILE MENU */}
       {showMobileMenu && (
-        <div 
-          style={{
-            position: 'fixed',
-            top: '73px',
-            left: 0,
-            right: 0,
-            background: 'var(--bg-color)',
-            borderBottom: '1px solid var(--border-color)',
-            padding: '1.5rem 2rem',
-            zIndex: 49,
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.25rem',
-            boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
-            animation: 'fadeIn 0.2s ease-out'
-          }}
-          className="mobile-menu-drawer"
-        >
-          <a href="#funcionalidades" onClick={() => setShowMobileMenu(false)} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Funcionalidades</a>
-          <a href="#vitrine" onClick={() => setShowMobileMenu(false)} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Lojas Modelo</a>
-          <a href="#calculadora" onClick={() => setShowMobileMenu(false)} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Calculadora de ROI</a>
-          <a href="#precos" onClick={() => setShowMobileMenu(false)} style={{ color: 'var(--text-secondary)', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Planos</a>
+        <div style={{ position: 'fixed', top: '75px', left: 0, right: 0, background: '#ffffff', borderBottom: '1px solid #e2e8f0', padding: '1.5rem 2rem', zIndex: 99, display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <a href="#comece" onClick={() => setShowMobileMenu(false)} style={{ color: '#475569', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Modelos Prontos</a>
+          <a href="#funcionamento" onClick={() => setShowMobileMenu(false)} style={{ color: '#475569', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Como Funciona</a>
+          <a href="#beneficios" onClick={() => setShowMobileMenu(false)} style={{ color: '#475569', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Vantagens</a>
+          <a href="#comparacao" onClick={() => setShowMobileMenu(false)} style={{ color: '#475569', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Comparativo</a>
+          <a href="#planos" onClick={() => setShowMobileMenu(false)} style={{ color: '#475569', textDecoration: 'none', fontSize: '1rem', fontWeight: 600 }}>Planos</a>
           <button 
-            onClick={() => { setShowMobileMenu(false); handleOpenLeadModal('modern', 'pro'); }}
-            style={{ 
-              background: 'linear-gradient(135deg, #10b981, #0ea5e9)', 
-              color: 'white', 
-              border: 'none', 
-              cursor: 'pointer', 
-              fontSize: '1rem', 
-              fontWeight: 800, 
-              padding: '0.85rem', 
-              borderRadius: '10px', 
-              boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)', 
-              transition: 'all 0.2s',
-              marginTop: '0.5rem',
-              width: '100%',
-              display: 'block',
-              textAlign: 'center'
-            }}
+            onClick={() => { setShowMobileMenu(false); handleOpenLeadModal('fashion', 'pro'); }}
+            className="btn-premium-green"
+            style={{ width: '100%', padding: '0.85rem', borderRadius: '10px', fontWeight: 800, fontSize: '1rem', border: 'none', cursor: 'pointer' }}
           >
-            Solicitar Minha Loja
+            Criar Loja Grátis
           </button>
         </div>
       )}
 
-      {/* HERO SECTION DE ALTO IMPACTO */}
-      <section style={{ padding: '12rem 0 8rem 0', position: 'relative', overflow: 'hidden' }} className="saas-hero-section">
-        <div style={{ position: 'absolute', top: '-10%', left: '50%', transform: 'translateX(-50%)', width: '800px', height: '800px', background: 'var(--hero-bg-overlay)', zIndex: 1 }} />
-        
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem', position: 'relative', zIndex: 10, textAlign: 'center' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '0.4rem 1.25rem', borderRadius: '30px', marginBottom: '2rem' }}>
-            <Sparkles size={16} color="#10b981" />
-            <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '1px' }}>
-              Plataforma Premium com Setup Assistido
-            </span>
+      {/* HERO SECTION */}
+      <section className="hero-section" style={{ padding: '11rem 0 8rem 0', position: 'relative', overflow: 'hidden', background: 'radial-gradient(circle at 50% -20%, rgba(16, 185, 129, 0.06) 0%, rgba(14, 165, 233, 0.04) 50%, transparent 80%)' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem', display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '4rem', alignItems: 'center' }} className="hero-grid-responsive">
+          <div style={{ position: 'relative', zIndex: 10 }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#e6fcf5', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '0.5rem 1.25rem', borderRadius: '30px', marginBottom: '2rem' }}>
+              <Sparkles size={16} color="#059669" />
+              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#059669', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Setup Assistido: Sua loja já nasce pronta
+              </span>
+            </div>
+
+            <h1 style={{ fontSize: '4.2rem', fontWeight: 900, marginBottom: '1.5rem', lineHeight: 1.15, letterSpacing: '-1.5px', color: '#0f172a' }} className="hero-title-responsive">
+              Sua loja virtual <br />
+              <span className="gradient-text-green">pronta para vender</span> <br />
+              em poucos minutos.
+            </h1>
+
+            <p style={{ fontSize: '1.3rem', color: '#475569', maxWidth: '650px', marginBottom: '3.5rem', lineHeight: 1.6 }}>
+              Chega de perder tempo configurando sistemas complexos do zero. Com a CriarLojas, você não precisa contratar um programador ou entender de tecnologia. Nós entregamos o seu negócio praticamente pronto para vender.
+            </p>
+
+            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }} className="hero-buttons-responsive">
+              <button 
+                onClick={() => handleOpenLeadModal('fashion', 'pro')}
+                className="btn-premium-green"
+                style={{ padding: '1.25rem 3.2rem', borderRadius: '14px', fontSize: '1.15rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem', border: 'none', cursor: 'pointer' }}
+              >
+                <span>Criar Minha Loja Grátis</span>
+                <ArrowRight size={20} />
+              </button>
+              
+              <a 
+                href="#comece"
+                className="btn-premium-outline"
+                style={{ padding: '1.25rem 2.5rem', borderRadius: '14px', fontSize: '1.15rem', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                <Play size={18} />
+                <span>Ver Demonstrações</span>
+              </a>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '2.5rem', marginTop: '4.5rem', color: '#64748b', fontSize: '0.9rem' }} className="hero-features-responsive">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <CheckCircle size={18} color="#10b981" />
+                <span>Sem taxa de adesão</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <CheckCircle size={18} color="#10b981" />
+                <span>Suporte Humano no Brasil</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <CheckCircle size={18} color="#10b981" />
+                <span>Integração de PIX Direto</span>
+              </div>
+            </div>
           </div>
 
-          <h1 className="saas-hero-title" style={{ fontSize: '4.5rem', fontWeight: 900, marginBottom: '1.5rem', lineHeight: 1.1, letterSpacing: '-1px' }}>
-            Escolha seu Modelo e Receba sua <br />
-            <span style={{ color: '#10b981' }}>
-              Loja Virtual Pronta para Vender
-            </span>
-          </h1>
-
-          <p className="saas-hero-desc" style={{ fontSize: '1.3rem', color: '#94a3b8', maxWidth: '800px', margin: '0 auto 3.5rem', lineHeight: 1.6 }}>
-            Chega de quebrar a cabeça configurando sistemas do zero. Escolha uma de nossas vitrines de alta conversão, fale com nosso especialista e receba seu e-commerce completo, veloz e integrado em pouco tempo.
-          </p>
-
-          <div className="saas-hero-buttons" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
-            <button 
-              onClick={() => handleOpenLeadModal('modern', 'pro')} 
-              style={{ 
-                padding: '1.25rem 3rem', 
-                background: '#10b981', 
-                color: 'white', 
-                border: 'none', 
-                cursor: 'pointer', 
-                fontSize: '1.1rem', 
-                fontWeight: 800, 
-                borderRadius: '12px', 
-                boxShadow: '0 8px 25px rgba(16, 185, 129, 0.5)', 
-                display: 'inline-flex', 
-                alignItems: 'center', 
-                gap: '0.75rem', 
-                transition: 'all 0.2s'
-              }} 
-              className="hero-btn"
-            >
-              <span>Quero Solicitar Minha Loja</span>
-              <ArrowRight size={20} />
-            </button>
-            
-            <a 
-              href="#vitrine" 
-              style={{ 
-                padding: '1.25rem 2.5rem', 
-                background: '#0ea5e9', 
-                color: '#ffffff', 
-                textDecoration: 'none', 
-                fontSize: '1.1rem', 
-                fontWeight: 700, 
-                borderRadius: '12px', 
-                border: 'none', 
-                display: 'inline-flex', 
-                alignItems: 'center', 
-                gap: '0.75rem', 
-                transition: 'all 0.2s'
-              }} 
-              className="demo-btn"
-            >
-              <Play size={18} color="#ffffff" />
-              <span>Ver Lojas Modelo</span>
-            </a>
-          </div>
-
-          <div className="saas-hero-checks" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '3rem', marginTop: '5rem', color: '#64748b', fontSize: '0.9rem', fontWeight: 600 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CheckCircle2 size={18} color="#10b981" />
-              <span>Setup assistido pelo Admin Master</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CheckCircle2 size={18} color="#10b981" />
-              <span>Infraestrutura robusta e isolada</span>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <CheckCircle2 size={18} color="#10b981" />
-              <span>Sem taxa de adesão ou surpresas</span>
-            </div>
+          {/* MOCKUP PROFISSIONAL FOTOREALISTA DE DUPLO DISPOSITIVO (NOTEBOOK + CELULAR) */}
+          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <img 
+              src="/hero_devices_mockup.png" 
+              alt="Loja Virtual CriarLojas no Computador e Celular" 
+              style={{ width: '100%', height: 'auto', display: 'block', maxWidth: '540px' }}
+            />
           </div>
         </div>
       </section>
 
-      {/* SEÇÃO DE VITRINES / LOJAS MODELO (CARROSSEL HORIZONTAL) */}
-      <section id="vitrine" style={{ padding: '6rem 0', background: 'rgba(255, 255, 255, 0.02)', borderTop: '1px solid rgba(255, 255, 255, 0.05)', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', overflow: 'hidden' }}>
+
+
+      {/* SEÇÃO "COMECE DO JEITO CERTO" */}
+      <section id="comece" style={{ padding: '4rem 0', background: '#f8fafc' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '4rem', flexWrap: 'wrap', gap: '1.5rem' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '4rem', flexWrap: 'wrap', gap: '2rem' }}>
             <div>
-              <h2 style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0 0 0.75rem 0', color: '#f8fafc' }}>Explore Nossas Lojas Modelo (Vitrines Prontas)</h2>
-              <p style={{ color: '#94a3b8', fontSize: '1.1rem', maxWidth: '700px', margin: 0 }}>
-                Navegue pelos e-commerces conceito criados na plataforma Criar Lojas. Ao solicitar sua loja, nosso Admin clona toda a estrutura visual e técnica para você começar com o pé direito.
+              <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', margin: '0 0 1rem 0', letterSpacing: '-0.5px', lineHeight: 1.2 }}>
+                Comece do jeito certo: Escolha seu modelo
+              </h2>
+              <p style={{ color: '#475569', fontSize: '1.1rem', maxWidth: '700px', margin: 0 }}>
+                Nossas vitrines foram criadas por designers e especialistas em vendas. Selecione a que melhor combina com seu negócio e nossa equipe clona a estrutura para você.
               </p>
             </div>
 
             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
               <button 
+                className="icon-btn"
                 onClick={() => scrollCarousel('left')}
-                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}
-                onMouseEnter={e => e.currentTarget.style.background = '#10b981'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(15, 23, 42, 0.8)'}
-                aria-label="Anterior"
+                style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#ffffff', border: '1px solid #cbd5e1', color: '#0f172a', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}
               >
-                <ChevronLeft size={24} />
+                <ChevronLeft size={24} color="#0f172a" />
               </button>
               <button 
+                className="icon-btn"
                 onClick={() => scrollCarousel('right')}
-                style={{ 
-                  width: '48px', 
-                  height: '48px', 
-                  borderRadius: '12px', 
-                  background: '#10b981', 
-                  border: 'none', 
-                  color: '#ffffff', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  justifyContent: 'center', 
-                  cursor: 'pointer', 
-                  transition: 'all 0.2s', 
-                  boxShadow: '0 4px 15px rgba(16, 185, 129, 0.4)' 
-                }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.05)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
-                aria-label="Próximo"
+                style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#10b981', border: 'none', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)' }}
               >
-                <ChevronRight size={24} />
+                <ChevronRight size={24} color="#ffffff" />
               </button>
             </div>
           </div>
 
-          {/* BARRA DE FILTRO POR CATEGORIA */}
-          <div style={{ display: 'flex', gap: '0.75rem', overflowX: 'auto', paddingBottom: '1rem', marginBottom: '2.5rem', scrollbarWidth: 'none', msOverflowStyle: 'none' }} className="no-scrollbar">
-            {['all', ...Array.from(new Set(demoStoresList.map(s => s.niche)))].map((cat) => (
-              <button
-                key={cat}
-                onClick={() => setSelectedCategory(cat)}
-                style={{
-                  padding: '0.6rem 1.5rem',
-                  borderRadius: '30px',
-                  fontWeight: 700,
-                  fontSize: '0.95rem',
-                  whiteSpace: 'nowrap',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  background: selectedCategory === cat ? 'linear-gradient(135deg, #10b981, #0ea5e9)' : 'rgba(255, 255, 255, 0.05)',
-                  color: selectedCategory === cat ? '#ffffff' : '#94a3b8',
-                  border: selectedCategory === cat ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
-                  boxShadow: selectedCategory === cat ? '0 4px 15px rgba(16, 185, 129, 0.3)' : 'none'
-                }}
-              >
-                {cat === 'all' ? 'Todas as Categorias' : cat}
-              </button>
-            ))}
-          </div>
-
-          <div 
-            ref={carouselRef}
-            style={{ 
-              display: 'flex', 
-              gap: '2.5rem', 
-              overflowX: 'auto', 
-              scrollBehavior: 'smooth', 
-              scrollSnapType: 'x mandatory', 
-              paddingBottom: '2rem',
-              scrollbarWidth: 'none', 
-              msOverflowStyle: 'none' 
-            }} 
-            className="carousel-container no-scrollbar"
-          >
-            {demoStoresList
-              .filter(store => selectedCategory === 'all' || store.niche === selectedCategory)
-              .map((store) => (
+          <div ref={carouselRef} className="carousel-container">
+            {loadingStores ? (
+              // Skeleton cards durante o carregamento
+              [...Array(4)].map((_, i) => (
+                <div
+                  key={`skeleton-${i}`}
+                  className="glass-card demo-card-slide"
+                  style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
+                >
+                  <div>
+                    <div style={{
+                      height: '240px',
+                      background: 'linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%)',
+                      backgroundSize: '200% 100%',
+                      animation: 'shimmer 1.5s infinite'
+                    }} />
+                    <div style={{ padding: '2rem' }}>
+                      <div style={{ height: '1.6rem', width: '60%', borderRadius: '8px', background: 'linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite', marginBottom: '0.75rem' }} />
+                      <div style={{ height: '1rem', width: '40%', borderRadius: '8px', background: 'linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite', marginBottom: '1rem' }} />
+                      <div style={{ height: '0.875rem', width: '90%', borderRadius: '6px', background: 'linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite', marginBottom: '0.5rem' }} />
+                      <div style={{ height: '0.875rem', width: '75%', borderRadius: '6px', background: 'linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                    </div>
+                  </div>
+                  <div style={{ padding: '0 2rem 2rem 2rem', display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '1rem' }} className="demo-card-buttons">
+                    <div style={{ height: '2.75rem', borderRadius: '10px', background: 'linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                    <div style={{ height: '2.75rem', borderRadius: '10px', background: 'linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%)', backgroundSize: '200% 100%', animation: 'shimmer 1.5s infinite' }} />
+                  </div>
+                </div>
+              ))
+            ) : demoStores.map((store) => (
               <div 
                 key={store.id} 
-                style={{ 
-                  background: isLightTheme ? '#0ea5e915' : 'rgba(15, 23, 42, 0.6)', 
-                  borderRadius: '16px', 
-                  border: '1px solid rgba(255, 255, 255, 0.08)', 
-                  overflow: 'hidden', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  justifyContent: 'space-between', 
-                  transition: 'all 0.3s'
-                }} 
-                className="demo-card demo-card-slide"
+                className="glass-card demo-card-slide"
+                style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}
               >
                 <div>
                   <div style={{ height: '240px', overflow: 'hidden', position: 'relative' }}>
-                    <img src={store.img} alt={store.name} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} className="demo-img" />
-                    <div style={{ position: 'absolute', top: '1rem', right: '1rem', background: store.color, backdropFilter: 'blur(8px)', padding: '0.35rem 1rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800, color: getContrastTextColor(store.color), border: '1px solid rgba(255, 255, 255, 0.3)', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)' }}>
+                    <img src={store.img} alt={store.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    <div style={{ position: 'absolute', top: '1rem', right: '1rem', background: store.color, padding: '0.4rem 1.1rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800, color: '#ffffff', border: '1px solid rgba(255,255,255,0.2)' }}>
                       {store.niche}
                     </div>
                   </div>
 
-                  <div style={{ padding: '2rem 2rem 1rem 2rem' }}>
-                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: '#f8fafc' }}>{store.name}</h3>
-                    <p style={{ color: '#0ea5e9', fontSize: '0.9rem', fontWeight: 600, marginBottom: '1rem' }}>{store.subdomain}{domainSuffix}</p>
-                    <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '1.5rem' }}>{store.desc}</p>
+                  <div style={{ padding: '2rem' }}>
+                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: '#0f172a' }}>{store.name}</h3>
+                    <p style={{ color: '#0ea5e9', fontSize: '0.9rem', fontWeight: 600, marginBottom: '1rem' }}>/modelos/{store.subdomain}</p>
+                    <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>{store.desc}</p>
                   </div>
                 </div>
 
-                <div style={{ padding: '0 2rem 2rem 2rem', display: 'grid', gap: '1rem' }}>
-                  <div>
-                    <a 
-                      href={getAbsoluteUrl(store.subdomain)} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      style={{ width: '100%', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', color: '#cbd5e1', textDecoration: 'none', fontSize: '0.95rem', fontWeight: 700, borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all 0.2s' }}
-                      className="btn-admin"
-                    >
-                      <ExternalLink size={18} />
-                      <span>Ver Vitrine</span>
-                    </a>
-                  </div>
-
+                <div style={{ padding: '0 2rem 2rem 2rem', display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '1rem' }} className="demo-card-buttons">
                   <button 
                     onClick={() => handleOpenLeadModal(store.id, 'pro')}
-                    style={{ width: '100%', padding: '0.85rem', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, fontSize: '1rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)', transition: 'all 0.2s' }}
-                    className="btn-visit"
+                    className="btn-premium-green"
+                    style={{ padding: '0.85rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.95rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem', border: 'none', cursor: 'pointer' }}
                   >
-                    <Sparkles size={18} />
-                    <span>Quero Contratar Este Modelo</span>
+                    <Sparkles size={16} />
+                    <span>Usar modelo</span>
                   </button>
+
+                  <a 
+                    href={`/modelos/${store.subdomain}`}
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="btn-premium-outline"
+                    style={{ padding: '0.85rem', borderRadius: '10px', fontSize: '0.95rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.35rem', textDecoration: 'none' }}
+                  >
+                    <span>Visualizar</span>
+                    <ArrowUpRight size={16} />
+                  </a>
                 </div>
               </div>
             ))}
@@ -1134,279 +1060,510 @@ export default function SaaSCommercialPortal() {
         </div>
       </section>
 
-      {/* SEÇÃO DE CLIENTES ATIVOS / EM FATURAMENTO (CARROSSEL HORIZONTAL) */}
-      <section id="clientes" style={{ padding: '6rem 0', background: 'rgba(15, 23, 42, 0.3)', borderBottom: '1px solid rgba(255, 255, 255, 0.05)', overflow: 'hidden' }}>
+      {/* SEÇÃO "COMO FUNCIONA" */}
+      <section id="funcionamento" style={{ padding: '4rem 0', background: '#ffffff', borderTop: '1px solid #e2e8f0' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '4rem', flexWrap: 'wrap', gap: '1.5rem' }}>
-            <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(14, 165, 233, 0.1)', border: '1px solid rgba(14, 165, 233, 0.3)', padding: '0.35rem 1rem', borderRadius: '20px', marginBottom: '1rem' }}>
-                <Sparkles size={14} color="#0ea5e9" />
-                <span style={{ fontSize: '0.75rem', fontWeight: 800, color: '#0ea5e9', textTransform: 'uppercase', letterSpacing: '1px' }}>Lojas Reais em Operação</span>
-              </div>
-              <h2 style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0 0 0.75rem 0', color: '#f8fafc' }}>Casos de Sucesso em Faturamento</h2>
-              <p style={{ color: '#94a3b8', fontSize: '1.1rem', maxWidth: '700px', margin: 0 }}>
-                Conheça lojistas reais que utilizam a plataforma Criar Lojas diariamente para gerenciar seus estoques, processar pagamentos via Pix e escalar suas vendas com alta performance.
-              </p>
+          <div style={{ textAlign: 'center', marginBottom: '6rem' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#e0f2fe', border: '1px solid rgba(14, 165, 233, 0.3)', padding: '0.5rem 1.25rem', borderRadius: '30px', marginBottom: '1.5rem' }}>
+              <Rocket size={16} color="#0284c7" />
+              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0284c7', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Simples e Sem Complicações
+              </span>
             </div>
-
-            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <button 
-                onClick={() => scrollClientsCarousel('left')}
-                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}
-                onMouseEnter={e => e.currentTarget.style.background = '#0ea5e9'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(15, 23, 42, 0.8)'}
-                aria-label="Anterior"
-              >
-                <ChevronLeft size={24} />
-              </button>
-              <button 
-                onClick={() => scrollClientsCarousel('right')}
-                style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 4px 12px rgba(0,0,0,0.2)' }}
-                onMouseEnter={e => e.currentTarget.style.background = '#0ea5e9'}
-                onMouseLeave={e => e.currentTarget.style.background = 'rgba(15, 23, 42, 0.8)'}
-                aria-label="Próximo"
-              >
-                <ChevronRight size={24} />
-              </button>
-            </div>
-          </div>
-
-          <div 
-            ref={clientsCarouselRef}
-            style={{ 
-              display: 'flex', 
-              gap: '2.5rem', 
-              overflowX: 'auto', 
-              scrollBehavior: 'smooth', 
-              scrollSnapType: 'x mandatory', 
-              paddingBottom: '2rem',
-              scrollbarWidth: 'none', 
-              msOverflowStyle: 'none' 
-            }} 
-            className="carousel-container no-scrollbar"
-          >
-            {activeClientsList.map((store) => (
-              <div 
-                key={store.id} 
-                style={{ 
-                  background: isLightTheme ? '#0ea5e915' : 'rgba(15, 23, 42, 0.6)', 
-                  borderRadius: '16px', 
-                  border: '1px solid rgba(255, 255, 255, 0.08)', 
-                  overflow: 'hidden', 
-                  display: 'flex', 
-                  flexDirection: 'column', 
-                  justifyContent: 'space-between', 
-                  transition: 'all 0.3s'
-                }} 
-                className="demo-card demo-card-slide"
-              >
-                <div>
-                  <div style={{ height: '240px', overflow: 'hidden', position: 'relative' }}>
-                    <img src={store.img} alt={store.name} style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.5s' }} className="demo-img" />
-                    <div style={{ position: 'absolute', top: '1rem', right: '1rem', background: store.color, backdropFilter: 'blur(8px)', padding: '0.35rem 1rem', borderRadius: '20px', fontSize: '0.75rem', fontWeight: 800, color: getContrastTextColor(store.color), border: '1px solid rgba(255, 255, 255, 0.3)', boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)' }}>
-                      {store.niche}
-                    </div>
-                    <div style={{ position: 'absolute', bottom: '1rem', left: '1rem', background: 'rgba(16, 185, 129, 0.9)', backdropFilter: 'blur(8px)', padding: '0.35rem 0.85rem', borderRadius: '10px', fontSize: '0.75rem', fontWeight: 800, color: 'white', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                      <CheckCircle2 size={14} />
-                      <span>{store.ordersCount}</span>
-                    </div>
-                  </div>
-
-                  <div style={{ padding: '2rem 2rem 1rem 2rem' }}>
-                    <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 0.5rem 0', color: '#f8fafc' }}>{store.name}</h3>
-                    <p style={{ color: '#0ea5e9', fontSize: '0.9rem', fontWeight: 600, marginBottom: '1rem' }}>{store.subdomain}{domainSuffix}</p>
-                    <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>{store.desc}</p>
-                  </div>
-                </div>
-
-                <div style={{ padding: '0 2rem 2rem 2rem', display: 'grid', gap: '1rem' }}>
-                  <div>
-                    <a 
-                      href={getAbsoluteUrl(store.subdomain)} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      style={{ width: '100%', padding: '0.85rem', background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', color: 'white', textDecoration: 'none', fontSize: '1rem', fontWeight: 800, borderRadius: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 4px 15px rgba(14, 165, 233, 0.3)', transition: 'all 0.2s' }}
-                      className="btn-visit"
-                    >
-                      <ExternalLink size={18} />
-                      <span>Acessar Loja do Cliente</span>
-                    </a>
-                  </div>
-
-                  <button 
-                    onClick={() => handleOpenLeadModal(store.id, 'pro')}
-                    style={{ width: '100%', padding: '0.75rem', background: 'rgba(255, 255, 255, 0.05)', color: '#cbd5e1', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '10px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all 0.2s' }}
-                    className="btn-admin"
-                  >
-                    <Sparkles size={18} />
-                    <span>Quero uma Loja Igual a Esta</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* FUNCIONALIDADES / PROPOSTA DE VALOR */}
-      <section id="funcionalidades" style={{ padding: '8rem 0' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
-          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0 0 1rem 0', color: '#f8fafc' }}>Por Que Escolher a Plataforma Criar Lojas?</h2>
-            <p style={{ color: '#94a3b8', fontSize: '1.1rem', maxWidth: '700px', margin: '0 auto' }}>
-              Nossa infraestrutura foi desenhada do zero para maximizar suas vendas e simplificar a gestão operacional do seu negócio.
+            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', margin: '0 0 1rem 0', letterSpacing: '-0.5px', lineHeight: 1.2 }}>Como funciona a CriarLojas?</h2>
+            <p style={{ color: '#475569', fontSize: '1.1rem', maxWidth: '650px', margin: '0 auto' }}>
+              Nosso processo foi desenhado para você começar a faturar hoje, delegando toda a parte complexa para nossa equipe.
             </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2.5rem' }}>
-            <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '2.5rem', transition: 'all 0.3s' }} className="feature-card">
-              <div style={{ width: '56px', height: '56px', borderRadius: '14px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', marginBottom: '1.5rem', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                <Rocket size={28} />
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '2.5rem' }} className="steps-grid-responsive">
+            {[
+              { num: 1, title: 'Escolha seu segmento', text: 'Navegue pelas vitrines modelo e selecione o design perfeito para os seus produtos.', color: '#10b981' },
+              { num: 2, title: 'Personalize', text: 'Escolha as cores, envie seu logo e diga suas preferências operacionais.', color: '#0ea5e9' },
+              { num: 3, title: 'Cadastre produtos', text: 'Insira os produtos com preço e estoque de forma intuitiva pelo celular.', color: '#a855f7' },
+              { num: 4, title: 'Comece a vender', text: 'Compartilhe o link e receba pagamentos via PIX ou cartão diretamente na sua conta.', color: '#ec4899' }
+            ].map(step => (
+              <div key={step.num} className="glass-card" style={{ padding: '2.5rem' }}>
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: `${step.color}15`, border: `1px solid ${step.color}30`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: step.color, fontWeight: 900, fontSize: '1.25rem', marginBottom: '1.5rem' }}>
+                  {step.num}
+                </div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.75rem' }}>{step.title}</h3>
+                <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: 1.5, margin: 0 }}>{step.text}</p>
               </div>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 0.75rem 0', color: '#f8fafc' }}>Performance Extrema</h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
-                Lojas otimizadas com pontuação máxima no Google PageSpeed. Carregamento instantâneo que reduz a taxa de rejeição e dispara suas conversões.
-              </p>
-            </div>
-
-            <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '2.5rem', transition: 'all 0.3s' }} className="feature-card">
-              <div style={{ width: '56px', height: '56px', borderRadius: '14px', background: 'rgba(14, 165, 233, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0ea5e9', marginBottom: '1.5rem', border: '1px solid rgba(14, 165, 233, 0.2)' }}>
-                <Shield size={28} />
-              </div>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 0.75rem 0', color: '#f8fafc' }}>Isolamento e Segurança RLS</h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
-                Seus dados, clientes e pedidos ficam 100% blindados e isolados através de uma infraestrutura em nuvem dedicada com criptografia de ponta e nível bancário.
-              </p>
-            </div>
-
-            <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '2.5rem', transition: 'all 0.3s' }} className="feature-card">
-              <div style={{ width: '56px', height: '56px', borderRadius: '14px', background: 'rgba(245, 158, 11, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f59e0b', marginBottom: '1.5rem', border: '1px solid rgba(245, 158, 11, 0.2)' }}>
-                <Zap size={28} />
-              </div>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 0.75rem 0', color: '#f8fafc' }}>Checkout Transparente</h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
-                Experiência de pagamento nativa e sem redirecionamentos. Aceite PIX, Boleto e Cartão com as menores taxas do mercado.
-              </p>
-            </div>
-
-            <div style={{ background: 'rgba(255, 255, 255, 0.08)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '2.5rem', transition: 'all 0.3s' }} className="feature-card">
-              <div style={{ width: '56px', height: '56px', borderRadius: '14px', background: 'rgba(239, 68, 68, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444', marginBottom: '1.5rem', border: '1px solid rgba(239, 68, 68, 0.2)' }}>
-                <Layers size={28} />
-              </div>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 0.75rem 0', color: '#f8fafc' }}>Variações Ilimitadas</h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
-                Cadastre produtos com múltiplas opções de cores, tamanhos, voltagens e especificações de forma simples e intuitiva.
-              </p>
-            </div>
-
-            <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '2.5rem', transition: 'all 0.3s' }} className="feature-card">
-              <div style={{ width: '56px', height: '56px', borderRadius: '14px', background: 'rgba(16, 185, 129, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', marginBottom: '1.5rem', border: '1px solid rgba(16, 185, 129, 0.2)' }}>
-                <Smartphone size={28} />
-              </div>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 0.75rem 0', color: '#f8fafc' }}>100% Responsivo & Mobile First</h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
-                Mais de 80% das compras ocorrem no celular. Nossas vitrines oferecem uma navegação fluida e perfeita em qualquer dispositivo.
-              </p>
-            </div>
-
-            <div style={{ background: 'rgba(255, 255, 255, 0.02)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '16px', padding: '2.5rem', transition: 'all 0.3s' }} className="feature-card">
-              <div style={{ width: '56px', height: '56px', borderRadius: '14px', background: 'rgba(14, 165, 233, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0ea5e9', marginBottom: '1.5rem', border: '1px solid rgba(14, 165, 233, 0.2)' }}>
-                <TrendingUp size={28} />
-              </div>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '0 0 0.75rem 0', color: '#f8fafc' }}>Ferramentas de Marketing</h3>
-              <p style={{ color: '#94a3b8', fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
-                Cupons de desconto, banners promocionais, contadores de urgência e integração com Pixel do Facebook e Google Analytics.
-              </p>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* CALCULADORA DE ROI INTERATIVA */}
-      <section id="calculadora" style={{ padding: '8rem 0', background: 'rgba(255, 255, 255, 0.02)', borderTop: '1px solid rgba(255, 255, 255, 0.05)', borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
+      {/* SEÇÃO "TUDO QUE SUA LOJA PRECISA" (BENEFÍCIOS) */}
+      <section id="beneficios" style={{ padding: '4rem 0', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center' }}>
+          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', margin: '0 0 1rem 0', letterSpacing: '-0.5px', lineHeight: 1.2 }}>Tudo o que você precisa para faturar alto</h2>
+            <p style={{ color: '#475569', fontSize: '1.1rem', maxWidth: '650px', margin: '0 auto' }}>
+              Nós focamos em entregar soluções de conversão para você vender mais e melhor todos os dias.
+            </p>
+          </div>
+
+          <div className="grid-custom-3">
+            {[
+              { icon: <Zap size={24} />, title: 'Receba pagamentos por PIX na hora', text: 'Ofereça o PIX como pagamento instantâneo e receba o dinheiro diretamente na sua conta na hora, sem comissões extras.', color: '#10b981' },
+              { icon: <Lock size={24} />, title: 'Mais confiança para finalizar a compra', text: 'Nosso checkout transparente mantém o cliente dentro da sua loja na hora de pagar, minimizando desistências.', color: '#0ea5e9' },
+              { icon: <Rocket size={24} />, title: 'Frete automático inteligente', text: 'Cálculo de frete baseado no peso do produto e no CEP. Emissão fácil de etiquetas com descontos Correios.', color: '#f59e0b' },
+              { icon: <Smartphone size={24} />, title: 'Gerenciamento total pelo celular', text: 'Controle estoque, altere preços, cadastre produtos e responda a clientes de forma totalmente móvel.', color: '#6366f1' },
+              { icon: <Globe size={24} />, title: 'Sua loja pode aparecer no Google', text: 'Estrutura de código leve, rápida e otimizada para SEO, facilitando que compradores te achem na internet.', color: '#ec4899' },
+              { icon: <Shield size={24} />, title: 'Seus clientes compram com segurança', text: 'Certificado de segurança SSL integrado. Seus clientes inserem dados em ambiente blindado e criptografado.', color: '#ef4444' }
+            ].map((item, index) => (
+              <div key={index} className="glass-card" style={{ padding: '2.5rem' }}>
+                <div style={{ width: '50px', height: '50px', borderRadius: '12px', background: `${item.color}10`, border: `1px solid ${item.color}25`, display: 'flex', alignItems: 'center', justifyContent: 'center', color: item.color, marginBottom: '1.5rem' }}>
+                  {item.icon}
+                </div>
+                <h3 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#0f172a', marginBottom: '0.75rem' }}>{item.title}</h3>
+                <p style={{ color: '#475569', fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO COMPARAÇÃO VISUAL */}
+      <section id="comparacao" style={{ padding: '4rem 0', background: '#ffffff', borderTop: '1px solid #e2e8f0' }}>
+        <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '0 2rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', margin: '0 0 1rem 0', letterSpacing: '-0.5px', lineHeight: 1.2 }}>Por que a CriarLojas é diferente?</h2>
+            <p style={{ color: '#475569', fontSize: '1.1rem' }}>Compare e veja por que somos a escolha inteligente para pequenos negócios.</p>
+          </div>
+
+          <div style={{ overflowX: 'auto', background: '#ffffff', borderRadius: '24px', border: '1px solid #e2e8f0', padding: '1rem' }}>
+            <table className="comparison-table" style={{ width: '100%', borderCollapse: 'collapse', minWidth: '700px', textAlign: 'left' }}>
+              <thead>
+                <tr style={{ borderBottom: '2px solid #cbd5e1' }}>
+                  <th style={{ color: '#0f172a', fontSize: '1.1rem', fontWeight: 800 }}>Diferencial</th>
+                  <th style={{ color: '#059669', fontSize: '1.1rem', fontWeight: 800, textAlign: 'center', background: '#e6fcf5', borderRadius: '12px 12px 0 0' }}>CriarLojas</th>
+                  <th style={{ color: '#475569', fontSize: '1.1rem', fontWeight: 600, textAlign: 'center' }}>Outras Plataformas</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { label: 'Setup Assistido (Entregamos pronta)', ours: true, others: false },
+                  { label: 'Facilidade de início', ours: 'Imediato, sem código', others: 'Complexo, faça você mesmo' },
+                  { label: 'Modelos Prontos de Alta Conversão', ours: true, others: false },
+                  { label: 'Suporte Técnico Humano', ours: 'Direto no WhatsApp', others: 'E-mails e Chats em Inglês' },
+                  { label: 'Mensalidade e Preço', ours: 'Sem taxas abusivas', others: 'Cobram comissões por venda' },
+                  { label: 'Tempo para começar a faturar', ours: 'Menos de 30 minutos', others: 'Dias configurando do zero' }
+                ].map((row, i) => (
+                  <tr key={i}>
+                    <td style={{ fontWeight: 700, color: '#334155' }}>{row.label}</td>
+                    <td style={{ textAlign: 'center', background: '#e6fcf5', color: '#059669', fontWeight: 800 }}>
+                      {typeof row.ours === 'boolean' ? (row.ours ? <CheckCircle size={22} color="#059669" style={{ margin: '0 auto' }} /> : '❌') : row.ours}
+                    </td>
+                    <td style={{ textAlign: 'center', color: '#64748b' }}>
+                      {typeof row.others === 'boolean' ? (row.others ? <CheckCircle size={22} color="#64748b" style={{ margin: '0 auto' }} /> : <X size={22} color="#ef4444" style={{ margin: '0 auto' }} />) : row.others}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO "TRANSFORME SUA IDEIA EM NEGÓCIO" */}
+      <section id="segmentos" style={{ padding: '4rem 0', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', margin: '0 0 1rem 0', letterSpacing: '-0.5px', lineHeight: 1.2 }}>Transforme sua ideia em faturamento real</h2>
+            <p style={{ color: '#475569', fontSize: '1.1rem', maxWidth: '650px', margin: '0 auto' }}>
+              Não importa o que você vende, nós temos a estrutura perfeita para o seu nicho começar a converter.
+            </p>
+
+            <div className="categories-filter-responsive" style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap', marginTop: '2.5rem' }}>
+              <button
+                onClick={() => setActiveSegmentTab('todos')}
+                style={{ 
+                  padding: '0.75rem 1.5rem', 
+                  borderRadius: '30px', 
+                  fontWeight: 700, 
+                  border: '1px solid #cbd5e1',
+                  background: activeSegmentTab === 'todos' ? '#10b981' : '#ffffff',
+                  color: activeSegmentTab === 'todos' ? 'white' : '#475569',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+              >
+                🌐 Todos
+              </button>
+              {Array.from(new Set(demoStores.map(s => s.niche || 'Moda & Roupa'))).map((nicheName: any) => {
+                const isSelected = activeSegmentTab === nicheName.toLowerCase().replace(/[^a-z0-9]/g, '')
+                return (
+                  <button
+                    key={nicheName}
+                    onClick={() => setActiveSegmentTab(nicheName.toLowerCase().replace(/[^a-z0-9]/g, ''))}
+                    style={{ 
+                      padding: '0.75rem 1.5rem', 
+                      borderRadius: '30px', 
+                      fontWeight: 700, 
+                      border: '1px solid #cbd5e1',
+                      background: isSelected ? '#10b981' : '#ffffff',
+                      color: isSelected ? 'white' : '#475569',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    {nicheName}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="grid-custom-3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }}>
+            {demoStores.filter(store => {
+              if (activeSegmentTab === 'todos') return true
+              const formattedNiche = (store.niche || 'Moda & Roupa').toLowerCase().replace(/[^a-z0-9]/g, '')
+              return formattedNiche === activeSegmentTab
+            }).slice(0, visibleDemoLimit).map((store) => (
+              <div 
+                key={store.id}
+                className="glass-card" 
+                style={{ 
+                  width: '100%', 
+                  margin: '0 auto', 
+                  borderRadius: '24px', 
+                  overflow: 'hidden', 
+                  border: '1px solid #cbd5e1', 
+                  boxShadow: '0 20px 40px rgba(0,0,0,0.06)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  height: '100%'
+                }}
+              >
+                <div style={{ background: '#f1f5f9', borderBottom: '1px solid #e2e8f0', padding: '0.75rem 1.5rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#ef4444' }}></span>
+                    <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#f59e0b' }}></span>
+                    <span style={{ width: '12px', height: '12px', borderRadius: '50%', background: '#10b981' }}></span>
+                  </div>
+                  <div style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '20px', padding: '0.2rem 1.5rem', fontSize: '0.75rem', color: '#64748b', fontWeight: 600 }}>
+                    {store.subdomain}{domainSuffix}
+                  </div>
+                  <div style={{ width: '30px' }}></div>
+                </div>
+
+                <div style={{ background: '#ffffff', display: 'flex', flexDirection: 'column', flex: 1 }}>
+                  <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontWeight: 900, color: store.color || '#0f172a', fontSize: '1rem', letterSpacing: '-0.5px' }}>{store.name}</span>
+                    <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.7rem', fontWeight: 700, color: '#475569' }}>
+                      <span>Home</span>
+                      <span>Produtos</span>
+                    </div>
+                  </div>
+
+                  {/* Stacked Showcase inside the store preview */}
+                  <div style={{ padding: '1.5rem', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '1rem', flex: 1 }}>
+                    <div style={{ position: 'relative', borderRadius: '12px', overflow: 'hidden', height: '160px', border: '1px solid #cbd5e1' }}>
+                      <img src={store.img} alt={store.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', background: store.color || '#10b981', color: 'white', padding: '0.2rem 0.6rem', borderRadius: '20px', fontSize: '0.65rem', fontWeight: 800 }}>
+                        {store.niche}
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between', flex: 1 }}>
+                      <div>
+                        <h4 style={{ fontSize: '1.1rem', fontWeight: 900, color: '#0f172a', lineHeight: 1.2, marginBottom: '0.5rem' }}>
+                          {store.name}
+                        </h4>
+                        <p style={{ color: '#475569', fontSize: '0.8rem', lineHeight: 1.4, marginBottom: '1rem' }}>
+                          {store.desc}
+                        </p>
+                      </div>
+                      <div className="card-buttons-container" style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button 
+                          onClick={() => handleOpenLeadModal(store.id, 'pro')}
+                          className="btn-premium-green" 
+                          style={{ flex: 1, padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 850, border: 'none', background: store.color || '#10b981', cursor: 'pointer' }}
+                        >
+                          Criar Loja
+                        </button>
+                        <a 
+                          href={`/modelos/${store.subdomain}`} 
+                          target="_blank" 
+                          rel="noopener noreferrer" 
+                          className="btn-premium-outline"
+                          style={{ flex: 1, padding: '0.5rem 0.85rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem', justifyContent: 'center' }}
+                        >
+                          <span>Ver Demo</span>
+                          <ArrowUpRight size={12} />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bottom section displaying sample products / layout details */}
+                  <div style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.75rem' }}>
+                      {[1, 2, 3].map((num) => (
+                        <div key={num} style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '10px', padding: '0.5rem', textAlign: 'center' }}>
+                          <div style={{ height: '50px', background: '#f8fafc', borderRadius: '6px', marginBottom: '0.4rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <ShoppingBag size={14} color={store.color || '#10b981'} style={{ opacity: 0.6 }} />
+                          </div>
+                          <div style={{ fontSize: '0.65rem', fontWeight: 800, color: '#334155', marginBottom: '0.15rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Item #{num}</div>
+                          <div style={{ fontSize: '0.7rem', fontWeight: 950, color: store.color || '#10b981' }}>R$ 149</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {demoStores.filter(store => {
+            if (activeSegmentTab === 'todos') return true
+            const formattedNiche = (store.niche || 'Moda & Roupa').toLowerCase().replace(/[^a-z0-9]/g, '')
+            return formattedNiche === activeSegmentTab
+          }).length > visibleDemoLimit && (
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '3.5rem' }}>
+              <button 
+                onClick={() => setVisibleDemoLimit(prev => prev + 3)}
+                className="btn-premium"
+                style={{ 
+                  padding: '0.75rem 2.5rem', 
+                  borderRadius: '30px', 
+                  fontSize: '0.9rem', 
+                  fontWeight: 800, 
+                  background: '#10b981', 
+                  color: '#ffffff', 
+                  border: 'none', 
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 15px rgba(16, 185, 129, 0.3)',
+                  transition: '0.2s'
+                }}
+              >
+                Carregar Mais Modelos +
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* SEÇÃO 1: REGISTRO DE DOMÍNIO PRÓPRIO */}
+      <section id="dominio-proprio" style={{ padding: '4rem 0', background: '#ffffff', borderTop: '1px solid #e2e8f0' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#e0f2fe', border: '1px solid rgba(14, 165, 233, 0.3)', padding: '0.5rem 1.25rem', borderRadius: '30px', marginBottom: '1.5rem' }}>
+              <Globe size={16} color="#0284c7" />
+              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0284c7', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Expansão e Autoridade de Marca
+              </span>
+            </div>
+            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', margin: '0 0 1rem 0', letterSpacing: '-0.5px', lineHeight: 1.2 }}>
+              Quer passar mais credibilidade? <br />
+              <span style={{ color: '#0ea5e9' }}>Registre seu Domínio Próprio (.com.br)</span>
+            </h2>
+            <p style={{ color: '#475569', fontSize: '1.15rem', maxWidth: '750px', margin: '0 auto', lineHeight: 1.6 }}>
+              Você pode começar sua loja utilizando nosso subdomínio gratuito (ex: sualoja.criarlojas.com.br) pelo tempo que quiser. Porém, quando sua marca começar a crescer, ter um endereço próprio como www.sualoja.com.br aumenta drasticamente a confiança dos seus clientes e as taxas de conversão.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '4rem', alignItems: 'center' }} className="segment-card-responsive">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>Por que registrar com a Criar Lojas?</h3>
+              <p style={{ color: '#475569', fontSize: '1.05rem', lineHeight: 1.6, margin: 0 }}>
+                Em vez de lidar com configurações complexas de DNS, apontamento CNAME e propagação em servidores externos, deixe nossa equipe de infraestrutura registrar e configurar tudo para você de forma transparente e imediata!
+              </p>
+
+              <div className="feature-list-card" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1.5rem', borderRadius: '16px', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0ea5e9', flexShrink: 0 }}>✓</div>
+                <div>
+                  <h4 style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.1rem', margin: '0 0 0.25rem 0' }}>Registro Oficial em Seu Nome</h4>
+                  <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>Garantimos o registro da sua marca (.com.br ou .com) diretamente nos órgãos oficiais, garantindo que você seja o único titular e proprietário do domínio.</p>
+                </div>
+              </div>
+
+              <div className="feature-list-card" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', padding: '1.5rem', borderRadius: '16px', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e6fcf5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', flexShrink: 0 }}>✓</div>
+                <div>
+                  <h4 style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.1rem', margin: '0 0 0.25rem 0' }}>Apontamento & SSL Automáticos</h4>
+                  <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>Configuração de servidores de nomes (DNS), ativação de certificado de segurança (SSL) e otimização de rotas realizadas direto pela nossa equipe.</p>
+                </div>
+              </div>
+            </div>
             <div>
-              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(14, 165, 233, 0.1)', border: '1px solid rgba(14, 165, 233, 0.3)', padding: '0.4rem 1.25rem', borderRadius: '30px', marginBottom: '1.5rem' }}>
-                <DollarSign size={16} color="#0ea5e9" />
-                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0ea5e9', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              <img 
+                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=700&q=80" 
+                alt="Registro de Domínio Próprio" 
+                style={{ width: '100%', borderRadius: '24px', border: '1px solid #cbd5e1', boxShadow: '0 20px 40px rgba(0,0,0,0.06)' }} 
+              />
+            </div>
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+            <button 
+              onClick={() => setShowDomainModal(true)}
+              className="btn-premium-green" 
+              style={{ padding: '1.2rem 3.5rem', borderRadius: '12px', fontSize: '1.1rem', fontWeight: 800, border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#0ea5e9', boxShadow: '0 8px 24px rgba(14, 165, 233, 0.25)' }}
+            >
+              <Globe size={18} />
+              <span>Solicitar Registro de Domínio Próprio</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO 2: SERVIÇO DE PERSONALIZAÇÃO VIP (CONCIERGE) */}
+      <section id="personalizacao-vip" style={{ padding: '4rem 0', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#e6fcf5', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '0.5rem 1.25rem', borderRadius: '30px', marginBottom: '1.5rem' }}>
+              <Sparkles size={16} color="#059669" />
+              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#059669', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                Serviço Especializado de Implementação
+              </span>
+            </div>
+            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', margin: '0 0 1rem 0', letterSpacing: '-0.5px', lineHeight: 1.2 }}>
+              Não tem tempo? Contrate nosso <br />
+              <span style={{ color: '#10b981' }}>Serviço de Personalização VIP (Concierge)</span>
+            </h2>
+            <p style={{ color: '#475569', fontSize: '1.15rem', maxWidth: '750px', margin: '0 auto', lineHeight: 1.6 }}>
+              A plataforma Criar Lojas entrega a infraestrutura completa e a vitrine modelo pronta para você mesmo personalizar com suas cores, banners e produtos. Porém, se você deseja economizar tempo e ter uma loja virtual com design de classe mundial feito por nossos especialistas, o serviço de Concierge VIP é a escolha perfeita.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1.1fr 0.9fr', gap: '4rem', alignItems: 'center' }} className="segment-card-responsive">
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+              <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#0f172a', margin: 0 }}>O que está incluído no Setup VIP?</h3>
+              <p style={{ color: '#475569', fontSize: '1.05rem', lineHeight: 1.6, margin: 0 }}>
+                Nós cuidamos do cadastro inicial de produtos, criação de banners sob medida focados em conversão e configuração completa de frete e meios de pagamento para você receber a loja 100% pronta para vender.
+              </p>
+
+              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '1.5rem', borderRadius: '16px', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e6fcf5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', flexShrink: 0 }}>✓</div>
+                <div>
+                  <h4 style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.1rem', margin: '0 0 0.25rem 0' }}>Setup Chave na Mão</h4>
+                  <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>Sua loja entregue perfeitamente configurada, com produtos iniciais cadastrados e todos os métodos de pagamento e frete ativos.</p>
+                </div>
+              </div>
+
+              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', padding: '1.5rem', borderRadius: '16px', display: 'flex', gap: '1rem', alignItems: 'flex-start' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#e0f2fe', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0ea5e9', flexShrink: 0 }}>✓</div>
+                <div>
+                  <h4 style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.1rem', margin: '0 0 0.25rem 0' }}>Design Profissional de Alta Conversão</h4>
+                  <p style={{ color: '#64748b', fontSize: '0.9rem', margin: 0 }}>Banners conceituais e identidade visual refinada criados por designers com vasta experiência no mercado de e-commerce brasileiro.</p>
+                </div>
+              </div>
+            </div>
+            <div>
+              <img 
+                src="https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=700&q=80" 
+                alt="Serviço de Personalização VIP" 
+                style={{ width: '100%', borderRadius: '24px', border: '1px solid #cbd5e1', boxShadow: '0 20px 40px rgba(0,0,0,0.06)' }} 
+              />
+            </div>
+          </div>
+
+          <div style={{ textAlign: 'center', marginTop: '4rem' }}>
+            <button 
+              onClick={() => handleOpenLeadModal('fashion', 'pro', true)}
+              className="btn-premium-green" 
+              style={{ padding: '1.2rem 3.5rem', borderRadius: '12px', fontSize: '1.1rem', fontWeight: 800, border: 'none', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#10b981', boxShadow: '0 8px 24px rgba(16, 185, 129, 0.25)' }}
+            >
+              <Sparkles size={18} />
+              <span>Solicitar Personalização VIP da Minha Loja</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      {/* SEÇÃO 3: CALCULADORA DE ECONOMIA */}
+      <section id="calculadora-taxas" style={{ padding: '4rem 0', background: '#ffffff', borderTop: '1px solid #e2e8f0' }}>
+        <div className="calc-container" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1.15fr 0.85fr', gap: '5rem', alignItems: 'center' }} className="calculator-grid-responsive">
+            <div>
+              <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: '#e0f2fe', border: '1px solid rgba(14, 165, 233, 0.3)', padding: '0.5rem 1.25rem', borderRadius: '30px', marginBottom: '1.5rem' }}>
+                <DollarSign size={16} color="#0284c7" />
+                <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0284c7', textTransform: 'uppercase', letterSpacing: '1px' }}>
                   Simule Seus Ganhos Reais
                 </span>
               </div>
-
-              <h2 style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0 0 1.5rem 0', color: '#f8fafc', lineHeight: 1.2 }}>
+              <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', margin: '0 0 1rem 0', letterSpacing: '-0.5px', lineHeight: 1.2 }}>
                 Quanto Você Economiza com as Taxas Ultrabaixas da Criar Lojas?
               </h2>
-
-              <p style={{ color: '#94a3b8', fontSize: '1.1rem', marginBottom: '2.5rem', lineHeight: 1.6 }}>
+              <p style={{ color: '#475569', fontSize: '1.1rem', lineHeight: 1.6, marginBottom: '3rem' }}>
                 Plataformas tradicionais cobram até 5% de comissão mais tarifas fixas por cada venda realizada. Na Criar Lojas, você tem previsibilidade financeira e margem de lucro maximizada.
               </p>
 
-              <div className="roi-input-card" style={{ display: 'grid', gap: '2rem', background: 'rgba(15, 23, 42, 0.6)', padding: '2rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                    <label style={{ fontWeight: 700, color: '#cbd5e1' }}>Pedidos por Mês:</label>
-                    <span style={{ fontWeight: 800, color: '#0ea5e9', fontSize: '1.1rem' }}>{monthlyOrders} pedidos</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                <div style={{ background: '#f8fafc', padding: '2rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, color: '#0f172a', marginBottom: '0.75rem', fontSize: '1.05rem' }}>
+                    <span>Pedidos por Mês:</span>
+                    <span style={{ color: '#0ea5e9', fontSize: '1.2rem' }}>{salesPerMonth} pedidos</span>
                   </div>
                   <input 
                     type="range" 
-                    min={10} 
-                    max={2000} 
-                    step={10}
-                    value={monthlyOrders}
-                    onChange={e => setMonthlyOrders(parseInt(e.target.value))}
-                    style={{ width: '100%', accentColor: '#0ea5e9', cursor: 'pointer' }}
+                    min="10" 
+                    max="1000" 
+                    step="10"
+                    value={salesPerMonth}
+                    onChange={(e) => setSalesPerMonth(parseInt(e.target.value))}
+                    style={{ width: '100%', height: '6px', borderRadius: '4px', accentColor: '#0ea5e9', cursor: 'pointer' }}
                   />
                 </div>
 
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                    <label style={{ fontWeight: 700, color: '#cbd5e1' }}>Ticket Médio por Pedido:</label>
-                    <span style={{ fontWeight: 800, color: '#10b981', fontSize: '1.1rem' }}>R$ {averageTicket.toFixed(2)}</span>
+                <div style={{ background: '#f8fafc', padding: '2rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 800, color: '#0f172a', marginBottom: '0.75rem', fontSize: '1.05rem' }}>
+                    <span>Ticket Médio por Pedido:</span>
+                    <span style={{ color: '#10b981', fontSize: '1.2rem' }}>R$ {averageTicket.toFixed(2).replace('.', ',')}</span>
                   </div>
                   <input 
                     type="range" 
-                    min={30} 
-                    max={1000} 
-                    step={10}
+                    min="20" 
+                    max="1000" 
+                    step="10"
                     value={averageTicket}
-                    onChange={e => setAverageTicket(parseInt(e.target.value))}
-                    style={{ width: '100%', accentColor: '#10b981', cursor: 'pointer' }}
+                    onChange={(e) => setAverageTicket(parseInt(e.target.value))}
+                    style={{ width: '100%', height: '6px', borderRadius: '4px', accentColor: '#10b981', cursor: 'pointer' }}
                   />
                 </div>
               </div>
             </div>
 
-            <div className="roi-result-card" style={{ background: '#10b981', padding: '3.5rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.2)', boxShadow: '0 20px 50px rgba(16, 185, 129, 0.3)', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-              <div style={{ position: 'absolute', top: 0, right: 0, background: '#064e3b', color: 'white', padding: '0.5rem 2rem', fontSize: '0.8rem', fontWeight: 800, borderRadius: '0 0 0 20px', textTransform: 'uppercase' }}>
+            <div className="calc-result-box" style={{ background: '#10b981', borderRadius: '24px', padding: '3.5rem 3rem', color: '#ffffff', boxShadow: '0 20px 40px rgba(16, 185, 129, 0.25)', position: 'relative', overflow: 'hidden' }}>
+              <div style={{ display: 'inline-block', background: '#0f172a', color: '#ffffff', fontSize: '0.75rem', fontWeight: 900, padding: '0.4rem 0.85rem', borderRadius: '9999px', textTransform: 'uppercase', letterSpacing: '1px', marginBottom: '1.25rem', boxShadow: '0 2px 10px rgba(0,0,0,0.1)' }}>
                 Economia Comprovada
               </div>
 
-              <div style={{ marginBottom: '2.5rem' }}>
-                <span style={{ fontSize: '0.9rem', color: 'rgba(255, 255, 255, 0.85)', fontWeight: 700, textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>Faturamento Mensal Simulado</span>
-                <span className="roi-monthly-value" style={{ fontSize: '2.2rem', fontWeight: 900, color: '#ffffff' }}>R$ {totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+              <span className="calc-small-label" style={{ fontSize: '0.85rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', opacity: 0.85, display: 'block' }}>Faturamento Mensal Simulado</span>
+              <div className="calc-big-value" style={{ fontSize: '2.5rem', fontWeight: 950, margin: '0.25rem 0 2rem 0', lineHeight: 1 }}>
+                R$ {(salesPerMonth * averageTicket).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem', marginBottom: '3rem', padding: '1.5rem', background: 'rgba(0,0,0,0.15)', borderRadius: '16px' }}>
+              <div className="calc-sub-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: '1.5rem', marginBottom: '2.5rem' }}>
                 <div>
-                  <span style={{ fontSize: '0.8rem', color: '#ff8a8a', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>Taxas Outras Plataformas</span>
-                  <span style={{ fontSize: '1.3rem', fontWeight: 800, color: '#ff8a8a', textDecoration: 'line-through' }}>R$ {otherPlatformCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  <span className="calc-mini-label" style={{ fontSize: '0.75rem', fontWeight: 700, opacity: 0.8, display: 'block' }}>Taxas Outras Plataformas (5%)</span>
+                  <span className="calc-medium-value" style={{ fontSize: '1.25rem', fontWeight: 900, display: 'block', marginTop: '0.25rem', textDecoration: 'line-through', opacity: 0.8 }}>
+                    R$ {(salesPerMonth * averageTicket * 0.05).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </span>
                 </div>
                 <div>
-                  <span style={{ fontSize: '0.8rem', color: '#ffffff', fontWeight: 700, display: 'block', marginBottom: '0.25rem' }}>Taxa Criar Lojas (1,25%)</span>
-                  <span style={{ fontSize: '1.3rem', fontWeight: 900, color: '#ffffff' }}>R$ {storeproCost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+                  <span className="calc-mini-label" style={{ fontSize: '0.75rem', fontWeight: 700, opacity: 0.8, display: 'block' }}>Taxa Criar Lojas (1,25%)</span>
+                  <span className="calc-medium-value" style={{ fontSize: '1.25rem', fontWeight: 900, display: 'block', marginTop: '0.25rem' }}>
+                    R$ {(salesPerMonth * averageTicket * 0.0125).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                  </span>
                 </div>
               </div>
 
-              <div style={{ background: 'rgba(0, 0, 0, 0.12)', border: '2px solid rgba(255, 255, 255, 0.4)', padding: '2rem', borderRadius: '16px', marginBottom: '2.5rem' }}>
-                <span style={{ fontSize: '0.95rem', color: '#ffffff', fontWeight: 800, textTransform: 'uppercase', display: 'block', marginBottom: '0.5rem' }}>Sua Economia Anual Estimada</span>
-                <span className="roi-annual-value" style={{ fontSize: '3rem', fontWeight: 900, color: '#ffffff', display: 'block', lineHeight: 1.1 }}>
-                  R$ {annualSavings.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              <div className="calc-savings-box" style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)', padding: '1.75rem', borderRadius: '16px', marginBottom: '2.5rem' }}>
+                <span className="calc-small-label" style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1.5px', opacity: 0.9, display: 'block' }}>Sua Economia Anual Estimada:</span>
+                <span className="calc-huge-value" style={{ fontSize: '2.2rem', fontWeight: 950, display: 'block', marginTop: '0.25rem', lineHeight: 1 }}>
+                  R$ {((salesPerMonth * averageTicket * 0.05 - salesPerMonth * averageTicket * 0.0125) * 12).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
-                <span style={{ fontSize: '0.85rem', color: '#e6fffa', marginTop: '0.5rem', display: 'block' }}>Dinheiro direto no seu bolso para investir em estoque e anúncios!</span>
+                <span className="calc-desc" style={{ fontSize: '0.8rem', opacity: 0.85, marginTop: '0.5rem', display: 'block' }}>Dinheiro direto no seu bolso para investir em estoque e anúncios!</span>
               </div>
 
-              <button onClick={() => handleOpenLeadModal('modern', 'pro')} style={{ width: '100%', padding: '1.25rem', background: '#ffffff', color: '#10b981', border: 'none', cursor: 'pointer', fontSize: '1.1rem', fontWeight: 800, borderRadius: '12px', display: 'inline-block', boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)', transition: 'all 0.2s' }} className="calc-btn">
+              <button 
+                onClick={() => handleOpenLeadModal('fashion', 'pro')}
+                style={{ width: '100%', padding: '1.2rem', background: '#ffffff', color: '#10b981', border: 'none', borderRadius: '12px', fontSize: '1.1rem', fontWeight: 900, cursor: 'pointer', transition: 'all 0.2s', boxShadow: '0 10px 25px rgba(0,0,0,0.06)' }}
+              >
                 Solicitar Loja & Garantir Economia
               </button>
             </div>
@@ -1414,26 +1571,23 @@ export default function SaaSCommercialPortal() {
         </div>
       </section>
 
-      {/* PLANOS & PREÇOS */}
-      <section id="precos" style={{ padding: '8rem 0' }}>
+      {/* SEÇÃO PLANOS */}
+      <section id="planos" style={{ padding: '4rem 0', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0 0 1rem 0', color: isLightTheme ? 'var(--text-primary)' : '#f8fafc' }}>Planos Transparentes Para Todos os Tamanhos</h2>
-            <p style={{ color: isLightTheme ? 'var(--text-secondary)' : '#94a3b8', fontSize: '1.1rem', maxWidth: '700px', margin: '0 auto 2.5rem' }}>
-              Escolha o pacote ideal para o momento do seu negócio. Contratação assistida e sem fidelidade.
-            </p>
+          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', margin: '0 0 1rem 0', letterSpacing: '-0.5px', lineHeight: 1.2 }}>Planos Sob Medida Para Seu Sucesso</h2>
+            <p style={{ color: '#475569', fontSize: '1.1rem', marginBottom: '2.5rem' }}>Escolha o pacote ideal para começar hoje. Sem fidelidades ou taxas ocultas.</p>
 
-            {/* Seletor Mensal / Anual */}
-            <div style={{ display: 'inline-flex', alignItems: 'center', background: isLightTheme ? 'rgba(0, 0, 0, 0.04)' : 'rgba(255, 255, 255, 0.05)', padding: '0.5rem', borderRadius: '30px', border: isLightTheme ? '1px solid rgba(0, 0, 0, 0.08)' : '1px solid rgba(255, 255, 255, 0.1)' }}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', background: '#ffffff', padding: '0.4rem', borderRadius: '30px', border: '1px solid #cbd5e1' }}>
               <button 
                 onClick={() => setBillingCycle('mensal')}
-                style={{ padding: '0.65rem 2rem', background: billingCycle === 'mensal' ? 'linear-gradient(135deg, #10b981, #0ea5e9)' : 'transparent', color: billingCycle === 'mensal' ? 'white' : (isLightTheme ? 'var(--text-secondary)' : '#94a3b8'), border: 'none', borderRadius: '25px', fontWeight: 800, cursor: 'pointer', fontSize: '0.95rem', transition: 'all 0.2s' }}
+                style={{ padding: '0.65rem 2rem', background: billingCycle === 'mensal' ? '#10b981' : 'transparent', color: billingCycle === 'mensal' ? 'white' : '#475569', border: 'none', borderRadius: '25px', fontWeight: 800, cursor: 'pointer', fontSize: '0.95rem', transition: 'all 0.2s' }}
               >
                 Mensal
               </button>
               <button 
                 onClick={() => setBillingCycle('anual')}
-                style={{ padding: '0.65rem 2rem', background: billingCycle === 'anual' ? 'linear-gradient(135deg, #10b981, #0ea5e9)' : 'transparent', color: billingCycle === 'anual' ? 'white' : (isLightTheme ? 'var(--text-secondary)' : '#94a3b8'), border: 'none', borderRadius: '25px', fontWeight: 800, cursor: 'pointer', fontSize: '0.95rem', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                style={{ padding: '0.65rem 2rem', background: billingCycle === 'anual' ? '#10b981' : 'transparent', color: billingCycle === 'anual' ? 'white' : '#475569', border: 'none', borderRadius: '25px', fontWeight: 800, cursor: 'pointer', fontSize: '0.95rem', transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
               >
                 <span>Anual</span>
                 <span style={{ background: '#ef4444', color: 'white', fontSize: '0.7rem', padding: '0.15rem 0.5rem', borderRadius: '10px', fontWeight: 900 }}>20% OFF</span>
@@ -1441,523 +1595,275 @@ export default function SaaSCommercialPortal() {
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2.5rem' }}>
-            {loadingPlans ? (
-              Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="plan-card-skeleton" style={{ background: 'rgba(15, 23, 42, 0.4)', border: '1px solid rgba(255, 255, 255, 0.05)', borderRadius: '24px', padding: '3rem 2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', minHeight: '520px' }}>
-                  <div className="skeleton-line" style={{ width: '60%', height: '24px', background: 'rgba(255,255,255,0.06)', borderRadius: '6px' }} />
-                  <div className="skeleton-line" style={{ width: '100%', height: '60px', background: 'rgba(255,255,255,0.04)', borderRadius: '10px' }} />
-                  <div className="skeleton-line" style={{ width: '45%', height: '40px', background: 'rgba(255,255,255,0.06)', borderRadius: '8px' }} />
-                  <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.85rem', flex: 1 }}>
-                    <div className="skeleton-line" style={{ width: '80%', height: '14px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px' }} />
-                    <div className="skeleton-line" style={{ width: '70%', height: '14px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px' }} />
-                    <div className="skeleton-line" style={{ width: '90%', height: '14px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px' }} />
-                    <div className="skeleton-line" style={{ width: '85%', height: '14px', background: 'rgba(255,255,255,0.04)', borderRadius: '4px' }} />
-                  </div>
-                  <div className="skeleton-line" style={{ width: '100%', height: '48px', background: 'rgba(255,255,255,0.06)', borderRadius: '10px' }} />
-                </div>
-              ))
-            ) : (
-              plans.map((plan) => {
-                const price = billingCycle === 'mensal' ? plan.priceMonthly : plan.priceAnnual
-                const isPro = plan.id === 'pro'
-                
-                // Color configuration
-                const cardBg = isPro 
-                  ? (isLightTheme ? '#f0f9ff' : 'rgba(14, 165, 233, 0.12)') 
-                  : (isLightTheme ? '#e6fcf5' : 'rgba(16, 185, 129, 0.12)')
-                
-                const cardBorderColor = isPro 
-                  ? 'rgba(14, 165, 233, 0.25)' 
-                  : 'rgba(16, 185, 129, 0.25)'
-                
-                const titleColor = isPro 
-                  ? (isLightTheme ? '#0369a1' : '#ffffff') 
-                  : (isLightTheme ? '#064e3b' : '#ffffff')
-                
-                const textMutedColor = isPro 
-                  ? (isLightTheme ? '#0284c7' : '#e0f2fe') 
-                  : (isLightTheme ? '#0f533e' : '#e6fffa')
-                
-                const featuresHeaderColor = isLightTheme 
-                  ? (isPro ? '#0369a1' : '#064e3b') 
-                  : '#ffffff'
-                
-                const dividerBorder = isLightTheme 
-                  ? (isPro ? '1px solid rgba(14, 165, 233, 0.2)' : '1px solid rgba(16, 185, 129, 0.2)') 
-                  : '1px solid rgba(255, 255, 255, 0.2)'
-                
-                const featureLiColor = isLightTheme ? '#0f172a' : '#ffffff'
-                const featureLiExcludedColor = isLightTheme ? 'rgba(15, 23, 42, 0.35)' : 'rgba(255, 255, 255, 0.45)'
-                
-                const bulletBg = isPro 
-                  ? (isLightTheme ? '#0ea5e9' : 'rgba(255, 255, 255, 0.25)') 
-                  : (isLightTheme ? '#10b981' : 'rgba(255, 255, 255, 0.25)')
-                
-                const buttonBg = isPro ? '#0ea5e9' : '#10b981'
-                const buttonShadow = isPro ? '0 8px 25px rgba(14, 165, 233, 0.25)' : '0 8px 25px rgba(16, 185, 129, 0.25)'
+          <div style={{ display: 'grid', gridTemplateColumns: `repeat(${plans.length || 4}, 1fr)`, gap: '1.5rem' }} className="plans-grid-responsive">
+            {plans.map((plan) => {
+              const price = billingCycle === 'mensal' ? plan.priceMonthly : plan.priceAnnual
+              const isPopular = plan.popular
+              
+              return (
+                <div 
+                  key={plan.id} 
+                  className="glass-card"
+                  style={{ 
+                    padding: '3rem 2rem', 
+                    position: 'relative', 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    justifyContent: 'space-between',
+                    border: isPopular ? '2px solid #10b981' : '1px solid #cbd5e1'
+                  }}
+                >
+                  {isPopular && (
+                    <div 
+                      className="popular-badge-responsive"
+                      style={{ position: 'absolute', top: 0, right: 0, background: '#10b981', color: 'white', fontSize: '0.75rem', fontWeight: 800, padding: '0.4rem 1rem', borderRadius: '0 18px 0 16px', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                    >
+                      <Star size={12} fill="white" stroke="none" />
+                      <span>Recomendado</span>
+                    </div>
+                  )}
 
-                return (
-                  <div key={plan.id} style={{ background: cardBg, border: `1px solid ${cardBorderColor}`, borderRadius: '24px', padding: '3rem 2.5rem', position: 'relative', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', transition: 'transform 0.3s, box-shadow 0.3s', backdropFilter: isLightTheme ? 'none' : 'blur(10px)' }} className="plan-card-portal">
-                    {plan.popular && (
-                      <div style={{ position: 'absolute', top: 0, right: 0, background: '#0ea5e9', color: 'white', fontSize: '0.75rem', fontWeight: 800, padding: '0.4rem 1.5rem', borderRadius: '0 24px 0 16px', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <Star size={14} fill="white" />
-                        <span>Mais Escolhido</span>
-                      </div>
-                    )}
+                  <div>
+                    <h3 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#0f172a', margin: '0 0 1rem 0' }}>{plan.name}</h3>
+                    <p style={{ color: '#475569', fontSize: '0.9rem', marginBottom: '2rem', lineHeight: 1.5, minHeight: '45px' }}>{plan.desc}</p>
 
-                    <div>
-                      <h3 style={{ fontSize: '1.6rem', fontWeight: 800, margin: '0 0 1rem 0', color: titleColor }}>{plan.name}</h3>
-                      <p style={{ color: textMutedColor, fontSize: '0.95rem', marginBottom: '2rem', lineHeight: 1.5 }}>{plan.desc}</p>
-
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginBottom: '2.5rem' }}>
-                        <span style={{ fontSize: '1.2rem', fontWeight: 700, color: textMutedColor }}>R$</span>
-                        <span style={{ fontSize: '3.5rem', fontWeight: 900, color: titleColor, lineHeight: 1 }}>{price.toFixed(2).replace('.', ',')}</span>
-                        <span style={{ fontSize: '0.9rem', color: textMutedColor, fontWeight: 600 }}>/mês</span>
-                      </div>
-
-                      <div style={{ borderTop: dividerBorder, paddingTop: '2rem', marginBottom: '3rem' }}>
-                        <div style={{ fontSize: '0.8rem', fontWeight: 800, color: featuresHeaderColor, textTransform: 'uppercase', marginBottom: '1.5rem', letterSpacing: '1px' }}>O que está incluído:</div>
-                        <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '1rem' }}>
-                          {plan.features.map((f: any, i: number) => {
-                            const isExcluded = typeof f === 'string' && (f.startsWith('[-] ') || f.startsWith('[-]'));
-                            let cleanText = typeof f === 'string' ? (isExcluded ? f.replace(/^\[-\]\s*/, '') : f) : '';
-
-                            // Format transaction fee to use comma instead of dot
-                            if (cleanText.toLowerCase().includes('taxa de transa')) {
-                              cleanText = cleanText.replace('.', ',');
-                            }
-
-                            return (
-                              <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', fontSize: '0.95rem', color: isExcluded ? featureLiExcludedColor : featureLiColor, fontWeight: 500, textDecoration: isExcluded ? 'line-through' : 'none', opacity: isExcluded ? 0.65 : 1 }}>
-                                <div style={{ width: '20px', height: '20px', borderRadius: '50%', background: isExcluded ? (isLightTheme ? 'rgba(0, 0, 0, 0.08)' : 'rgba(0, 0, 0, 0.15)') : bulletBg, display: 'flex', alignItems: 'center', justifyContent: 'center', color: isExcluded ? (isLightTheme ? '#64748b' : 'rgba(255, 255, 255, 0.6)') : '#ffffff', flexShrink: 0 }}>
-                                  {isExcluded ? <X size={14} /> : <Check size={14} />}
-                                </div>
-                                <span style={{ lineHeight: 1.3 }}>{cleanText}</span>
-                              </li>
-                            );
-                          })}
-                        </ul>
-                      </div>
+                    <div className="price-display" style={{ display: 'flex', alignItems: 'baseline', gap: '0.25rem', marginBottom: '2.5rem' }}>
+                      <span style={{ fontSize: '1.2rem', fontWeight: 700, color: '#94a3b8' }}>R$</span>
+                      <span style={{ fontSize: '3rem', fontWeight: 900, color: '#0f172a', lineHeight: 1 }}>{price.toFixed(2).replace('.', ',')}</span>
+                      <span style={{ fontSize: '0.9rem', color: '#94a3b8', fontWeight: 600 }}>/mês</span>
                     </div>
 
-                    <button 
-                      onClick={() => handleOpenLeadModal('modern', plan.id)}
-                      style={{ width: '100%', padding: '1.25rem', background: buttonBg, color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '1.05rem', cursor: 'pointer', textAlign: 'center', display: 'block', boxShadow: buttonShadow, transition: 'all 0.2s' }}
-                      className="plan-btn"
-                    >
-                      {plan.buttonText}
-                    </button>
+                    <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '2rem', marginBottom: '3rem' }}>
+                      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '1rem' }}>
+                        {plan.features.map((f: any, i: number) => {
+                          const isExcluded = typeof f === 'string' && (f.startsWith('[-] ') || f.startsWith('[-]'));
+                          let cleanText = typeof f === 'string' ? (isExcluded ? f.replace(/^\[-\]\s*/, '') : f) : '';
+
+                          return (
+                            <li key={i} className="plan-feature-item" style={{ display: 'flex', gap: '0.75rem', color: isExcluded ? '#cbd5e1' : '#475569', textDecoration: isExcluded ? 'line-through' : 'none' }}>
+                              <div style={{ width: '18px', height: '18px', borderRadius: '50%', background: isExcluded ? '#f1f5f9' : '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: isExcluded ? '#94a3b8' : 'white', flexShrink: 0 }}>
+                                {isExcluded ? <X size={12} /> : <Check size={12} />}
+                              </div>
+                              <span className="plan-feature-text" style={{ fontSize: 'inherit', lineHeight: 1.3 }}>{cleanText}</span>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
                   </div>
-                )
-              })
-            )}
-          </div>
 
-          {/* Tabela Comparativa de Planos */}
-          <div style={{ marginTop: '6rem' }}>
-            <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
-              <h3 style={{ fontSize: '2rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.75rem' }}>
-                Compare os Recursos dos Planos
-              </h3>
-              <p style={{ color: '#94a3b8', fontSize: '1.05rem', marginBottom: '1.5rem' }}>
-                Veja detalhadamente o que está incluso em cada uma das opções abaixo.
-              </p>
-              
-              <button 
-                onClick={() => setShowComparison(!showComparison)}
-                style={{ padding: '0.8rem 2.2rem', background: 'rgba(255, 255, 255, 0.05)', color: '#e2e8f0', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '30px', fontWeight: 700, cursor: 'pointer', fontSize: '0.95rem', transition: 'all 0.2s', display: 'inline-flex', alignItems: 'center', gap: '0.5rem' }}
-                className="comparison-toggle-btn"
-              >
-                <span>{showComparison ? 'Ocultar Comparação Completa' : 'Ver Comparação Completa'}</span>
-                {showComparison ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-              </button>
-            </div>
-
-            {showComparison && (
-              <div style={{ overflowX: 'auto', background: isLightTheme ? 'rgba(16, 185, 129, 0.06)' : 'rgba(15, 23, 42, 0.4)', borderRadius: '20px', border: isLightTheme ? '1px solid rgba(16, 185, 129, 0.15)' : '1px solid rgba(255, 255, 255, 0.08)', padding: '1.5rem' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px', textAlign: 'left' }}>
-                  <thead>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
-                      <th style={{ padding: '1.5rem 1rem', fontSize: '1.1rem', fontWeight: 800, color: '#f8fafc', width: '40%' }}>Recurso / Funcionalidade</th>
-                      <th style={{ padding: '1.5rem 1rem', fontSize: '1.1rem', fontWeight: 800, color: '#94a3b8', textAlign: 'center', width: '20%' }}>Básico</th>
-                      <th style={{ padding: '1.5rem 1rem', fontSize: '1.1rem', fontWeight: 800, color: '#10b981', textAlign: 'center', width: '20%' }}>Profissional (Pro)</th>
-                      <th style={{ padding: '1.5rem 1rem', fontSize: '1.1rem', fontWeight: 800, color: '#0ea5e9', textAlign: 'center', width: '20%' }}>Premium</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {/* Categoria: Geral / Vendas */}
-                    <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                      <td colSpan={4} style={{ padding: '1rem', fontWeight: 800, color: '#cbd5e1', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Vendas e Estrutura</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Catálogo via WhatsApp</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Checkout Transparente na Loja</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Produtos Cadastrados</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#e2e8f0', fontWeight: 600 }}>Ilimitado</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#e2e8f0', fontWeight: 600 }}>Ilimitado</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#e2e8f0', fontWeight: 600 }}>Ilimitado</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Domínio Próprio ou Subdomínio Grátis</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Link da Bio (Vitrine Integrada)</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Loja do Instagram (Integração Sacolinha)</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Taxa de Transação (Comissão)</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: 600, fontSize: '0.9rem' }}>Não aplicável (sem checkout)</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: 600, fontSize: '0.9rem' }}>1,75% por venda</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: 600, fontSize: '0.9rem' }}>1,25% por venda</td>
-                    </tr>
-
-                    {/* Categoria: Logística / Pagamento */}
-                    <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                      <td colSpan={4} style={{ padding: '1rem', fontWeight: 800, color: '#cbd5e1', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Logística e Integrações</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Cálculo Automático de Frete</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Correios e Melhor Envio</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Mercado Pago / Gateways</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-
-                    {/* Categoria: Marketing */}
-                    <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                      <td colSpan={4} style={{ padding: '1rem', fontWeight: 800, color: '#cbd5e1', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Marketing e Conversão</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Cupons de Desconto</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Pixels (Facebook, Google, etc)</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Módulo de Avaliações (Reviews)</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Campanhas de Promoções (Ofertas)</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Botão do WhatsApp Personalizado</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Recuperação de Carrinho Abandonado</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Pop-up de Ofertas e Promoções</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#ef4444' }}><X size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-
-                    {/* Categoria: Suporte */}
-                    <tr style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                      <td colSpan={4} style={{ padding: '1rem', fontWeight: 800, color: '#cbd5e1', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Segurança e Suporte</td>
-                    </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.05)' }}>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Certificado SSL Seguro</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#10b981' }}><Check size={20} style={{ margin: '0 auto' }} /></td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: '1.25rem 1rem', color: '#e2e8f0', fontWeight: 500 }}>Suporte Técnico</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: 600 }}>WhatsApp</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: 600 }}>WhatsApp</td>
-                      <td style={{ padding: '1.25rem 1rem', textAlign: 'center', color: '#cbd5e1', fontWeight: 600 }}>WhatsApp VIP</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            )}
+                  <button 
+                    onClick={() => handleOpenLeadModal('fashion', plan.id)}
+                    className="btn-premium-green"
+                    style={{ width: '100%', padding: '1.1rem', borderRadius: '10px', fontWeight: 800, fontSize: '1rem', border: 'none', cursor: 'pointer' }}
+                  >
+                    {plan.id === 'free' ? 'Começar grátis' : 'Contratar este'}
+                  </button>
+                </div>
+              )
+            })}
           </div>
         </div>
       </section>
 
-      {/* SEÇÃO DE SERVIÇO DE PERSONALIZAÇÃO VIP (CONCIERGE) */}
-      <section id="concierge" style={{ padding: '8rem 0', background: 'rgba(16, 185, 129, 0.03)', borderTop: '1px solid rgba(16, 185, 129, 0.1)', borderBottom: '1px solid rgba(16, 185, 129, 0.1)' }}>
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
-          
-          {/* TOPO CENTRALIZADO (TÍTULO E SUBTÍTULO) */}
-          <div style={{ textAlign: 'center', maxWidth: '850px', margin: '0 auto 5rem' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '0.4rem 1.25rem', borderRadius: '30px', marginBottom: '1.5rem' }}>
-              <Sparkles size={16} color="#10b981" />
-              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#10b981', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                Serviço Especializado de Implementação
-              </span>
-            </div>
-
-            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, margin: '0 0 1.5rem 0', color: '#f8fafc', lineHeight: 1.2 }}>
-              Não tem tempo? Contrate nosso <br />
-              <span style={{ color: '#10b981' }}>Serviço de Personalização VIP (Concierge)</span>
-            </h2>
-
-            <p style={{ color: '#94a3b8', fontSize: '1.2rem', margin: 0, lineHeight: 1.6 }}>
-              A plataforma Criar Lojas entrega a infraestrutura completa e a vitrine modelo pronta para você mesmo personalizar com suas cores, banners e produtos. Porém, se você deseja economizar tempo e ter uma loja virtual com design de classe mundial feito por nossos especialistas, o serviço de <strong>Concierge VIP</strong> é a escolha perfeita.
-            </p>
-          </div>
-
-          {/* GRID NO MEIO EM 2 COLUNAS (INFORMAÇÕES DE UM LADO E IMAGEM DO OUTRO) */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center', marginBottom: '5rem' }}>
-            <div>
-              <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1.5rem' }}>O que está incluído no Setup VIP?</h3>
-              <p style={{ color: '#cbd5e1', fontSize: '1.05rem', marginBottom: '2.5rem', lineHeight: 1.6 }}>
-                Nós cuidamos do cadastro inicial de produtos, criação de banners sob medida focados em conversão e configuração completa de frete e meios de pagamento para você receber a loja 100% pronta para vender.
-              </p>
-
-              <div style={{ display: 'grid', gap: '1.5rem' }}>
-                <div className="info-card" style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
-                  <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', flexShrink: 0, marginTop: '0.25rem' }}>
-                    <Check size={22} />
-                  </div>
-                  <div>
-                    <div style={{ color: '#10b981', fontWeight: 800, fontSize: '1.15rem', marginBottom: '0.35rem' }}>Setup Chave na Mão</div>
-                    <p style={{ color: '#94a3b8', fontSize: '0.95rem', margin: 0, lineHeight: 1.5 }}>Sua loja entregue perfeitamente configurada, com produtos iniciais cadastrados e todos os métodos de pagamento e frete ativados.</p>
-                  </div>
-                </div>
-
-                <div className="info-card" style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
-                  <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(14, 165, 233, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0ea5e9', flexShrink: 0, marginTop: '0.25rem' }}>
-                    <Check size={22} />
-                  </div>
-                  <div>
-                    <div style={{ color: '#0ea5e9', fontWeight: 800, fontSize: '1.15rem', marginBottom: '0.35rem' }}>Design Profissional de Alta Conversão</div>
-                    <p style={{ color: '#94a3b8', fontSize: '0.95rem', margin: 0, lineHeight: 1.5 }}>Banners conceituais e identidade visual refinada criados por designers com vasta experiência no mercado de e-commerce brasileiro.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', inset: 0, background: isLightTheme ? 'radial-gradient(circle, rgba(16, 185, 129, 0.05) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(16, 185, 129, 0.2) 0%, transparent 70%)', transform: isLightTheme ? 'scale(1.02)' : 'scale(1.2)', zIndex: 1 }} />
-              <img 
-                src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80" 
-                alt="Serviço de Personalização VIP e Concierge" 
-                style={{ width: '100%', borderRadius: '24px', border: '1px solid rgba(16, 185, 129, 0.3)', boxShadow: '0 25px 50px rgba(0,0,0,0.5)', position: 'relative', zIndex: 2 }}
-              />
-            </div>
-          </div>
-
-          {/* BOTÃO CTA CENTRALIZADO NA PARTE INFERIOR */}
-          <div style={{ textAlign: 'center' }}>
+      {/* SEÇÃO 4: TABELA COMPARATIVA DE RECURSOS/PLANOS COMPLETA */}
+      <section id="comparacao-planos" style={{ padding: '4rem 0', background: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+        <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '0 2rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', margin: '0 0 1rem 0', letterSpacing: '-0.5px', lineHeight: 1.2 }}>Tabela Comparativa de Recursos</h2>
+            <p style={{ color: '#475569', fontSize: '1.1rem' }}>Veja detalhadamente o que está incluso em cada uma das opções abaixo.</p>
+            
             <button 
-              onClick={() => handleOpenLeadModal('modern', 'pro', true)} 
-              style={{ padding: '1.35rem 3.5rem', background: '#10b981', color: 'white', border: 'none', cursor: 'pointer', fontSize: '1.15rem', fontWeight: 800, borderRadius: '14px', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 8px 30px rgba(16, 185, 129, 0.4)', transition: 'all 0.2s' }}
-              className="cta-btn"
+              onClick={() => setShowFullComparison(!showFullComparison)}
+              className="btn-premium-outline"
+              style={{ marginTop: '2rem', padding: '0.85rem 2.5rem', borderRadius: '30px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer', transition: 'all 0.2s' }}
             >
-              <Sparkles size={24} />
-              <span>Solicitar Personalização VIP da Minha Loja</span>
+              {showFullComparison ? 'Ocultar Comparação Completa ▲' : 'Visualizar Comparação Completa ▼'}
             </button>
           </div>
 
+          {showFullComparison && (
+            <div style={{ overflowX: 'auto', background: '#ffffff', borderRadius: '24px', border: '1px solid #cbd5e1', padding: '2rem', boxShadow: '0 20px 40px rgba(0,0,0,0.04)' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', minWidth: '800px', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #cbd5e1', height: '60px' }}>
+                    <th style={{ color: '#0f172a', fontSize: '1.05rem', fontWeight: 900, width: '30%' }}>Recurso / Funcionalidade</th>
+                    <th style={{ color: '#94a3b8', fontSize: '1.05rem', fontWeight: 800, textAlign: 'center', width: '15%' }}>Gratuito</th>
+                    <th style={{ color: '#475569', fontSize: '1.05rem', fontWeight: 800, textAlign: 'center', width: '15%' }}>Básico</th>
+                    <th style={{ color: '#0284c7', fontSize: '1.05rem', fontWeight: 800, textAlign: 'center', width: '20%' }}>Profissional (Pro)</th>
+                    <th style={{ color: '#059669', fontSize: '1.05rem', fontWeight: 900, textAlign: 'center', width: '20%', background: '#e6fcf5', borderRadius: '12px 12px 0 0' }}>Premium</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style={{ backgroundColor: '#f8fafc', height: '40px' }}>
+                    <td colSpan={5} style={{ fontWeight: 800, color: '#64748b', fontSize: '0.75rem', paddingLeft: '1rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Vendas e Estrutura</td>
+                  </tr>
+                  {[
+                    { label: 'Catálogo via WhatsApp', free: '✓', basic: '✓', pro: '✓', premium: '✓' },
+                    { label: 'Checkout Transparente na Loja', free: '❌', basic: '❌', pro: '✓', premium: '✓' },
+                    { label: 'Produtos Cadastrados', free: 'Até 25 produtos', basic: 'Ilimitado', pro: 'Ilimitado', premium: 'Ilimitado' },
+                    { label: 'Domínio Próprio ou Subdomínio Grátis', free: 'Subdomínio apenas', basic: '✓', pro: '✓', premium: '✓' },
+                    { label: 'Link da Bio (Vitrine Integrada)', free: '❌', basic: '✓', pro: '✓', premium: '✓' },
+                    { label: 'Loja do Instagram (Integração Sacolinha)', free: '❌', basic: '❌', pro: '✓', premium: '✓' },
+                    { label: 'Taxa de Transação (Comissão)', free: 'Não aplicável', basic: 'Não aplicável (sem checkout)', pro: '1,75% por venda', premium: '1,25% por venda' }
+                  ].map((row, idx) => (
+                    <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0', height: '52px' }}>
+                      <td style={{ fontWeight: 700, color: '#334155', paddingLeft: '1rem' }}>{row.label}</td>
+                      <td style={{ textAlign: 'center', color: row.free === '❌' ? '#ef4444' : '#0f172a', fontWeight: 700 }}>{row.free}</td>
+                      <td style={{ textAlign: 'center', color: row.basic === '❌' ? '#ef4444' : '#0f172a', fontWeight: 700 }}>{row.basic}</td>
+                      <td style={{ textAlign: 'center', color: '#0284c7', fontWeight: 700 }}>{row.pro}</td>
+                      <td style={{ textAlign: 'center', color: '#059669', fontWeight: 800, background: '#e6fcf5' }}>{row.premium}</td>
+                    </tr>
+                  ))}
+
+                  <tr style={{ backgroundColor: '#f8fafc', height: '40px' }}>
+                    <td colSpan={5} style={{ fontWeight: 800, color: '#64748b', fontSize: '0.75rem', paddingLeft: '1rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Logística e Integrações</td>
+                  </tr>
+                  {[
+                    { label: 'Cálculo Automático de Frete', free: '❌', basic: '❌', pro: '✓', premium: '✓' },
+                    { label: 'Correios e Melhor Envio', free: '❌', basic: '❌', pro: '✓', premium: '✓' },
+                    { label: 'Mercado Pago / Gateways', free: '❌', basic: '❌', pro: '✓', premium: '✓' }
+                  ].map((row, idx) => (
+                    <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0', height: '52px' }}>
+                      <td style={{ fontWeight: 700, color: '#334155', paddingLeft: '1rem' }}>{row.label}</td>
+                      <td style={{ textAlign: 'center', color: row.free === '❌' ? '#ef4444' : '#0f172a', fontWeight: 700 }}>{row.free}</td>
+                      <td style={{ textAlign: 'center', color: row.basic === '❌' ? '#ef4444' : '#0f172a', fontWeight: 700 }}>{row.basic}</td>
+                      <td style={{ textAlign: 'center', color: '#0284c7', fontWeight: 700 }}>{row.pro}</td>
+                      <td style={{ textAlign: 'center', color: '#059669', fontWeight: 800, background: '#e6fcf5' }}>{row.premium}</td>
+                    </tr>
+                  ))}
+
+                  <tr style={{ backgroundColor: '#f8fafc', height: '40px' }}>
+                    <td colSpan={5} style={{ fontWeight: 800, color: '#64748b', fontSize: '0.75rem', paddingLeft: '1rem', letterSpacing: '1px', textTransform: 'uppercase' }}>Marketing e Conversão</td>
+                  </tr>
+                  {[
+                    { label: 'Cupons de Desconto', free: '❌', basic: '❌', pro: '❌', premium: '✓' },
+                    { label: 'Pixels (Facebook, Google, etc.)', free: '❌', basic: '❌', pro: '❌', premium: '✓' }
+                  ].map((row, idx) => (
+                    <tr key={idx} style={{ borderBottom: '1px solid #e2e8f0', height: '52px' }}>
+                      <td style={{ fontWeight: 700, color: '#334155', paddingLeft: '1rem' }}>{row.label}</td>
+                      <td style={{ textAlign: 'center', color: row.free === '❌' ? '#ef4444' : '#0f172a', fontWeight: 700 }}>{row.free}</td>
+                      <td style={{ textAlign: 'center', color: row.basic === '❌' ? '#ef4444' : '#0f172a', fontWeight: 700 }}>{row.basic}</td>
+                      <td style={{ textAlign: 'center', color: row.pro === '❌' ? '#ef4444' : '#0284c7', fontWeight: 700 }}>{row.pro}</td>
+                      <td style={{ textAlign: 'center', color: '#059669', fontWeight: 800, background: '#e6fcf5', borderRadius: idx === 1 ? '0 0 12px 12px' : '0' }}>{row.premium}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </section>
 
-      {/* SEÇÃO DE REGISTRO E CONFIGURAÇÃO DE DOMÍNIO PRÓPRIO */}
-      <section id="dominio" style={{ padding: '8rem 0', background: 'rgba(14, 165, 233, 0.03)', borderBottom: '1px solid rgba(14, 165, 233, 0.1)' }}>
+      {/* PROVA SOCIAL */}
+      <section style={{ padding: '4rem 0', background: '#ffffff', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem' }}>
           
-          {/* TOPO CENTRALIZADO (TÍTULO E SUBTÍTULO) */}
-          <div style={{ textAlign: 'center', maxWidth: '850px', margin: '0 auto 5rem' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(14, 165, 233, 0.1)', border: '1px solid rgba(14, 165, 233, 0.3)', padding: '0.4rem 1.25rem', borderRadius: '30px', marginBottom: '1.5rem' }}>
-              <Globe size={16} color="#0ea5e9" />
-              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#0ea5e9', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                Expansão e Autoridade de Marca
-              </span>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1.5rem', textAlign: 'center', marginBottom: '4rem' }} className="stats-grid-responsive">
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+              <Rocket size={32} color="#10b981" />
+              <div className="stat-value-display" style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0f172a', marginTop: '0.5rem' }}>1 Hora</div>
+              <div className="stat-desc-text" style={{ color: '#475569', fontSize: '0.95rem', fontWeight: 600 }}>Loja pronta para vender</div>
             </div>
-
-            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, margin: '0 0 1.5rem 0', color: '#f8fafc', lineHeight: 1.2 }}>
-              Quer passar mais credibilidade? <br />
-              <span style={{ color: '#0ea5e9' }}>Registre seu Domínio Próprio (.com.br)</span>
-            </h2>
-
-            <p style={{ color: '#94a3b8', fontSize: '1.2rem', margin: 0, lineHeight: 1.6 }}>
-              Você pode começar sua loja utilizando nosso subdomínio gratuito (ex: <em>sualoja.criarlojas.com.br</em>) pelo tempo que quiser. Porém, quando sua marca começar a crescer, ter um endereço próprio como <strong>www.sualoja.com.br</strong> aumenta drasticamente a confiança dos seus clientes e as taxas de conversão.
-            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+              <Lock size={32} color="#0ea5e9" />
+              <div className="stat-value-display" style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0f172a', marginTop: '0.5rem' }}>100% Seguro</div>
+              <div className="stat-desc-text" style={{ color: '#475569', fontSize: '0.95rem', fontWeight: 600 }}>SSL e infraestrutura protegida</div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+              <CreditCard size={32} color="#f59e0b" />
+              <div className="stat-value-display" style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0f172a', marginTop: '0.5rem' }}>PIX • Cartão • Boleto</div>
+              <div className="stat-desc-text" style={{ color: '#475569', fontSize: '0.95rem', fontWeight: 600 }}>Receba sem complicação</div>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem' }}>
+              <Smartphone size={32} color="#6366f1" />
+              <div className="stat-value-display" style={{ fontSize: '1.45rem', fontWeight: 900, color: '#0f172a', marginTop: '0.5rem' }}>100% Responsivo</div>
+              <div className="stat-desc-text" style={{ color: '#475569', fontSize: '0.95rem', fontWeight: 600 }}>Funciona em qualquer dispositivo</div>
+            </div>
           </div>
 
-          {/* GRID NO MEIO EM 2 COLUNAS (INFORMAÇÕES DE UM LADO E IMAGEM DO OUTRO) */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', alignItems: 'center', marginBottom: '5rem' }}>
-            <div>
-              <h3 style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1.5rem' }}>Por que registrar com a Criar Lojas?</h3>
-              <p style={{ color: '#cbd5e1', fontSize: '1.05rem', marginBottom: '2.5rem', lineHeight: 1.6 }}>
-                Em vez de lidar com configurações complexas de DNS, apontamento CNAME e propagação em servidores externos, deixe nossa equipe de infraestrutura registrar e configurar tudo para você de forma transparente e imediata!
-              </p>
-
-              <div style={{ display: 'grid', gap: '1.5rem' }}>
-                <div className="info-card" style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
-                  <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(14, 165, 233, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0ea5e9', flexShrink: 0, marginTop: '0.25rem' }}>
-                    <Check size={22} />
-                  </div>
-                  <div>
-                    <div style={{ color: '#0ea5e9', fontWeight: 800, fontSize: '1.15rem', marginBottom: '0.35rem' }}>Registro Oficial em Seu Nome</div>
-                    <p style={{ color: '#94a3b8', fontSize: '0.95rem', margin: 0, lineHeight: 1.5 }}>Garantimos o registro da sua marca (.com.br ou .com) diretamente nos órgãos oficiais, garantindo que você seja o único titular e proprietário do domínio.</p>
-                  </div>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '2rem' }} className="testimonials-grid-responsive">
+            <div className="glass-card" style={{ padding: '2.5rem', position: 'relative' }}>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: '150px' }}>
+                  <h4 style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.05rem', margin: 0 }}>Amanda Melo</h4>
+                  <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>Dona da Amanda Store - Semijoias</p>
                 </div>
-
-                <div className="info-card" style={{ background: 'rgba(15, 23, 42, 0.6)', padding: '1.5rem', borderRadius: '16px', border: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
-                  <div style={{ width: '42px', height: '42px', borderRadius: '12px', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', flexShrink: 0, marginTop: '0.25rem' }}>
-                    <Check size={22} />
-                  </div>
-                  <div>
-                    <div style={{ color: '#10b981', fontWeight: 800, fontSize: '1.15rem', marginBottom: '0.35rem' }}>Apontamento & SSL Automáticos</div>
-                    <p style={{ color: '#94a3b8', fontSize: '0.95rem', margin: 0, lineHeight: 1.5 }}>Configuração de servidores de nomes (DNS), ativação de certificado de segurança (SSL) e otimização de rotas realizadas direto pela nossa equipe.</p>
-                  </div>
+                <div style={{ display: 'flex', color: '#f59e0b', gap: '2px' }}>
+                  {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="#f59e0b" stroke="none" />)}
                 </div>
               </div>
+              <p style={{ color: '#475569', fontStyle: 'italic', lineHeight: 1.6, margin: 0, fontSize: '0.95rem' }}>
+                "Antes de conhecer a CriarLojas eu vendia pelo direct do Instagram e era um caos. Perdia metade das vendas calculando frete e enviando chave PIX. Agora os clientes compram sozinhos na minha loja e eu só envio o produto. Setup assistido salvou minha vida!"
+              </p>
             </div>
 
-            <div style={{ position: 'relative' }}>
-              <div style={{ position: 'absolute', inset: 0, background: isLightTheme ? 'radial-gradient(circle, rgba(14, 165, 233, 0.05) 0%, transparent 70%)' : 'radial-gradient(circle, rgba(14, 165, 233, 0.2) 0%, transparent 70%)', transform: isLightTheme ? 'scale(1.02)' : 'scale(1.2)', zIndex: 1 }} />
-              <img 
-                src="https://images.unsplash.com/photo-1432888498266-38ffec3eaf0a?auto=format&fit=crop&w=800&q=80" 
-                alt="Registro de Domínio Próprio .com.br" 
-                style={{ width: '100%', borderRadius: '24px', border: '1px solid rgba(14, 165, 233, 0.3)', boxShadow: '0 25px 50px rgba(0,0,0,0.5)', position: 'relative', zIndex: 2 }}
-              />
-            </div>
-          </div>
-
-          {/* BOTÃO CTA CENTRALIZADO NA PARTE INFERIOR */}
-          <div style={{ textAlign: 'center' }}>
-            <button 
-              onClick={handleOpenDomainModal} 
-              style={{ padding: '1.35rem 3.5rem', background: '#0ea5e9', color: 'white', border: 'none', cursor: 'pointer', fontSize: '1.15rem', fontWeight: 800, borderRadius: '14px', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 8px 30px rgba(14, 165, 233, 0.4)', transition: 'all 0.2s' }}
-              className="cta-btn-blue"
-            >
-              <Globe size={24} />
-              <span>Solicitar Registro de Domínio Próprio</span>
-            </button>
-          </div>
-
-        </div>
-      </section>
-
-      {/* SEÇÃO DE CHAMADA PARA AÇÃO */}
-      <section id="onboarding" style={{ padding: '8rem 0', background: isLightTheme ? 'radial-gradient(circle at center, rgba(16, 185, 129, 0.08) 0%, #f8fafc 70%)' : 'radial-gradient(circle at center, rgba(16, 185, 129, 0.1) 0%, rgba(9, 13, 22, 1) 70%)', position: 'relative' }}>
-        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 2rem' }}>
-          <div className="saas-onboarding-card" style={{ background: isLightTheme ? '#e6fcf5' : 'rgba(16, 185, 129, 0.12)', border: isLightTheme ? '1px solid rgba(16, 185, 129, 0.25)' : '1px solid rgba(16, 185, 129, 0.25)', borderRadius: '24px', padding: '5rem 4rem', boxShadow: isLightTheme ? '0 25px 50px rgba(16, 185, 129, 0.08)' : '0 25px 50px rgba(0,0,0,0.5)', position: 'relative', overflow: 'hidden', textAlign: 'center', backdropFilter: isLightTheme ? 'none' : 'blur(10px)' }}>
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '6px', background: 'linear-gradient(to right, #10b981, #0ea5e9, #6366f1)' }} />
-
-            <div style={{ width: '72px', height: '72px', borderRadius: '18px', background: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem', boxShadow: '0 8px 25px rgba(16, 185, 129, 0.2)' }}>
-              <MessageSquare size={36} color="white" />
+            <div className="glass-card" style={{ padding: '2.5rem', position: 'relative' }}>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: '150px' }}>
+                  <h4 style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.05rem', margin: 0 }}>Júlio Santos</h4>
+                  <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>Fundador da Piston Autopeças</p>
+                </div>
+                <div style={{ display: 'flex', color: '#f59e0b', gap: '2px' }}>
+                  {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="#f59e0b" stroke="none" />)}
+                </div>
+              </div>
+              <p style={{ color: '#475569', fontStyle: 'italic', lineHeight: 1.6, margin: 0, fontSize: '0.95rem' }}>
+                "Estava com medo de criar a loja porque não entendo nada de códigos e servidores. O pessoal da CriarLojas fez toda a montagem visual, me entregou em menos de 1 hora e o suporte pelo WhatsApp responde na hora. Meus clientes adoram a rapidez da loja!"
+              </p>
             </div>
 
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 900, margin: '0 0 1rem 0', color: isLightTheme ? '#064e3b' : '#ffffff', letterSpacing: '-0.5px' }}>
-              Pronto Para Ter Sua Loja Virtual Premium?
-            </h2>
-
-            <p style={{ color: isLightTheme ? '#0f533e' : '#e6fffa', fontSize: '1.2rem', maxWidth: '700px', margin: '0 auto 3.5rem', lineHeight: 1.6 }}>
-              Nossa equipe de especialistas está pronta para provisionar seu banco de dados, configurar seu gateway de pagamento e entregar a vitrine modelo idêntica à que você escolher.
-            </p>
-
-            <div className="saas-onboarding-buttons" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', alignItems: 'center' }}>
-              <button 
-                onClick={() => handleOpenLeadModal('modern', 'pro')}
-                style={{ padding: '1.35rem 3.5rem', background: '#10b981', color: '#ffffff', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '1.15rem', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 8px 25px rgba(16, 185, 129, 0.25)', transition: 'all 0.2s' }}
-                className="cta-btn onboarding-btn-green"
-              >
-                <span>Solicitar Loja</span>
-                <ArrowRight size={22} />
-              </button>
-
-              <a 
-                href={`https://wa.me/${formatWhatsappNumber(platformSettings.whatsappSupport)}?text=${encodeURIComponent('Olá! Gostaria de entender mais sobre a plataforma Criar Lojas e solicitar a minha loja modelo.')}`}
-                target="_blank" 
-                rel="noopener noreferrer"
-                style={{ padding: '1.35rem 2.5rem', background: '#0ea5e9', color: '#ffffff', textDecoration: 'none', fontSize: '1.15rem', fontWeight: 700, borderRadius: '12px', border: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.75rem', transition: 'all 0.2s', whiteSpace: 'nowrap', boxShadow: '0 8px 25px rgba(14, 165, 233, 0.25)' }}
-                className="btn-admin onboarding-btn-blue"
-              >
-                <Phone size={20} color="#ffffff" />
-                <span>WhatsApp Direto</span>
-              </a>
+            <div className="glass-card" style={{ padding: '2.5rem', position: 'relative' }}>
+              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
+                <div style={{ flex: 1, minWidth: '150px' }}>
+                  <h4 style={{ fontWeight: 800, color: '#0f172a', fontSize: '1.05rem', margin: 0 }}>Camila Vieira</h4>
+                  <p style={{ color: '#64748b', fontSize: '0.85rem', margin: 0 }}>Proprietária da Cacau Gourmet</p>
+                </div>
+                <div style={{ display: 'flex', color: '#f59e0b', gap: '2px' }}>
+                  {[...Array(5)].map((_, i) => <Star key={i} size={14} fill="#f59e0b" stroke="none" />)}
+                </div>
+              </div>
+              <p style={{ color: '#475569', fontStyle: 'italic', lineHeight: 1.6, margin: 0, fontSize: '0.95rem' }}>
+                "Minha confeitaria artesanal decolou! Os clientes adoram a facilidade de ver os doces e fechar o pedido direto no Pix. O suporte técnico pelo WhatsApp sempre me responde muito rápido e resolve tudo. Vale cada centavo investido!"
+              </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* FAQ INTERATIVO */}
-      <section id="faq" style={{ padding: '8rem 0', background: 'rgba(255, 255, 255, 0.02)', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+      {/* FAQ SECTION */}
+      <section id="faq" style={{ padding: '4rem 0', background: '#ffffff', borderTop: '1px solid #e2e8f0' }}>
         <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 2rem' }}>
           <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)', padding: '0.4rem 1.25rem', borderRadius: '30px', marginBottom: '1.5rem' }}>
-              <HelpCircle size={16} color="#f59e0b" />
-              <span style={{ fontSize: '0.85rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                Tire Suas Dúvidas
-              </span>
-            </div>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 800, margin: '0 0 1rem 0', color: '#f8fafc' }}>Perguntas Frequentes (FAQ)</h2>
-            <p style={{ color: '#94a3b8', fontSize: '1.1rem', margin: 0 }}>Tudo o que você precisa saber sobre a plataforma Criar Lojas antes de começar.</p>
+            <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', margin: '0 0 1rem 0', letterSpacing: '-0.5px', lineHeight: 1.2 }}>Dúvidas Frequentes</h2>
+            <p style={{ color: '#475569', fontSize: '1.1rem' }}>Tudo o que você precisa saber para começar a vender online hoje.</p>
           </div>
 
-          <div style={{ display: 'grid', gap: '1.5rem' }}>
+          <div style={{ display: 'grid', gap: '1.25rem' }}>
             {faqs.map((faq, index) => {
               const isOpen = openFaq === index
-
               return (
-                <div key={index} className="faq-item" style={{ background: '#10b981', border: '1px solid rgba(255, 255, 255, 0.2)', borderRadius: '16px', overflow: 'hidden', transition: 'all 0.2s' }}>
+                <div 
+                  key={index} 
+                  style={{ 
+                    background: '#ffffff', 
+                    border: isOpen ? '1px solid #10b981' : '1px solid #cbd5e1', 
+                    borderRadius: '16px', 
+                    overflow: 'hidden', 
+                    transition: 'all 0.3s' 
+                  }}
+                >
                   <button 
+                    className="faq-title-btn"
                     onClick={() => setOpenFaq(isOpen ? null : index)}
-                    style={{ width: '100%', padding: '2rem', background: 'transparent', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', textAlign: 'left', color: '#ffffff', fontWeight: 800, fontSize: '1.15rem' }}
+                    style={{ width: '100%', padding: '1.75rem 2rem', background: 'transparent', border: 'none', display: 'flex', justifyContent: 'space-between', alignItems: 'center', cursor: 'pointer', textAlign: 'left', color: '#0f172a', fontWeight: 800, fontSize: '1.1rem' }}
                   >
                     <span>{faq.q}</span>
-                    {isOpen ? <ChevronUp size={22} color="#ffffff" /> : <ChevronDown size={22} color="#ffffff" />}
+                    {isOpen ? <ChevronUp size={20} color="#10b981" /> : <ChevronDown size={20} color="#94a3b8" />}
                   </button>
 
                   {isOpen && (
-                    <div style={{ padding: '0 2rem 2rem 2rem', color: '#e6fffa', fontSize: '1rem', lineHeight: 1.6, borderTop: '1px solid rgba(255, 255, 255, 0.2)', paddingTop: '1.5rem' }}>
+                    <div className="faq-body-text" style={{ padding: '0 2rem 2.0rem 2rem', color: '#475569', fontSize: '1rem', lineHeight: 1.6, borderTop: '1px solid #e2e8f0', paddingTop: '1.25rem' }}>
                       {faq.a}
                     </div>
                   )}
@@ -1968,313 +1874,318 @@ export default function SaaSCommercialPortal() {
         </div>
       </section>
 
-      {/* MODAL DE SOLICITAÇÃO DE LOJA (LEAD FORM 100% DA TELA COM CAMPOS EMPILHADOS E ESPAÇOSOS) */}
+      {/* FINAL CTA */}
+      <section style={{ padding: '4rem 0', background: 'radial-gradient(circle at center, rgba(16, 185, 129, 0.06) 0%, #f8fafc 80%)', overflow: 'hidden' }}>
+        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '0 2rem', textAlign: 'center', position: 'relative', zIndex: 10 }}>
+          <h2 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#0f172a', marginBottom: '1.5rem', lineHeight: 1.2, letterSpacing: '-0.5px' }}>
+            Comece hoje. <br />
+            Sua loja pronta para vender.
+          </h2>
+
+          <p style={{ color: '#475569', fontSize: '1.25rem', maxWidth: '650px', margin: '0 auto 3.5rem', lineHeight: 1.6 }}>
+            Pare de adiar o crescimento do seu negócio. Escolha o seu nicho e tenha sua vitrine virtual profissional ativa e configurada em poucos minutos.
+          </p>
+
+          <button 
+            onClick={() => handleOpenLeadModal('fashion', 'pro')}
+            className="btn-premium-green"
+            style={{ padding: '1.35rem 4rem', borderRadius: '12px', fontSize: '1.2rem', fontWeight: 800, border: 'none', cursor: 'pointer' }}
+          >
+            Criar Minha Loja
+          </button>
+        </div>
+      </section>
+
+      {/* MODAL DE SOLICITAÇÃO (LEAD FORM / AUTOPROVISIONAMENTO) */}
       {showLeadModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(9, 13, 22, 0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} className="lead-modal-overlay">
-          <div className="lead-modal-content" style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(16, 185, 129, 0.3)', borderRadius: '24px', width: '95vw', maxWidth: '1400px', padding: '4rem', position: 'relative', boxShadow: '0 25px 50px rgba(0,0,0,0.5)', maxHeight: '92vh', overflowY: 'auto' }}>
-            <button onClick={() => setShowLeadModal(false)} style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#94a3b8', cursor: 'pointer', padding: '0.75rem', borderRadius: '50%', display: 'flex', transition: 'all 0.2s' }} className="close-btn">
-              <X size={24} />
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.3)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-card lead-modal-card" style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '24px', width: '95vw', maxWidth: '1100px', padding: '3.5rem', position: 'relative', maxHeight: '92vh', overflowY: 'auto' }}>
+            <button onClick={() => setShowLeadModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#475569', cursor: 'pointer', padding: '0.5rem', borderRadius: '50%', display: 'flex' }}>
+              <X size={20} />
             </button>
 
             {leadSubmitted ? (
-              <div style={{ textAlign: 'center', padding: '6rem 0', animation: 'fadeIn 0.5s' }}>
-                <div style={{ width: '100px', height: '100px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', margin: '0 auto 3rem', border: '2px solid #10b981' }}>
-                  <CheckCircle2 size={60} />
+              <div style={{ textAlign: 'center', padding: '3rem 0' }}>
+                <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#e6fcf5', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#10b981', margin: '0 auto 2rem', border: '1px solid #10b981' }}>
+                  <CheckCircle size={45} />
                 </div>
-                <h3 style={{ fontSize: '2.8rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1.5rem' }}>Solicitação Recebida com Sucesso! 🎉</h3>
-                <p style={{ color: '#94a3b8', fontSize: '1.3rem', marginBottom: '4rem', lineHeight: 1.6, maxWidth: '850px', margin: '0 auto 4rem' }}>
-                  Nosso Master Admin já foi notificado no painel para criar a loja <strong>"{leadData.storeName}"</strong> no subdomínio <strong>{leadData.subdomain}{domainSuffix}</strong> com a cor padrão escolhida. Em breve, entraremos em contato via WhatsApp para entregar os dados de acesso.
+                <h3 style={{ fontSize: '2.5rem', fontWeight: 900, color: '#0f172a', marginBottom: '1rem' }}>Sua Loja Está Pronta! 🎉</h3>
+                <p style={{ color: '#475569', fontSize: '1.15rem', marginBottom: '3rem', lineHeight: 1.6, maxWidth: '750px', margin: '0 auto' }}>
+                  A loja virtual <strong>"{leadData.storeName}"</strong> foi criada e ativada com sucesso no <strong>{getPlanName(leadData.selectedPlan)}</strong>!
                 </p>
 
-                <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '500px', margin: '0 auto' }}>
+                <div style={{ background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '16px', padding: '2rem', maxWidth: '650px', margin: '0 auto 3rem', textAlign: 'left', display: 'grid', gap: '1rem' }}>
+                  <div>
+                    <strong style={{ color: '#0f172a' }}>🌐 Link de Acesso da sua Loja:</strong>
+                    <div style={{ marginTop: '0.25rem' }}>
+                      <a href={`http://${leadData.subdomain.toLowerCase().replace(/[^a-z0-9]/g, '')}${domainSuffix}`} target="_blank" rel="noopener noreferrer" style={{ color: '#10b981', fontWeight: 800, fontSize: '1.1rem', wordBreak: 'break-all' }}>
+                        http://{leadData.subdomain.toLowerCase().replace(/[^a-z0-9]/g, '')}{domainSuffix}
+                      </a>
+                    </div>
+                  </div>
+                  <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1rem' }}>
+                    <strong style={{ color: '#0f172a' }}>🔑 Acesso ao Painel Administrativo:</strong>
+                    <div style={{ marginTop: '0.25rem' }}>
+                      <a href={`http://${leadData.subdomain.toLowerCase().replace(/[^a-z0-9]/g, '')}${domainSuffix}/admin/login`} target="_blank" rel="noopener noreferrer" style={{ color: '#0ea5e9', fontWeight: 800, fontSize: '1.1rem', wordBreak: 'break-all' }}>
+                        http://{leadData.subdomain.toLowerCase().replace(/[^a-z0-9]/g, '')}{domainSuffix}/admin/login
+                      </a>
+                    </div>
+                  </div>
+                  <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: '1rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }} className="modal-grid-responsive">
+                    <div>
+                      <span style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, display: 'block' }}>E-MAIL DE ACESSO:</span>
+                      <strong style={{ color: '#0f172a', fontSize: '1rem' }}>{leadData.email}</strong>
+                    </div>
+                    <div>
+                      <span style={{ color: '#64748b', fontSize: '0.85rem', fontWeight: 700, display: 'block' }}>SENHA CADASTRADA:</span>
+                      <strong style={{ color: '#0f172a', fontSize: '1rem' }}>{leadData.password}</strong>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gap: '1rem', maxWidth: '450px', margin: '0 auto' }}>
                   <a 
-                    href={getWhatsappLink()} 
+                    href={`http://${leadData.subdomain.toLowerCase().replace(/[^a-z0-9]/g, '')}${domainSuffix}/admin/login`} 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    style={{ padding: '1.5rem', background: '#10b981', color: 'white', textDecoration: 'none', fontSize: '1.15rem', fontWeight: 800, borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: '0 8px 30px rgba(16, 185, 129, 0.4)' }}
+                    style={{ padding: '1.25rem', background: '#10b981', color: 'white', textDecoration: 'none', fontSize: '1.1rem', fontWeight: 800, borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', boxShadow: '0 8px 24px rgba(16, 185, 129, 0.2)' }}
                   >
-                    <Phone size={24} />
-                    <span>Enviar também via WhatsApp Direto</span>
+                    <ArrowRight size={20} />
+                    <span>Acessar Painel do Lojista</span>
                   </a>
 
                   <button 
                     onClick={() => setShowLeadModal(false)}
-                    style={{ padding: '1.25rem', background: 'rgba(255, 255, 255, 0.05)', color: '#cbd5e1', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', fontWeight: 700, cursor: 'pointer', fontSize: '1.1rem' }}
+                    className="btn-premium-outline"
+                    style={{ padding: '1.1rem', borderRadius: '12px', fontWeight: 700, fontSize: '1rem', cursor: 'pointer' }}
                   >
                     Fechar e Voltar ao Site
                   </button>
                 </div>
               </div>
+            ) : checkoutPending ? (
+              <div style={{ textAlign: 'center', padding: '1rem 0' }}>
+                <h3 style={{ fontSize: '2rem', fontWeight: 900, color: '#0f172a', marginBottom: '1rem' }}>Checkout da Assinatura</h3>
+                <p style={{ color: '#475569', fontSize: '1.1rem', marginBottom: '2.5rem' }}>
+                  Você selecionou o <strong>{getPlanName(leadData.selectedPlan)}</strong>. Para ativar todos os recursos da sua loja, realize o pagamento simulado da mensalidade abaixo:
+                </p>
+
+                <div className="glass-card" style={{ maxWidth: '500px', margin: '0 auto 2.5rem', padding: '2rem', border: '1px solid #cbd5e1', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
+                  <span style={{ fontSize: '1.25rem', fontWeight: 700, color: '#475569' }}>Valor da Assinatura:</span>
+                  <span style={{ fontSize: '2.8rem', fontWeight: 950, color: '#10b981', lineHeight: 1 }}>
+                    R$ {getPlanPrice(leadData.selectedPlan).toFixed(2).replace('.', ',')} <span style={{ fontSize: '1rem', color: '#94a3b8', fontWeight: 600 }}>/mês</span>
+                  </span>
+
+                  <div style={{ background: '#f8fafc', padding: '1.5rem', borderRadius: '12px', border: '1px solid #e2e8f0', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
+                    <img 
+                      src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=00020101021226770014br.gov.bcb.pix2555financeiro@criarlojas.com.br52040000530398654050${getPlanPrice(leadData.selectedPlan).toFixed(2)}5802BR5910CriarLojas6009SaoPaulo62070503***6304`} 
+                      alt="PIX QR Code" 
+                      style={{ width: '180px', height: '180px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                    />
+                    <div style={{ fontSize: '0.85rem', color: '#64748b', fontWeight: 700, textAlign: 'center' }}>
+                      Escaneie o QR Code acima com o app do seu banco ou use a chave PIX:
+                    </div>
+                    <code style={{ background: '#e2e8f0', padding: '0.5rem 1rem', borderRadius: '6px', fontSize: '0.9rem', fontWeight: 700, color: '#334155', wordBreak: 'break-all', display: 'block', width: '100%', textAlign: 'center' }}>
+                      financeiro@criarlojas.com.br
+                    </code>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                  <button 
+                    onClick={() => setCheckoutPending(false)}
+                    className="btn-premium-outline"
+                    style={{ padding: '1rem 2rem', borderRadius: '12px', fontWeight: 700, fontSize: '1.05rem', cursor: 'pointer' }}
+                  >
+                    Voltar e Alterar Plano
+                  </button>
+                  <button 
+                    onClick={() => createAndProvisionStore(leadData.subdomain.toLowerCase().replace(/[^a-z0-9]/g, ''), leadData.selectedPlan)}
+                    disabled={isSubmittingLead}
+                    className="btn-premium-green"
+                    style={{ padding: '1rem 3rem', borderRadius: '12px', fontWeight: 800, fontSize: '1.05rem', border: 'none', cursor: 'pointer' }}
+                  >
+                    {isSubmittingLead ? 'Ativando...' : 'Confirmar Pagamento Simulado ✓'}
+                  </button>
+                </div>
+              </div>
             ) : (
               <>
-                <div className="modal-header-flex" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '3.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '2rem' }}>
-                  <div style={{ width: '64px', height: '64px', borderRadius: '18px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 4px 25px rgba(16, 185, 129, 0.4)', flexShrink: 0 }}>
-                    <Store size={32} />
+                <div className="modal-header-responsive" style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1.5rem' }}>
+                  <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+                    <Store size={24} />
                   </div>
                   <div>
-                    <h3 style={{ fontSize: '2.2rem', fontWeight: 800, margin: 0, color: '#f8fafc' }}>Solicitação de Loja Virtual (Setup Assistido)</h3>
-                    <p style={{ color: '#94a3b8', fontSize: '1.1rem', margin: '0.35rem 0 0 0' }}>Preencha os dados da sua marca e contato para o Admin Master clonar sua loja com perfeição.</p>
+                    <h3 style={{ fontSize: '1.8rem', fontWeight: 900, margin: 0, color: '#0f172a' }}>Monte Sua Loja Virtual</h3>
+                    <p style={{ color: '#475569', fontSize: '1rem', margin: '0.25rem 0 0 0' }}>Preencha os dados e receba seu negócio pronto para vender.</p>
                   </div>
                 </div>
 
                 <form onSubmit={handleLeadSubmit}>
-                  {/* GRID PRINCIPAL EM 2 COLUNAS DE 100% DE LARGURA (MAX 1400PX) */}
-                  <div className="modal-grid">
-                    
-                    {/* COLUNA DA ESQUERDA: DADOS DA LOJA E ESCOLHAS COMERCIAIS */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
-                      
-                      {/* 1. IDENTIDADE E DOMÍNIO DA LOJA */}
-                      <div className="modal-panel" style={{ background: 'rgba(9, 13, 22, 0.5)', padding: '3rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', gap: '2.25rem' }}>
-                        <h4 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '1.25rem' }}>
-                          <ShoppingBag size={24} color="#10b981" />
-                          <span>1. Identidade e Domínio da Loja</span>
-                        </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }} className="modal-grid-responsive">
+                    {/* Coluna 1 */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#475569', marginBottom: '0.5rem' }}>Nome do seu Negócio / Loja</label>
+                        <input 
+                          type="text" 
+                          value={leadData.storeName}
+                          onChange={e => setLeadData({...leadData, storeName: e.target.value})}
+                          placeholder="Ex: Boutique da Lu"
+                          style={{ width: '100%', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '10px', color: '#0f172a', outline: 'none', fontSize: '1rem' }}
+                          required
+                        />
+                      </div>
 
-                        <div>
-                          <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>Nome da Loja Desejada</label>
-                          <div style={{ position: 'relative' }}>
-                            <Store size={22} style={{ position: 'absolute', left: '1.5rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                            <input 
-                              type="text" 
-                              value={leadData.storeName}
-                              onChange={e => setLeadData({...leadData, storeName: e.target.value})}
-                              placeholder="Ex: Minha Loja Premium"
-                              style={{ width: '100%', padding: '1.15rem 1.5rem 1.15rem 3.75rem', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: '#f8fafc', outline: 'none', fontSize: '1.1rem', fontWeight: 600 }}
-                              required
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>Subdomínio Desejado</label>
-                          <div className="subdomain-container">
-                            <Globe size={22} style={{ marginLeft: '1.5rem', color: '#64748b', flexShrink: 0 }} />
-                            <input 
-                              type="text" 
-                              value={leadData.subdomain}
-                              onChange={e => setLeadData({...leadData, subdomain: e.target.value})}
-                              placeholder="minhaloja"
-                              style={{ flex: 1, padding: '1.15rem 0.5rem 1.15rem 0.75rem', background: 'transparent', border: 'none', color: '#f8fafc', outline: 'none', fontSize: '1.1rem', fontWeight: 700, minWidth: '80px' }}
-                              required
-                            />
-                            <span style={{ padding: '1.15rem 1.5rem', background: 'rgba(255, 255, 255, 0.03)', color: '#0ea5e9', fontWeight: 800, borderLeft: '1px solid rgba(255, 255, 255, 0.1)', fontSize: '1.05rem', whiteSpace: 'nowrap' }}>
-                              {domainSuffix}
-                            </span>
-                          </div>
-                          <div style={{ fontSize: '0.85rem', color: '#94a3b8', background: 'rgba(255, 255, 255, 0.03)', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', alignItems: 'flex-start', gap: '0.5rem', marginTop: '0.5rem' }}>
-                            <span style={{ color: '#0ea5e9', fontWeight: 800 }}>💡 Dica:</span>
-                            <span>Se você já possui um domínio próprio registrado (ex: www.sualoja.com.br), por favor informe o seu domínio no campo de "Observações" abaixo para realizarmos a configuração.</span>
-                          </div>
-                        </div>
-
-                        {/* SELETOR DE COR PADRÃO */}
-                        <div>
-                          <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '1.25rem' }}>
-                            Cor Padrão / Identidade Visual da Loja
-                          </label>
-                          <div className="color-presets-grid">
-                            {colorPresets.map(preset => (
-                              <button
-                                key={preset.hex}
-                                type="button"
-                                onClick={() => setLeadData({...leadData, primaryColor: preset.hex})}
-                                style={{ 
-                                  padding: '1rem', 
-                                  background: leadData.primaryColor === preset.hex ? `${preset.hex}25` : 'rgba(255, 255, 255, 0.03)', 
-                                  border: leadData.primaryColor === preset.hex ? `2px solid ${preset.hex}` : '1px solid rgba(255, 255, 255, 0.1)', 
-                                  borderRadius: '14px', 
-                                  color: '#f8fafc', 
-                                  fontWeight: 700, 
-                                  fontSize: '1rem', 
-                                  cursor: 'pointer',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '0.75rem',
-                                  transition: 'all 0.2s'
-                                }}
-                              >
-                                <span style={{ width: '20px', height: '20px', borderRadius: '50%', background: preset.hex, display: 'inline-block', boxShadow: `0 0 12px ${preset.hex}80` }} />
-                                <span>{preset.name}</span>
-                              </button>
-                            ))}
-                          </div>
-
-                          <div className="custom-color-row" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', padding: '1rem 1.5rem', borderRadius: '14px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                              <Palette size={22} color="#94a3b8" />
-                              <span style={{ fontSize: '1.05rem', color: '#cbd5e1', fontWeight: 600 }}>Cor Customizada:</span>
-                            </div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                              <input 
-                                type="color" 
-                                value={leadData.primaryColor}
-                                onChange={e => setLeadData({...leadData, primaryColor: e.target.value})}
-                                style={{ width: '42px', height: '42px', border: 'none', background: 'transparent', cursor: 'pointer' }}
-                              />
-                              <span style={{ fontFamily: 'monospace', fontSize: '1.1rem', color: '#0ea5e9', fontWeight: 700 }}>{leadData.primaryColor}</span>
-                            </div>
-                          </div>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#475569', marginBottom: '0.5rem' }}>Endereço da Loja Desejado (Subdomínio)</label>
+                        <div className="subdomain-input-wrapper" style={{ display: 'flex', alignItems: 'center', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '10px', overflow: 'hidden' }}>
+                          <input 
+                            type="text" 
+                            value={leadData.subdomain}
+                            onChange={e => setLeadData({...leadData, subdomain: e.target.value})}
+                            placeholder="boutiquedalu"
+                            style={{ flex: 1, padding: '1rem 1.25rem', background: 'transparent', border: 'none', color: '#0f172a', outline: 'none', fontSize: '1rem' }}
+                            required
+                          />
+                          <span className="subdomain-suffix" style={{ background: '#f1f5f9', padding: '1rem 1.25rem', borderLeft: '1px solid #cbd5e1', color: '#0ea5e9', fontWeight: 800 }}>
+                            {domainSuffix}
+                          </span>
                         </div>
                       </div>
 
-                      {/* 3. ESCOLHAS COMERCIAIS */}
-                      <div className="modal-panel" style={{ background: 'rgba(9, 13, 22, 0.6)', padding: '3rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', gap: '2.25rem' }}>
-                        <h4 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '1.25rem' }}>
-                          <Sparkles size={24} color="#f59e0b" />
-                          <span>3. Pacote Comercial & Modelo</span>
-                        </h4>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#475569', marginBottom: '0.5rem' }}>Modelo de Loja / Segmento</label>
+                        <select 
+                          value={leadData.selectedModel}
+                          onChange={e => setLeadData({...leadData, selectedModel: e.target.value})}
+                          style={{ width: '100%', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '10px', color: '#0f172a', outline: 'none', fontSize: '1rem', cursor: 'pointer', fontWeight: 600 }}
+                        >
+                          {demoStores.map(store => (
+                            <option key={store.id} value={store.id}>{store.name} ({store.niche})</option>
+                          ))}
+                        </select>
+                      </div>
 
-                        <div>
-                          <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>Vitrine / Modelo Desejado</label>
-                          <select 
-                            value={leadData.selectedModel}
-                            onChange={e => setLeadData({...leadData, selectedModel: e.target.value})}
-                            style={{ width: '100%', padding: '1.15rem 1.5rem', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: '#f8fafc', outline: 'none', fontSize: '1.05rem', fontWeight: 600, cursor: 'pointer' }}
-                          >
-                            {demoStoresList.map(store => (
-                              <option key={store.id} value={store.id}>
-                                {store.name} ({store.niche})
-                              </option>
-                            ))}
-                          </select>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#475569', marginBottom: '0.75rem' }}>Escolha a cor principal da sua marca</label>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+                          {colorPresets.map(preset => (
+                            <button
+                              key={preset.hex}
+                              type="button"
+                              onClick={() => setLeadData({...leadData, primaryColor: preset.hex})}
+                              style={{ 
+                                width: '32px', 
+                                height: '32px', 
+                                borderRadius: '50%', 
+                                background: preset.hex, 
+                                border: leadData.primaryColor === preset.hex ? '3px solid #0f172a' : '1px solid #cbd5e1',
+                                cursor: 'pointer',
+                                transition: 'transform 0.2s'
+                              }}
+                              title={preset.name}
+                            />
+                          ))}
                         </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', background: '#f8fafc', padding: '0.75rem 1rem', borderRadius: '10px', border: '1px solid #cbd5e1' }}>
+                          <span style={{ fontSize: '0.9rem', color: '#475569' }}>Cor Customizada:</span>
+                          <input 
+                            type="color" 
+                            value={leadData.primaryColor} 
+                            onChange={e => setLeadData({...leadData, primaryColor: e.target.value})}
+                            style={{ border: 'none', background: 'transparent', width: '32px', height: '32px', cursor: 'pointer' }}
+                          />
+                          <span style={{ fontFamily: 'monospace', color: '#10b981', fontWeight: 700 }}>{leadData.primaryColor}</span>
+                        </div>
+                      </div>
+                    </div>
 
+                    {/* Coluna 2 */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
+                      <div>
+                        <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#475569', marginBottom: '0.5rem' }}>Seu Nome Completo</label>
+                        <input 
+                          type="text" 
+                          value={leadData.name}
+                          onChange={e => setLeadData({...leadData, name: e.target.value})}
+                          placeholder="Ex: Luciana Melo"
+                          style={{ width: '100%', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '10px', color: '#0f172a', outline: 'none', fontSize: '1rem' }}
+                          required
+                        />
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }} className="modal-grid-responsive">
                         <div>
-                          <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>Plano de Interesse</label>
+                          <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#475569', marginBottom: '0.5rem' }}>WhatsApp</label>
+                          <input 
+                            type="text" 
+                            value={leadData.whatsapp}
+                            onChange={e => setLeadData({...leadData, whatsapp: e.target.value})}
+                            placeholder="(11) 99999-8888"
+                            style={{ width: '100%', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '10px', color: '#0f172a', outline: 'none', fontSize: '1rem' }}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#475569', marginBottom: '0.5rem' }}>E-mail</label>
+                          <input 
+                            type="email" 
+                            value={leadData.email}
+                            onChange={e => setLeadData({...leadData, email: e.target.value})}
+                            placeholder="lu@exemplo.com"
+                            style={{ width: '100%', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '10px', color: '#0f172a', outline: 'none', fontSize: '1rem' }}
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '1rem' }} className="modal-grid-responsive">
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#475569', marginBottom: '0.5rem' }}>Senha de Acesso ao Painel</label>
+                          <input 
+                            type="password" 
+                            value={leadData.password}
+                            onChange={e => setLeadData({...leadData, password: e.target.value})}
+                            placeholder="Defina sua senha"
+                            style={{ width: '100%', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '10px', color: '#0f172a', outline: 'none', fontSize: '1rem', fontWeight: 600 }}
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label style={{ display: 'block', fontSize: '0.95rem', fontWeight: 700, color: '#475569', marginBottom: '0.5rem' }}>Escolha o seu Plano</label>
                           <select 
                             value={leadData.selectedPlan}
                             onChange={e => setLeadData({...leadData, selectedPlan: e.target.value})}
-                            style={{ width: '100%', padding: '1.15rem 1.5rem', background: 'rgba(15, 23, 42, 0.9)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: '#f8fafc', outline: 'none', fontSize: '1.05rem', fontWeight: 600, cursor: 'pointer' }}
+                            style={{ width: '100%', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '10px', color: '#0f172a', outline: 'none', fontSize: '1rem', cursor: 'pointer', fontWeight: 600 }}
                           >
-                            {plans.map(p => (
-                              <option key={p.id} value={p.id}>
-                                {p.name} (R$ {p.priceMonthly || p.price}/mês)
-                              </option>
-                            ))}
+                            <option value="free">Plano Gratuito (R$ 0,00)</option>
+                            <option value="basic">Plano Básico (R$ 29,90/mês)</option>
+                            <option value="pro">Plano Profissional (R$ 34,90/mês)</option>
+                            <option value="premium">Premium VIP (R$ 47,90/mês)</option>
                           </select>
                         </div>
-
-                        <div style={{ background: 'rgba(16, 185, 129, 0.1)', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '1.5rem', borderRadius: '14px' }}>
-                          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-                            <input 
-                              type="checkbox" 
-                              id="conciergeCheckModal"
-                              checked={leadData.wantsConcierge}
-                              onChange={e => setLeadData({...leadData, wantsConcierge: e.target.checked})}
-                              style={{ width: '22px', height: '22px', accentColor: '#10b981', marginTop: '0.25rem', cursor: 'pointer' }}
-                            />
-                            <div>
-                              <label htmlFor="conciergeCheckModal" style={{ display: 'block', fontSize: '1.05rem', fontWeight: 800, color: '#10b981', cursor: 'pointer', marginBottom: '0.25rem' }}>
-                                🛠️ Contratar Serviço de Personalização VIP (Concierge)
-                              </label>
-                              <p style={{ color: '#cbd5e1', fontSize: '0.9rem', margin: 0, lineHeight: 1.5 }}>
-                                Nossa equipe de especialistas fará toda a personalização de banners, paleta de cores, cadastro inicial de produtos e meios de pagamento para você.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-
-                    {/* COLUNA DA DIREITA: DADOS DO RESPONSÁVEL E OBSERVAÇÕES */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '3rem' }}>
-                      
-                      {/* 2. DADOS DO RESPONSÁVEL (TODOS OS CAMPOS 100% LARGOS E EMPILHADOS) */}
-                      <div className="modal-panel" style={{ background: 'rgba(9, 13, 22, 0.5)', padding: '3rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.05)', display: 'flex', flexDirection: 'column', gap: '2.25rem' }}>
-                        <h4 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#f8fafc', margin: 0, display: 'flex', alignItems: 'center', gap: '0.75rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '1.25rem' }}>
-                          <User size={24} color="#0ea5e9" />
-                          <span>2. Dados do Responsável / Lojista</span>
-                        </h4>
-
-                        <div>
-                          <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>Seu Nome Completo</label>
-                          <div style={{ position: 'relative' }}>
-                            <User size={22} style={{ position: 'absolute', left: '1.5rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                            <input 
-                              type="text" 
-                              value={leadData.name}
-                              onChange={e => setLeadData({...leadData, name: e.target.value})}
-                              placeholder="Carlos Eduardo Silva"
-                              style={{ width: '100%', padding: '1.15rem 1.5rem 1.15rem 3.75rem', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: '#f8fafc', outline: 'none', fontSize: '1.1rem', fontWeight: 600 }}
-                              required
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>WhatsApp (Para Entrega da Loja)</label>
-                          <div style={{ position: 'relative' }}>
-                            <Phone size={22} style={{ position: 'absolute', left: '1.5rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                            <input 
-                              type="text" 
-                              value={leadData.whatsapp}
-                              onChange={e => setLeadData({...leadData, whatsapp: e.target.value})}
-                              placeholder="(11) 99999-8888"
-                              style={{ width: '100%', padding: '1.15rem 1.5rem 1.15rem 3.75rem', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: '#f8fafc', outline: 'none', fontSize: '1.1rem', fontWeight: 600 }}
-                              required
-                            />
-                          </div>
-                        </div>
-
-                        <div>
-                          <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>E-mail Profissional</label>
-                          <div style={{ position: 'relative' }}>
-                            <Mail size={22} style={{ position: 'absolute', left: '1.5rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                            <input 
-                              type="email" 
-                              value={leadData.email}
-                              onChange={e => setLeadData({...leadData, email: e.target.value})}
-                              placeholder="carlos@empresa.com.br"
-                              style={{ width: '100%', padding: '1.15rem 1.5rem 1.15rem 3.75rem', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: '#f8fafc', outline: 'none', fontSize: '1.1rem', fontWeight: 600 }}
-                              required
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* OBSERVAÇÕES */}
-                      <div className="modal-panel" style={{ background: 'rgba(9, 13, 22, 0.5)', padding: '3rem', borderRadius: '24px', border: '1px solid rgba(255, 255, 255, 0.05)', flex: 1, display: 'flex', flexDirection: 'column' }}>
-                        <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '1rem' }}>Observações / Algum pedido especial? (Opcional)</label>
-                        <textarea 
-                          value={leadData.notes}
-                          onChange={e => setLeadData({...leadData, notes: e.target.value})}
-                          placeholder="Ex: Gostaria de integrar com minha transportadora atual ou habilitar um gateway específico."
-                          style={{ width: '100%', flex: 1, minHeight: '140px', padding: '1.25rem 1.5rem', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: '#f8fafc', outline: 'none', fontSize: '1.05rem', resize: 'none' }}
-                        />
                       </div>
 
                     </div>
                   </div>
 
-                  {/* BOTÕES DE AÇÃO DO MODAL */}
-                  <div className="modal-actions-flex" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'flex-end', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '2.5rem' }}>
+                  <div className="modal-footer-buttons" style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', borderTop: '1px solid #e2e8f0', paddingTop: '2rem', marginTop: '2.5rem' }}>
                     <button 
                       type="button" 
                       onClick={() => setShowLeadModal(false)}
-                      style={{ padding: '1.15rem 2.5rem', background: 'transparent', color: '#cbd5e1', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', fontWeight: 700, fontSize: '1.1rem', cursor: 'pointer', transition: 'all 0.2s' }}
-                      className="cancel-btn"
+                      className="btn-premium-outline"
+                      style={{ padding: '0.85rem 2rem', borderRadius: '10px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
                     >
                       Cancelar
                     </button>
                     <button 
                       type="submit" 
                       disabled={isSubmittingLead}
-                      style={{ padding: '1.15rem 4rem', background: '#10b981', color: 'white', border: 'none', borderRadius: '14px', fontWeight: 800, fontSize: '1.15rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 8px 30px rgba(16, 185, 129, 0.4)', transition: 'all 0.2s' }}
-                      className="submit-lead-btn"
+                      className="btn-premium-green"
+                      style={{ padding: '0.85rem 3rem', borderRadius: '10px', fontWeight: 800, fontSize: '0.95rem', border: 'none', cursor: 'pointer' }}
                     >
-                      {isSubmittingLead ? (
-                        <>
-                          <div className="animate-spin" style={{ width: '22px', height: '22px', border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }} />
-                          <span>Processando...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles size={22} />
-                          <span>Confirmar Solicitação de Loja</span>
-                        </>
-                      )}
+                      {isSubmittingLead ? 'Preparando...' : 'Confirmar e Criar Loja 🚀'}
                     </button>
                   </div>
                 </form>
@@ -2284,700 +2195,566 @@ export default function SaaSCommercialPortal() {
         </div>
       )}
 
-      {/* RODAPÉ PREMIUM */}
-      <footer style={{ background: '#070a12', borderTop: '1px solid rgba(255, 255, 255, 0.08)', padding: '6rem 0 4rem 0', color: '#94a3b8' }}>
-        <div className="saas-footer-grid" style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem', gap: '4rem', marginBottom: '6rem' }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-              <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ShoppingBag size={20} color="#ffffff" />
-              </div>
-              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.5px' }}>Criar Lojas</span>
-            </div>
-            <p style={{ fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '2rem', maxWidth: '350px' }}>
-              A plataforma SaaS de e-commerce definitiva para lojistas e empreendedores que buscam alta conversão e estabilidade com setup assistido.
-            </p>
-            <div className="desktop-copyright" style={{ fontSize: '0.85rem', color: '#64748b' }}>
-              © 2026 Criar Lojas Inc. Todos os direitos reservados.
-            </div>
-          </div>
-
-          <div>
-            <h4 style={{ color: '#f8fafc', fontSize: '1.05rem', fontWeight: 800, marginBottom: '1.5rem' }}>Produto</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '1rem', fontSize: '0.95rem' }}>
-              <li><a href="#funcionalidades" style={{ color: '#94a3b8', textDecoration: 'none' }} className="footer-link">Funcionalidades</a></li>
-              <li><a href="#vitrine" style={{ color: '#94a3b8', textDecoration: 'none' }} className="footer-link">Lojas Modelo</a></li>
-              <li><a href="#calculadora" style={{ color: '#94a3b8', textDecoration: 'none' }} className="footer-link">Calculadora de ROI</a></li>
-              <li><a href="#precos" style={{ color: '#94a3b8', textDecoration: 'none' }} className="footer-link">Planos de Assinatura</a></li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 style={{ color: '#f8fafc', fontSize: '1.05rem', fontWeight: 800, marginBottom: '1.5rem' }}>Contato Direto</h4>
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '1.25rem', fontSize: '0.95rem' }}>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#94a3b8' }}>
-                <Mail size={18} color="#0ea5e9" style={{ flexShrink: 0 }} />
-                <span>{platformSettings.supportEmail}</span>
-              </li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#94a3b8' }}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#10b981" viewBox="0 0 16 16" style={{ flexShrink: 0 }}>
-                  <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.158-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.089-.088.197-.23.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.13 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
-                </svg>
-                <span>{platformSettings.whatsappSupport}</span>
-              </li>
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#94a3b8' }}>
-                <Clock size={18} color="#f59e0b" style={{ flexShrink: 0 }} />
-                <span>{platformSettings.businessHours}</span>
-              </li>
-            </ul>
-
-            <div style={{ marginTop: '2.5rem', background: 'rgba(16, 185, 129, 0.05)', border: '1px solid rgba(16, 185, 129, 0.2)', borderRadius: '12px', padding: '1rem 1.25rem', display: 'inline-flex', alignItems: 'center', gap: '0.75rem' }}>
-              <Shield size={20} color="#10b981" style={{ flexShrink: 0 }} />
-              <span style={{ color: '#10b981', fontSize: '0.95rem', fontWeight: 800, letterSpacing: '0.5px' }}>Ambiente 100% Seguro</span>
-            </div>
-            
-            <div className="mobile-copyright" style={{ fontSize: '0.85rem', color: '#64748b', marginTop: '1.5rem' }}>
-              © 2026 Criar Lojas Inc. Todos os direitos reservados.
-            </div>
-          </div>
-        </div>
-
-        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem', borderTop: '1px solid rgba(255, 255, 255, 0.05)', paddingTop: '3rem', textAlign: 'center', fontSize: '0.85rem', color: '#64748b' }}>
-          Infraestrutura robusta em nuvem para criação e gestão de lojas virtuais. Feito com excelência para o mercado de e-commerce brasileiro.
-        </div>
-      </footer>
-
-      <style>{`
-        .nav-link:hover { color: #10b981 !important; }
-        .login-btn:hover { background: rgba(14, 165, 233, 0.15); }
-        .cta-btn:hover { filter: brightness(1.15); transform: translateY(-1px); }
-        .hero-btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
-        .demo-btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
-        .demo-card:hover { transform: translateY(-6px); border-color: rgba(16, 185, 129, 0.3); box-shadow: 0 15px 35px rgba(0,0,0,0.4); }
-        .demo-card:hover .demo-img { transform: scale(1.05); }
-        .btn-visit:hover { filter: brightness(1.15); transform: scale(1.02); }
-        .btn-admin:hover { background: rgba(255, 255, 255, 0.1); }
-        .feature-card:hover { transform: translateY(-4px); border-color: rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.04); }
-        .calc-btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
-        .plan-card-portal:hover { transform: translateY(-8px); border-color: #10b981; box-shadow: 0 20px 40px rgba(16, 185, 129, 0.2); }
-        .plan-btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
-        .footer-link:hover { color: #ffffff !important; text-decoration: underline !important; }
-        .saas-footer-grid {
-          display: grid;
-          grid-template-columns: 2fr 1fr 1.5fr;
-        }
-        .mobile-copyright {
-          display: none !important;
-        }
-        .close-btn:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.05); }
-        .cancel-btn:hover { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.2); }
-        .submit-lead-btn:hover { filter: brightness(1.15); transform: translateY(-2px); }
-        .animate-spin { animation: spin 1s linear infinite; }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .modal-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 3.5rem;
-          margin-bottom: 3.5rem;
-        }
-        @media (max-width: 1024px) {
-          .modal-grid { grid-template-columns: 1fr !important; gap: 2rem !important; }
-        }
-        .lead-modal-content {
-          padding: 4rem;
-        }
-        .domain-modal-content {
-          padding: 4rem;
-        }
-        .modal-panel {
-          padding: 3rem;
-          border-radius: 24px;
-        }
-        @media (max-width: 768px) {
-          .lead-modal-overlay {
-            padding: 0 !important;
-          }
-          .lead-modal-content, .domain-modal-content {
-            padding: 3rem 1.5rem 1.5rem 1.5rem !important;
-            border-radius: 0px !important;
-            width: 100vw !important;
-            max-width: 100vw !important;
-            height: 100vh !important;
-            max-height: 100vh !important;
-            margin: 0 !important;
-            border: none !important;
-          }
-          .modal-panel {
-            padding: 1.5rem !important;
-            border-radius: 16px !important;
-            gap: 1.5rem !important;
-          }
-          .close-btn {
-            top: 1rem !important;
-            right: 1rem !important;
-          }
-        }
-        .modal-grid-half {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 2rem;
-        }
-        .subdomain-container {
-          display: flex;
-          align-items: center;
-          background: rgba(15, 23, 42, 0.8);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-          border-radius: 14px;
-          overflow: hidden;
-          margin-bottom: 0.5rem;
-        }
-        .color-presets-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 1.25rem;
-          margin-bottom: 1.5rem;
-        }
-        @media (max-width: 640px) {
-          .modal-panel h4 {
-            flex-wrap: wrap !important;
-            font-size: 1.1rem !important;
-            gap: 0.5rem !important;
-          }
-          .modal-panel h4 span {
-            font-size: 1.1rem !important;
-          }
-          .modal-header-flex {
-            flex-direction: column;
-            align-items: flex-start !important;
-            gap: 1rem !important;
-          }
-          .modal-header-flex h3 {
-            font-size: 1.6rem !important;
-          }
-          .modal-grid-half {
-            grid-template-columns: 1fr !important;
-            gap: 1.25rem !important;
-          }
-          .modal-actions-flex {
-            flex-direction: column-reverse;
-            gap: 1rem !important;
-          }
-          .modal-actions-flex button, .modal-actions-flex a {
-            width: 100% !important;
-            padding: 1rem !important;
-            justify-content: center;
-          }
-          .color-presets-grid {
-            grid-template-columns: 1fr !important;
-            gap: 0.75rem !important;
-          }
-        }
-        @media (max-width: 480px) {
-          .subdomain-container {
-            flex-direction: column !important;
-            align-items: stretch !important;
-          }
-          .subdomain-container span {
-            border-left: none !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.1) !important;
-            text-align: center !important;
-            padding: 0.75rem !important;
-          }
-          .subdomain-container input {
-            padding: 0.75rem 1rem !important;
-            text-align: center !important;
-          }
-          .custom-color-row {
-            flex-direction: column !important;
-            align-items: stretch !important;
-            gap: 1rem !important;
-          }
-          .custom-color-row > div {
-            justify-content: space-between !important;
-          }
-        }
-      `}</style>
-
-       {/* MODAL DE SOLICITAÇÃO DE REGISTRO DE DOMÍNIO PRÓPRIO */}
+      {/* MODAL DE SOLICITAÇÃO DE REGISTRO E CONFIGURAÇÃO DE DOMÍNIO */}
       {showDomainModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(9, 13, 22, 0.85)', backdropFilter: 'blur(12px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }} className="lead-modal-overlay">
-          <div className="domain-modal-content" style={{ background: 'rgba(15, 23, 42, 0.95)', border: '1px solid rgba(14, 165, 233, 0.3)', borderRadius: '24px', width: '95vw', maxWidth: '850px', padding: '4rem', position: 'relative', boxShadow: '0 25px 50px rgba(0,0,0,0.5)', maxHeight: '92vh', overflowY: 'auto' }}>
-            <button onClick={() => setShowDomainModal(false)} style={{ position: 'absolute', top: '2rem', right: '2rem', background: 'rgba(255, 255, 255, 0.05)', border: '1px solid rgba(255, 255, 255, 0.1)', color: '#94a3b8', cursor: 'pointer', padding: '0.75rem', borderRadius: '50%', display: 'flex', transition: 'all 0.2s' }} className="close-btn">
-              <X size={24} />
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(15, 23, 42, 0.3)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '1rem' }}>
+          <div className="glass-card domain-modal-card" style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '24px', width: '95vw', maxWidth: '680px', padding: '3rem', position: 'relative', maxHeight: '92vh', overflowY: 'auto', boxShadow: '0 20px 40px rgba(0,0,0,0.1)' }}>
+            
+            {/* Botão de Fechar */}
+            <button onClick={() => setShowDomainModal(false)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', background: '#f1f5f9', border: '1px solid #cbd5e1', color: '#475569', cursor: 'pointer', padding: '0.5rem', borderRadius: '50%', display: 'flex' }}>
+              <X size={20} />
             </button>
 
-            {domainSubmitted ? (
-              <div style={{ textAlign: 'center', padding: '4rem 0', animation: 'fadeIn 0.5s' }}>
-                <div style={{ width: '90px', height: '90px', borderRadius: '50%', background: 'rgba(14, 165, 233, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#0ea5e9', margin: '0 auto 2.5rem', border: '2px solid #0ea5e9' }}>
-                  <CheckCircle2 size={50} />
-                </div>
-                <h3 style={{ fontSize: '2.4rem', fontWeight: 800, color: '#f8fafc', marginBottom: '1.5rem' }}>Pedido de Domínio Registrado! 🌐</h3>
-                <p style={{ color: '#94a3b8', fontSize: '1.15rem', marginBottom: '3rem', lineHeight: 1.6, maxWidth: '650px', margin: '0 auto 3rem' }}>
-                  Nossa equipe de infraestrutura já foi notificada para verificar a disponibilidade e registrar o domínio <strong>"{domainData.domainName}"</strong>. Em breve entraremos em contato via WhatsApp para confirmar os valores e a titularidade.
-                </p>
+            {/* Cabeçalho */}
+            <div className="modal-header-responsive" style={{ display: 'flex', alignItems: 'center', gap: '1.25rem', marginBottom: '2.5rem', borderBottom: '1px solid #e2e8f0', paddingBottom: '1.5rem' }}>
+              <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#0ea5e9', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', flexShrink: 0 }}>
+                <Globe size={24} />
+              </div>
+              <div>
+                <h3 style={{ fontSize: '1.6rem', fontWeight: 900, margin: 0, color: '#0f172a', letterSpacing: '-0.5px' }}>Registro & Configuração de Domínio</h3>
+                <p style={{ color: '#64748b', fontSize: '0.95rem', margin: '0.25rem 0 0 0', fontWeight: 500 }}>Garanta seu endereço próprio na web sem complicações técnicas.</p>
+              </div>
+            </div>
 
-                <div style={{ display: 'grid', gap: '1.5rem', maxWidth: '450px', margin: '0 auto' }}>
-                  <a 
-                    href={getDomainWhatsappLink()} 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    style={{ padding: '1.35rem', background: '#0ea5e9', color: 'white', textDecoration: 'none', fontSize: '1.1rem', fontWeight: 800, borderRadius: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', boxShadow: '0 8px 25px rgba(14, 165, 233, 0.4)' }}
-                  >
-                    <Phone size={22} />
-                    <span>Acelerar Atendimento via WhatsApp</span>
-                  </a>
-
+            {/* Formulário */}
+            <form onSubmit={handleDomainSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              
+              {/* Campo Domínio Desejado com botão Verificar */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 800, color: '#334155', marginBottom: '0.5rem' }}>Domínio Desejado</label>
+                <div className="domain-input-row" style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                  <div style={{ flex: 1, position: 'relative', display: 'flex', alignItems: 'center', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '12px', padding: '0 1rem' }}>
+                    <Globe size={18} color="#64748b" style={{ marginRight: '0.75rem' }} />
+                    <input 
+                      type="text" 
+                      value={domainData.desiredDomain}
+                      onChange={e => setDomainData({...domainData, desiredDomain: e.target.value})}
+                      placeholder="Ex: minhamarca.com.br"
+                      style={{ flex: 1, padding: '1rem 0', background: 'transparent', border: 'none', color: '#0f172a', outline: 'none', fontSize: '1rem', fontWeight: 500 }}
+                      required
+                    />
+                  </div>
                   <button 
-                    onClick={() => setShowDomainModal(false)}
-                    style={{ padding: '1.25rem', background: 'rgba(255, 255, 255, 0.05)', color: '#cbd5e1', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', fontWeight: 700, cursor: 'pointer', fontSize: '1.05rem' }}
+                    type="button"
+                    onClick={handleVerifyDomain}
+                    disabled={isCheckingDomain}
+                    style={{ padding: '1rem 2rem', background: '#e0f2fe', color: '#0ea5e9', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', transition: '0.2s', height: '54px', minWidth: '110px' }}
                   >
-                    Fechar e Voltar ao Site
+                    {isCheckingDomain ? 'Verificando...' : 'Verificar'}
                   </button>
                 </div>
               </div>
-            ) : (
-              <>
-                <div className="modal-header-flex" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '3rem', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', paddingBottom: '2rem' }}>
-                  <div style={{ width: '56px', height: '56px', borderRadius: '16px', background: 'linear-gradient(135deg, #0ea5e9, #3b82f6)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', boxShadow: '0 4px 20px rgba(14, 165, 233, 0.4)' }}>
-                    <Globe size={28} />
-                  </div>
-                  <div>
-                    <h3 style={{ fontSize: '1.8rem', fontWeight: 800, margin: 0, color: '#f8fafc' }}>Registro & Configuração de Domínio</h3>
-                    <p style={{ color: '#94a3b8', fontSize: '1.05rem', margin: '0.25rem 0 0 0' }}>Garanta seu endereço próprio na web sem complicações técnicas.</p>
+
+              {/* Seu Nome Completo */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 800, color: '#334155', marginBottom: '0.5rem' }}>Seu Nome Completo</label>
+                <div style={{ position: 'relative', display: 'flex', alignItems: 'center', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '12px', padding: '0 1rem' }}>
+                  <User size={18} color="#64748b" style={{ marginRight: '0.75rem' }} />
+                  <input 
+                    type="text" 
+                    value={domainData.fullName}
+                    onChange={e => setDomainData({...domainData, fullName: e.target.value})}
+                    placeholder="Carlos Eduardo Silva"
+                    style={{ flex: 1, padding: '1rem 0', background: 'transparent', border: 'none', color: '#0f172a', outline: 'none', fontSize: '1rem', fontWeight: 500 }}
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Duas colunas para WhatsApp e E-mail */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }} className="modal-grid-responsive">
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 800, color: '#334155', marginBottom: '0.5rem' }}>WhatsApp (Para envio de valores)</label>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '12px', padding: '0 1rem' }}>
+                    <Phone size={18} color="#64748b" style={{ marginRight: '0.75rem' }} />
+                    <input 
+                      type="text" 
+                      value={domainData.whatsapp}
+                      onChange={e => setDomainData({...domainData, whatsapp: e.target.value})}
+                      placeholder="(11) 99999-8888"
+                      style={{ flex: 1, padding: '1rem 0', background: 'transparent', border: 'none', color: '#0f172a', outline: 'none', fontSize: '1rem', fontWeight: 500 }}
+                      required
+                    />
                   </div>
                 </div>
 
-                <form onSubmit={handleDomainSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                  <div>
-                    <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>Domínio Desejado</label>
-                    <div style={{ display: 'flex', gap: '1rem' }}>
-                      <div style={{ position: 'relative', flex: 1 }}>
-                        <Globe size={22} style={{ position: 'absolute', left: '1.5rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                        <input 
-                          type="text" 
-                          value={domainData.domainName}
-                          onChange={e => {
-                            setDomainData({...domainData, domainName: e.target.value})
-                            setLocalCheckResult(null)
-                          }}
-                          placeholder="Ex: minhamarca.com.br"
-                          style={{ width: '100%', padding: '1.15rem 1.5rem 1.15rem 3.75rem', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: '#f8fafc', outline: 'none', fontSize: '1.1rem', fontWeight: 600 }}
-                          required
-                        />
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleCheckDomainCommercial}
-                        disabled={localChecking}
-                        style={{
-                          padding: '0 2rem',
-                          background: 'rgba(14, 165, 233, 0.15)',
-                          border: '1px solid rgba(14, 165, 233, 0.3)',
-                          borderRadius: '14px',
-                          color: '#0ea5e9',
-                          fontWeight: 700,
-                          fontSize: '1rem',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem',
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        {localChecking ? <Loader2 className="animate-spin" size={18} /> : 'Verificar'}
-                      </button>
-                    </div>
-
-                    {localCheckResult && (
-                      <div style={{ marginTop: '0.75rem', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '0.5rem', animation: 'fadeIn 0.2s' }}>
-                        {localCheckResult.error ? (
-                          <span style={{ color: '#ef4444', fontWeight: 600 }}>⚠️ {localCheckResult.error}</span>
-                        ) : localCheckResult.available ? (
-                          <span style={{ color: '#10b981', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            🎉 Excelente! O domínio está livre e disponível para registro!
-                          </span>
-                        ) : (
-                          <span style={{ color: '#f43f5e', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                            ❌ Este domínio já está registrado por outra pessoa.
-                          </span>
-                        )}
-                      </div>
-                    )}
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>Seu Nome Completo</label>
-                    <div style={{ position: 'relative' }}>
-                      <User size={22} style={{ position: 'absolute', left: '1.5rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                      <input 
-                        type="text" 
-                        value={domainData.name}
-                        onChange={e => setDomainData({...domainData, name: e.target.value})}
-                        placeholder="Carlos Eduardo Silva"
-                        style={{ width: '100%', padding: '1.15rem 1.5rem 1.15rem 3.75rem', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: '#f8fafc', outline: 'none', fontSize: '1.1rem', fontWeight: 600 }}
-                        required
-                      />
-                    </div>
-                  </div>
-
-                  <div className="modal-grid-half">
-                    <div>
-                      <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>WhatsApp (Para envio de valores)</label>
-                      <div style={{ position: 'relative' }}>
-                        <Phone size={22} style={{ position: 'absolute', left: '1.5rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                        <input 
-                          type="text" 
-                          value={domainData.whatsapp}
-                          onChange={e => setDomainData({...domainData, whatsapp: e.target.value})}
-                          placeholder="(11) 99999-8888"
-                          style={{ width: '100%', padding: '1.15rem 1.5rem 1.15rem 3.75rem', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: '#f8fafc', outline: 'none', fontSize: '1.1rem', fontWeight: 600 }}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <div>
-                      <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>E-mail Profissional</label>
-                      <div style={{ position: 'relative' }}>
-                        <Mail size={22} style={{ position: 'absolute', left: '1.5rem', top: '50%', transform: 'translateY(-50%)', color: '#64748b' }} />
-                        <input 
-                          type="email" 
-                          value={domainData.email}
-                          onChange={e => setDomainData({...domainData, email: e.target.value})}
-                          placeholder="carlos@empresa.com.br"
-                          style={{ width: '100%', padding: '1.15rem 1.5rem 1.15rem 3.75rem', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: '#f8fafc', outline: 'none', fontSize: '1.1rem', fontWeight: 600 }}
-                          required
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <label style={{ display: 'block', fontSize: '1rem', fontWeight: 700, color: '#cbd5e1', marginBottom: '0.75rem' }}>Observações (Opcional)</label>
-                    <textarea 
-                      value={domainData.notes}
-                      onChange={e => setDomainData({...domainData, notes: e.target.value})}
-                      placeholder="Ex: Já possuo o domínio registrado no Registro.br e quero apenas que façam o apontamento."
-                      style={{ width: '100%', minHeight: '100px', padding: '1.25rem 1.5rem', background: 'rgba(15, 23, 42, 0.8)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', color: '#f8fafc', outline: 'none', fontSize: '1.05rem', resize: 'none' }}
+                <div>
+                  <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 800, color: '#334155', marginBottom: '0.5rem' }}>E-mail Profissional</label>
+                  <div style={{ position: 'relative', display: 'flex', alignItems: 'center', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '12px', padding: '0 1rem' }}>
+                    <Mail size={18} color="#64748b" style={{ marginRight: '0.75rem' }} />
+                    <input 
+                      type="email" 
+                      value={domainData.email}
+                      onChange={e => setDomainData({...domainData, email: e.target.value})}
+                      placeholder="carlos@empresa.com.br"
+                      style={{ flex: 1, padding: '1rem 0', background: 'transparent', border: 'none', color: '#0f172a', outline: 'none', fontSize: '1rem', fontWeight: 500 }}
+                      required
                     />
                   </div>
+                </div>
+              </div>
 
-                  <div className="modal-actions-flex" style={{ display: 'flex', gap: '1.5rem', justifyContent: 'flex-end', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '2rem', marginTop: '1rem' }}>
-                    <button 
-                      type="button" 
-                      onClick={() => setShowDomainModal(false)}
-                      style={{ padding: '1.15rem 2.5rem', background: 'transparent', color: '#cbd5e1', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '14px', fontWeight: 700, fontSize: '1.1rem', cursor: 'pointer', transition: 'all 0.2s' }}
-                      className="cancel-btn"
-                    >
-                      Cancelar
-                    </button>
-                    <button 
-                      type="submit" 
-                      disabled={isSubmittingDomain}
-                      style={{ padding: '1.15rem 3.5rem', background: '#0ea5e9', color: 'white', border: 'none', borderRadius: '14px', fontWeight: 800, fontSize: '1.15rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.75rem', boxShadow: '0 8px 30px rgba(14, 165, 233, 0.4)', transition: 'all 0.2s' }}
-                      className="submit-lead-btn"
-                    >
-                      {isSubmittingDomain ? (
-                        <>
-                          <div className="animate-spin" style={{ width: '22px', height: '22px', border: '2px solid white', borderTopColor: 'transparent', borderRadius: '50%' }} />
-                          <span>Processando...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Globe size={22} />
-                          <span>Enviar Solicitação de Domínio</span>
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </form>
-              </>
-            )}
+              {/* Observações */}
+              <div>
+                <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 800, color: '#334155', marginBottom: '0.5rem' }}>Observações (Opcional)</label>
+                <textarea 
+                  value={domainData.notes}
+                  onChange={e => setDomainData({...domainData, notes: e.target.value})}
+                  placeholder="Ex: Já possuo o domínio registrado no Registro.br e quero apenas que façam o apontamento."
+                  style={{ width: '100%', padding: '1rem 1.25rem', background: '#f8fafc', border: '1px solid #cbd5e1', borderRadius: '12px', color: '#0f172a', outline: 'none', fontSize: '1rem', minHeight: '100px', resize: 'vertical', fontFamily: 'inherit', fontWeight: 500 }}
+                />
+              </div>
+
+              {/* Botões de Ação */}
+              <div className="modal-footer-buttons" style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end', borderTop: '1px solid #e2e8f0', paddingTop: '2rem', marginTop: '1rem' }}>
+                <button 
+                  type="button" 
+                  onClick={() => setShowDomainModal(false)}
+                  className="btn-premium-outline"
+                  style={{ padding: '0.85rem 2.5rem', borderRadius: '12px', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
+                >
+                  Cancelar
+                </button>
+                <button 
+                  type="submit" 
+                  disabled={isSubmittingDomain}
+                  className="btn-premium-green"
+                  style={{ padding: '0.85rem 3rem', borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#0ea5e9', boxShadow: '0 8px 24px rgba(14, 165, 233, 0.2)' }}
+                >
+                  {isSubmittingDomain ? 'Enviando...' : (
+                    <>
+                      <Globe size={18} />
+                      <span>Enviar Solicitação de Domínio</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
 
-      {/* BOTÃO DO WHATSAPP FLUTUANTE (COMERCIAL) */}
+      {/* WHATSAPP FLOATING BUTTON */}
       <a 
         href={`https://wa.me/${formatWhatsappNumber(platformSettings.whatsappSupport)}?text=${encodeURIComponent('Olá equipe Criar Lojas! Gostaria de tirar dúvidas sobre a criação da minha loja virtual.')}`}
         target="_blank" 
         rel="noopener noreferrer"
         style={{
           position: 'fixed',
-          bottom: '6.5rem',
+          bottom: '2rem',
           right: '2rem',
           background: '#25D366',
           color: 'white',
-          width: '64px',
-          height: '64px',
+          width: '60px',
+          height: '60px',
           borderRadius: '50%',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          boxShadow: '0 10px 35px rgba(37, 211, 102, 0.5)',
+          boxShadow: '0 8px 30px rgba(37, 211, 102, 0.4)',
           zIndex: 9999,
           cursor: 'pointer',
-          transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)'
+          transition: 'all 0.3s cubic-bezier(0.16, 1, 0.3, 1)'
         }}
         className="whatsapp-floating-btn"
-        title="Fale Conosco pelo WhatsApp"
       >
-        <svg xmlns="http://www.w3.org/2000/svg" width="34" height="34" viewBox="0 0 24 24" fill="white"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.245 3.478 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24" fill="white"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.245 3.478 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
       </a>
 
-      {/* BOTÃO VOLTAR PARA O TOPO */}
+      {/* SCROLL TO TOP BUTTON */}
       {showScrollTop && (
         <button 
-          onClick={scrollToTop}
+          className="icon-btn"
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           style={{
             position: 'fixed',
-            bottom: '2rem',
-            right: '2rem',
-            background: 'rgba(15, 23, 42, 0.9)',
-            color: '#10b981',
-            border: '1px solid rgba(16, 185, 129, 0.3)',
-            width: '54px',
-            height: '54px',
+            bottom: '6.5rem',
+            right: '2.3rem',
+            background: '#10b981',
+            color: 'white',
+            width: '50px',
+            height: '50px',
             borderRadius: '50%',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            boxShadow: '0 10px 25px rgba(0, 0, 0, 0.5)',
+            boxShadow: '0 8px 24px rgba(16, 185, 129, 0.3)',
             zIndex: 9999,
             cursor: 'pointer',
-            transition: 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-            backdropFilter: 'blur(10px)'
+            border: 'none',
+            transition: 'all 0.3s'
           }}
-          className="scroll-top-btn"
           title="Voltar para o Topo"
         >
-          <ChevronUp size={28} />
+          <ChevronUp size={24} color="#ffffff" />
         </button>
       )}
 
+      {/* FOOTER */}
+      <footer style={{ background: '#0f172a', borderTop: '1px solid #e2e8f0', padding: '6rem 0 3rem 0', color: '#94a3b8' }}>
+        <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem', display: 'grid', gridTemplateColumns: '2fr 1fr 1.5fr', gap: '4rem' }} className="footer-grid-responsive">
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+              <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <ShoppingBag size={20} color="#ffffff" />
+              </div>
+              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px' }}>CriarLojas</span>
+            </div>
+            <p style={{ fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '2rem', maxWidth: '350px', color: '#cbd5e1' }}>
+              Nós não vendemos apenas softwares. Entregamos soluções e negócios estruturados prontos para vender pela internet.
+            </p>
+            <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+              © 2026 CriarLojas Inc. Todos os direitos reservados.
+            </div>
+          </div>
+
+          <div>
+            <h4 style={{ color: '#ffffff', fontSize: '1.05rem', fontWeight: 800, marginBottom: '1.5rem' }}>Plataforma</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '1rem', fontSize: '0.95rem' }}>
+              <li><a href="#comece" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Modelos</a></li>
+              <li><a href="#beneficios" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Benefícios</a></li>
+              <li><a href="#planos" style={{ color: '#cbd5e1', textDecoration: 'none' }}>Planos</a></li>
+              <li><a href="#faq" style={{ color: '#cbd5e1', textDecoration: 'none' }}>FAQ</a></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 style={{ color: '#ffffff', fontSize: '1.05rem', fontWeight: 800, marginBottom: '1.5rem' }}>Suporte Humano</h4>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'grid', gap: '1rem', fontSize: '0.95rem' }}>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Mail size={16} color="#0ea5e9" />
+                <span style={{ color: '#cbd5e1' }}>{platformSettings.supportEmail}</span>
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Phone size={16} color="#10b981" />
+                <span style={{ color: '#cbd5e1' }}>{platformSettings.whatsappSupport}</span>
+              </li>
+              <li style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Clock size={16} color="#f59e0b" />
+                <span style={{ color: '#cbd5e1' }}>{platformSettings.businessHours}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </footer>
+
+      {/* MOBILE ADAPTATIVE CSS INJECTED */}
       <style>{`
-        /* Efeitos de Hover interativos nos botões */
-        .login-btn, .cta-btn, .hero-btn, .demo-btn, .btn-admin, .scroll-top-btn, .whatsapp-floating-btn, .no-scrollbar button, button[type="submit"] {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-
-        .login-btn:hover {
-          background-color: rgba(14, 165, 233, 0.1) !important;
-          color: #38bdf8 !important;
-          border-color: #0ea5e9 !important;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(14, 165, 233, 0.2);
-        }
-
-        .cta-btn:hover {
-          transform: translateY(-2px);
-          filter: brightness(1.15);
-          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4) !important;
-        }
-
-        .hero-btn:hover {
-          transform: translateY(-3px);
-          filter: brightness(1.15);
-          box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5) !important;
-        }
-
-        .demo-btn:hover {
-          transform: translateY(-3px);
-          filter: brightness(1.15);
-          box-shadow: 0 10px 25px rgba(14, 165, 233, 0.4) !important;
-        }
-
-        .btn-admin:hover {
-          background-color: rgba(255, 255, 255, 0.12) !important;
-          border-color: rgba(255, 255, 255, 0.25) !important;
-          color: #ffffff !important;
-          transform: translateY(-2px);
-        }
-
-        .no-scrollbar button:hover {
-          transform: translateY(-2px);
-          filter: brightness(1.15);
-          box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25);
-        }
-
-        button[type="submit"]:hover {
-          filter: brightness(1.15);
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3) !important;
-        }
-
-        .scroll-top-btn:hover {
-          background: #10b981 !important;
-          color: #ffffff !important;
-          border-color: #10b981 !important;
-          transform: translateY(-5px) scale(1.1) !important;
-          box-shadow: 0 12px 28px rgba(16, 185, 129, 0.4) !important;
-        }
-
-        .whatsapp-floating-btn:hover {
-          transform: scale(1.1) rotate(5deg) !important;
-          filter: brightness(1.1);
-          box-shadow: 0 12px 28px rgba(37, 211, 102, 0.6) !important;
-        }
-
-        @keyframes skeleton-pulse {
-          0%, 100% { opacity: 0.6; }
-          50% { opacity: 0.25; }
-        }
-        .skeleton-line {
-          animation: skeleton-pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        @media (max-width: 768px) {
-          .saas-navbar {
-            padding: 0.75rem 0 !important;
+        @media (max-width: 1024px) {
+          .hero-grid-responsive {
+            grid-template-columns: 1fr !important;
+            text-align: center !important;
+            gap: 3rem !important;
           }
-          .saas-nav-container {
+          .hero-features-responsive {
+            justify-content: center !important;
+            flex-wrap: wrap !important;
+            gap: 1.5rem !important;
+          }
+          .hero-buttons-responsive {
+            justify-content: center !important;
+          }
+        }
+        @media (max-width: 768px) {
+          /* Reduzir paddings de todas as seções do site */
+          section {
+            padding: 4rem 0 !important;
+          }
+          .hero-section {
+            padding: 8rem 0 4rem 0 !important;
+          }
+          
+          /* Ajustar cabeçalho principal e títulos das seções */
+          h2 {
+            font-size: 1.8rem !important;
+            line-height: 1.3 !important;
+            margin-bottom: 0.75rem !important;
+          }
+          
+          p {
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+          }
+
+          /* Botões menores e mais cleans */
+          button:not(.icon-btn), .btn-premium-green, .btn-premium-outline, a.btn-premium-outline, a.btn-premium-green {
+            padding: 0.75rem 1.5rem !important;
+            font-size: 0.9rem !important;
+            border-radius: 8px !important;
+          }
+
+          button.icon-btn {
+            padding: 0 !important;
+          }
+
+          .hero-title-responsive {
+            font-size: 2.1rem !important;
+            line-height: 1.2 !important;
+          }
+          .hero-buttons-responsive button, .hero-buttons-responsive a {
+            width: 100% !important;
+            justify-content: center !important;
+            padding: 0.75rem 1.5rem !important;
+            font-size: 0.9rem !important;
+          }
+          
+          /* Diferenciais */
+          .stats-grid-responsive {
+            grid-template-columns: 1fr 1fr !important;
+            gap: 1.5rem !important;
+            margin-bottom: 2.5rem !important;
+          }
+          .stats-grid-responsive .stat-value-display {
+            font-size: 1.3rem !important;
+          }
+          .stats-grid-responsive .stat-desc-text {
+            font-size: 0.85rem !important;
+          }
+          
+          /* Depoimentos */
+          .testimonials-grid-responsive {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+          }
+          .testimonials-grid-responsive .glass-card {
+            padding: 1.5rem !important;
+          }
+          .testimonials-grid-responsive p {
+            font-size: 0.85rem !important;
+          }
+
+          /* Cards de passos e segmentos */
+          .categories-filter-responsive {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 0.5rem !important;
+          }
+          .categories-filter-responsive button {
+            width: 100% !important;
+            padding: 0.6rem 0.25rem !important;
+            font-size: 0.75rem !important;
+            line-height: 1.1 !important;
+            white-space: normal !important;
+            height: 100% !important;
+          }
+          .demo-card-buttons {
+            grid-template-columns: 1fr !important;
+            gap: 0.75rem !important;
+          }
+          .steps-grid-responsive {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+          }
+          .steps-grid-responsive .glass-card {
+            padding: 1.5rem !important;
+          }
+          
+          .segment-card-responsive {
+            grid-template-columns: 1fr !important;
+            padding: 0 !important;
+            gap: 1.5rem !important;
+          }
+          .feature-list-card {
+            padding: 1rem !important;
+            gap: 0.75rem !important;
+          }
+          .segment-card-responsive h3 {
+            font-size: 1.4rem !important;
+          }
+          .card-buttons-container {
+            flex-direction: column !important;
+          }
+          
+          /* Modal Responsivo */
+          .lead-modal-card, .domain-modal-card {
+            padding: 1.5rem 1rem !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 !important;
+          }
+          .lead-modal-card input, .lead-modal-card select, .domain-modal-card input, .domain-modal-card select, .domain-modal-card textarea {
+            padding: 0.75rem 1rem !important;
+            font-size: 0.95rem !important;
+          }
+          .subdomain-input-wrapper input {
+            padding: 0.75rem 0.5rem !important;
+            font-size: 0.9rem !important;
+          }
+          .subdomain-suffix {
+            padding: 0.75rem 0.5rem !important;
+            font-size: 0.85rem !important;
+          }
+          .modal-grid-responsive {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+          }
+          .domain-input-row {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 0.5rem !important;
+          }
+          .domain-input-row button {
+            width: 100% !important;
+            padding: 0.85rem !important;
+          }
+          .modal-footer-buttons {
+            flex-direction: column-reverse !important;
+            gap: 0.75rem !important;
+          }
+          .modal-footer-buttons button, .modal-footer-buttons a {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+          .modal-header-responsive {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 0.75rem !important;
+          }
+          .modal-header-responsive h3 {
+            font-size: 1.5rem !important;
+          }
+
+          /* IA Grid */
+          .ia-grid-responsive {
+            grid-template-columns: 1fr !important;
+            gap: 1.25rem !important;
+          }
+
+          /* FAQs */
+          .faq-title-btn {
+            font-size: 1rem !important;
+            padding: 1.25rem 1.5rem !important;
+          }
+          .faq-body-text {
+            font-size: 0.9rem !important;
+            padding: 0 1.5rem 1.5rem 1.5rem !important;
+          }
+
+          /* Planos */
+          .plans-grid-responsive {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+          }
+          .plans-grid-responsive .glass-card {
+            padding: 2.2rem 1.25rem !important;
+          }
+          .plans-grid-responsive h3 {
+            font-size: 1.15rem !important;
+            margin-bottom: 0.5rem !important;
+          }
+          .plans-grid-responsive p {
+            font-size: 0.82rem !important;
+            margin-bottom: 1rem !important;
+            min-height: auto !important;
+          }
+           /* Reduzir tamanho dos preços e listagem no mobile */
+          .price-display span:nth-child(2) {
+            font-size: 1.7rem !important;
+          }
+          .plans-grid-responsive .plan-feature-item {
+            gap: 0.5rem !important;
+            align-items: flex-start !important;
+          }
+          .plans-grid-responsive .plan-feature-item div {
+            width: 14px !important;
+            height: 14px !important;
+            margin-top: 2px !important;
+          }
+          .plans-grid-responsive .plan-feature-item div svg {
+            width: 9px !important;
+            height: 9px !important;
+          }
+          /* Override general sizing strictly on spans to avoid inheriting tailwind sizes */
+          .plan-feature-text, 
+          .plans-grid-responsive .plan-feature-text,
+          .plans-grid-responsive .plan-feature-item .plan-feature-text {
+            font-size: 0.8rem !important;
+            line-height: 1.35 !important;
+          }
+          .popular-badge-responsive {
+            font-size: 0.6rem !important;
+            padding: 0.2rem 0.6rem !important;
+            border-radius: 0 16px 0 10px !important;
+            top: 0px !important;
+            right: 0px !important;
+            width: auto !important;
+          }
+          .popular-badge-responsive span {
+            font-size: 0.6rem !important;
+          }
+          .popular-badge-responsive svg {
+            width: 10px !important;
+            height: 10px !important;
+          }
+
+          /* Calculadora de Economia no Mobile */
+          .calc-container {
+            padding: 0 1rem !important;
+          }
+          .calculator-grid-responsive {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+            padding: 0 !important;
+          }
+          .calc-result-box {
+            padding: 2rem 1.5rem !important;
+            border-radius: 20px !important;
+          }
+          .calc-big-value {
+            font-size: 1.8rem !important;
+            margin-bottom: 1.5rem !important;
+          }
+          .calc-huge-value {
+            font-size: 1.7rem !important;
+          }
+          .calc-savings-box {
+            padding: 1.25rem !important;
+            margin-bottom: 1.75rem !important;
+          }
+          .calc-sub-grid {
+            gap: 1rem !important;
+            margin-bottom: 1.75rem !important;
+          }
+          .calc-medium-value {
+            font-size: 1.05rem !important;
+          }
+          .calc-mini-label {
+            font-size: 0.68rem !important;
+          }
+          .calc-desc {
+            font-size: 0.75rem !important;
+          }
+
+          /* Modais e Formulários */
+          .modal-grid-responsive {
+            grid-template-columns: 1fr !important;
+            gap: 1.25rem !important;
+          }
+          .glass-card[style*="width: '95vw'"] {
+            padding: 1.5rem !important;
+            border-radius: 16px !important;
+          }
+          
+          .footer-grid-responsive {
+            grid-template-columns: 1fr !important;
+            gap: 2rem !important;
             padding: 0 1rem !important;
           }
           .saas-nav-links {
             display: none !important;
           }
-          .saas-nav-actions .login-btn {
+          .mobile-menu-toggle-btn {
+            display: inline-block !important;
+          }
+          .desktop-only-btn {
             display: none !important;
           }
-          .saas-nav-actions .cta-btn {
-            display: none !important;
-          }
-          .mobile-menu-toggle {
-            display: inline-flex !important;
-          }
-          .saas-footer-grid {
-            grid-template-columns: 1fr !important;
-            gap: 2rem !important;
-          }
-          .desktop-copyright {
-            display: none !important;
-          }
-          .mobile-copyright {
-            display: block !important;
-          }
-
-          .saas-hero-section {
-            padding: 8rem 0 4rem 0 !important;
-          }
-          .saas-hero-title {
-            font-size: 2.2rem !important;
-            line-height: 1.2 !important;
-            margin-bottom: 1rem !important;
-          }
-          .saas-hero-desc {
-            font-size: 1rem !important;
-            margin-bottom: 2.5rem !important;
-          }
-          .saas-hero-buttons {
-            flex-direction: column !important;
-            gap: 1rem !important;
-            padding: 0 1rem !important;
-          }
-          .saas-hero-buttons button, 
-          .saas-hero-buttons a {
-            width: 100% !important;
-            justify-content: center !important;
-            padding: 1rem !important;
-            font-size: 1rem !important;
-          }
-          .saas-hero-checks {
-            flex-direction: column !important;
-            align-items: flex-start !important;
-            gap: 0.85rem !important;
-            margin-top: 3.5rem !important;
-            padding: 0 1rem !important;
-          }
-
-          #vitrine h2, #clientes h2, #funcionalidades h2, #calculadora h2, #precos h2, #concierge h2, #dominio h2, #faq h2, #onboarding h2 {
-            font-size: 1.8rem !important;
-            line-height: 1.25 !important;
-          }
-          #vitrine p, #clientes p, #funcionalidades p, #calculadora p, #precos p, #concierge p, #dominio p, #faq p, #onboarding p {
-            font-size: 0.95rem !important;
-            line-height: 1.5 !important;
-          }
-
-          .demo-card-slide {
-            min-width: 290px !important;
-            width: 290px !important;
-          }
-
-          #funcionalidades div[style*="gridTemplateColumns"],
-          #funcionalidades div[style*="grid-template-columns"] {
-            grid-template-columns: 1fr !important;
-            gap: 1.5rem !important;
-          }
-          .feature-card {
-            padding: 1.75rem !important;
-          }
-
-          #calculadora div[style*="gridTemplateColumns"],
-          #calculadora div[style*="grid-template-columns"] {
-            grid-template-columns: 1fr !important;
-            gap: 2rem !important;
-          }
-          #calculadora div[style*="padding: '3.5rem'"],
-          #calculadora div[style*="padding: 3.5rem"] {
-            padding: 1.5rem !important;
-          }
-          #calculadora div[style*="padding: '2rem'"],
-          #calculadora div[style*="padding: 2rem"] {
-            padding: 1.25rem !important;
-          }
-          .roi-annual-value {
-            font-size: 1.9rem !important;
-          }
-          .roi-monthly-value {
-            font-size: 1.7rem !important;
-          }
-
-          #precos div[style*="gridTemplateColumns"],
-          #precos div[style*="grid-template-columns"] {
-            grid-template-columns: 1fr !important;
-            gap: 2rem !important;
-          }
-          .plan-card-portal {
-            padding: 2rem 1.5rem !important;
-          }
-
-          #concierge div[style*="gridTemplateColumns"],
-          #concierge div[style*="grid-template-columns"] {
-            grid-template-columns: 1fr !important;
-            gap: 2.5rem !important;
-          }
-
-          #dominio div[style*="gridTemplateColumns"],
-          #dominio div[style*="grid-template-columns"] {
-            grid-template-columns: 1fr !important;
-            gap: 2.5rem !important;
-          }
-
-          .saas-onboarding-card {
-            padding: 2.5rem 1.5rem !important;
-          }
-          .saas-onboarding-buttons {
-            flex-direction: column !important;
-            gap: 1rem !important;
-          }
-          .saas-onboarding-buttons button, 
-          .saas-onboarding-buttons a {
-            width: 100% !important;
-            justify-content: center !important;
-            padding: 1rem !important;
-            font-size: 1rem !important;
-          }
-
-          #faq button {
-            padding: 1.25rem !important;
-            font-size: 1rem !important;
-          }
+        }
+        @keyframes shimmer {
+          0% { background-position: 200% 0; }
+          100% { background-position: -200% 0; }
         }
       `}</style>
     </div>
   )
 }
-

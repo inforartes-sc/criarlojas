@@ -28,7 +28,7 @@ export default async function CheckoutPage({ params }: { params: Promise<{ domai
     return <div style={{ padding: '4rem', textAlign: 'center' }}>Loja não encontrada.</div>
   }
 
-  if (store.settings?.plan === 'basic') {
+  if (store.settings?.plan === 'basic' || store.settings?.plan === 'free') {
     const isLocalSubpath = !resolvedParams.domain.includes('.') && resolvedParams.domain !== 'localhost'
     const homePath = isLocalSubpath ? `/stores/${resolvedParams.domain}` : '/'
     redirect(homePath)

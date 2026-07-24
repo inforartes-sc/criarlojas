@@ -111,7 +111,7 @@ export default function PaymentsPage() {
     )
   }
 
-  if (plan === 'basic') {
+  if (plan === 'basic' || plan === 'free') {
     return (
       <div className="glass-card" style={{ padding: '3.5rem 2.5rem', textAlign: 'center', maxWidth: '600px', margin: '4rem auto', borderRadius: '16px', border: '1px solid var(--border)' }}>
         <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'rgba(99, 102, 241, 0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1.5rem', color: '#6366f1' }}>
@@ -119,7 +119,7 @@ export default function PaymentsPage() {
         </div>
         <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: 'var(--foreground)', marginBottom: '0.75rem' }}>Recurso do Plano Profissional / Premium</h2>
         <p style={{ color: 'var(--muted)', fontSize: '0.95rem', lineHeight: 1.5, marginBottom: '2rem' }}>
-          A integração de meios de pagamento e checkout transparente não está ativa no seu plano atual (<strong>Básico - Apenas Catálogo WhatsApp</strong>). Faça um upgrade agora mesmo para liberar o checkout online e vender direto pelo site!
+          A integração de meios de pagamento e checkout transparente não está ativa no seu plano atual (<strong>{plan === 'free' ? 'Gratuito' : 'Básico'} - Apenas Catálogo WhatsApp</strong>). Faça um upgrade agora mesmo para liberar o checkout online e vender direto pelo site!
         </p>
         <Link href="/admin/subscription" style={{ display: 'inline-block', padding: '0.85rem 2rem', background: '#6366f1', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)', transition: '0.2s' }}>
           Ver Planos & Fazer Upgrade

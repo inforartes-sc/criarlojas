@@ -16,6 +16,19 @@ export function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
+  // 1.5. Roteamento de Modelos/Templates (/modelos/[domain]/...) no domínio principal
+  if (url.pathname.startsWith('/modelos/')) {
+    const pathParts = url.pathname.split('/')
+    const domain = pathParts[2] || ''
+    const restOfPath = pathParts.slice(3).join('/')
+    
+    if (domain) {
+      return NextResponse.rewrite(
+        new URL(`/stores/${domain}/${restOfPath}${url.search}`, request.url)
+      )
+    }
+  }
+
   // 2. Definir o domínio principal
   // No localhost, vamos considerar que apenas 'localhost' ou '127.0.0.1' é o site principal
   // Qualquer subdomínio (ex: cliente1.localhost) será tratado como uma loja

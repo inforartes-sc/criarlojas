@@ -45,6 +45,7 @@ export default function SuperAdminSidebar() {
     { icon: LayoutDashboard, label: 'Visão Geral', href: '/super-admin' },
     { icon: UserPlus, label: 'Solicitações de Lojas', href: '/super-admin/requests', badge: pendingRequestsCount },
     { icon: Store, label: 'Lojas Cadastradas', href: '/super-admin/stores' },
+    { icon: Layers, label: 'Biblioteca de Modelos', href: '/super-admin/library' },
     { icon: Users, label: 'Lojistas / Usuários', href: '/super-admin/merchants' },
     { icon: Layers, label: 'Planos & SaaS', href: '/super-admin/plans' },
     { icon: CreditCard, label: 'Pagamentos SaaS', href: '/super-admin/payments' },

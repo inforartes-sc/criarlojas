@@ -21,7 +21,7 @@ export default function CartClient({ store, categories }: CartClientProps) {
   const settings = store?.settings || {}
   const primaryColor = settings.primary_color || '#6366f1'
   const plan = settings.plan || 'basic'
-  const storeMode = plan === 'basic' ? 'catalogo' : (settings.store_mode || 'loja')
+  const storeMode = (plan === 'basic' || plan === 'free') ? 'catalogo' : (settings.store_mode || 'loja')
   const isCatalogo = storeMode === 'catalogo'
 
   const handleCheckoutWhatsapp = () => {

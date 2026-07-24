@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { LayoutDashboard, ShoppingBag, Settings, Users, LogOut, Package, CreditCard, Truck, Tag, Link2, Star, Menu, X, DollarSign, Crown } from 'lucide-react'
+import { LayoutDashboard, ShoppingBag, Settings, Users, LogOut, Package, CreditCard, Truck, Tag, Link2, Star, Menu, X, DollarSign, Crown, Lock } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAdminAuth } from '@/context/AdminAuthContext'
 
@@ -11,6 +11,23 @@ export default function AdminSidebar() {
   const pathname = usePathname()
   const { store, logout } = useAdminAuth()
   const [showMobileMenu, setShowMobileMenu] = useState(false)
+
+  const isItemLocked = (label: string) => {
+    const currentPlan = store?.settings?.plan || 'free'
+    if (currentPlan === 'free') {
+      const freeBlocked = ['Pedidos', 'Carrinhos Abandonados', 'Avaliações', 'Pagamentos', 'Envio / Frete', 'Promoções']
+      return freeBlocked.includes(label)
+    }
+    if (currentPlan === 'basic') {
+      const basicBlocked = ['Avaliações', 'Pagamentos', 'Envio / Frete', 'Promoções', 'Carrinhos Abandonados']
+      return basicBlocked.includes(label)
+    }
+    if (currentPlan === 'pro') {
+      const proBlocked = ['Avaliações', 'Promoções']
+      return proBlocked.includes(label)
+    }
+    return false
+  }
   
   const isServicesOnly = ['lawyer', 'advocacia', 'advocacy', 'services', 'electrician', 'aura'].includes(store?.settings?.layout_model)
   const isLawyerLayout = ['lawyer', 'advocacia', 'advocacy'].includes(store?.settings?.layout_model)
@@ -53,17 +70,6 @@ export default function AdminSidebar() {
       // Removed 'Pagamentos' so electricians can configure payments
       const excludedLabels = ['Pedidos', 'Envio / Frete', 'Promoções', 'Avaliações', 'Carrinhos Abandonados']
       if (excludedLabels.includes(item.label)) return false
-    }
-    
-    // Restrições de planos:
-    // Plano Básico: oculta Avaliações, Pagamentos, Envio / Frete, Promoções, Carrinhos Abandonados
-    // Plano Pro: oculta Avaliações, Promoções
-    if (plan === 'basic') {
-      const basicExcluded = ['Avaliações', 'Pagamentos', 'Envio / Frete', 'Promoções', 'Carrinhos Abandonados']
-      if (basicExcluded.includes(item.label)) return false
-    } else if (plan === 'pro') {
-      const proExcluded = ['Avaliações', 'Promoções']
-      if (proExcluded.includes(item.label)) return false
     }
     return true
   })
@@ -146,6 +152,7 @@ export default function AdminSidebar() {
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }} className="sidebar-menu-list">
             {filteredMenuItems.map((item) => {
               const isActive = pathname === item.href || (item.href !== '/admin' && pathname?.startsWith(item.href))
+              const isLocked = isItemLocked(item.label)
               
               return (
                 <li key={item.label} style={{ marginBottom: '0.2rem' }} className="menu-list-item">
@@ -154,18 +161,22 @@ export default function AdminSidebar() {
                     alignItems: 'center', 
                     gap: '0.85rem',
                     padding: '0.6rem 1rem',
-                    color: isActive ? '#ffffff' : '#94a3b8',
+                    color: isActive ? '#ffffff' : (isLocked ? 'rgba(148, 163, 184, 0.45)' : '#94a3b8'),
                     backgroundColor: isActive ? 'rgba(99, 102, 241, 0.15)' : 'transparent',
                     textDecoration: 'none',
                     borderRadius: '10px',
                     transition: 'all 0.2s ease',
                     fontSize: '0.95rem',
                     fontWeight: isActive ? 600 : 500,
-                    border: isActive ? '1px solid rgba(99, 102, 241, 0.2)' : '1px solid transparent'
+                    border: isActive ? '1px solid rgba(99, 102, 241, 0.2)' : '1px solid transparent',
+                    opacity: isLocked ? 0.75 : 1
                   }} className="nav-item">
                     <item.icon size={20} style={{ color: isActive ? '#6366f1' : 'inherit' }} className="nav-icon" />
-                    <span className="nav-text">{item.label}</span>
-                    {item.label === 'Carrinhos Abandonados' && plan === 'pro' && (
+                    <span className="nav-text" style={{ flex: 1 }}>{item.label}</span>
+                    {isLocked && (
+                      <Lock size={14} style={{ color: 'rgba(148, 163, 184, 0.45)', marginLeft: 'auto' }} />
+                    )}
+                    {item.label === 'Carrinhos Abandonados' && plan === 'pro' && !isLocked && (
                       <Crown size={14} style={{ color: '#fbbf24', marginLeft: 'auto' }} />
                     )}
                   </Link>
@@ -312,57 +323,64 @@ export default function AdminSidebar() {
               width: '100%',
               boxSizing: 'border-box'
             }}>
-              {filteredMenuItems.map(item => (
-                <Link
-                  key={item.label}
-                  href={item.href}
-                  onClick={() => setShowMobileMenu(false)}
-                  style={{
-                    background: '#ffffff',
-                    border: '1px solid #f1f5f9',
-                    borderRadius: '20px',
-                    padding: '1.5rem 0.5rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '0.6rem',
-                    textDecoration: 'none',
-                    color: '#334155',
-                    transition: 'all 0.2s',
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    minHeight: '115px',
-                    position: 'relative',
-                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.03)'
-                  }}
-                  className="mobile-grid-item"
-                >
-                  <div style={{
-                    backgroundColor: 'rgba(99, 102, 241, 0.06)',
-                    width: '48px',
-                    height: '48px',
-                    borderRadius: '14px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}>
-                    <item.icon size={22} style={{ color: '#6366f1', flexShrink: 0 }} />
-                  </div>
-                  <span style={{ 
-                    fontSize: '0.85rem', 
-                    fontWeight: 700, 
-                    color: '#1e293b',
-                    textAlign: 'center',
-                    lineHeight: '1.25'
-                  }}>
-                    {item.label}
-                  </span>
-                  {item.label === 'Carrinhos Abandonados' && plan === 'pro' && (
-                    <Crown size={12} style={{ color: '#fbbf24', position: 'absolute', top: '10px', right: '10px' }} />
-                  )}
-                </Link>
-              ))}
+              {filteredMenuItems.map(item => {
+                const isLocked = isItemLocked(item.label)
+                return (
+                  <Link
+                    key={item.label}
+                    href={item.href}
+                    onClick={() => setShowMobileMenu(false)}
+                    style={{
+                      background: '#ffffff',
+                      border: '1px solid #f1f5f9',
+                      borderRadius: '20px',
+                      padding: '1.5rem 0.5rem',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.6rem',
+                      textDecoration: 'none',
+                      color: isLocked ? '#94a3b8' : '#334155',
+                      opacity: isLocked ? 0.7 : 1,
+                      transition: 'all 0.2s',
+                      width: '100%',
+                      boxSizing: 'border-box',
+                      minHeight: '115px',
+                      position: 'relative',
+                      boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.03), 0 2px 4px -2px rgba(0, 0, 0, 0.03)'
+                    }}
+                    className="mobile-grid-item"
+                  >
+                    <div style={{
+                      backgroundColor: isLocked ? 'rgba(148, 163, 184, 0.06)' : 'rgba(99, 102, 241, 0.06)',
+                      width: '48px',
+                      height: '48px',
+                      borderRadius: '14px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <item.icon size={22} style={{ color: isLocked ? '#94a3b8' : '#6366f1', flexShrink: 0 }} />
+                    </div>
+                    <span style={{ 
+                      fontSize: '0.85rem', 
+                      fontWeight: 700, 
+                      color: isLocked ? '#94a3b8' : '#1e293b',
+                      textAlign: 'center',
+                      lineHeight: '1.25'
+                    }}>
+                      {item.label}
+                    </span>
+                    {isLocked && (
+                      <Lock size={12} style={{ color: '#94a3b8', position: 'absolute', top: '10px', right: '10px' }} />
+                    )}
+                    {item.label === 'Carrinhos Abandonados' && plan === 'pro' && !isLocked && (
+                      <Crown size={12} style={{ color: '#fbbf24', position: 'absolute', top: '10px', right: '10px' }} />
+                    )}
+                  </Link>
+                )
+              })}
             </div>
 
             {/* Footer Logout */}

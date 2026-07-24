@@ -570,12 +570,18 @@ export default function SuperAdminStores() {
                           {store.settings?.logo_url ? <img src={store.settings.logo_url} style={{ width: '100%', height: '100%', objectFit: 'contain' }} /> : <Store size={22} color="var(--muted)" />}
                         </div>
                         <div>
-                          <div style={{ fontWeight: 800, color: 'var(--foreground)', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <div style={{ fontWeight: 800, color: 'var(--foreground)', fontSize: '1.05rem', display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                             <span>{store.name}</span>
                             {isDemoStore && (
                               <span style={{ padding: '0.2rem 0.5rem', background: 'rgba(245, 158, 11, 0.15)', color: '#f59e0b', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.25rem', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
                                 <Sparkles size={12} />
                                 Vitrine Modelo
+                              </span>
+                            )}
+                            {store.settings?.vip_request_status === 'pending' && (
+                              <span style={{ padding: '0.2rem 0.5rem', background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7', borderRadius: '6px', fontSize: '0.7rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.25rem', border: '1px solid rgba(168, 85, 247, 0.3)' }} title="Lojista solicitou personalização VIP">
+                                <Sparkles size={12} fill="#a855f7" />
+                                Solicitação VIP 🚀
                               </span>
                             )}
                           </div>
@@ -802,6 +808,8 @@ export default function SuperAdminStores() {
                     <option value="services">Serviços & Peças</option>
                     <option value="lawyer">Advocacia (Serviço)</option>
                     <option value="electrician">Eletricista (Serviço)</option>
+                    <option value="decor">Decoração de festas</option>
+                    <option value="landscaping">Terraplanagem</option>
                   </select>
                 </div>
 
@@ -1074,6 +1082,8 @@ export default function SuperAdminStores() {
                     <option value="services">Serviços & Peças</option>
                     <option value="lawyer">Advocacia (Serviço)</option>
                     <option value="electrician">Eletricista (Serviço)</option>
+                    <option value="decor">Decoração de festas</option>
+                    <option value="landscaping">Terraplanagem</option>
                   </select>
                 </div>
 
