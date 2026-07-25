@@ -551,10 +551,20 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
                     <Copy size={18} /> Copiar Código Pix Copia e Cola
                   </button>
                 )}
+                {successOrder.ticketUrl && (
+                  <a 
+                    href={successOrder.ticketUrl} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    style={{ fontSize: '0.85rem', color: '#065f46', textDecoration: 'underline', marginTop: '0.25rem', fontWeight: 600 }}
+                  >
+                    Abrir comprovante/detalhes no Mercado Pago
+                  </a>
+                )}
               </div>
             )}
 
-            {successOrder.ticketUrl && (
+            {successOrder.ticketUrl && (successOrder.paymentMethod === 'Boleto Bancário' || successOrder.paymentMethod === 'Boleto') && (
               <div style={{ backgroundColor: '#eef2ff', border: '1px solid #c7d2fe', borderRadius: '16px', padding: '2rem', marginBottom: '2.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#3730a3', fontWeight: 800, fontSize: '1.2rem' }}>
                   <ShieldCheck size={24} /> Seu Boleto Bancário foi Gerado
