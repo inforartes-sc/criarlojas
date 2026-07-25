@@ -939,13 +939,128 @@ export default function SaaSCommercialPortal() {
             </div>
           </div>
 
-          {/* MOCKUP PROFISSIONAL FOTOREALISTA DE DUPLO DISPOSITIVO (NOTEBOOK + CELULAR) */}
-          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-            <img 
-              src="/hero_devices_mockup.png" 
-              alt="Loja Virtual CriarLojas no Computador e Celular" 
-              style={{ width: '100%', height: 'auto', display: 'block', maxWidth: '540px' }}
-            />
+          {/* MOCKUP EXCLUSIVO DE CELULAR (SMARTPHONE DE ALTA FIDELIDADE COM 4 PRODUTOS) */}
+          <div style={{ position: 'relative', display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '540px' }}>
+            {/* Glow / Glow Effect atrás do Celular */}
+            <div style={{ position: 'absolute', width: '300px', height: '520px', background: 'radial-gradient(circle, rgba(16, 185, 129, 0.18) 0%, rgba(99, 102, 241, 0.12) 50%, transparent 80%)', filter: 'blur(40px)', zIndex: 0 }} />
+
+            {/* Estrutura do Smartphone (Moldura de Celular) */}
+            <div style={{
+              position: 'relative',
+              zIndex: 2,
+              width: '285px',
+              height: '590px',
+              backgroundColor: '#0f172a',
+              borderRadius: '46px',
+              padding: '12px',
+              boxShadow: '0 25px 60px -15px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1) inset, 0 10px 20px -5px rgba(0, 0, 0, 0.3)',
+              border: '4px solid #1e293b'
+            }}>
+              {/* Dynamic Island / Câmera Notch do Celular */}
+              <div style={{
+                position: 'absolute',
+                top: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                width: '85px',
+                height: '20px',
+                backgroundColor: '#0f172a',
+                borderRadius: '20px',
+                zIndex: 10,
+                display: 'flex',
+                alignItems: 'center',
+                justify: 'flex-end',
+                paddingRight: '8px'
+              }}>
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#1e293b' }} />
+              </div>
+
+              {/* Tela do Celular (Display da Loja Virtual) */}
+              <div style={{
+                width: '100%',
+                height: '100%',
+                backgroundColor: '#ffffff',
+                borderRadius: '36px',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+                position: 'relative',
+                boxShadow: 'inset 0 0 10px rgba(0,0,0,0.05)'
+              }}>
+                {/* Top Bar da Loja no Celular */}
+                <div style={{ backgroundColor: '#ffffff', padding: '34px 14px 8px 14px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div style={{ width: '22px', height: '22px', borderRadius: '6px', backgroundColor: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>
+                      <ShoppingBag size={12} />
+                    </div>
+                    <span style={{ fontSize: '0.8rem', fontWeight: 900, color: '#0f172a' }}>Minha Loja</span>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '26px', height: '26px', borderRadius: '50%', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+                      <ShoppingBag size={13} color="#0f172a" />
+                      <span style={{ position: 'absolute', top: '-2px', right: '-2px', backgroundColor: '#10b981', color: '#fff', fontSize: '0.5rem', fontWeight: 900, width: '13px', height: '13px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>4</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Banner Promocional no Celular */}
+                <div style={{ background: 'linear-gradient(135deg, #059669 0%, #10b981 100%)', padding: '10px 14px', color: '#fff' }}>
+                  <span style={{ fontSize: '0.55rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.5px', backgroundColor: 'rgba(255,255,255,0.2)', padding: '2px 6px', borderRadius: '8px' }}>Nova Coleção</span>
+                  <h4 style={{ fontSize: '0.85rem', fontWeight: 900, margin: '2px 0 1px 0' }}>Descontos de até 30%</h4>
+                  <p style={{ fontSize: '0.55rem', margin: 0, opacity: 0.9 }}>Pix com Aprovação Instantânea</p>
+                </div>
+
+                {/* Grid de 4 Produtos na Tela do Celular (2x2) */}
+                <div style={{ flex: 1, padding: '8px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', backgroundColor: '#f8fafc', overflowY: 'hidden' }}>
+                  {/* Produto 1 */}
+                  <div style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '6px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    <div style={{ width: '100%', height: '62px', borderRadius: '6px', backgroundColor: '#f1f5f9', backgroundImage: 'url(https://images.unsplash.com/photo-1521572267360-ee0c2909d518?auto=format&fit=crop&w=300&q=80)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                    <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Camiseta Premium</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 900, color: '#10b981' }}>R$ 79,90</span>
+                      <span style={{ fontSize: '0.48rem', backgroundColor: '#ecfdf5', color: '#047857', fontWeight: 800, padding: '1px 3px', borderRadius: '3px' }}>Pix</span>
+                    </div>
+                  </div>
+
+                  {/* Produto 2 */}
+                  <div style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '6px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    <div style={{ width: '100%', height: '62px', borderRadius: '6px', backgroundColor: '#f1f5f9', backgroundImage: 'url(https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=300&q=80)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                    <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Tênis Sport Pro</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 900, color: '#10b981' }}>R$ 189,90</span>
+                      <span style={{ fontSize: '0.48rem', backgroundColor: '#ecfdf5', color: '#047857', fontWeight: 800, padding: '1px 3px', borderRadius: '3px' }}>Grátis</span>
+                    </div>
+                  </div>
+
+                  {/* Produto 3 */}
+                  <div style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '6px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    <div style={{ width: '100%', height: '62px', borderRadius: '6px', backgroundColor: '#f1f5f9', backgroundImage: 'url(https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=300&q=80)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                    <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Relógio Smartwatch</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 900, color: '#10b981' }}>R$ 149,90</span>
+                      <span style={{ fontSize: '0.48rem', backgroundColor: '#ecfdf5', color: '#047857', fontWeight: 800, padding: '1px 3px', borderRadius: '3px' }}>Pix</span>
+                    </div>
+                  </div>
+
+                  {/* Produto 4 */}
+                  <div style={{ backgroundColor: '#fff', borderRadius: '10px', padding: '6px', border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                    <div style={{ width: '100%', height: '62px', borderRadius: '6px', backgroundColor: '#f1f5f9', backgroundImage: 'url(https://images.unsplash.com/photo-1505740420928-5e560c06d30e?auto=format&fit=crop&w=300&q=80)', backgroundSize: 'cover', backgroundPosition: 'center' }} />
+                    <div style={{ fontSize: '0.62rem', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>Fone Bluetooth</div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '0.68rem', fontWeight: 900, color: '#10b981' }}>R$ 99,90</span>
+                      <span style={{ fontSize: '0.48rem', backgroundColor: '#ecfdf5', color: '#047857', fontWeight: 800, padding: '1px 3px', borderRadius: '3px' }}>Pix</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Botão Flutuante de Comprar no Celular */}
+                <div style={{ padding: '6px 10px 10px 10px', backgroundColor: '#fff', borderTop: '1px solid #f1f5f9' }}>
+                  <div style={{ backgroundColor: '#10b981', color: '#fff', borderRadius: '10px', padding: '8px', textAlign: 'center', fontWeight: 800, fontSize: '0.7rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '5px', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)' }}>
+                    <ShoppingBag size={12} /> Comprar R$ 519,60
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
