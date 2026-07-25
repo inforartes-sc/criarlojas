@@ -40,23 +40,34 @@ export async function processMercadoPagoPaymentAction({
 
     const mpSettings = store.settings?.payment_gateways?.mercadopago
     if (!mpSettings || !mpSettings.active || !mpSettings.access_token) {
-      throw new Error('Gateway do Mercado Pago não está configurado nesta loja.')
+      throw new Error('Gateway do Mercado Pago não está configurado ou ativo nesta loja.')
     }
 
     const accessToken = mpSettings.access_token.trim()
 
+    // Clean up payer information to avoid Mercado Pago 400 validation errors
+    const payerEmail = (customerData?.email || formData?.payer?.email || 'cliente@exemplo.com').trim()
+    const rawName = (customerData?.name || formData?.payer?.first_name || 'Cliente').trim()
+    const nameParts = rawName.split(' ').filter(Boolean)
+    const firstName = nameParts[0] || 'Cliente'
+    const lastName = nameParts.slice(1).join(' ') || 'Consumidor'
+
+    const rawPhone = (customerData?.phone || '').replace(/\D/g, '')
+    const areaCode = rawPhone.length >= 10 ? rawPhone.slice(0, 2) : '11'
+    const phoneNumber = rawPhone.length >= 10 ? rawPhone.slice(2) : '999999999'
+
     // 2. Prepare payload for Mercado Pago /v1/payments
     const paymentPayload: any = {
       transaction_amount: Number(finalTotal.toFixed(2)),
-      description: `Compra na loja ${store.name || 'Virtual'}`,
+      description: `Pedido na loja ${store.name || 'Virtual'}`,
       payment_method_id: formData.payment_method_id,
       payer: {
-        email: customerData.email,
-        first_name: customerData.name.split(' ')[0] || customerData.name,
-        last_name: customerData.name.split(' ').slice(1).join(' ') || '',
+        email: payerEmail,
+        first_name: firstName,
+        last_name: lastName,
         phone: {
-          area_code: customerData.phone.replace(/\D/g, '').slice(0, 2) || '11',
-          number: customerData.phone.replace(/\D/g, '').slice(2) || '999999999'
+          area_code: areaCode,
+          number: phoneNumber
         }
       }
     }
@@ -73,9 +84,15 @@ export async function processMercadoPagoPaymentAction({
       paymentPayload.issuer_id = formData.issuer_id
     }
 
-    if (formData.payer?.identification) {
+    if (formData.payer?.identification?.number) {
       paymentPayload.payer.identification = formData.payer.identification
     }
+
+    console.log('Enviando requisição ao Mercado Pago:', {
+      payment_method_id: formData.payment_method_id,
+      amount: paymentPayload.transaction_amount,
+      payerEmail
+    })
 
     // 3. Make request to Mercado Pago API
     const response = await fetch('https://api.mercadopago.com/v1/payments', {
@@ -91,7 +108,7 @@ export async function processMercadoPagoPaymentAction({
     const result = await response.json()
 
     if (!response.ok) {
-      console.error('Erro no Mercado Pago API:', result)
+      console.error('Erro retornado pela API do Mercado Pago:', result)
       const errorMsg = result.cause?.[0]?.description || result.message || 'Erro ao processar pagamento junto ao Mercado Pago.'
       throw new Error(errorMsg)
     }
@@ -103,41 +120,44 @@ export async function processMercadoPagoPaymentAction({
     } else if (result.status === 'pending' || result.status === 'in_process') {
       statusStr = `pendente (Mercado Pago - ${result.payment_method_id})`
     } else if (result.status === 'rejected') {
-      throw new Error('Pagamento recusado pela operadora do cartão. Verifique os dados e tente novamente.')
+      const rejectReason = result.status_detail ? ` (${result.status_detail})` : ''
+      throw new Error(`Pagamento recusado pela operadora ou Mercado Pago${rejectReason}. Tente novamente.`)
     }
 
-    if (customerData.address) {
+    if (customerData?.address) {
       statusStr += ` | Endereço: ${customerData.address.trim()}`
     }
 
     // 5. Create Customer in DB if needed
     let customerId = null
-    const { data: existingCustomer } = await supabase
-      .from('customers')
-      .select('id')
-      .eq('email', customerData.email.trim())
-      .maybeSingle()
-
-    if (existingCustomer) {
-      customerId = existingCustomer.id
-      await supabase.from('customers').update({
-        name: customerData.name.trim(),
-        phone: customerData.phone.trim()
-      }).eq('id', customerId)
-    } else {
-      const { data: newCustomer, error: customerErr } = await supabase
+    if (payerEmail) {
+      const { data: existingCustomer } = await supabase
         .from('customers')
-        .insert({
-          name: customerData.name.trim(),
-          email: customerData.email.trim(),
-          phone: customerData.phone.trim(),
-          store_id: storeId
-        })
-        .select()
-        .single()
+        .select('id')
+        .eq('email', payerEmail)
+        .maybeSingle()
 
-      if (!customerErr && newCustomer) {
-        customerId = newCustomer.id
+      if (existingCustomer) {
+        customerId = existingCustomer.id
+        await supabase.from('customers').update({
+          name: rawName,
+          phone: customerData?.phone || ''
+        }).eq('id', customerId)
+      } else {
+        const { data: newCustomer, error: customerErr } = await supabase
+          .from('customers')
+          .insert({
+            name: rawName,
+            email: payerEmail,
+            phone: customerData?.phone || '',
+            store_id: storeId
+          })
+          .select()
+          .single()
+
+        if (!customerErr && newCustomer) {
+          customerId = newCustomer.id
+        }
       }
     }
 
@@ -157,14 +177,15 @@ export async function processMercadoPagoPaymentAction({
     if (orderErr) throw new Error(`Erro ao registrar pedido: ${orderErr.message}`)
 
     // 7. Order Items
-    const itemsData = cartItems.map(item => ({
-      order_id: orderObj.id,
-      product_id: item.productId,
-      quantity: item.quantity,
-      price: item.price
-    }))
-
-    await supabase.from('order_items').insert(itemsData)
+    if (cartItems && cartItems.length > 0) {
+      const itemsData = cartItems.map(item => ({
+        order_id: orderObj.id,
+        product_id: item.productId,
+        quantity: item.quantity,
+        price: item.price
+      }))
+      await supabase.from('order_items').insert(itemsData)
+    }
 
     // 8. Coupon usage
     if (appliedCouponCode) {

@@ -378,22 +378,27 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
   }
 
   const handleMercadoPagoSubmit = async (mpFormData: any) => {
-    if (!formData.name.trim() || !formData.email.trim() || !formData.phone.trim() || !formData.street.trim() || !formData.number.trim() || !formData.city.trim() || !formData.state.trim()) {
-      toast.error('Por favor, preencha todos os campos do endereço e contato antes de finalizar.')
-      throw new Error('Campos incompletos')
+    const payerEmail = formData.email.trim() || mpFormData.payer?.email || currentUser?.email || ''
+    const payerName = formData.name.trim() || currentUser?.name || 'Cliente'
+
+    if (!payerEmail) {
+      toast.error('Por favor, informe seu e-mail no campo de contato acima antes de pagar.')
+      throw new Error('E-mail não informado')
     }
 
     setLoading(true)
     try {
-      const fullAddress = `${formData.street}, ${formData.number} ${formData.complement ? `(${formData.complement})` : ''} - ${formData.neighborhood}, ${formData.city}/${formData.state}`
+      const fullAddress = formData.street 
+        ? `${formData.street}, ${formData.number || 'S/N'} ${formData.complement ? `(${formData.complement})` : ''} - ${formData.neighborhood || ''}, ${formData.city || ''}/${formData.state || ''}`
+        : 'A combinar / Retirada'
 
       const result = await processMercadoPagoPaymentAction({
         storeId: store?.id,
         formData: mpFormData,
         customerData: {
-          name: formData.name.trim(),
-          email: formData.email.trim(),
-          phone: formData.phone.trim(),
+          name: payerName,
+          email: payerEmail,
+          phone: formData.phone.trim() || currentUser?.phone || '',
           address: fullAddress
         },
         finalTotal,
@@ -403,6 +408,7 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
       })
 
       if (!result.success) {
+        toast.error(result.error || 'Erro ao processar pagamento.')
         throw new Error(result.error)
       }
 

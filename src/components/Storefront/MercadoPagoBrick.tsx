@@ -26,7 +26,6 @@ export default function MercadoPagoBrick({
   maxInstallments = 12,
   onPaymentSubmit
 }: MercadoPagoBrickProps) {
-  const [sdkLoaded, setSdkLoaded] = useState(false)
   const [loading, setLoading] = useState(true)
   const brickMountedRef = useRef(false)
 
@@ -58,15 +57,20 @@ export default function MercadoPagoBrick({
             onReady: () => {
               setLoading(false)
             },
-            onSubmit: async ({ selectedPaymentMethod, formData }: any) => {
+            onSubmit: ({ selectedPaymentMethod, formData }: any) => {
               return new Promise<void>((resolve, reject) => {
                 onPaymentSubmit(formData)
-                  .then(() => resolve())
-                  .catch((err) => reject(err))
+                  .then(() => {
+                    resolve()
+                  })
+                  .catch((err) => {
+                    console.error('Mercado Pago Brick Submit Error:', err)
+                    reject(err)
+                  })
               })
             },
             onError: (error: any) => {
-              console.error('Mercado Pago Brick Error:', error)
+              console.error('Mercado Pago Brick Internal Error:', error)
             }
           }
         }
@@ -87,7 +91,6 @@ export default function MercadoPagoBrick({
 
   useEffect(() => {
     if (window.MercadoPago) {
-      setSdkLoaded(true)
       initBrick()
     }
   }, [])
@@ -97,7 +100,6 @@ export default function MercadoPagoBrick({
       <Script
         src="https://sdk.mercadopago.com/js/v2"
         onLoad={() => {
-          setSdkLoaded(true)
           initBrick()
         }}
       />
