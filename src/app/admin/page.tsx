@@ -369,10 +369,10 @@ export default function AdminDashboard() {
           </div>
           
           <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch', marginTop: 'auto' }}>
-            <div style={{ height: '240px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', padding: '1rem 1rem 0 1rem', position: 'relative', minWidth: '460px' }}>
+            <div style={{ height: '250px', display: 'flex', alignItems: 'flex-end', justifyContent: 'space-around', padding: '2.75rem 1rem 0 1rem', position: 'relative', minWidth: '460px' }}>
               {calcStats.chartValues.map((val, i) => {
                 const maxVal = Math.max(...calcStats.chartValues, 100)
-                const heightPx = val === 0 ? 8 : Math.max((val / maxVal) * 190, 28)
+                const heightPx = val === 0 ? 8 : Math.max((val / maxVal) * 155, 24)
                 const label = calcStats.chartLabels[i] || ''
 
                 return (
@@ -385,7 +385,7 @@ export default function AdminDashboard() {
                       position: 'relative',
                       transition: 'height 0.5s ease, background 0.5s ease'
                     }}>
-                       <div style={{ position: 'absolute', top: '-25px', left: '50%', transform: 'translateX(-50%)', fontSize: '0.7rem', fontWeight: 800, color: val > 0 ? 'var(--primary)' : '#94a3b8', whiteSpace: 'nowrap' }}>
+                       <div style={{ position: 'absolute', top: '-24px', left: '50%', transform: 'translateX(-50%)', fontSize: '0.75rem', fontWeight: 800, color: val > 0 ? 'var(--primary)' : '#94a3b8', whiteSpace: 'nowrap' }}>
                          R$ {val.toFixed(0)}
                        </div>
                     </div>
