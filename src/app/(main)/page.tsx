@@ -969,7 +969,7 @@ export default function SaaSCommercialPortal() {
                 zIndex: 10,
                 display: 'flex',
                 alignItems: 'center',
-                justify: 'flex-end',
+                justifyContent: 'flex-end',
                 paddingRight: '8px'
               }}>
                 <div style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#1e293b' }} />
