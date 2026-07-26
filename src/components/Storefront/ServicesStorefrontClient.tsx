@@ -106,6 +106,17 @@ export default function ServicesStorefrontClient({
   // Read category filter from URL
   const urlCategoryFilter = (resolvedSearchParams?.category as string) || ''
   const [selectedCategory, setSelectedCategory] = useState(urlCategoryFilter)
+  const [homePath, setHomePath] = useState('')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname
+      const segments = path.split('/').filter(Boolean)
+      if (segments.length >= 2 && (segments[0] === 'stores' || segments[0] === 'modelos')) {
+        setHomePath(`/${segments[0]}/${segments[1]}`)
+      }
+    }
+  }, [])
 
   // Service Lead Form State
   const [leadFormData, setLeadFormData] = useState({
@@ -134,10 +145,19 @@ export default function ServicesStorefrontClient({
   const themeMode = settings.theme_mode || 'light'
   const isDark = themeMode === 'dark' || layoutModel === 'tech'
 
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   // Hero Carousel Logic
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(true)
-  const banners = settings.hero_banners && settings.hero_banners.length > 0 
+  const rawBanners = settings.hero_banners && settings.hero_banners.length > 0 
     ? settings.hero_banners 
     : [{
         id: 'default',
@@ -146,6 +166,26 @@ export default function ServicesStorefrontClient({
         title: settings.hero_title || 'Climatização Inteligente. Alta Performance.',
         subtitle: settings.hero_subtitle || 'Elevamos a qualidade do seu ar e o conforto dos seus ambientes através de projetos de climatização de ponta e assistência técnica premium.'
       }]
+
+  const banners = rawBanners.map((b: any) => {
+    const mobile_url = b.mobile_url || b.mobile_image_url || b.hero_image_mobile_url || b.image_mobile_url || settings.hero_image_mobile_url || b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url
+    const desktop_url = b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url
+    return {
+      ...b,
+      desktop_url: desktop_url || '/hero_smart_space.png',
+      mobile_url: mobile_url || desktop_url || '/hero_smart_space.png',
+    }
+  })
+
+  const getBannerUrl = (banner: any) => {
+    if (!banner) return ''
+    if (isMobile && banner.mobile_url) return banner.mobile_url
+    return banner.desktop_url || banner.mobile_url
+  }
+
+  const activeDotIndex = currentBannerIndex % banners.length
+  const currentBanner = banners[activeDotIndex] || banners[0]
+  const currentBannerUrl = getBannerUrl(currentBanner)
 
   const transitionEffect = settings.hero_transition_effect || 'fade'
 
@@ -177,13 +217,10 @@ export default function ServicesStorefrontClient({
     }
   }, [isTransitioning, currentBannerIndex])
 
-  const activeDotIndex = currentBannerIndex % banners.length
-  const currentBanner = banners[activeDotIndex] || banners[0]
   const heroTitleColor = settings.hero_title_color || (isDark ? '#ffffff' : '#111111')
   const heroSubtitleColor = settings.hero_subtitle_color || (isDark ? '#94a3b8' : '#555555')
   const splitBgColor = settings.hero_bg_color || (isDark ? '#0f172a' : '#f8fafc')
   const showHeroText = settings.show_hero_text !== false
-  const currentBannerUrl = currentBanner.desktop_url || '/hero_smart_space.png'
 
   // Helper to convert hex to RGBA
   const hexToRgba = (hex: string, alpha: number) => {
@@ -432,6 +469,46 @@ export default function ServicesStorefrontClient({
             gap: 1.25rem;
           }
         }
+        @media (max-width: 768px) {
+          #home {
+            min-height: auto !important;
+            height: auto !important;
+            padding: 2.5rem 1.25rem !important;
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+          }
+          .services-hero-left, .services-hero-full {
+            min-height: auto !important;
+            height: auto !important;
+            padding: 3rem 1.25rem !important;
+          }
+          .hero-title, h1.hero-title, h2.hero-title {
+            font-size: clamp(1.5rem, 6.5vw, 2.2rem) !important;
+            line-height: 1.25 !important;
+            margin-bottom: 0.85rem !important;
+            letter-spacing: -0.5px !important;
+          }
+          .hero-description {
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+            margin-bottom: 1.5rem !important;
+          }
+          .section-title {
+            font-size: clamp(1.25rem, 5.5vw, 1.45rem) !important;
+            line-height: 1.25 !important;
+            letter-spacing: -0.5px !important;
+          }
+          .hero-split-img {
+            display: flex !important;
+            width: 100% !important;
+            margin-top: 1rem !important;
+          }
+          .hero-split-img > div {
+            height: 250px !important;
+            width: 100% !important;
+            border-radius: 16px !important;
+          }
+        }
         @media (max-width: 480px) {
           .products-grid-4col {
             grid-template-columns: 1fr;
@@ -512,9 +589,7 @@ export default function ServicesStorefrontClient({
                     transition: isTransitioning ? 'transform 0.5s ease-in-out' : 'none'
                   }}>
                     {[...banners, banners[0]].map((banner: any, idx: number) => {
-                      const bannerUrl = typeof window !== 'undefined' && window.innerWidth <= 768 && banner.mobile_url 
-                        ? banner.mobile_url 
-                        : (banner.desktop_url || '/hero_smart_space.png')
+                      const bannerUrl = getBannerUrl(banner)
                       return (
                         <div 
                           key={idx} 
@@ -583,9 +658,7 @@ export default function ServicesStorefrontClient({
                 zIndex: 1
               }}>
                 {[...banners, banners[0]].map((banner: any, idx: number) => {
-                  const bannerUrl = typeof window !== 'undefined' && window.innerWidth <= 768 && banner.mobile_url 
-                    ? banner.mobile_url 
-                    : (banner.desktop_url || '/hero_smart_space.png')
+                  const bannerUrl = getBannerUrl(banner)
                   return (
                     <div 
                       key={idx} 
@@ -660,9 +733,7 @@ export default function ServicesStorefrontClient({
                 zIndex: 1
               }}>
                 {[...banners, banners[0]].map((banner: any, idx: number) => {
-                  const bannerUrl = typeof window !== 'undefined' && window.innerWidth <= 768 && banner.mobile_url 
-                    ? banner.mobile_url 
-                    : (banner.desktop_url || '/hero_smart_space.png')
+                  const bannerUrl = getBannerUrl(banner)
                   return (
                     <div 
                       key={idx} 
@@ -979,7 +1050,7 @@ export default function ServicesStorefrontClient({
             {filteredProducts.length > 0 && (
               <div style={{ textAlign: 'center', marginTop: '3.5rem' }}>
                 <a
-                  href="/produtos"
+                  href={`${homePath}/produtos`}
                   style={{
                     display: 'inline-flex',
                     alignItems: 'center',

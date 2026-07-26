@@ -6,6 +6,17 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 export default function FeaturedCarousel({ products, primaryColor }: { products: any[], primaryColor: string }) {
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [homePath, setHomePath] = useState('')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname
+      const segments = path.split('/').filter(Boolean)
+      if (segments.length >= 2 && (segments[0] === 'stores' || segments[0] === 'modelos')) {
+        setHomePath(`/${segments[0]}/${segments[1]}`)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -21,53 +32,62 @@ export default function FeaturedCarousel({ products, primaryColor }: { products:
   if (!products || products.length === 0) return null
 
   return (
-    <div className="carousel-root" style={{ width: '100%', position: 'relative' }}>
+    <div className="carousel-root" style={{ width: '100%', maxWidth: '100%', minWidth: 0, position: 'relative', overflow: 'hidden' }}>
       <div className="carousel-main" style={{ 
         width: '100%', 
-        aspectRatio: '1/1', 
-        borderRadius: '24px', 
+        maxWidth: '100%',
+        minWidth: 0,
         overflow: 'hidden', 
-        position: 'relative',
-        boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
-        border: `3px solid ${primaryColor}22`
+        position: 'relative'
       }}>
         <div style={{
           display: 'flex',
           width: `${products.length * 100}%`,
-          height: '100%',
           transform: `translateX(-${currentIndex * (100 / products.length)}%)`,
           transition: 'transform 0.6s cubic-bezier(0.16, 1, 0.3, 1)'
         }}>
           {products.map((product) => (
             <Link 
               key={product.id} 
-              href={`/product/${product.slug}`}
+              href={`${homePath}/product/${product.slug}`}
               style={{
                 width: `${100 / products.length}%`,
-                height: '100%',
                 display: 'block',
-                position: 'relative',
                 flexShrink: 0,
-                textDecoration: 'none'
+                textDecoration: 'none',
+                padding: '2px'
               }}
             >
-              <img 
-                src={product.images?.[0]} 
-                alt={product.name}
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-              />
-              
-              {/* Overlay com nome do produto na base - Estilo Glassmorphism Premium */}
-              <div className="glass-featured-badge" style={{
-                position: 'absolute',
-                bottom: '20px',
-                left: '20px',
-                right: '20px',
-                padding: '1.25rem 1.5rem',
-                borderRadius: '16px'
+              {/* Moldura da Imagem com proporção perfeita 1:1 sem esticar */}
+              <div style={{
+                width: '100%',
+                aspectRatio: '1/1',
+                maxHeight: '420px',
+                borderRadius: '24px',
+                overflow: 'hidden',
+                position: 'relative',
+                boxShadow: '0 12px 30px rgba(0, 0, 0, 0.08)',
+                border: '1px solid rgba(0, 0, 0, 0.06)'
               }}>
-                <h4 className="glass-featured-title" style={{ fontSize: '1.2rem', fontWeight: 900, margin: 0 }}>{product.name}</h4>
-                <p style={{ fontSize: '0.8rem', fontWeight: 700, color: primaryColor, marginTop: '0.25rem', textTransform: 'uppercase', letterSpacing: '1px' }}>Ver detalhes →</p>
+                <img 
+                  src={product.images?.[0]} 
+                  alt={product.name}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+              </div>
+              
+              {/* Apenas o Texto abaixo da Imagem (Sem Fundo) */}
+              <div style={{
+                marginTop: '1.2rem',
+                padding: '0 0.5rem',
+                textAlign: 'left'
+              }}>
+                <h4 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'inherit', lineHeight: 1.3 }}>
+                  {product.name}
+                </h4>
+                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: primaryColor, marginTop: '0.4rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  Ver detalhes →
+                </div>
               </div>
             </Link>
           ))}
@@ -75,7 +95,7 @@ export default function FeaturedCarousel({ products, primaryColor }: { products:
       </div>
 
       {/* Controles de Navegação */}
-      <div style={{ display: 'flex', gap: '1rem', marginTop: '2rem', alignItems: 'center' }}>
+      <div style={{ display: 'flex', gap: '1rem', marginTop: '1.5rem', alignItems: 'center', justifyContent: 'center' }}>
         <button onClick={prev} className="nav-btn"><ChevronLeft size={20} /></button>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           {products.map((_: any, i: number) => (
@@ -97,19 +117,6 @@ export default function FeaturedCarousel({ products, primaryColor }: { products:
       </div>
 
       <style>{`
-        .carousel-main {
-          box-shadow: 0 20px 45px rgba(0, 0, 0, 0.08), 0 0 30px ${primaryColor}15 !important;
-        }
-        .glass-featured-badge {
-          background: rgba(255, 255, 255, 0.85);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1px solid rgba(255, 255, 255, 0.5);
-          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        }
-        .glass-featured-title {
-          color: #0f172a;
-        }
         .nav-btn {
           background: white;
           border: 1px solid #eee;

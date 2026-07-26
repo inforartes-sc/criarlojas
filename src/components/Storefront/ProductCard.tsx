@@ -31,6 +31,17 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
   const [isCardHovered, setIsCardHovered] = useState(false)
   const [isFavorited, setIsFavorited] = useState(false)
   const [reviewsData, setReviewsData] = useState<{ average: number, count: number } | null>(null)
+  const [homePath, setHomePath] = useState('')
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const path = window.location.pathname
+      const segments = path.split('/').filter(Boolean)
+      if (segments.length >= 2 && (segments[0] === 'stores' || segments[0] === 'modelos')) {
+        setHomePath(`/${segments[0]}/${segments[1]}`)
+      }
+    }
+  }, [])
 
   useEffect(() => {
     async function loadReviewsCount() {
@@ -216,7 +227,7 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
         }
       `}</style>
       <div className="product-card-wrapper" style={{ display: 'flex', flexDirection: 'column', textAlign: 'center', height: '100%' }}>
-        <Link href={`/product/${product.slug}`} style={{ textDecoration: 'none', color: isDark ? '#fff' : 'inherit', flex: 1, display: 'flex', flexDirection: 'column' }}>
+        <Link href={`${homePath}/product/${product.slug}`} style={{ textDecoration: 'none', color: isDark ? '#fff' : 'inherit', flex: 1, display: 'flex', flexDirection: 'column' }}>
           <div 
             onMouseEnter={() => setIsCardHovered(true)}
             onMouseLeave={() => setIsCardHovered(false)}

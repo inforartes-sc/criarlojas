@@ -85,8 +85,8 @@ export default function CartClient({ store, categories }: CartClientProps) {
       const path = window.location.pathname
       const segments = path.split('/').filter(Boolean)
       let baseHome = '/'
-      if (segments.length >= 2 && segments[0] === 'stores') {
-        baseHome = `/stores/${segments[1]}`
+      if (segments.length >= 2 && (segments[0] === 'stores' || segments[0] === 'modelos')) {
+        baseHome = `/${segments[0]}/${segments[1]}`
       }
       setHomePath(baseHome)
     }
@@ -409,7 +409,7 @@ export default function CartClient({ store, categories }: CartClientProps) {
                 </button>
               ) : (
                 <Link 
-                  href="/checkout" 
+                  href={`${homePath === '/' ? '' : homePath}/checkout`} 
                   style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', padding: '1.4rem', backgroundColor: primaryColor, color: '#fff', textDecoration: 'none', borderRadius: '16px', fontWeight: 900, fontSize: '1.1rem', textTransform: 'uppercase', letterSpacing: '1px', boxShadow: `0 10px 25px ${primaryColor}40`, transition: 'all 0.2s ease', textAlign: 'center' }}
                 >
                   Prosseguir para Checkout <ArrowRight size={22} />

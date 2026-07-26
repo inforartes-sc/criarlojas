@@ -97,13 +97,13 @@ export default function StoreHeader({ store, settings, primaryColor, categories,
       const segments = path.split('/').filter(Boolean)
       const isHome = 
         segments.length === 0 || 
-        (segments.length === 2 && segments[0] === 'stores')
+        (segments.length === 2 && (segments[0] === 'stores' || segments[0] === 'modelos'))
       
       setIsHomePage(isHome)
       
       let baseHome = '/'
-      if (segments.length >= 2 && segments[0] === 'stores') {
-        baseHome = `/stores/${segments[1]}`
+      if (segments.length >= 2 && (segments[0] === 'stores' || segments[0] === 'modelos')) {
+        baseHome = `/${segments[0]}/${segments[1]}`
       }
       setHomePath(baseHome)
     }
@@ -441,20 +441,20 @@ export default function StoreHeader({ store, settings, primaryColor, categories,
             .store-logo-container {
               flex-shrink: 1 !important;
               min-width: 0 !important;
-              max-width: 55% !important;
+              max-width: 70% !important;
             }
             .store-logo-img {
-              height: 28px !important;
+              height: 32px !important;
               width: auto !important;
-              max-width: 110px !important;
+              max-width: 160px !important;
               object-fit: contain !important;
             }
             .store-logo-text {
-              font-size: 0.9rem !important;
+              font-size: clamp(0.9rem, 3.8vw, 1.25rem) !important;
               white-space: nowrap !important;
-              overflow: hidden !important;
-              text-overflow: ellipsis !important;
-              max-width: 130px !important;
+              overflow: visible !important;
+              text-overflow: clip !important;
+              max-width: none !important;
             }
           }
           @media (min-width: 769px) {
@@ -555,20 +555,20 @@ export default function StoreHeader({ store, settings, primaryColor, categories,
             .store-logo-container {
               flex-shrink: 1 !important;
               min-width: 0 !important;
-              max-width: 55% !important;
+              max-width: 70% !important;
             }
             .store-logo-img {
-              height: 28px !important;
+              height: 32px !important;
               width: auto !important;
-              max-width: 110px !important;
+              max-width: 160px !important;
               object-fit: contain !important;
             }
             .store-logo-text {
-              font-size: 0.9rem !important;
+              font-size: clamp(0.9rem, 3.8vw, 1.25rem) !important;
               white-space: nowrap !important;
-              overflow: hidden !important;
-              text-overflow: ellipsis !important;
-              max-width: 130px !important;
+              overflow: visible !important;
+              text-overflow: clip !important;
+              max-width: none !important;
             }
           }
           @media (min-width: 769px) {
@@ -676,20 +676,20 @@ export default function StoreHeader({ store, settings, primaryColor, categories,
             .store-logo-container {
               flex-shrink: 1 !important;
               min-width: 0 !important;
-              max-width: 55% !important;
+              max-width: 70% !important;
             }
             .store-logo-img {
-              height: 28px !important;
+              height: 32px !important;
               width: auto !important;
-              max-width: 110px !important;
+              max-width: 160px !important;
               object-fit: contain !important;
             }
             .store-logo-text {
-              font-size: 0.9rem !important;
+              font-size: clamp(0.9rem, 3.8vw, 1.25rem) !important;
               white-space: nowrap !important;
-              overflow: hidden !important;
-              text-overflow: ellipsis !important;
-              max-width: 130px !important;
+              overflow: visible !important;
+              text-overflow: clip !important;
+              max-width: none !important;
             }
           }
           @media (min-width: 769px) {
@@ -790,20 +790,20 @@ export default function StoreHeader({ store, settings, primaryColor, categories,
             .store-logo-container {
               flex-shrink: 1 !important;
               min-width: 0 !important;
-              max-width: 55% !important;
+              max-width: 70% !important;
             }
             .store-logo-img {
-              height: 28px !important;
+              height: 32px !important;
               width: auto !important;
-              max-width: 110px !important;
+              max-width: 160px !important;
               object-fit: contain !important;
             }
             .store-logo-text {
-              font-size: 0.9rem !important;
+              font-size: clamp(0.9rem, 3.8vw, 1.25rem) !important;
               white-space: nowrap !important;
-              overflow: hidden !important;
-              text-overflow: ellipsis !important;
-              max-width: 130px !important;
+              overflow: visible !important;
+              text-overflow: clip !important;
+              max-width: none !important;
             }
           }
           @media (min-width: 769px) {
@@ -941,20 +941,20 @@ export default function StoreHeader({ store, settings, primaryColor, categories,
           .store-logo-container {
             flex-shrink: 1 !important;
             min-width: 0 !important;
-            max-width: 55% !important;
+            max-width: 70% !important;
           }
           .store-logo-img {
-            height: 28px !important;
+            height: 32px !important;
             width: auto !important;
-            max-width: 110px !important;
+            max-width: 160px !important;
             object-fit: contain !important;
           }
           .store-logo-text {
-            font-size: 0.9rem !important;
+            font-size: clamp(0.9rem, 3.8vw, 1.25rem) !important;
             white-space: nowrap !important;
-            overflow: hidden !important;
-            text-overflow: ellipsis !important;
-            max-width: 130px !important;
+            overflow: visible !important;
+            text-overflow: clip !important;
+            max-width: none !important;
           }
         }
         @media (min-width: 769px) {
@@ -1300,7 +1300,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories,
                 </div>
                 <div style={{ display: 'grid', gap: '0.75rem' }}>
                   <Link 
-                    href="/cart" 
+                    href={`${homePath === '/' ? '' : homePath}/cart`} 
                     onClick={() => setIsCartOpen(false)}
                     style={{ 
                       display: 'flex', 
@@ -1346,7 +1346,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories,
                     </button>
                   ) : (
                     <Link 
-                      href="/checkout" 
+                      href={`${homePath === '/' ? '' : homePath}/checkout`} 
                       onClick={() => setIsCartOpen(false)}
                       style={{ 
                         display: 'flex', 
@@ -1396,7 +1396,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories,
                 <div key={item.productId} style={{ display: 'flex', gap: '1rem', alignItems: 'center', borderBottom: '1px solid #f5f5f5', paddingBottom: '1.5rem' }}>
                   <div style={{ width: '70px', height: '70px', borderRadius: '8px', backgroundColor: '#f5f5f5', backgroundImage: `url(${item.image})`, backgroundSize: 'cover', backgroundPosition: 'center', flexShrink: 0 }} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <Link href={`/product/${item.slug}`} onClick={() => setIsFavoritesOpen(false)} style={{ textDecoration: 'none' }}>
+                    <Link href={`${homePath === '/' ? '' : homePath}/product/${item.slug}`} onClick={() => setIsFavoritesOpen(false)} style={{ textDecoration: 'none' }}>
                       <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '0.95rem', fontWeight: 700, color: '#111', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</h4>
                     </Link>
                     <span style={{ fontWeight: 800, color: primaryColor, fontSize: '0.95rem' }}>

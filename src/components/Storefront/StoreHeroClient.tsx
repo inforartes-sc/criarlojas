@@ -16,7 +16,18 @@ export default function StoreHeroClient({
   heroBgColor 
 }: any) {
   
-  const banners = settings.hero_banners && settings.hero_banners.length > 0 
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  const rawBanners = settings.hero_banners && settings.hero_banners.length > 0 
     ? settings.hero_banners 
     : [
         {
@@ -28,6 +39,16 @@ export default function StoreHeroClient({
           button_url: '?view=produtos'
         }
       ]
+
+  const banners = rawBanners.map((b: any) => {
+    const mobile_url = b.mobile_url || b.mobile_image_url || b.hero_image_mobile_url || b.image_mobile_url || settings.hero_image_mobile_url || b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url
+    const desktop_url = b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url
+    return {
+      ...b,
+      desktop_url: desktop_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200',
+      mobile_url: mobile_url || desktop_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200',
+    }
+  })
 
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(true)
@@ -60,18 +81,74 @@ export default function StoreHeroClient({
     }
   }, [isTransitioning, currentBannerIndex])
 
+  const getBannerUrl = (banner: any) => {
+    if (!banner) return ''
+    if (isMobile && banner.mobile_url) return banner.mobile_url
+    return banner.desktop_url || banner.mobile_url
+  }
+
   const activeDotIndex = currentBannerIndex % banners.length
   const currentBanner = banners[activeDotIndex] || banners[0]
-  const currentBannerUrl = typeof window !== 'undefined' && window.innerWidth <= 768 && currentBanner.mobile_url 
-    ? currentBanner.mobile_url 
-    : (currentBanner.desktop_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200')
+  const currentBannerUrl = getBannerUrl(currentBanner)
 
   const transitionEffect = settings.hero_transition_effect || 'fade'
 
   return (
     <>
+      <style>{`
+        @media (max-width: 768px) {
+          .hero-split-section {
+            min-height: auto !important;
+            padding: 2rem 1.25rem !important;
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+          }
+          .hero-left {
+            min-height: auto !important;
+            height: auto !important;
+            padding: 3rem 1.25rem !important;
+          }
+          .hero-full {
+            min-height: auto !important;
+            height: auto !important;
+            padding: 3.5rem 1.25rem !important;
+          }
+          .hero-minimalist {
+            min-height: auto !important;
+            height: auto !important;
+            padding: 2.5rem 1.25rem !important;
+          }
+          .hero-title-responsive {
+            font-size: clamp(1.5rem, 6.5vw, 2.2rem) !important;
+            line-height: 1.25 !important;
+            margin-bottom: 0.85rem !important;
+            letter-spacing: -0.5px !important;
+          }
+          .hero-subtitle-responsive {
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+            margin-bottom: 1.5rem !important;
+            max-width: 100% !important;
+          }
+          .hero-split-img {
+            display: flex !important;
+            width: 100% !important;
+            margin-top: 1rem !important;
+          }
+          .hero-split-img-card {
+            height: 250px !important;
+            width: 100% !important;
+            border-radius: 16px !important;
+          }
+          .btn-hero-responsive {
+            padding: 0.85rem 2rem !important;
+            font-size: 0.8rem !important;
+          }
+        }
+      `}</style>
+
       {heroStyle === 'split' ? (
-        <section style={{ 
+        <section className="hero-split-section" style={{ 
           minHeight: '80vh', 
           display: 'grid', 
           gridTemplateColumns: showHeroText ? '1.2fr 0.8fr' : '1fr', 
@@ -84,14 +161,14 @@ export default function StoreHeroClient({
         }}>
           {showHeroText && (
             <div style={{ maxWidth: '650px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', margin: '0 auto' }}>
-              <h2 style={{ fontSize: '4.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', color: heroTitleColor, letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
+              <h2 className="hero-title-responsive" style={{ fontSize: '4.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', color: heroTitleColor, letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
                 {currentBanner.title}
               </h2>
-              <p style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6, transition: 'all 0.3s ease' }}>
+              <p className="hero-subtitle-responsive" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6, transition: 'all 0.3s ease' }}>
                 {currentBanner.subtitle}
               </p>
               <div>
-                <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic" style={{ 
+                <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic btn-hero-responsive" style={{ 
                   display: 'inline-block',
                   padding: '1.2rem 3rem',
                   textDecoration: 'none',
@@ -134,9 +211,7 @@ export default function StoreHeroClient({
                   transition: isTransitioning ? 'transform 0.5s ease-in-out' : 'none'
                 }}>
                   {[...banners, banners[0]].map((banner: any, idx: number) => {
-                    const bannerUrl = typeof window !== 'undefined' && window.innerWidth <= 768 && banner.mobile_url 
-                      ? banner.mobile_url 
-                      : (banner.desktop_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200')
+                    const bannerUrl = getBannerUrl(banner)
                     return (
                       <div 
                         key={idx} 
@@ -193,9 +268,7 @@ export default function StoreHeroClient({
               zIndex: 1
             }}>
               {[...banners, banners[0]].map((banner: any, idx: number) => {
-                const bannerUrl = typeof window !== 'undefined' && window.innerWidth <= 768 && banner.mobile_url 
-                  ? banner.mobile_url 
-                  : (banner.desktop_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200')
+                const bannerUrl = getBannerUrl(banner)
                 return (
                   <div 
                     key={idx} 
@@ -213,13 +286,13 @@ export default function StoreHeroClient({
           )}
           {showHeroText && (
             <div style={{ maxWidth: '600px', textAlign: 'left', zIndex: 2 }}>
-              <h2 className="hero-title-lg" style={{ fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', color: heroTitleColor, letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
+              <h2 className="hero-title-responsive hero-title-lg" style={{ fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', color: heroTitleColor, letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
                 {currentBanner.title}
               </h2>
-              <p className="hero-subtitle" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6, transition: 'all 0.3s ease' }}>
+              <p className="hero-subtitle-responsive hero-subtitle" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6, transition: 'all 0.3s ease' }}>
                 {currentBanner.subtitle}
               </p>
-              <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic" style={{ 
+              <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic btn-hero-responsive" style={{ 
                  display: 'inline-block', padding: '1.2rem 3rem', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 800, borderRadius: buttonRadius, textTransform: 'uppercase', letterSpacing: '1px'
               }}>
                 {currentBanner.button_text || 'SAIBA MAIS'}
@@ -251,13 +324,13 @@ export default function StoreHeroClient({
         }}>
           {showHeroText && (
             <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
-              <h2 className="hero-title-md" style={{ fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: heroTitleColor, letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
+              <h2 className="hero-title-responsive hero-title-md" style={{ fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: heroTitleColor, letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
                 {currentBanner.title}
               </h2>
-              <p className="hero-subtitle" style={{ fontSize: '1.2rem', color: heroSubtitleColor, marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '650px', transition: 'all 0.3s ease' }}>
+              <p className="hero-subtitle-responsive hero-subtitle" style={{ fontSize: '1.2rem', color: heroSubtitleColor, marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '650px', transition: 'all 0.3s ease' }}>
                 {currentBanner.subtitle}
               </p>
-              <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic" style={{ 
+              <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic btn-hero-responsive" style={{ 
                 display: 'inline-block', padding: '1.2rem 3rem', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 800, borderRadius: buttonRadius, textTransform: 'uppercase', letterSpacing: '1px'
               }}>
                 {currentBanner.button_text || 'SAIBA MAIS'}
@@ -302,9 +375,7 @@ export default function StoreHeroClient({
               zIndex: 1
             }}>
               {[...banners, banners[0]].map((banner: any, idx: number) => {
-                const bannerUrl = typeof window !== 'undefined' && window.innerWidth <= 768 && banner.mobile_url 
-                  ? banner.mobile_url 
-                  : (banner.desktop_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200')
+                const bannerUrl = getBannerUrl(banner)
                 return (
                   <div 
                     key={idx} 
@@ -322,13 +393,13 @@ export default function StoreHeroClient({
           )}
           {showHeroText && (
             <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
-              <h2 className="hero-title-lg" style={{ fontSize: '4.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: heroTitleColor, letterSpacing: '-2px', textShadow: '0 4px 12px rgba(0,0,0,0.3)', transition: 'all 0.3s ease' }}>
+              <h2 className="hero-title-responsive hero-title-lg" style={{ fontSize: '4.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: heroTitleColor, letterSpacing: '-2px', textShadow: '0 4px 12px rgba(0,0,0,0.3)', transition: 'all 0.3s ease' }}>
                 {currentBanner.title}
               </h2>
-              <p className="hero-subtitle" style={{ fontSize: '1.25rem', color: heroSubtitleColor, marginBottom: '2.5rem', lineHeight: 1.6, textShadow: '0 2px 8px rgba(0,0,0,0.2)', transition: 'all 0.3s ease' }}>
+              <p className="hero-subtitle-responsive hero-subtitle" style={{ fontSize: '1.25rem', color: heroSubtitleColor, marginBottom: '2.5rem', lineHeight: 1.6, textShadow: '0 2px 8px rgba(0,0,0,0.2)', transition: 'all 0.3s ease' }}>
                 {currentBanner.subtitle}
               </p>
-              <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic" style={{ 
+              <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic btn-hero-responsive" style={{ 
                 display: 'inline-block', padding: '1.2rem 3rem', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 800, borderRadius: buttonRadius, textTransform: 'uppercase', letterSpacing: '1px', border: '1px solid rgba(255,255,255,0.3)'
               }}>
                 {currentBanner.button_text || 'SAIBA MAIS'}

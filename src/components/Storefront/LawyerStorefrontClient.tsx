@@ -290,10 +290,19 @@ export default function LawyerStorefrontClient({
     }
   ]).map((m: any, i: number) => ({ ...m, id: m.id || i + 1 }))
 
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768)
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
   // Hero Carousel Logic
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(true)
-  const banners = settings.hero_banners && settings.hero_banners.length > 0 
+  const rawBanners = settings.hero_banners && settings.hero_banners.length > 0 
     ? settings.hero_banners 
     : [{
         id: 'default',
@@ -302,6 +311,26 @@ export default function LawyerStorefrontClient({
         title: settings.hero_title || 'Excelência e Solidez Jurídica',
         subtitle: settings.hero_subtitle || 'Prestamos assessoria de alta performance voltada à mitigação de riscos e defesa de direitos com ética, sigilo e foco absoluto em resultados.'
       }]
+
+  const banners = rawBanners.map((b: any) => {
+    const mobile_url = b.mobile_url || b.mobile_image_url || b.hero_image_mobile_url || b.image_mobile_url || settings.hero_image_mobile_url || b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url
+    const desktop_url = b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url
+    return {
+      ...b,
+      desktop_url: desktop_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200',
+      mobile_url: mobile_url || desktop_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200',
+    }
+  })
+
+  const getBannerUrl = (banner: any) => {
+    if (!banner) return ''
+    if (isMobile && banner.mobile_url) return banner.mobile_url
+    return banner.desktop_url || banner.mobile_url
+  }
+
+  const activeDotIndex = currentBannerIndex % banners.length
+  const currentBanner = banners[activeDotIndex] || banners[0]
+  const currentBannerUrl = getBannerUrl(currentBanner)
 
   const transitionEffect = settings.hero_transition_effect || 'fade'
 
@@ -332,10 +361,6 @@ export default function LawyerStorefrontClient({
       return () => clearTimeout(timer)
     }
   }, [isTransitioning, currentBannerIndex])
-
-  const activeDotIndex = currentBannerIndex % banners.length
-  const currentBanner = banners[activeDotIndex] || banners[0]
-  const currentBannerUrl = currentBanner.desktop_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200'
 
   return (
     <div className="lawyer-template" style={{ 
@@ -433,7 +458,39 @@ export default function LawyerStorefrontClient({
           font-weight: 400 !important;
           font-size: 0.95rem !important;
           color: #64748b !important;
-          line-height: 1.4 !important;
+        @media (max-width: 768px) {
+          #home {
+            min-height: auto !important;
+            height: auto !important;
+            padding: 2.5rem 1.25rem !important;
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+          }
+          .lawyer-hero-left, .lawyer-hero-full {
+            min-height: auto !important;
+            height: auto !important;
+            padding: 3rem 1.25rem !important;
+          }
+          #home h1, #home h2 {
+            font-size: clamp(1.5rem, 6.5vw, 2.2rem) !important;
+            line-height: 1.25 !important;
+            margin-bottom: 0.85rem !important;
+            letter-spacing: -0.5px !important;
+          }
+          #home p {
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+            margin-bottom: 1.5rem !important;
+          }
+          .lawyer-section-title {
+            font-size: clamp(1.25rem, 5.5vw, 1.45rem) !important;
+            line-height: 1.25 !important;
+            letter-spacing: -0.5px !important;
+          }
+          .hero-split-img > div {
+            height: 250px !important;
+            border-radius: 16px !important;
+          }
         }
         @media (max-width: 991px) {
           .lawyer-benefits-section {

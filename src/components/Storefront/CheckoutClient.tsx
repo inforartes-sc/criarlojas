@@ -173,8 +173,8 @@ export default function CheckoutClient({ store, categories }: CheckoutClientProp
       const path = window.location.pathname
       const segments = path.split('/').filter(Boolean)
       let baseHome = '/'
-      if (segments.length >= 2 && segments[0] === 'stores') {
-        baseHome = `/stores/${segments[1]}`
+      if (segments.length >= 2 && (segments[0] === 'stores' || segments[0] === 'modelos')) {
+        baseHome = `/${segments[0]}/${segments[1]}`
       }
       setHomePath(baseHome)
     }

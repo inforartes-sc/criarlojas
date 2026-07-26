@@ -324,6 +324,12 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
           grid-template-columns: 1fr 500px;
           gap: 4rem;
           align-items: center;
+          width: 100%;
+          min-width: 0;
+        }
+        .featured-two-col > div {
+          min-width: 0;
+          width: 100%;
         }
 
         /* Section padding padrão */
@@ -355,6 +361,26 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
         }
 
         @media (max-width: 768px) {
+          .hero-title-lg, .hero-title-md, .hero-title, h1.hero-title, h2.hero-title {
+            font-size: clamp(1.5rem, 6.5vw, 2.2rem) !important;
+            line-height: 1.25 !important;
+            margin-bottom: 0.85rem !important;
+            letter-spacing: -0.5px !important;
+          }
+          .hero-subtitle, .hero-description {
+            font-size: 0.95rem !important;
+            line-height: 1.5 !important;
+            margin-bottom: 1.5rem !important;
+          }
+          .hero-full, .hero-left, .hero-minimalist {
+            height: auto !important;
+            min-height: auto !important;
+            padding: 3rem 1.25rem !important;
+          }
+          .section-title-lg, .section-title-md, .premium-title, .campaign-title {
+            font-size: 1.75rem !important;
+          }
+
           ${settings.hero_image_mobile_url ? `
             .hero-full {
               background-image: ${showHeroText ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${settings.hero_image_mobile_url})` : `url(${settings.hero_image_mobile_url})`} !important;
@@ -387,13 +413,36 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
             gap: 2rem !important;
           }
 
-          /* Ocultar imagem do hero split no mobile */
-          .hero-split-img { display: none !important; }
+          /* Imagem do hero split visível e responsiva no mobile */
+          .hero-split-img {
+            display: flex !important;
+            width: 100% !important;
+            margin-top: 1rem !important;
+          }
+          .hero-split-img-card {
+            height: 250px !important;
+            width: 100% !important;
+            border-radius: 16px !important;
+          }
 
           /* Featured 2 cols → 1 col */
           .featured-two-col {
             grid-template-columns: 1fr !important;
             gap: 2rem !important;
+            width: 100% !important;
+            min-width: 0 !important;
+            overflow: hidden !important;
+          }
+          .featured-two-col > div {
+            min-width: 0 !important;
+            width: 100% !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+            box-sizing: border-box !important;
+          }
+          .featured-text-block {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
           }
 
           /* Padding reduzido */
@@ -406,16 +455,14 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
           .hero-minimalist { height: auto !important; min-height: 280px !important; padding: 3rem 1.5rem !important; }
           .hero-left { height: auto !important; min-height: 300px !important; padding: 3rem 1.5rem !important; }
 
-          /* Fontes menores */
-          .hero-title-lg { font-size: 2.2rem !important; letter-spacing: -1px !important; }
-          .hero-title-md { font-size: 2rem !important; letter-spacing: -1px !important; }
-          .section-title-lg { font-size: 2rem !important; letter-spacing: -1px !important; }
-          .section-title-md { font-size: 1.6rem !important; letter-spacing: -0.5px !important; }
-          .premium-title { font-size: 2rem !important; letter-spacing: -1px !important; }
-          .campaign-title { font-size: 2rem !important; letter-spacing: -1px !important; }
-
-          /* Título da seção all products */
-          .all-products-title { font-size: 2rem !important; letter-spacing: -1px !important; }
+          /* Fontes menores para caber em no máximo 2 linhas no mobile */
+          .hero-title-lg { font-size: 2rem !important; letter-spacing: -1px !important; }
+          .hero-title-md { font-size: 1.8rem !important; letter-spacing: -1px !important; }
+          .section-title-lg, .section-title-md, .premium-title, .campaign-title, .all-products-title, .section-title { 
+            font-size: clamp(1.25rem, 5.5vw, 1.45rem) !important; 
+            line-height: 1.25 !important;
+            letter-spacing: -0.5px !important; 
+          }
 
           /* Categorias no Mobile como na imagem (cards de 2 colunas, ícone e texto abaixo) */
           .categories-row {
@@ -621,9 +668,8 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
                   <Star size={24} fill={primaryColor} />
                   <span style={{ fontWeight: 900, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '3px' }}>Exclusivo</span>
                 </div>
-                <h3 style={{ fontSize: '3.5rem', fontWeight: 900, marginBottom: '2rem', lineHeight: 1.1, letterSpacing: '-2px' }}>
-                  Nossa Seleção <br />
-                  <span style={{ color: primaryColor }}>Premium</span>
+                <h3 className="section-title-lg" style={{ fontSize: '3.5rem', fontWeight: 900, marginBottom: '2rem', lineHeight: 1.1, letterSpacing: '-2px' }}>
+                  Nossa Seleção <span style={{ color: primaryColor }}>Premium</span>
                 </h3>
                 <p style={{ fontSize: '1.2rem', color: isDark ? '#cbd5e1' : '#666', lineHeight: 1.8, marginBottom: '3rem', maxWidth: '450px' }}>
                   Descubra itens selecionados para elevar sua experiência. Uma curadoria especial pensada no seu estilo.
