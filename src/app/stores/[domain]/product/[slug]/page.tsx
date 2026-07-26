@@ -446,7 +446,7 @@ export default async function ProductPage({
         <div style={{ marginTop: '6rem' }}>
           <div className="related-products-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '3rem' }}>
             <h2 className="related-products-title" style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '-0.5px', margin: 0, color: isDark ? '#fff' : '#111' }}>Você também pode gostar</h2>
-            <Link href="/?view=produtos" style={{ color: primaryColor, textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem' }}>Ver toda a loja</Link>
+            <Link href={`${homePath === '/' ? '' : homePath}?view=produtos`} style={{ color: primaryColor, textDecoration: 'none', fontWeight: 700, fontSize: '0.9rem' }}>Ver toda a loja</Link>
           </div>
           
           <div className="related-products-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5, minmax(0, 1fr))', gap: '2.5rem' }}>
