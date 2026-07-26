@@ -1406,7 +1406,7 @@ export default function SaaSCommercialPortal() {
                           className="btn-premium-outline"
                           style={{ flex: 1, padding: '0.5rem 0.85rem', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 700, textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem', justifyContent: 'center' }}
                         >
-                          <span>Ver Demo</span>
+                          <span>Ver Modelo</span>
                           <ArrowUpRight size={12} />
                         </a>
                       </div>
