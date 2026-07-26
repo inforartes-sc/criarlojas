@@ -136,7 +136,9 @@ export default function StoreHeroClient({
             margin-top: 1rem !important;
           }
           .hero-split-img-card {
-            height: 250px !important;
+            aspect-ratio: 1 / 1 !important;
+            height: auto !important;
+            max-height: 380px !important;
             width: 100% !important;
             border-radius: 16px !important;
           }
@@ -186,7 +188,10 @@ export default function StoreHeroClient({
           <div className="hero-split-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
             <div className="hero-split-img-card" style={{ 
               width: '100%', 
-              height: '55vh',
+              aspectRatio: '1 / 1',
+              maxWidth: '520px',
+              maxHeight: '520px',
+              margin: '0 auto',
               borderRadius: '24px',
               boxShadow: isDark ? '0 20px 40px rgba(0,0,0,0.5)' : '0 20px 40px rgba(0,0,0,0.08)',
               border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.03)',

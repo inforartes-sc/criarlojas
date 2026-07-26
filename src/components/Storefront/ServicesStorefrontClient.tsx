@@ -504,7 +504,9 @@ export default function ServicesStorefrontClient({
             margin-top: 1rem !important;
           }
           .hero-split-img > div {
-            height: 250px !important;
+            aspect-ratio: 1 / 1 !important;
+            height: auto !important;
+            max-height: 380px !important;
             width: 100% !important;
             border-radius: 16px !important;
           }
@@ -564,7 +566,10 @@ export default function ServicesStorefrontClient({
             <div className="hero-split-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
               <div style={{ 
                 width: '100%', 
-                height: '55vh',
+                aspectRatio: '1 / 1',
+                maxWidth: '520px',
+                maxHeight: '520px',
+                margin: '0 auto',
                 borderRadius: '24px',
                 position: 'relative',
                 overflow: 'hidden',
