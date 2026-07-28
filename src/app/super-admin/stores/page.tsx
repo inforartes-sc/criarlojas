@@ -201,7 +201,7 @@ export default function SuperAdminStores() {
   // Estado para o Modal de Criação / Clonagem de Loja (Onboarding)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [creatingStore, setCreatingStore] = useState(false)
-  const [newStoreData, setNewStoreData] = useState({
+  const initialNewStoreForm = {
     name: '',
     subdomain: '',
     email: '',
@@ -219,7 +219,9 @@ export default function SuperAdminStores() {
     description: 'Loja virtual premium configurada com alta conversão.',
     logoUrl: '',
     faviconUrl: ''
-  })
+  }
+
+  const [newStoreData, setNewStoreData] = useState(initialNewStoreForm)
 
   useEffect(() => {
     fetchStores()
@@ -462,25 +464,7 @@ export default function SuperAdminStores() {
       setStores(prev => [newStoreDataRes, ...prev])
       toast.success(`Loja criada com sucesso! Acesse em ${cleanSubdomain}${domainSuffix}`)
       setShowCreateModal(false)
-      setNewStoreData({
-        name: '',
-        subdomain: '',
-        email: '',
-        whatsapp: '',
-        adminUser: '',
-        adminPassword: 'senha123',
-        plan: 'basic',
-        layoutModel: 'modern',
-        primaryColor: '#0ea5e9',
-        isDemo: false,
-        billingEnabled: true,
-        cloneFromSettings: null,
-        cloneFromStoreId: null,
-        niche: 'Moda & Acessórios Premium',
-        description: 'Loja virtual premium configurada com alta conversão.',
-        logoUrl: '',
-        faviconUrl: ''
-      })
+      setNewStoreData(initialNewStoreForm)
     } catch (error: any) {
       console.error('Erro ao criar/clonar loja:', error.message)
       toast.error('Erro ao cadastrar nova loja no banco de dados.')
@@ -556,23 +540,7 @@ export default function SuperAdminStores() {
 
           <button 
             onClick={() => {
-              setNewStoreData({
-                name: '',
-                subdomain: '',
-                email: '',
-                whatsapp: '',
-                adminUser: '',
-                adminPassword: 'senha123',
-                plan: 'basic',
-                layoutModel: 'modern',
-                primaryColor: '#0ea5e9',
-                isDemo: false,
-                billingEnabled: true,
-                cloneFromSettings: null,
-                cloneFromStoreId: null,
-                niche: 'Moda & Acessórios Premium',
-                description: 'Loja virtual premium configurada com alta conversão.'
-              })
+              setNewStoreData(initialNewStoreForm)
               setShowCreateModal(true)
             }}
             style={{ padding: '0.75rem 1.5rem', background: '#10b981', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.3)', whiteSpace: 'nowrap' }}
