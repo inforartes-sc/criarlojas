@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Store, Search, Filter, ExternalLink, ShieldAlert, CheckCircle2, Lock, Unlock, Loader2, Eye, X, Plus, Sparkles, Copy, Edit, Trash2 } from 'lucide-react'
+import { Store, Search, Filter, ExternalLink, ShieldAlert, CheckCircle2, Lock, Unlock, Loader2, Eye, X, Plus, Sparkles, Copy, Edit, Trash2, Upload, Image as ImageIcon } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
 import { getDomainSuffix, getAbsoluteUrl } from '@/lib/getDomainSuffix'
@@ -37,8 +37,42 @@ export default function SuperAdminStores() {
     isDemo: false,
     billingEnabled: true,
     niche: 'Moda & Acessórios Premium',
-    description: 'Loja virtual premium configurada com alta conversão.'
+    description: 'Loja virtual premium configurada com alta conversão.',
+    logoUrl: '',
+    faviconUrl: ''
   })
+
+  const handleFileUploadSuperAdmin = async (file: File, target: 'logo' | 'favicon', isEdit: boolean = true) => {
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${target}-${Date.now()}.${fileExt}`
+      const filePath = `store-brand/${fileName}`
+      
+      let publicUrl = ''
+      const { error: uploadError } = await supabase.storage.from('store-assets').upload(filePath, file)
+      if (uploadError) {
+        const { error: err2 } = await supabase.storage.from('products').upload(filePath, file)
+        if (err2) throw err2
+        const { data } = supabase.storage.from('products').getPublicUrl(filePath)
+        publicUrl = data.publicUrl
+      } else {
+        const { data } = supabase.storage.from('store-assets').getPublicUrl(filePath)
+        publicUrl = data.publicUrl
+      }
+
+      if (isEdit) {
+        if (target === 'logo') setEditStoreData(prev => ({ ...prev, logoUrl: publicUrl }))
+        else setEditStoreData(prev => ({ ...prev, faviconUrl: publicUrl }))
+      } else {
+        if (target === 'logo') setNewStoreData(prev => ({ ...prev, logoUrl: publicUrl }))
+        else setNewStoreData(prev => ({ ...prev, faviconUrl: publicUrl }))
+      }
+      toast.success(`${target === 'logo' ? 'Logo' : 'Favicon'} enviado com sucesso!`)
+    } catch (error: any) {
+      console.error(error)
+      toast.error('Erro ao fazer upload da imagem.')
+    }
+  }
 
   const handleOpenEdit = (store: any) => {
     const s = store.settings || {}
@@ -56,7 +90,9 @@ export default function SuperAdminStores() {
       isDemo: s.is_demo || false,
       billingEnabled: s.billing_enabled !== false,
       niche: s.niche || s.description || 'Moda & Acessórios Premium',
-      description: s.description || s.hero_subtitle || 'Loja virtual premium configurada com alta conversão.'
+      description: s.description || s.hero_subtitle || 'Loja virtual premium configurada com alta conversão.',
+      logoUrl: s.logo_url || '',
+      faviconUrl: s.favicon_url || ''
     })
     setShowEditModal(true)
   }
@@ -107,7 +143,10 @@ export default function SuperAdminStores() {
         admin_password: editStoreData.adminPassword,
         plan: editStoreData.plan,
         niche: editStoreData.niche,
-        description: editStoreData.description
+        description: editStoreData.description,
+        logo_url: editStoreData.logoUrl,
+        footer_logo_url: editStoreData.logoUrl,
+        favicon_url: editStoreData.faviconUrl
       }
 
       const { error: updateErr } = await supabase
@@ -177,7 +216,9 @@ export default function SuperAdminStores() {
     cloneFromSettings: null as any,
     cloneFromStoreId: null as string | null,
     niche: 'Moda & Acessórios Premium',
-    description: 'Loja virtual premium configurada com alta conversão.'
+    description: 'Loja virtual premium configurada com alta conversão.',
+    logoUrl: '',
+    faviconUrl: ''
   })
 
   useEffect(() => {
@@ -247,7 +288,9 @@ export default function SuperAdminStores() {
       cloneFromSettings: s,
       cloneFromStoreId: store.id,
       niche: s.niche || 'Moda & Acessórios Premium',
-      description: s.description || 'Loja virtual premium configurada com alta conversão.'
+      description: s.description || 'Loja virtual premium configurada com alta conversão.',
+      logoUrl: s.logo_url || '',
+      faviconUrl: s.favicon_url || ''
     })
     setShowCreateModal(true)
     toast.success(`Clonando layout, cores, produtos e banners de ${store.name}!`)
@@ -324,6 +367,9 @@ export default function SuperAdminStores() {
         button_text_color: "#ffffff",
         flash_deals_title: "Ofertas do Dia",
         footer_text_color: "#ffffff",
+        logo_url: newStoreData.logoUrl || baseSettings.logo_url || '',
+        footer_logo_url: newStoreData.logoUrl || baseSettings.footer_logo_url || baseSettings.logo_url || '',
+        favicon_url: newStoreData.faviconUrl || baseSettings.favicon_url || '',
         header_icon_color: "#171716",
         show_new_arrivals: true,
         button_hover_color: "#030303",

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Settings, Save, ShieldCheck, Database, Globe, Mail, Phone, Lock, RefreshCw, Loader2 } from 'lucide-react'
+import { Settings, Save, ShieldCheck, Database, Globe, Mail, Phone, Lock, RefreshCw, Loader2, Upload, Image as ImageIcon } from 'lucide-react'
 import { toast } from 'react-hot-toast'
 import { supabase } from '@/lib/supabase'
 
@@ -19,7 +19,9 @@ export default function SuperAdminSettings() {
     businessHours: 'Seg - Sex, das 9h às 18h',
     adminEmail: 'admin@criarlojas.com.br',
     adminPassword: 'admin',
-    landingPageTheme: 'dark'
+    landingPageTheme: 'dark',
+    logoUrl: '',
+    faviconUrl: ''
   })
 
   const [loading, setLoading] = useState(true)
@@ -31,6 +33,32 @@ export default function SuperAdminSettings() {
   useEffect(() => {
     fetchSettings()
   }, [])
+
+  const handleFileUploadSaaS = async (file: File, target: 'logoUrl' | 'faviconUrl') => {
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `saas-${target}-${Date.now()}.${fileExt}`
+      const filePath = `platform-brand/${fileName}`
+      
+      let publicUrl = ''
+      const { error: uploadError } = await supabase.storage.from('store-assets').upload(filePath, file)
+      if (uploadError) {
+        const { error: err2 } = await supabase.storage.from('products').upload(filePath, file)
+        if (err2) throw err2
+        const { data } = supabase.storage.from('products').getPublicUrl(filePath)
+        publicUrl = data.publicUrl
+      } else {
+        const { data } = supabase.storage.from('store-assets').getPublicUrl(filePath)
+        publicUrl = data.publicUrl
+      }
+
+      setSettings(prev => ({ ...prev, [target]: publicUrl }))
+      toast.success(`${target === 'logoUrl' ? 'Logo' : 'Favicon'} da plataforma atualizado!`)
+    } catch (error: any) {
+      console.error(error)
+      toast.error('Erro ao fazer upload da imagem.')
+    }
+  }
 
   const fetchSettings = async () => {
     setLoading(true)
@@ -59,7 +87,9 @@ export default function SuperAdminSettings() {
           businessHours: s.businessHours || 'Seg - Sex, das 9h às 18h',
           adminEmail: s.adminEmail || 'admin@criarlojas.com.br',
           adminPassword: s.adminPassword || 'admin',
-          landingPageTheme: s.landingPageTheme || 'dark'
+          landingPageTheme: s.landingPageTheme || 'dark',
+          logoUrl: s.logoUrl || s.logo_url || '',
+          faviconUrl: s.faviconUrl || s.favicon_url || ''
         })
         setPlans(s.plans || [])
       } else {
@@ -76,7 +106,9 @@ export default function SuperAdminSettings() {
           maxStoresPerUser: 10,
           businessHours: 'Seg - Sex, das 9h às 18h',
           adminEmail: 'admin@criarlojas.com.br',
-          adminPassword: 'admin'
+          adminPassword: 'admin',
+          logoUrl: '',
+          faviconUrl: ''
         }
 
         const { data: inserted, error: insertError } = await supabase
@@ -230,6 +262,76 @@ export default function SuperAdminSettings() {
                 style={{ width: '100%', padding: '0.75rem 1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '10px', color: 'var(--foreground)', outline: 'none', fontWeight: 600 }}
                 required
               />
+            </div>
+          </div>
+
+          <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--muted)', marginBottom: '0.5rem' }}>
+                🖼️ Logo da Plataforma Comercial (Topo & Rodapé do Site)
+              </label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input 
+                  type="url" 
+                  placeholder="https://exemplo.com/logo-plataforma.png" 
+                  value={settings.logoUrl || ''}
+                  onChange={e => setSettings({...settings, logoUrl: e.target.value})}
+                  style={{ flex: 1, padding: '0.75rem 1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '10px', color: 'var(--foreground)', outline: 'none', fontWeight: 600 }}
+                />
+                <label style={{ padding: '0.75rem 1.25rem', background: '#10b981', color: '#fff', borderRadius: '10px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap' }}>
+                  <Upload size={16} />
+                  <span>Upload</span>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    style={{ display: 'none' }} 
+                    onChange={e => {
+                      const f = e.target.files?.[0]
+                      if (f) handleFileUploadSaaS(f, 'logoUrl')
+                    }} 
+                  />
+                </label>
+              </div>
+              {settings.logoUrl && (
+                <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(0,0,0,0.15)', padding: '0.5rem 1rem', borderRadius: '10px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Pré-visualização:</span>
+                  <img src={settings.logoUrl} alt="Logo SaaS" style={{ height: '32px', maxHeight: '40px', objectFit: 'contain' }} />
+                </div>
+              )}
+            </div>
+
+            <div>
+              <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, color: 'var(--muted)', marginBottom: '0.5rem' }}>
+                ⭐ Favicon da Plataforma (Ícone da Aba do Navegador)
+              </label>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <input 
+                  type="url" 
+                  placeholder="https://exemplo.com/favicon-plataforma.png" 
+                  value={settings.faviconUrl || ''}
+                  onChange={e => setSettings({...settings, faviconUrl: e.target.value})}
+                  style={{ flex: 1, padding: '0.75rem 1rem', background: 'var(--input-bg)', border: '1px solid var(--border)', borderRadius: '10px', color: 'var(--foreground)', outline: 'none', fontWeight: 600 }}
+                />
+                <label style={{ padding: '0.75rem 1.25rem', background: '#10b981', color: '#fff', borderRadius: '10px', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.4rem', whiteSpace: 'nowrap' }}>
+                  <Upload size={16} />
+                  <span>Upload</span>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    style={{ display: 'none' }} 
+                    onChange={e => {
+                      const f = e.target.files?.[0]
+                      if (f) handleFileUploadSaaS(f, 'faviconUrl')
+                    }} 
+                  />
+                </label>
+              </div>
+              {settings.faviconUrl && (
+                <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'rgba(0,0,0,0.15)', padding: '0.5rem 1rem', borderRadius: '10px' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>Pré-visualização:</span>
+                  <img src={settings.faviconUrl} alt="Favicon SaaS" style={{ width: '24px', height: '24px', objectFit: 'contain' }} />
+                </div>
+              )}
             </div>
           </div>
         </div>

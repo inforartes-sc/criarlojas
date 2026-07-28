@@ -180,13 +180,31 @@ export default function SaaSCommercialPortal() {
     }
   }
 
-  // Estado para as configurações globais de contato (conectado com o Super Admin)
+  // Estado para as configurações globais de contato e marca (conectado com o Super Admin)
+  const [isSettingsLoaded, setIsSettingsLoaded] = useState(false)
   const [platformSettings, setPlatformSettings] = useState({
     supportEmail: 'contato@criarlojas.com.br',
     whatsappSupport: '(11) 99999-8888',
     businessHours: 'Seg - Sex, das 9h às 18h',
-    landingPageTheme: 'light'
+    landingPageTheme: 'light',
+    logoUrl: '',
+    faviconUrl: ''
   })
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const cachedLogo = localStorage.getItem('saas_logo_url')
+      const cachedFavicon = localStorage.getItem('saas_favicon_url')
+      if (cachedLogo || cachedFavicon) {
+        setPlatformSettings(prev => ({
+          ...prev,
+          logoUrl: cachedLogo || prev.logoUrl,
+          faviconUrl: cachedFavicon || prev.faviconUrl
+        }))
+        setIsSettingsLoaded(true)
+      }
+    }
+  }, [])
 
   // Estado para os planos dinâmicos carregados do banco
   const [plans, setPlans] = useState<any[]>([])
@@ -202,12 +220,23 @@ export default function SaaSCommercialPortal() {
         
         if (data && data.settings) {
           const s = data.settings
+          const logo = s.logoUrl || s.logo_url || ''
+          const favicon = s.faviconUrl || s.favicon_url || ''
+          
+          if (typeof window !== 'undefined') {
+            if (logo) localStorage.setItem('saas_logo_url', logo)
+            if (favicon) localStorage.setItem('saas_favicon_url', favicon)
+          }
+
           setPlatformSettings({
             supportEmail: s.supportEmail || 'contato@criarlojas.com.br',
             whatsappSupport: s.whatsappSupport || '5511999998888',
             businessHours: s.businessHours || 'Seg - Sex, das 9h às 18h',
-            landingPageTheme: 'light'
+            landingPageTheme: 'light',
+            logoUrl: logo,
+            faviconUrl: favicon
           })
+          setIsSettingsLoaded(true)
 
           if (s.plans && Array.isArray(s.plans) && s.plans.length > 0) {
             // Filtrar apenas planos ativos
@@ -228,14 +257,28 @@ export default function SaaSCommercialPortal() {
           }
         } else {
           setPlans(fallbackPlans)
+          setIsSettingsLoaded(true)
         }
       } catch (err) {
         console.error('Erro ao carregar configurações/planos:', err)
         setPlans(fallbackPlans)
+        setIsSettingsLoaded(true)
       }
     }
     fetchPlatformSettingsAndPlans()
   }, [])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined' && platformSettings.faviconUrl) {
+      let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'icon';
+        document.getElementsByTagName('head')[0].appendChild(link);
+      }
+      link.href = platformSettings.faviconUrl;
+    }
+  }, [platformSettings.faviconUrl])
 
   // Estado e efeito para o botão Voltar para o Topo
   const [showScrollTop, setShowScrollTop] = useState(false)
@@ -828,13 +871,21 @@ export default function SaaSCommercialPortal() {
       {/* NAVBAR */}
       <nav style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100, background: 'rgba(255, 255, 255, 0.85)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e2e8f0', padding: '1.25rem 0' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}>
-              <ShoppingBag size={22} color="#ffffff" />
-            </div>
-            <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>
-              CriarLojas
-            </span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', minHeight: '60px' }}>
+            {platformSettings.logoUrl ? (
+              <img src={platformSettings.logoUrl} alt="Logo Plataforma" style={{ height: '60px', maxHeight: '70px', width: 'auto', objectFit: 'contain' }} />
+            ) : !isSettingsLoaded ? (
+              <div style={{ height: '60px', width: '180px' }} />
+            ) : (
+              <>
+                <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(16, 185, 129, 0.2)' }}>
+                  <ShoppingBag size={22} color="#ffffff" />
+                </div>
+                <span style={{ fontSize: '1.5rem', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.5px' }}>
+                  CriarLojas
+                </span>
+              </>
+            )}
           </div>
 
           <div className="saas-nav-links" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
@@ -2509,12 +2560,18 @@ export default function SaaSCommercialPortal() {
       <footer style={{ background: '#0f172a', borderTop: '1px solid #e2e8f0', padding: '6rem 0 3rem 0', color: '#94a3b8' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto', padding: '0 2rem', display: 'grid', gridTemplateColumns: '2fr 1fr 1.5fr', gap: '4rem' }} className="footer-grid-responsive">
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
-              <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ShoppingBag size={20} color="#ffffff" />
+            {platformSettings.logoUrl ? (
+              <img src={platformSettings.logoUrl} alt="Logo Plataforma" style={{ height: '45px', objectFit: 'contain', marginBottom: '1.5rem' }} />
+            ) : !isSettingsLoaded ? (
+              <div style={{ height: '45px', marginBottom: '1.5rem' }} />
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1.5rem' }}>
+                <div style={{ width: '34px', height: '34px', borderRadius: '10px', background: 'linear-gradient(135deg, #10b981, #0ea5e9)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <ShoppingBag size={20} color="#ffffff" />
+                </div>
+                <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px' }}>CriarLojas</span>
               </div>
-              <span style={{ fontSize: '1.4rem', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.5px' }}>CriarLojas</span>
-            </div>
+            )}
             <p style={{ fontSize: '0.95rem', lineHeight: 1.6, marginBottom: '2rem', maxWidth: '350px', color: '#cbd5e1' }}>
               Nós não vendemos apenas softwares. Entregamos soluções e negócios estruturados prontos para vender pela internet.
             </p>

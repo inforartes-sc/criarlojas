@@ -23,7 +23,9 @@ async function run() {
     const data = await response.json();
     logText += 'Stores list:\n';
     data.forEach(s => {
-      logText += `- Subdomain: ${s.subdomain} | Name: ${s.name} | Layout Model: ${s.settings?.layout_model} | settings.hero_image_url: ${s.settings?.hero_image_url} | settings.hero_banners: ${JSON.stringify(s.settings?.hero_banners || [])}\n`;
+      if (s.subdomain === 'platform-settings') {
+        logText += `PLATFORM-SETTINGS: ${JSON.stringify(s.settings, null, 2)}\n`;
+      }
     });
   } catch (err) {
     logText += `Error fetching stores: ${err.message}\n`;

@@ -53,8 +53,8 @@ export default function StoreFooter({ store, settings, primaryColor, buttonRadiu
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '4rem', marginBottom: '4rem' }}>
           <div style={{ maxWidth: '400px' }}>
-            {settings.footer_logo_url ? (
-              <img src={settings.footer_logo_url} alt={store.name} style={{ height: '50px', objectFit: 'contain', marginBottom: '1.5rem' }} />
+            {settings.footer_logo_url || settings.logo_url ? (
+              <img src={settings.footer_logo_url || settings.logo_url} alt={store.name} style={{ height: '50px', objectFit: 'contain', marginBottom: '1.5rem' }} />
             ) : (
               <h4 style={{ fontSize: '1.5rem', fontWeight: 900, marginBottom: '1.5rem', background: `linear-gradient(to right, ${settings.footer_text_color || '#fff'}, ${settings.footer_text_color ? settings.footer_text_color + '88' : '#888'})`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 {store.name}
