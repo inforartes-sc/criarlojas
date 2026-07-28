@@ -73,23 +73,23 @@ export default function SuperAdminSettings() {
 
       if (data) {
         setRecordId(data.id)
-        const s = data.settings || {}
+        const s: any = data.settings || {}
         setSettings({
-          platformName: s.platformName || 'Criar Lojas E-commerce SaaS',
-          mainDomain: s.mainDomain || 'criarlojas.com.br',
-          supportEmail: s.supportEmail || 'suporte@criarlojas.com.br',
-          whatsappSupport: s.whatsappSupport || '5511999998888',
-          maintenanceMode: s.maintenanceMode || false,
-          allowNewRegistrations: s.allowNewRegistrations !== undefined ? s.allowNewRegistrations : true,
-          webhookSecret: s.webhookSecret || 'whsec_abc123xyz789criarlojas',
-          supabaseUrl: s.supabaseUrl || 'https://schcpfbnochnevsivtaj.supabase.co',
-          maxStoresPerUser: s.maxStoresPerUser || 10,
-          businessHours: s.businessHours || 'Seg - Sex, das 9h às 18h',
-          adminEmail: s.adminEmail || 'admin@criarlojas.com.br',
-          adminPassword: s.adminPassword || 'admin',
-          landingPageTheme: s.landingPageTheme || 'dark',
-          logoUrl: s.logoUrl || s.logo_url || '',
-          faviconUrl: s.faviconUrl || s.favicon_url || ''
+          platformName: String(s.platformName || 'Criar Lojas E-commerce SaaS'),
+          mainDomain: String(s.mainDomain || 'criarlojas.com.br'),
+          supportEmail: String(s.supportEmail || 'suporte@criarlojas.com.br'),
+          whatsappSupport: String(s.whatsappSupport || '5511999998888'),
+          maintenanceMode: Boolean(s.maintenanceMode || false),
+          allowNewRegistrations: s.allowNewRegistrations !== undefined ? Boolean(s.allowNewRegistrations) : true,
+          webhookSecret: String(s.webhookSecret || 'whsec_abc123xyz789criarlojas'),
+          supabaseUrl: String(s.supabaseUrl || 'https://schcpfbnochnevsivtaj.supabase.co'),
+          maxStoresPerUser: Number(s.maxStoresPerUser || 10),
+          businessHours: String(s.businessHours || 'Seg - Sex, das 9h às 18h'),
+          adminEmail: String(s.adminEmail || 'admin@criarlojas.com.br'),
+          adminPassword: String(s.adminPassword || 'admin'),
+          landingPageTheme: String(s.landingPageTheme || 'dark'),
+          logoUrl: String(s.logoUrl || s.logo_url || ''),
+          faviconUrl: String(s.faviconUrl || s.favicon_url || '')
         })
         setPlans(s.plans || [])
       } else {
@@ -125,21 +125,23 @@ export default function SuperAdminSettings() {
           console.warn('Não foi possível auto-criar o registro padrão (pode ser RLS), usando valores em memória.', insertError)
         } else if (inserted) {
           setRecordId(inserted.id)
-          const s = inserted.settings || {}
+          const s: any = inserted.settings || {}
           setSettings({
-            platformName: s.platformName || 'Criar Lojas E-commerce SaaS',
-            mainDomain: s.mainDomain || 'criarlojas.com.br',
-            supportEmail: s.supportEmail || 'suporte@criarlojas.com.br',
-            whatsappSupport: s.whatsappSupport || '5511999998888',
-            maintenanceMode: s.maintenanceMode || false,
-            allowNewRegistrations: s.allowNewRegistrations !== undefined ? s.allowNewRegistrations : true,
-            webhookSecret: s.webhookSecret || 'whsec_abc123xyz789criarlojas',
-            supabaseUrl: s.supabaseUrl || 'https://schcpfbnochnevsivtaj.supabase.co',
-            maxStoresPerUser: s.maxStoresPerUser || 10,
-            businessHours: s.businessHours || 'Seg - Sex, das 9h às 18h',
-            adminEmail: s.adminEmail || 'admin@criarlojas.com.br',
-            adminPassword: s.adminPassword || 'admin',
-            landingPageTheme: s.landingPageTheme || 'dark'
+            platformName: String(s.platformName || 'Criar Lojas E-commerce SaaS'),
+            mainDomain: String(s.mainDomain || 'criarlojas.com.br'),
+            supportEmail: String(s.supportEmail || 'suporte@criarlojas.com.br'),
+            whatsappSupport: String(s.whatsappSupport || '5511999998888'),
+            maintenanceMode: Boolean(s.maintenanceMode || false),
+            allowNewRegistrations: s.allowNewRegistrations !== undefined ? Boolean(s.allowNewRegistrations) : true,
+            webhookSecret: String(s.webhookSecret || 'whsec_abc123xyz789criarlojas'),
+            supabaseUrl: String(s.supabaseUrl || 'https://schcpfbnochnevsivtaj.supabase.co'),
+            maxStoresPerUser: Number(s.maxStoresPerUser || 10),
+            businessHours: String(s.businessHours || 'Seg - Sex, das 9h às 18h'),
+            adminEmail: String(s.adminEmail || 'admin@criarlojas.com.br'),
+            adminPassword: String(s.adminPassword || 'admin'),
+            landingPageTheme: String(s.landingPageTheme || 'dark'),
+            logoUrl: String(s.logoUrl || s.logo_url || ''),
+            faviconUrl: String(s.faviconUrl || s.favicon_url || '')
           })
         }
       }
