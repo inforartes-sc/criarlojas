@@ -477,7 +477,9 @@ export default function SuperAdminStores() {
         cloneFromSettings: null,
         cloneFromStoreId: null,
         niche: 'Moda & Acessórios Premium',
-        description: 'Loja virtual premium configurada com alta conversão.'
+        description: 'Loja virtual premium configurada com alta conversão.',
+        logoUrl: '',
+        faviconUrl: ''
       })
     } catch (error: any) {
       console.error('Erro ao criar/clonar loja:', error.message)
