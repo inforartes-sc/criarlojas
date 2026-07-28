@@ -41,12 +41,12 @@ export default function StoreHeroClient({
       ]
 
   const banners = rawBanners.map((b: any) => {
-    const mobile_url = b.mobile_url || b.mobile_image_url || b.hero_image_mobile_url || b.image_mobile_url || settings.hero_image_mobile_url || b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url
-    const desktop_url = b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url
+    const desktop_url = b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200'
+    const mobile_url = b.mobile_url || b.mobile_image_url || b.hero_image_mobile_url || b.image_mobile_url || settings.hero_image_mobile_url || desktop_url
     return {
       ...b,
-      desktop_url: desktop_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200',
-      mobile_url: mobile_url || desktop_url || 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&q=80&w=1200',
+      desktop_url,
+      mobile_url,
     }
   })
 
@@ -89,14 +89,163 @@ export default function StoreHeroClient({
 
   const activeDotIndex = currentBannerIndex % banners.length
   const currentBanner = banners[activeDotIndex] || banners[0]
-  const currentBannerUrl = getBannerUrl(currentBanner)
+  const currentDesktopUrl = currentBanner.desktop_url
+  const currentMobileUrl = currentBanner.mobile_url
 
   const transitionEffect = settings.hero_transition_effect || 'fade'
+
+  // SE NÃO EXIBIR TEXTO NO BANNER (Banner de Imagem Puro como Black Friday / Promoções)
+  if (!showHeroText) {
+    return (
+      <div style={{ position: 'relative', width: '100%', overflow: 'hidden' }}>
+        {transitionEffect === 'slide' && banners.length > 1 ? (
+          <div style={{
+            display: 'flex',
+            width: `${(banners.length + 1) * 100}%`,
+            transform: `translateX(-${currentBannerIndex * (100 / (banners.length + 1))}%)`,
+            transition: isTransitioning ? 'transform 0.5s ease-in-out' : 'none'
+          }}>
+            {[...banners, banners[0]].map((banner: any, idx: number) => {
+              const bannerContent = (
+                <picture style={{ width: '100%', display: 'block' }}>
+                  <source media="(max-width: 768px)" srcSet={banner.mobile_url || banner.desktop_url} />
+                  <img 
+                    src={banner.desktop_url} 
+                    alt={banner.title || 'Banner'} 
+                    style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain' }} 
+                  />
+                </picture>
+              )
+              return (
+                <div key={idx} style={{ width: `${100 / (banners.length + 1)}%` }}>
+                  {banner.button_url ? (
+                    <Link href={banner.button_url} style={{ display: 'block', width: '100%' }}>
+                      {bannerContent}
+                    </Link>
+                  ) : (
+                    bannerContent
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        ) : (
+          <div style={{ position: 'relative', width: '100%' }}>
+            {currentBanner.button_url ? (
+              <Link href={currentBanner.button_url} style={{ display: 'block', width: '100%' }}>
+                <picture style={{ width: '100%', display: 'block' }}>
+                  <source media="(max-width: 768px)" srcSet={currentBanner.mobile_url || currentBanner.desktop_url} />
+                  <img 
+                    src={currentBanner.desktop_url} 
+                    alt={currentBanner.title || 'Banner'} 
+                    style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain', transition: 'all 0.5s ease' }} 
+                  />
+                </picture>
+              </Link>
+            ) : (
+              <picture style={{ width: '100%', display: 'block' }}>
+                <source media="(max-width: 768px)" srcSet={currentBanner.mobile_url || currentBanner.desktop_url} />
+                <img 
+                  src={currentBanner.desktop_url} 
+                  alt={currentBanner.title || 'Banner'} 
+                  style={{ width: '100%', height: 'auto', display: 'block', objectFit: 'contain', transition: 'all 0.5s ease' }} 
+                />
+              </picture>
+            )}
+          </div>
+        )}
+
+        {banners.length > 1 && (
+          <div style={{ position: 'absolute', bottom: '1rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '0.5rem', zIndex: 10 }}>
+            {banners.map((_: any, idx: number) => (
+              <button 
+                key={idx} 
+                onClick={() => { setIsTransitioning(true); setCurrentBannerIndex(idx); }} 
+                style={{ 
+                  width: activeDotIndex === idx ? '24px' : '8px', 
+                  height: '8px', 
+                  borderRadius: '4px', 
+                  backgroundColor: activeDotIndex === idx ? '#fff' : 'rgba(255,255,255,0.6)', 
+                  border: 'none', 
+                  cursor: 'pointer', 
+                  boxShadow: '0 2px 4px rgba(0,0,0,0.3)',
+                  transition: 'all 0.3s ease' 
+                }} 
+              />
+            ))}
+          </div>
+        )}
+      </div>
+    )
+  }
 
   return (
     <>
       <style>{`
+        .hero-banner-responsive-fade-split {
+          background-image: url("${currentDesktopUrl}");
+          background-size: cover;
+          background-position: center;
+          transition: background-image 0.5s ease-in-out;
+        }
+
+        .hero-banner-responsive-fade-left {
+          background-image: linear-gradient(90deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url("${currentDesktopUrl}");
+          background-size: cover;
+          background-position: center;
+          transition: background-image 0.5s ease-in-out;
+        }
+
+        .hero-banner-responsive-fade-full {
+          background-image: linear-gradient(${overlayColor55}, ${overlayColor55}), url("${currentDesktopUrl}");
+          background-size: cover;
+          background-position: center;
+          transition: background-image 0.5s ease-in-out;
+        }
+
+        ${banners.map((b: any, idx: number) => `
+          .hero-slide-bg-split-${idx} {
+            background-image: url("${b.desktop_url}");
+            background-size: cover;
+            background-position: center;
+          }
+          .hero-slide-bg-left-${idx} {
+            background-image: linear-gradient(90deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url("${b.desktop_url}");
+            background-size: cover;
+            background-position: center;
+          }
+          .hero-slide-bg-full-${idx} {
+            background-image: linear-gradient(${overlayColor55}, ${overlayColor55}), url("${b.desktop_url}");
+            background-size: cover;
+            background-position: center;
+          }
+        `).join('\n')}
+
         @media (max-width: 768px) {
+          .hero-banner-responsive-fade-split {
+            background-image: url("${currentMobileUrl}") !important;
+          }
+
+          .hero-banner-responsive-fade-left {
+            background-image: linear-gradient(0deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url("${currentMobileUrl}") !important;
+          }
+
+          .hero-banner-responsive-fade-full {
+            background-image: linear-gradient(${overlayColor55}, ${overlayColor55}), url("${currentMobileUrl}") !important;
+          }
+
+          ${banners.map((b: any, idx: number) => `
+            .hero-slide-bg-split-${idx} {
+              background-image: url("${b.mobile_url}") !important;
+            }
+            .hero-slide-bg-left-${idx} {
+              background-image: linear-gradient(0deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url("${b.mobile_url}") !important;
+            }
+            .hero-slide-bg-full-${idx} {
+              background-image: linear-gradient(${overlayColor55}, ${overlayColor55}), url("${b.mobile_url}") !important;
+            }
+          `).join('\n')}
+
           .hero-split-section {
             min-height: auto !important;
             padding: 2rem 1.25rem !important;
@@ -109,7 +258,7 @@ export default function StoreHeroClient({
             padding: 3rem 1.25rem !important;
           }
           .hero-full {
-            min-height: auto !important;
+            min-height: 350px !important;
             height: auto !important;
             padding: 3.5rem 1.25rem !important;
           }
@@ -153,7 +302,7 @@ export default function StoreHeroClient({
         <section className="hero-split-section" style={{ 
           minHeight: '80vh', 
           display: 'grid', 
-          gridTemplateColumns: showHeroText ? '1.2fr 0.8fr' : '1fr', 
+          gridTemplateColumns: '1.2fr 0.8fr', 
           alignItems: 'center', 
           backgroundColor: splitBgColor, 
           padding: '4rem 8%',
@@ -161,32 +310,30 @@ export default function StoreHeroClient({
           position: 'relative',
           overflow: 'hidden'
         }}>
-          {showHeroText && (
-            <div style={{ maxWidth: '650px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', margin: '0 auto' }}>
-              <h2 className="hero-title-responsive" style={{ fontSize: '4.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', color: heroTitleColor, letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
-                {currentBanner.title}
-              </h2>
-              <p className="hero-subtitle-responsive" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6, transition: 'all 0.3s ease' }}>
-                {currentBanner.subtitle}
-              </p>
-              <div>
-                <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic btn-hero-responsive" style={{ 
-                  display: 'inline-block',
-                  padding: '1.2rem 3rem',
-                  textDecoration: 'none',
-                  fontSize: '0.85rem',
-                  fontWeight: 800,
-                  borderRadius: buttonRadius,
-                  textTransform: 'uppercase',
-                  letterSpacing: '1px'
-                }}>
-                  {currentBanner.button_text || 'SAIBA MAIS'}
-                </Link>
-              </div>
+          <div style={{ maxWidth: '650px', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', textAlign: 'center', margin: '0 auto' }}>
+            <h2 className="hero-title-responsive" style={{ fontSize: '4.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', color: heroTitleColor, letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
+              {currentBanner.title}
+            </h2>
+            <p className="hero-subtitle-responsive" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6, transition: 'all 0.3s ease' }}>
+              {currentBanner.subtitle}
+            </p>
+            <div>
+              <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic btn-hero-responsive" style={{ 
+                display: 'inline-block',
+                padding: '1.2rem 3rem',
+                textDecoration: 'none',
+                fontSize: '0.85rem',
+                fontWeight: 800,
+                borderRadius: buttonRadius,
+                textTransform: 'uppercase',
+                letterSpacing: '1px'
+              }}>
+                {currentBanner.button_text || 'SAIBA MAIS'}
+              </Link>
             </div>
-          )}
+          </div>
           <div className="hero-split-img" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: '100%', height: '100%' }}>
-            <div className="hero-split-img-card" style={{ 
+            <div className={`hero-split-img-card ${transitionEffect === 'fade' ? 'hero-banner-responsive-fade-split' : ''}`} style={{ 
               width: '100%', 
               aspectRatio: '1 / 1',
               maxWidth: '520px',
@@ -196,13 +343,7 @@ export default function StoreHeroClient({
               boxShadow: isDark ? '0 20px 40px rgba(0,0,0,0.5)' : '0 20px 40px rgba(0,0,0,0.08)',
               border: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid rgba(0,0,0,0.03)',
               position: 'relative',
-              overflow: 'hidden',
-              ...(transitionEffect === 'fade' ? {
-                backgroundImage: `url(${currentBannerUrl})`, 
-                backgroundSize: 'cover', 
-                backgroundPosition: 'center',
-                transition: 'background-image 0.5s ease-in-out'
-              } : {})
+              overflow: 'hidden'
             }}>
               {transitionEffect === 'slide' && (
                 <div style={{
@@ -216,16 +357,14 @@ export default function StoreHeroClient({
                   transition: isTransitioning ? 'transform 0.5s ease-in-out' : 'none'
                 }}>
                   {[...banners, banners[0]].map((banner: any, idx: number) => {
-                    const bannerUrl = getBannerUrl(banner)
+                    const realIdx = idx % banners.length
                     return (
                       <div 
                         key={idx} 
+                        className={`hero-slide-bg-split-${realIdx}`}
                         style={{
                           width: `${100 / (banners.length + 1)}%`,
-                          height: '100%',
-                          backgroundImage: `url(${bannerUrl})`,
-                          backgroundSize: 'cover',
-                          backgroundPosition: 'center'
+                          height: '100%'
                         }}
                       />
                     )
@@ -247,18 +386,14 @@ export default function StoreHeroClient({
           )}
         </section>
       ) : heroStyle === 'left-aligned' ? (
-        <section className="hero-left" style={{ 
+        <section className={`hero-left ${transitionEffect === 'fade' ? 'hero-banner-responsive-fade-left' : ''}`} style={{ 
           display: 'flex', 
           alignItems: 'center', 
           backgroundColor: splitBgColor,
-          backgroundImage: transitionEffect === 'fade' ? `linear-gradient(90deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${currentBannerUrl})` : undefined,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
           padding: '0 8%',
           color: heroTitleColor,
           position: 'relative',
-          overflow: 'hidden',
-          transition: 'background-image 0.5s ease-in-out'
+          overflow: 'hidden'
         }}>
           {transitionEffect === 'slide' && (
             <div style={{
@@ -273,37 +408,33 @@ export default function StoreHeroClient({
               zIndex: 1
             }}>
               {[...banners, banners[0]].map((banner: any, idx: number) => {
-                const bannerUrl = getBannerUrl(banner)
+                const realIdx = idx % banners.length
                 return (
                   <div 
                     key={idx} 
+                    className={`hero-slide-bg-left-${realIdx}`}
                     style={{
                       width: `${100 / (banners.length + 1)}%`,
-                      height: '100%',
-                      backgroundImage: `linear-gradient(90deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${bannerUrl})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center'
+                      height: '100%'
                     }}
                   />
                 )
               })}
             </div>
           )}
-          {showHeroText && (
-            <div style={{ maxWidth: '600px', textAlign: 'left', zIndex: 2 }}>
-              <h2 className="hero-title-responsive hero-title-lg" style={{ fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', color: heroTitleColor, letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
-                {currentBanner.title}
-              </h2>
-              <p className="hero-subtitle-responsive hero-subtitle" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6, transition: 'all 0.3s ease' }}>
-                {currentBanner.subtitle}
-              </p>
-              <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic btn-hero-responsive" style={{ 
-                 display: 'inline-block', padding: '1.2rem 3rem', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 800, borderRadius: buttonRadius, textTransform: 'uppercase', letterSpacing: '1px'
-              }}>
-                {currentBanner.button_text || 'SAIBA MAIS'}
-              </Link>
-            </div>
-          )}
+          <div style={{ maxWidth: '600px', textAlign: 'left', zIndex: 2 }}>
+            <h2 className="hero-title-responsive hero-title-lg" style={{ fontWeight: 900, lineHeight: 1.1, marginBottom: '2rem', color: heroTitleColor, letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
+              {currentBanner.title}
+            </h2>
+            <p className="hero-subtitle-responsive hero-subtitle" style={{ fontSize: '1.15rem', color: heroSubtitleColor, marginBottom: '3.5rem', lineHeight: 1.6, transition: 'all 0.3s ease' }}>
+              {currentBanner.subtitle}
+            </p>
+            <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic btn-hero-responsive" style={{ 
+               display: 'inline-block', padding: '1.2rem 3rem', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 800, borderRadius: buttonRadius, textTransform: 'uppercase', letterSpacing: '1px'
+            }}>
+              {currentBanner.button_text || 'SAIBA MAIS'}
+            </Link>
+          </div>
           
           {banners.length > 1 && (
             <div style={{ position: 'absolute', bottom: '2rem', left: '8%', display: 'flex', gap: '0.5rem', zIndex: 10 }}>
@@ -327,21 +458,19 @@ export default function StoreHeroClient({
           borderBottom: isDark ? '1px solid rgba(255,255,255,0.05)' : '1px solid #eaeaea',
           position: 'relative'
         }}>
-          {showHeroText && (
-            <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
-              <h2 className="hero-title-responsive hero-title-md" style={{ fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: heroTitleColor, letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
-                {currentBanner.title}
-              </h2>
-              <p className="hero-subtitle-responsive hero-subtitle" style={{ fontSize: '1.2rem', color: heroSubtitleColor, marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '650px', transition: 'all 0.3s ease' }}>
-                {currentBanner.subtitle}
-              </p>
-              <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic btn-hero-responsive" style={{ 
-                display: 'inline-block', padding: '1.2rem 3rem', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 800, borderRadius: buttonRadius, textTransform: 'uppercase', letterSpacing: '1px'
-              }}>
-                {currentBanner.button_text || 'SAIBA MAIS'}
-              </Link>
-            </div>
-          )}
+          <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
+            <h2 className="hero-title-responsive hero-title-md" style={{ fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: heroTitleColor, letterSpacing: '-2px', transition: 'all 0.3s ease' }}>
+              {currentBanner.title}
+            </h2>
+            <p className="hero-subtitle-responsive hero-subtitle" style={{ fontSize: '1.2rem', color: heroSubtitleColor, marginBottom: '2.5rem', lineHeight: 1.6, maxWidth: '650px', transition: 'all 0.3s ease' }}>
+              {currentBanner.subtitle}
+            </p>
+            <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic btn-hero-responsive" style={{ 
+              display: 'inline-block', padding: '1.2rem 3rem', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 800, borderRadius: buttonRadius, textTransform: 'uppercase', letterSpacing: '1px'
+            }}>
+              {currentBanner.button_text || 'SAIBA MAIS'}
+            </Link>
+          </div>
           
           {banners.length > 1 && (
             <div style={{ position: 'absolute', bottom: '2rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '0.5rem', zIndex: 10 }}>
@@ -352,20 +481,16 @@ export default function StoreHeroClient({
           )}
         </section>
       ) : (
-        <section className="hero-full" style={{ 
+        <section className={`hero-full ${transitionEffect === 'fade' ? 'hero-banner-responsive-fade-full' : ''}`} style={{ 
           display: 'flex', 
           alignItems: 'center', 
           justifyContent: 'center',
           padding: '0 5%', 
-          backgroundImage: transitionEffect === 'fade' ? (showHeroText ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${currentBannerUrl})` : `url(${currentBannerUrl})`) : undefined, 
-          backgroundColor: showHeroText ? heroBgColor : 'transparent',
-          backgroundSize: 'cover', 
-          backgroundPosition: 'center', 
+          backgroundColor: heroBgColor,
           color: heroTitleColor,
           textAlign: 'center',
           position: 'relative',
-          overflow: 'hidden',
-          transition: 'background-image 0.5s ease-in-out'
+          overflow: 'hidden'
         }}>
           {transitionEffect === 'slide' && (
             <div style={{
@@ -380,37 +505,33 @@ export default function StoreHeroClient({
               zIndex: 1
             }}>
               {[...banners, banners[0]].map((banner: any, idx: number) => {
-                const bannerUrl = getBannerUrl(banner)
+                const realIdx = idx % banners.length
                 return (
                   <div 
                     key={idx} 
+                    className={`hero-slide-bg-full-${realIdx}`}
                     style={{
                       width: `${100 / (banners.length + 1)}%`,
-                      height: '100%',
-                      backgroundImage: showHeroText ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${bannerUrl})` : `url(${bannerUrl})`,
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center'
+                      height: '100%'
                     }}
                   />
                 )
               })}
             </div>
           )}
-          {showHeroText && (
-            <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
-              <h2 className="hero-title-responsive hero-title-lg" style={{ fontSize: '4.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: heroTitleColor, letterSpacing: '-2px', textShadow: '0 4px 12px rgba(0,0,0,0.3)', transition: 'all 0.3s ease' }}>
-                {currentBanner.title}
-              </h2>
-              <p className="hero-subtitle-responsive hero-subtitle" style={{ fontSize: '1.25rem', color: heroSubtitleColor, marginBottom: '2.5rem', lineHeight: 1.6, textShadow: '0 2px 8px rgba(0,0,0,0.2)', transition: 'all 0.3s ease' }}>
-                {currentBanner.subtitle}
-              </p>
-              <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic btn-hero-responsive" style={{ 
-                display: 'inline-block', padding: '1.2rem 3rem', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 800, borderRadius: buttonRadius, textTransform: 'uppercase', letterSpacing: '1px', border: '1px solid rgba(255,255,255,0.3)'
-              }}>
-                {currentBanner.button_text || 'SAIBA MAIS'}
-              </Link>
-            </div>
-          )}
+          <div style={{ maxWidth: '800px', display: 'flex', flexDirection: 'column', alignItems: 'center', zIndex: 2 }}>
+            <h2 className="hero-title-responsive hero-title-lg" style={{ fontSize: '4.5rem', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', color: heroTitleColor, letterSpacing: '-2px', textShadow: '0 4px 12px rgba(0,0,0,0.3)', transition: 'all 0.3s ease' }}>
+              {currentBanner.title}
+            </h2>
+            <p className="hero-subtitle-responsive hero-subtitle" style={{ fontSize: '1.25rem', color: heroSubtitleColor, marginBottom: '2.5rem', lineHeight: 1.6, textShadow: '0 2px 8px rgba(0,0,0,0.2)', transition: 'all 0.3s ease' }}>
+              {currentBanner.subtitle}
+            </p>
+            <Link href={currentBanner.button_url || '?view=produtos'} className="btn-buy-dynamic btn-hero-responsive" style={{ 
+              display: 'inline-block', padding: '1.2rem 3rem', textDecoration: 'none', fontSize: '0.85rem', fontWeight: 800, borderRadius: buttonRadius, textTransform: 'uppercase', letterSpacing: '1px', border: '1px solid rgba(255,255,255,0.3)'
+            }}>
+              {currentBanner.button_text || 'SAIBA MAIS'}
+            </Link>
+          </div>
           
           {banners.length > 1 && (
             <div style={{ position: 'absolute', bottom: '2rem', left: '0', right: '0', display: 'flex', justifyContent: 'center', gap: '0.5rem', zIndex: 10 }}>
@@ -427,3 +548,4 @@ export default function StoreHeroClient({
     </>
   )
 }
+

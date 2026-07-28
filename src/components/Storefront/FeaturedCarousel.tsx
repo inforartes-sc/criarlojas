@@ -58,34 +58,58 @@ export default function FeaturedCarousel({ products, primaryColor }: { products:
                 padding: '2px'
               }}
             >
-              {/* Moldura da Imagem com proporção perfeita 1:1 sem esticar */}
+              {/* Card 1:1 limpo e profissional sem blocos de sombra escuros */}
               <div style={{
                 width: '100%',
-                aspectRatio: '1/1',
+                aspectRatio: '1 / 1',
                 maxHeight: '420px',
-                borderRadius: '24px',
+                borderRadius: '16px',
                 overflow: 'hidden',
                 position: 'relative',
-                boxShadow: '0 12px 30px rgba(0, 0, 0, 0.08)',
-                border: '1px solid rgba(0, 0, 0, 0.06)'
+                backgroundColor: '#ffffff',
+                border: '1px solid rgba(0, 0, 0, 0.06)',
+                boxShadow: '0 2px 8px rgba(0, 0, 0, 0.025)',
+                transition: 'all 0.2s ease'
               }}>
                 <img 
                   src={product.images?.[0]} 
                   alt={product.name}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  style={{ 
+                    width: '100%', 
+                    height: '100%', 
+                    objectFit: 'contain'
+                  }}
                 />
               </div>
               
-              {/* Apenas o Texto abaixo da Imagem (Sem Fundo) */}
+              {/* Texto alinhado perfeitamente à esquerda da imagem */}
               <div style={{
                 marginTop: '1.2rem',
-                padding: '0 0.5rem',
-                textAlign: 'left'
+                padding: '0',
+                textAlign: 'left',
+                width: '100%'
               }}>
-                <h4 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0, color: 'inherit', lineHeight: 1.3 }}>
+                <h4 style={{ 
+                  fontSize: '1.15rem', 
+                  fontWeight: 800, 
+                  margin: 0, 
+                  color: 'inherit', 
+                  lineHeight: 1.35,
+                  wordBreak: 'break-word'
+                }}>
                   {product.name}
                 </h4>
-                <div style={{ fontSize: '0.85rem', fontWeight: 800, color: primaryColor, marginTop: '0.4rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                <div style={{ 
+                  fontSize: '0.85rem', 
+                  fontWeight: 800, 
+                  color: primaryColor, 
+                  marginTop: '0.4rem', 
+                  textTransform: 'uppercase', 
+                  letterSpacing: '1px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  gap: '0.3rem' 
+                }}>
                   Ver detalhes →
                 </div>
               </div>

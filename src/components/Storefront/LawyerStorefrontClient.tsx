@@ -313,12 +313,12 @@ export default function LawyerStorefrontClient({
       }]
 
   const banners = rawBanners.map((b: any) => {
-    const mobile_url = b.mobile_url || b.mobile_image_url || b.hero_image_mobile_url || b.image_mobile_url || settings.hero_image_mobile_url || b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url
-    const desktop_url = b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url
+    const desktop_url = b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200'
+    const mobile_url = b.mobile_url || b.mobile_image_url || b.hero_image_mobile_url || b.image_mobile_url || settings.hero_image_mobile_url || desktop_url
     return {
       ...b,
-      desktop_url: desktop_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200',
-      mobile_url: mobile_url || desktop_url || 'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&q=80&w=1200',
+      desktop_url,
+      mobile_url,
     }
   })
 

@@ -827,17 +827,22 @@ export default function SettingsPage() {
       if (fetchError) throw fetchError
 
       let syncedHeroImageUrl = currentStore?.settings?.hero_image_url || ''
+      let syncedHeroImageMobileUrl = currentStore?.settings?.hero_image_mobile_url || ''
       if (formData.hero_banners && formData.hero_banners.length > 0) {
         const firstBanner = formData.hero_banners[0]
         if (firstBanner && firstBanner.desktop_url) {
           syncedHeroImageUrl = firstBanner.desktop_url
+        }
+        if (firstBanner && firstBanner.mobile_url) {
+          syncedHeroImageMobileUrl = firstBanner.mobile_url
         }
       }
 
       const mergedSettings = {
         ...(currentStore?.settings || {}),
         ...formData,
-        hero_image_url: syncedHeroImageUrl
+        hero_image_url: syncedHeroImageUrl,
+        hero_image_mobile_url: syncedHeroImageMobileUrl
       }
 
       const { error } = await supabase

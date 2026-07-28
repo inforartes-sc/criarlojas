@@ -381,18 +381,6 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
             font-size: 1.75rem !important;
           }
 
-          ${settings.hero_image_mobile_url ? `
-            .hero-full {
-              background-image: ${showHeroText ? `linear-gradient(${overlayColor55}, ${overlayColor55}), url(${settings.hero_image_mobile_url})` : `url(${settings.hero_image_mobile_url})`} !important;
-            }
-            .hero-left {
-              background-image: linear-gradient(0deg, ${splitBgColor} 0%, ${splitBgColor} 40%, transparent 100%), url(${settings.hero_image_mobile_url}) !important;
-            }
-            .hero-split-img-card {
-              background-image: url(${settings.hero_image_mobile_url}) !important;
-            }
-          ` : ''}
-
           /* Grids → 2 colunas */
           .products-grid-4,
           .products-grid-4-wide {

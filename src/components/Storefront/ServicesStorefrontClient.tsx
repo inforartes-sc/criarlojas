@@ -168,12 +168,12 @@ export default function ServicesStorefrontClient({
       }]
 
   const banners = rawBanners.map((b: any) => {
-    const mobile_url = b.mobile_url || b.mobile_image_url || b.hero_image_mobile_url || b.image_mobile_url || settings.hero_image_mobile_url || b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url
-    const desktop_url = b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url
+    const desktop_url = b.desktop_url || b.hero_image_url || b.image_url || settings.hero_image_url || '/hero_smart_space.png'
+    const mobile_url = b.mobile_url || b.mobile_image_url || b.hero_image_mobile_url || b.image_mobile_url || settings.hero_image_mobile_url || desktop_url
     return {
       ...b,
-      desktop_url: desktop_url || '/hero_smart_space.png',
-      mobile_url: mobile_url || desktop_url || '/hero_smart_space.png',
+      desktop_url,
+      mobile_url,
     }
   })
 
