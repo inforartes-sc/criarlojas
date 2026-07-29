@@ -536,6 +536,20 @@ export default function LawyerStorefrontClient({
             line-height: 1.4 !important;
           }
         }
+
+        .lawyer-modal-grid-2 {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 1rem;
+        }
+        @media (max-width: 640px) {
+          .lawyer-modal-body {
+            padding: 1.25rem 1rem !important;
+          }
+          .lawyer-modal-grid-2 {
+            grid-template-columns: 1fr !important;
+          }
+        }
       `}</style>
 
       <StoreHeader store={store} settings={settings} primaryColor={primaryColor} categories={categories} products={products} />
@@ -1294,7 +1308,7 @@ export default function LawyerStorefrontClient({
             </div>
 
             {/* Modal Form */}
-            <div style={{ padding: '2rem', overflowY: 'auto', flex: 1 }}>
+            <div className="lawyer-modal-body" style={{ padding: '2rem', overflowY: 'auto', flex: 1 }}>
               <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', lineHeight: 1.6, marginBottom: '1.5rem', fontStyle: 'italic' }}>
                 {activeService.description || 'Preencha o formulário confidencial de triagem de caso abaixo. As informações serão remetidas de forma direta e protegida ao nosso WhatsApp corporativo.'}
               </p>
@@ -1318,7 +1332,7 @@ export default function LawyerStorefrontClient({
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div className="lawyer-modal-grid-2">
                   <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                     <label htmlFor="form-phone" style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--accent-gold)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>WhatsApp</label>
                     <input
