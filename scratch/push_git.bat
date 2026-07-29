@@ -1,3 +1,5 @@
+@echo off
+cd /d "f:\DADOS\CURSO SITE\MARKETING DIGITAL\APP\LOJA_VIRTUAL"
 git add .
-git commit -m "feat: atualizar marca da plataforma SaaS, logo 60px, favicon e carrossel 1:1"
-git push
+git commit -m "Fix mobile banner image and benefits grid alignment for lawyer template"
+git push origin main

@@ -458,18 +458,25 @@ export default function LawyerStorefrontClient({
           font-weight: 400 !important;
           font-size: 0.95rem !important;
           color: #64748b !important;
+        }
         @media (max-width: 768px) {
           #home {
             min-height: auto !important;
             height: auto !important;
-            padding: 2.5rem 1.25rem !important;
+            padding: 3.5rem 1.25rem 2.5rem 1.25rem !important;
             grid-template-columns: 1fr !important;
             gap: 1.5rem !important;
+            background-image: linear-gradient(180deg, rgba(10, 17, 30, 0.82) 0%, rgba(10, 17, 30, 0.95) 100%), url("${currentBannerUrl}") !important;
+            background-size: cover !important;
+            background-position: center !important;
           }
           .lawyer-hero-left, .lawyer-hero-full {
             min-height: auto !important;
             height: auto !important;
-            padding: 3rem 1.25rem !important;
+            padding: 3.5rem 1.25rem 2.5rem 1.25rem !important;
+            background-image: linear-gradient(180deg, rgba(10, 17, 30, 0.82) 0%, rgba(10, 17, 30, 0.95) 100%), url("${currentBannerUrl}") !important;
+            background-size: cover !important;
+            background-position: center !important;
           }
           #home h1, #home h2 {
             font-size: clamp(1.5rem, 6.5vw, 2.2rem) !important;
@@ -508,7 +515,7 @@ export default function LawyerStorefrontClient({
             padding: 2rem 2.25rem !important;
           }
         }
-        @media (max-width: 576px) {
+        @media (max-width: 640px) {
           .lawyer-benefits-section {
             padding: 1.5rem 0.75rem !important;
           }
@@ -516,15 +523,17 @@ export default function LawyerStorefrontClient({
             padding: 0 0.25rem !important;
           }
           .lawyer-benefits-grid {
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 1.5rem 0.75rem !important;
-            padding: 1.5rem 1rem !important;
+            grid-template-columns: 1fr !important;
+            gap: 1.25rem !important;
+            padding: 1.5rem 1.25rem !important;
+            border-radius: 16px !important;
           }
           .lawyer-benefits-grid .benefit-title {
             font-size: 1.05rem !important;
           }
           .lawyer-benefits-grid .benefit-subtitle {
-            font-size: 0.85rem !important;
+            font-size: 0.88rem !important;
+            line-height: 1.4 !important;
           }
         }
       `}</style>
