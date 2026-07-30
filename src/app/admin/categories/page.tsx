@@ -256,8 +256,8 @@ export default function CategoriesPage() {
         input { background: var(--input-bg); border: 1px solid var(--border); border-radius: 10px; padding: 0.875rem 1.1rem; color: var(--foreground); outline: none; transition: 0.2s; font-size: 1rem; }
         input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
         input::placeholder { color: var(--muted); opacity: 0.5; }
-        .btn-primary { background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-        .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-primary { background: var(--primary); color: #ffffff !important; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .btn-primary:hover { background: var(--primary-hover, #4f46e5) !important; color: #ffffff !important; filter: brightness(1.1); transform: translateY(-1px); }
         .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
         .btn-secondary { background: #f1f5f9; color: var(--foreground); border: 1px solid #cbd5e1; border-radius: 8px; font-weight: 600; transition: 0.2s; }
         .btn-secondary:hover { background: #e2e8f0; border-color: #94a3b8; }

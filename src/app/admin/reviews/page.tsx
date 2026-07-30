@@ -413,8 +413,8 @@ export default function ReviewsPage() {
           transform: translateY(-1px);
         }
         
-        .btn-primary { background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
-        .btn-primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+        .btn-primary { background: var(--primary); color: #ffffff !important; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        .btn-primary:hover { background: var(--primary-hover, #4f46e5) !important; color: #ffffff !important; filter: brightness(1.1); transform: translateY(-1px); }
         .btn-primary:disabled { opacity: 0.7; cursor: not-allowed; }
         
         .btn-secondary { background: var(--input-bg); color: var(--foreground); border: 1px solid var(--border); border-radius: 10px; font-weight: 600; transition: 0.2s; }
