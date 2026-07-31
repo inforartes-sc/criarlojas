@@ -12,36 +12,32 @@ export async function generateMetadata({
   params: Promise<{ domain: string }>
 }): Promise<Metadata> {
   const resolvedParams = await params
-  const domain = resolvedParams?.domain || ''
-  const subdomainOnly = domain.split('.')[0]
+  const rawDomain = resolvedParams?.domain || ''
+  const cleanDomain = rawDomain.replace(/^www\./i, '')
+  const subdomainOnly = cleanDomain.split('.')[0]
 
   const { data: store } = await supabase
     .from('stores')
     .select('name, logo_url, settings')
-    .or(`subdomain.eq.${subdomainOnly},subdomain.eq.${domain},custom_domain.eq.${domain}`)
+    .or(`subdomain.eq.${subdomainOnly},subdomain.eq.${cleanDomain},custom_domain.eq.${cleanDomain},custom_domain.eq.${rawDomain},custom_domain.eq.www.${cleanDomain}`)
     .maybeSingle()
 
-  if (!store) {
-    return {
-      title: 'Loja',
-    }
-  }
-
-  const storeName = store.name || 'Loja'
-  const description = store.settings?.seo_description || store.settings?.description || store.settings?.bio || `Confira as melhores ofertas na ${storeName}`
-  const iconUrl = store.settings?.favicon || store.logo_url
+  const storeName = store?.name || store?.settings?.store_name || store?.settings?.name || ''
+  const displayTitle = storeName ? storeName : 'Loja'
+  const description = store?.settings?.seo_description || store?.settings?.description || store?.settings?.bio || (storeName ? `Confira as melhores ofertas na ${storeName}` : 'Sua Loja Virtual')
+  const iconUrl = store?.settings?.favicon || store?.logo_url
 
   return {
     title: {
-      default: storeName,
-      template: `%s | ${storeName}`,
+      default: displayTitle,
+      template: `%s | ${displayTitle}`,
     },
     description: description,
     icons: iconUrl ? [{ rel: 'icon', url: iconUrl }] : undefined,
     openGraph: {
-      title: storeName,
+      title: displayTitle,
       description: description,
-      images: store.logo_url ? [{ url: store.logo_url }] : [],
+      images: store?.logo_url ? [{ url: store.logo_url }] : [],
     },
   }
 }

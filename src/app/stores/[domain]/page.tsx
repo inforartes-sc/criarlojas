@@ -17,13 +17,31 @@ import GoogleReviews from '@/components/Storefront/GoogleReviews'
 
 
 async function getStoreData(domain: string) {
-  const subdomainOnly = domain.split('.')[0]
+  const cleanDomain = domain.replace(/^www\./i, '')
+  const subdomainOnly = cleanDomain.split('.')[0]
   const { data } = await supabase
     .from('stores')
     .select('*')
-    .or(`subdomain.eq.${subdomainOnly},subdomain.eq.${domain},custom_domain.eq.${domain}`)
+    .or(`subdomain.eq.${subdomainOnly},subdomain.eq.${cleanDomain},custom_domain.eq.${cleanDomain},custom_domain.eq.${domain},custom_domain.eq.www.${cleanDomain}`)
     .maybeSingle()
   return data
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ domain: string }> }) {
+  const resolvedParams = await params
+  const store = await getStoreData(resolvedParams.domain)
+  const storeName = store?.name || store?.settings?.store_name || store?.settings?.name || 'Loja'
+  const description = store?.settings?.seo_description || store?.settings?.description || store?.settings?.bio || `Confira as melhores ofertas na ${storeName}`
+
+  return {
+    title: storeName,
+    description: description,
+    openGraph: {
+      title: storeName,
+      description: description,
+      images: store?.logo_url ? [{ url: store.logo_url }] : [],
+    },
+  }
 }
 
 async function getPlatformSettings() {

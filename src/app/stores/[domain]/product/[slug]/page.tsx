@@ -16,15 +16,16 @@ import OfferPopup from '@/components/Storefront/OfferPopup'
 export const dynamic = 'force-dynamic'
 
 async function getProductData(domain: string, slug: string) {
-  const subdomainOnly = domain.split('.')[0]
+  const cleanDomain = domain.replace(/^www\./i, '')
+  const subdomainOnly = cleanDomain.split('.')[0]
   const decodedSlug = decodeURIComponent(slug)
 
   // Encontrar o ID da loja pelo domínio
   const { data: store, error: storeError } = await supabase
     .from('stores')
     .select('id')
-    .or(`subdomain.eq.${subdomainOnly},subdomain.eq.${domain},custom_domain.eq.${domain}`)
-    .single()
+    .or(`subdomain.eq.${subdomainOnly},subdomain.eq.${cleanDomain},custom_domain.eq.${cleanDomain},custom_domain.eq.${domain},custom_domain.eq.www.${cleanDomain}`)
+    .maybeSingle()
 
   if (storeError || !store) return null
 
