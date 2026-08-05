@@ -103,6 +103,7 @@ export default function SettingsPage() {
     google_reviews: [] as any[],
     hero_banners: [] as any[],
 
+    show_stock_storefront: true,
     hero_transition_effect: 'fade',
     hero_bg_color: '#ffffff',
     hero_title_color: '#111111',
@@ -1221,6 +1222,7 @@ export default function SettingsPage() {
                 <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} />
               </div>
               {!isServicesOnly() && (
+              <>
               <div className="form-group" style={{ marginTop: '1rem' }}>
                 <label>Modo de Funcionamento</label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
@@ -1261,6 +1263,29 @@ export default function SettingsPage() {
                   </label>
                 </div>
               </div>
+
+              <div className="form-group" style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                <label style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--foreground)' }}>Gerenciamento e Exibição de Estoque</label>
+                <div style={{ marginTop: '0.75rem' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', padding: '1rem', border: '1px solid var(--border)', borderRadius: '12px', background: 'var(--card-bg, transparent)' }}>
+                    <input 
+                      type="checkbox" 
+                      style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--primary)' }}
+                      checked={formData.show_stock_storefront !== false}
+                      onChange={(e) => setFormData({...formData, show_stock_storefront: e.target.checked})}
+                    />
+                    <div>
+                      <div style={{ fontWeight: 600, color: 'var(--foreground)', fontSize: '0.95rem' }}>
+                        Exibir quantidade de estoque no site
+                      </div>
+                      <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.2rem' }}>
+                        Quando desmarcado, o estoque continua gerenciável no painel, mas não é mostrado aos clientes na página do produto (ex: a tag "{`X disponíveis`}" ficará oculta).
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+              </>
               )}
             </div>
           )}

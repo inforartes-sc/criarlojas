@@ -193,16 +193,18 @@ export default function ProductActions({
           <p style={{ fontSize: '0.9rem', color: '#666', margin: 0, fontWeight: 600 }}>
             em até 12x de R$ {(currentPrice / 12).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
-          <span style={{ 
-            padding: '2px 8px', 
-            borderRadius: '4px', 
-            fontSize: '0.75rem', 
-            fontWeight: 800, 
-            backgroundColor: currentStock > 0 ? '#22c55e15' : '#ef444415', 
-            color: currentStock > 0 ? '#22c55e' : '#ef4444' 
-          }}>
-            {currentStock > 0 ? `${currentStock} disponíveis` : 'Sem Estoque'}
-          </span>
+          {(settings?.show_stock_storefront !== false || currentStock <= 0) && (
+            <span style={{ 
+              padding: '2px 8px', 
+              borderRadius: '4px', 
+              fontSize: '0.75rem', 
+              fontWeight: 800, 
+              backgroundColor: currentStock > 0 ? '#22c55e15' : '#ef444415', 
+              color: currentStock > 0 ? '#22c55e' : '#ef4444' 
+            }}>
+              {currentStock > 0 ? `${currentStock} disponíveis` : 'Sem Estoque'}
+            </span>
+          )}
         </div>
       </div>
 
