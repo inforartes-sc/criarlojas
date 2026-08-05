@@ -417,10 +417,21 @@ export default function NewProduct() {
                   </div>
                 )}
 
-                <div style={{ display: isServicesOnly ? 'block' : 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: (!isServicesOnly && !hasVariations) ? '1fr 1fr' : '1fr', gap: '1rem' }}>
                   <div className="form-group">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                       <label style={{ margin: 0 }}>{L.priceLabel}</label>
+                      {!isServicesOnly && (
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                          <input
+                            type="checkbox"
+                            checked={formData.show_stock}
+                            onChange={(e) => setFormData({...formData, show_stock: e.target.checked})}
+                            style={{ margin: 0, cursor: 'pointer', accentColor: 'var(--primary)' }}
+                          />
+                          Exibir estoque no site
+                        </label>
+                      )}
                       {isServicesOnly && (
                         <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--text-muted)' }}>
                           <input
@@ -444,18 +455,7 @@ export default function NewProduct() {
                   </div>
                   {!isServicesOnly && !hasVariations && (
                     <div className="form-group">
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                        <label style={{ margin: 0 }}>Qtd. em Estoque</label>
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--text-muted)' }}>
-                          <input
-                            type="checkbox"
-                            checked={formData.show_stock}
-                            onChange={(e) => setFormData({...formData, show_stock: e.target.checked})}
-                            style={{ margin: 0, cursor: 'pointer', accentColor: 'var(--primary)' }}
-                          />
-                          Exibir no site
-                        </label>
-                      </div>
+                      <label style={{ marginBottom: '0.5rem', display: 'block' }}>Qtd. em Estoque</label>
                       <input
                         type="number"
                         required
