@@ -98,7 +98,8 @@ export default function NewProduct() {
     width: '',
     height: '',
     is_active: true,
-    is_featured: false
+    is_featured: false,
+    show_stock: true
   })
 
   const L = {
@@ -294,7 +295,7 @@ export default function NewProduct() {
           short_description: formData.short_description,
           description: formData.description,
           stock_quantity: isServicesOnly ? 9999 : (hasVariations ? variationSkus.reduce((sum, v) => sum + (parseInt(v.stock_quantity) || 0), 0) : parseInt(formData.stock_quantity)),
-          sku: isServicesOnly ? `serv-${Date.now()}${hidePrice ? '#hide_price' : ''}` : formData.sku,
+          sku: !formData.show_stock ? `${formData.sku || ''}#hide_stock` : (formData.sku || ''),
           category: formData.category,
           sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
           weight: formData.weight ? parseFloat(formData.weight) : null,
@@ -443,7 +444,18 @@ export default function NewProduct() {
                   </div>
                   {!isServicesOnly && !hasVariations && (
                     <div className="form-group">
-                      <label>Qtd. em Estoque</label>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <label style={{ margin: 0 }}>Qtd. em Estoque</label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                          <input
+                            type="checkbox"
+                            checked={formData.show_stock}
+                            onChange={(e) => setFormData({...formData, show_stock: e.target.checked})}
+                            style={{ margin: 0, cursor: 'pointer', accentColor: 'var(--primary)' }}
+                          />
+                          Exibir no site
+                        </label>
+                      </div>
                       <input
                         type="number"
                         required

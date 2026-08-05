@@ -120,7 +120,8 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     width: '',
     height: '',
     is_active: true,
-    is_featured: false
+    is_featured: false,
+    show_stock: true
   })
 
   useEffect(() => {
@@ -149,7 +150,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         short_description: data.short_description || '',
         description: data.description || '',
         stock_quantity: data.stock_quantity.toString(),
-        sku: (data.sku || '').replace('#hide_price', ''),
+        sku: (data.sku || '').replace('#hide_stock', '').replace('#hide_price', ''),
         category: data.category || '',
         sale_price: data.sale_price?.toString() || '',
         weight: data.weight?.toString() || '',
@@ -157,7 +158,8 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         width: data.width?.toString() || '',
         height: data.height?.toString() || '',
         is_active: data.is_active ?? true,
-        is_featured: data.is_featured ?? false
+        is_featured: data.is_featured ?? false,
+        show_stock: !data.sku?.includes('#hide_stock')
       })
       setHidePrice(data.hide_price === true || data.hide_price === 'true' || data.sku?.includes('#hide_price'))
       setHasVariations(data.has_variations ?? false)
@@ -312,7 +314,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         short_description: formData.short_description,
         description: formData.description,
         stock_quantity: hasVariations ? 0 : (parseInt(formData.stock_quantity) || 0),
-        sku: isServicesOnly ? `${(formData.sku || `serv-${Date.now()}`).replace('#hide_price', '')}${hidePrice ? '#hide_price' : ''}` : formData.sku,
+        sku: `${(formData.sku || '').replace('#hide_stock', '').replace('#hide_price', '')}${!formData.show_stock ? '#hide_stock' : ''}`,
         category: formData.category,
         sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
         weight: formData.weight ? parseFloat(formData.weight) : null,
@@ -467,7 +469,18 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                   </div>
                   {!isServicesOnly && !hasVariations && (
                     <div className="form-group">
-                      <label>Qtd. em Estoque</label>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                        <label style={{ margin: 0 }}>Qtd. em Estoque</label>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--text-muted)' }}>
+                          <input
+                            type="checkbox"
+                            checked={formData.show_stock}
+                            onChange={(e) => setFormData({...formData, show_stock: e.target.checked})}
+                            style={{ margin: 0, cursor: 'pointer', accentColor: 'var(--primary)' }}
+                          />
+                          Exibir no site
+                        </label>
+                      </div>
                       <input
                         type="number"
                         required

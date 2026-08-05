@@ -111,7 +111,7 @@ export default function ProductActions({
   }
 
   const productPriceFormatted = currentPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-  const productSkuClean = product?.sku?.replace('#hide_price', '') || product?.id?.slice(0, 8).toUpperCase()
+  const productSkuClean = product?.sku?.replace('#hide_stock', '').replace('#hide_price', '') || product?.id?.slice(0, 8).toUpperCase()
   
   const whatsappText = encodeURIComponent(
     `Olá! Gostaria de saber mais sobre o produto:\n\n` +
@@ -193,7 +193,7 @@ export default function ProductActions({
           <p style={{ fontSize: '0.9rem', color: '#666', margin: 0, fontWeight: 600 }}>
             em até 12x de R$ {(currentPrice / 12).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
-          {(settings?.show_stock_storefront !== false || currentStock <= 0) && (
+          {(!product?.sku?.includes('#hide_stock') || currentStock <= 0) && (
             <span style={{ 
               padding: '2px 8px', 
               borderRadius: '4px', 

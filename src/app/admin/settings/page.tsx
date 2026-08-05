@@ -269,6 +269,8 @@ export default function SettingsPage() {
         primary_color: s.primary_color || '#6366f1',
         secondary_color: s.secondary_color || '#06b6d4',
         layout_model: s.layout_model || 'modern',
+        store_mode: s.store_mode || 'loja',
+        show_stock_storefront: s.show_stock_storefront !== undefined ? s.show_stock_storefront : true,
         niche: s.niche || '',
         theme_mode: s.theme_mode || 'light',
         cta_bg_color: s.cta_bg_color || s.primary_color || '#6366f1',
@@ -1259,28 +1261,6 @@ export default function SettingsPage() {
                     <div>
                       <div style={{ fontWeight: 700 }}>Catálogo Digital (Pedidos via WhatsApp)</div>
                       <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Vitrine direta e botão de comprar pelo WhatsApp.</div>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              <div className="form-group" style={{ marginTop: '1.5rem', borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-                <label style={{ fontWeight: 700, fontSize: '1rem', color: 'var(--foreground)' }}>Gerenciamento e Exibição de Estoque</label>
-                <div style={{ marginTop: '0.75rem' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', padding: '1rem', border: '1px solid var(--border)', borderRadius: '12px', background: 'var(--card-bg, transparent)' }}>
-                    <input 
-                      type="checkbox" 
-                      style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: 'var(--primary)' }}
-                      checked={formData.show_stock_storefront !== false}
-                      onChange={(e) => setFormData({...formData, show_stock_storefront: e.target.checked})}
-                    />
-                    <div>
-                      <div style={{ fontWeight: 600, color: 'var(--foreground)', fontSize: '0.95rem' }}>
-                        Exibir quantidade de estoque no site
-                      </div>
-                      <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '0.2rem' }}>
-                        Quando desmarcado, o estoque continua gerenciável no painel, mas não é mostrado aos clientes na página do produto (ex: a tag "{`X disponíveis`}" ficará oculta).
-                      </div>
                     </div>
                   </label>
                 </div>
