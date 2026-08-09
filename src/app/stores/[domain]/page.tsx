@@ -33,13 +33,30 @@ export async function generateMetadata({ params }: { params: Promise<{ domain: s
   const storeName = store?.name || store?.settings?.store_name || store?.settings?.name || 'Loja'
   const description = store?.settings?.seo_description || store?.settings?.description || store?.settings?.bio || `Confira as melhores ofertas na ${storeName}`
 
+  let imageUrl = store?.logo_url || store?.settings?.logo_url || store?.settings?.hero_image_url || store?.settings?.favicon || ''
+  if (imageUrl && !imageUrl.startsWith('http')) {
+    const protocol = resolvedParams.domain.includes('localhost') ? 'http' : 'https'
+    imageUrl = `${protocol}://${resolvedParams.domain}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
+  }
+
+  const siteUrl = resolvedParams.domain.includes('http') ? resolvedParams.domain : `https://${resolvedParams.domain}`
+
   return {
     title: storeName,
     description: description,
     openGraph: {
       title: storeName,
       description: description,
-      images: store?.logo_url ? [{ url: store.logo_url }] : [],
+      url: siteUrl,
+      siteName: storeName,
+      images: imageUrl ? [{ url: imageUrl, alt: storeName }] : [],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: storeName,
+      description: description,
+      images: imageUrl ? [imageUrl] : [],
     },
   }
 }

@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import { ShoppingCart, ShieldCheck, Truck, RefreshCw, ChevronRight, Share2, CreditCard, MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import BenefitIcon from '@/components/BenefitIcon'
@@ -14,6 +15,72 @@ import WhatsAppFloatingButton from '@/components/Storefront/WhatsAppFloatingButt
 import OfferPopup from '@/components/Storefront/OfferPopup'
 
 export const dynamic = 'force-dynamic'
+
+export async function generateMetadata({ 
+  params 
+}: { 
+  params: Promise<{ domain: string, slug: string }> 
+}): Promise<Metadata> {
+  const resolvedParams = await params
+  const product = await getProductData(resolvedParams.domain, resolvedParams.slug)
+
+  if (!product) {
+    return {
+      title: 'Produto não encontrado',
+    }
+  }
+
+  const store = product.stores
+  const storeName = store?.name || store?.settings?.store_name || store?.settings?.name || 'Loja'
+  const title = product.name
+
+  const rawDesc = product.short_description || product.description || store?.settings?.seo_description || `Confira ${product.name} na ${storeName}`
+  const description = rawDesc.replace(/<[^>]*>?/gm, '').replace(/\s+/g, ' ').trim().slice(0, 200)
+
+  let mainImage = ''
+  if (Array.isArray(product.images) && product.images.length > 0 && product.images[0]) {
+    mainImage = product.images[0]
+  } else if (typeof product.images === 'string' && product.images) {
+    try {
+      const parsed = JSON.parse(product.images)
+      if (Array.isArray(parsed) && parsed[0]) mainImage = parsed[0]
+      else mainImage = product.images
+    } catch {
+      mainImage = product.images
+    }
+  }
+
+  if (!mainImage) {
+    mainImage = store?.logo_url || store?.settings?.logo_url || store?.settings?.hero_image_url || store?.settings?.favicon || ''
+  }
+
+  if (mainImage && !mainImage.startsWith('http')) {
+    const protocol = resolvedParams.domain.includes('localhost') ? 'http' : 'https'
+    mainImage = `${protocol}://${resolvedParams.domain}${mainImage.startsWith('/') ? '' : '/'}${mainImage}`
+  }
+
+  const siteUrl = resolvedParams.domain.includes('http') ? resolvedParams.domain : `https://${resolvedParams.domain}`
+  const productUrl = `${siteUrl}/product/${resolvedParams.slug}`
+
+  return {
+    title: title,
+    description: description,
+    openGraph: {
+      title: `${product.name} | ${storeName}`,
+      description: description,
+      url: productUrl,
+      siteName: storeName,
+      images: mainImage ? [{ url: mainImage, alt: product.name }] : [],
+      type: 'article',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${product.name} | ${storeName}`,
+      description: description,
+      images: mainImage ? [mainImage] : [],
+    },
+  }
+}
 
 async function getProductData(domain: string, slug: string) {
   const cleanDomain = domain.replace(/^www\./i, '')

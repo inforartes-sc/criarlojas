@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import ProductCard from '@/components/Storefront/ProductCard'
 import StoreHeader from '@/components/Storefront/StoreHeader'
@@ -13,6 +14,40 @@ async function getStoreData(domain: string) {
     .or(`subdomain.eq.${subdomainOnly},subdomain.eq.${domain},custom_domain.eq.${domain}`)
     .single()
   return data
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ domain: string }> }): Promise<Metadata> {
+  const resolvedParams = await params
+  const store = await getStoreData(resolvedParams.domain)
+  const storeName = store?.name || store?.settings?.store_name || store?.settings?.name || 'Loja'
+  const description = `Produtos e catálogo completo - ${storeName}`
+
+  let imageUrl = store?.logo_url || store?.settings?.logo_url || store?.settings?.hero_image_url || store?.settings?.favicon || ''
+  if (imageUrl && !imageUrl.startsWith('http')) {
+    const protocol = resolvedParams.domain.includes('localhost') ? 'http' : 'https'
+    imageUrl = `${protocol}://${resolvedParams.domain}${imageUrl.startsWith('/') ? '' : '/'}${imageUrl}`
+  }
+
+  const siteUrl = resolvedParams.domain.includes('http') ? resolvedParams.domain : `https://${resolvedParams.domain}`
+
+  return {
+    title: `Produtos | ${storeName}`,
+    description: description,
+    openGraph: {
+      title: `Produtos | ${storeName}`,
+      description: description,
+      url: `${siteUrl}/produtos`,
+      siteName: storeName,
+      images: imageUrl ? [{ url: imageUrl, alt: storeName }] : [],
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `Produtos | ${storeName}`,
+      description: description,
+      images: imageUrl ? [imageUrl] : [],
+    },
+  }
 }
 
 async function getProducts(storeId: string) {
