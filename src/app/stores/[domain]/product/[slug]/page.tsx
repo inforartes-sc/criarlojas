@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic'
 export async function generateMetadata({ 
   params 
 }: { 
-  params: Promise<{ domain: string, slug: string }> 
+  params: any
 }): Promise<Metadata> {
   const resolvedParams = await params
   const product = await getProductData(resolvedParams.domain, resolvedParams.slug)

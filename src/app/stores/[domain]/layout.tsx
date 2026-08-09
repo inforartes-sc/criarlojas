@@ -9,7 +9,7 @@ type Props = {
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ domain: string }>
+  params: any
 }): Promise<Metadata> {
   const resolvedParams = await params
   const rawDomain = resolvedParams?.domain || ''

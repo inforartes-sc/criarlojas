@@ -27,7 +27,7 @@ async function getStoreData(domain: string) {
   return data
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ domain: string }> }) {
+export async function generateMetadata({ params }: { params: any }) {
   const resolvedParams = await params
   const store = await getStoreData(resolvedParams.domain)
   const storeName = store?.name || store?.settings?.store_name || store?.settings?.name || 'Loja'
