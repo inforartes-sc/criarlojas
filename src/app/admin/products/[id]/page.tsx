@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { ArrowLeft, Save, Upload, Loader2, X, Trash2, CheckCircle2, Circle } from 'lucide-react'
+import { ArrowLeft, Save, Upload, Loader2, X, Trash2, CheckCircle2, Circle, Copy, Layers } from 'lucide-react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
@@ -123,6 +123,52 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     is_featured: false,
     show_stock: true
   })
+
+  const [showBulkModal, setShowBulkModal] = useState(false)
+  const [bulkData, setBulkData] = useState({ price: '', sale_price: '', stock_quantity: '' })
+
+  const handleApplyMainPriceToAll = () => {
+    const mainPrice = parseFloat(formData.price) || 0
+    const mainSalePrice = formData.sale_price ? parseFloat(formData.sale_price) : null
+
+    if (!mainPrice && mainPrice !== 0) {
+      toast.error('Preço principal do produto não informado.')
+      return
+    }
+
+    setVariationSkus(prev => prev.map(sku => ({
+      ...sku,
+      price: mainPrice,
+      sale_price: mainSalePrice
+    })))
+    toast.success('Preço do produto principal aplicado a todas as variações!')
+  }
+
+  const handleApplyBulkData = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (bulkData.price === '' && bulkData.sale_price === '' && bulkData.stock_quantity === '') {
+      toast.error('Preencha ao menos um campo para atualização em massa.')
+      return
+    }
+
+    setVariationSkus(prev => prev.map(sku => {
+      const updated = { ...sku }
+      if (bulkData.price !== '') {
+        updated.price = parseFloat(bulkData.price) || 0
+      }
+      if (bulkData.sale_price !== '') {
+        updated.sale_price = bulkData.sale_price.trim() !== '' ? parseFloat(bulkData.sale_price) : null
+      }
+      if (bulkData.stock_quantity !== '') {
+        updated.stock_quantity = parseInt(bulkData.stock_quantity) || 0
+      }
+      return updated
+    }))
+
+    setShowBulkModal(false)
+    setBulkData({ price: '', sale_price: '', stock_quantity: '' })
+    toast.success('Atualização em massa aplicada a todas as variações!')
+  }
 
   useEffect(() => {
     if (store) {
@@ -700,11 +746,54 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         {/* Tabela de Variações em largura total */}
         {variationSkus.length > 0 && (
           <div className="glass-card" style={{ padding: '2.5rem', display: 'flex', flexDirection: 'column', gap: '1.5rem', width: '100%' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
-              <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>Tabela de Variações e Estoque</h3>
-              <span style={{ fontSize: '0.9rem', color: 'var(--muted)', background: 'var(--background)', padding: '0.4rem 0.8rem', borderRadius: '20px', border: '1px solid var(--border)' }}>
-                {variationSkus.length} {variationSkus.length === 1 ? 'combinação gerada' : 'combinações geradas'}
-              </span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', borderBottom: '1px solid var(--border)', paddingBottom: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0 }}>Tabela de Variações e Estoque</h3>
+                <span style={{ fontSize: '0.9rem', color: 'var(--muted)', background: 'var(--background)', padding: '0.4rem 0.8rem', borderRadius: '20px', border: '1px solid var(--border)' }}>
+                  {variationSkus.length} {variationSkus.length === 1 ? 'combinação gerada' : 'combinações geradas'}
+                </span>
+              </div>
+              <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                <button
+                  type="button"
+                  onClick={handleApplyMainPriceToAll}
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.6rem 1.2rem',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    background: 'var(--primary)',
+                    color: '#ffffff',
+                    border: 'none',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  <Copy size={16} />
+                  Aplicar preço principal a todas
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowBulkModal(true)}
+                  className="btn-secondary"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.6rem 1.2rem',
+                    fontSize: '0.85rem',
+                    fontWeight: 700,
+                    borderRadius: '8px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <Layers size={16} />
+                  Atualização em Massa
+                </button>
+              </div>
             </div>
             <div style={{ display: 'grid', gap: '1rem' }}>
               {variationSkus.map((skuObj, skuIdx) => (
@@ -833,6 +922,78 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         </div>
 
       </form>
+
+      {/* Modal de Atualização de Variações em Massa */}
+      {showBulkModal && (
+        <div style={{ position: 'fixed', inset: 0, backgroundColor: 'rgba(15, 23, 42, 0.4)', backdropFilter: 'blur(8px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '2rem' }}>
+          <div className="glass-card" style={{ maxWidth: '450px', width: '100%', padding: '2rem', position: 'relative', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.15)' }}>
+            <button
+              onClick={() => setShowBulkModal(false)}
+              style={{ position: 'absolute', top: '1rem', right: '1rem', background: 'rgba(0,0,0,0.05)', border: 'none', color: 'var(--muted)', cursor: 'pointer', padding: '0.5rem', borderRadius: '50%', display: 'flex' }}
+            >
+              <X size={20} />
+            </button>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.5rem', color: 'var(--foreground)' }}>
+              Atualizar Variações em Massa
+            </h3>
+            <p style={{ fontSize: '0.875rem', color: 'var(--muted)', marginBottom: '1.5rem' }}>
+              Preencha os valores abaixo que deseja aplicar a todas as {variationSkus.length} variações. Deixe em branco os campos que não quiser alterar.
+            </p>
+
+            <form onSubmit={handleApplyBulkData} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="form-group">
+                <label>Novo Preço de Venda (R$)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={bulkData.price}
+                  onChange={(e) => setBulkData({ ...bulkData, price: e.target.value })}
+                  placeholder="Ex: 99.90 (ou deixe em branco)"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Novo Preço Promocional (R$)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={bulkData.sale_price}
+                  onChange={(e) => setBulkData({ ...bulkData, sale_price: e.target.value })}
+                  placeholder="Ex: 79.90 (ou deixe em branco)"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Novo Estoque</label>
+                <input
+                  type="number"
+                  value={bulkData.stock_quantity}
+                  onChange={(e) => setBulkData({ ...bulkData, stock_quantity: e.target.value })}
+                  placeholder="Ex: 50 (ou deixe em branco)"
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowBulkModal(false)}
+                  className="btn-secondary"
+                  style={{ flex: 1 }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="btn-primary"
+                  style={{ flex: 1 }}
+                >
+                  Aplicar a Todas
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
