@@ -95,6 +95,7 @@ export default function ProductCustomizer({
   const [frontPrint, setFrontPrint] = useState<PrintItem | null>(prints[0] || null)
   const [backPrint, setBackPrint] = useState<PrintItem | null>(null)
   const [activePrintSide, setActivePrintSide] = useState<'front' | 'back'>('front')
+  const [printSize, setPrintSize] = useState<'normal' | 'grande'>('normal')
   const [selectedSize, setSelectedSize] = useState<string>(availableSizes[0] || 'M')
   const [quantity, setQuantity] = useState<number>(1)
   const [selectedCategory, setSelectedCategory] = useState<string>('Todas')
@@ -117,6 +118,11 @@ export default function ProductCustomizer({
         ? Number(settings.customizer_back_print_extra_price)
         : 15.00)
 
+  // Taxa da estampa grande (configuração da loja ou padrão R$ 10,00)
+  const largePrintBaseFee = settings?.customizer_large_print_extra_price !== undefined && settings?.customizer_large_print_extra_price !== null
+    ? Number(settings.customizer_large_print_extra_price)
+    : 10.00
+
   // Categories list
   const categories = ['Todas', ...Array.from(new Set(prints.map(p => p.category)))]
 
@@ -127,7 +133,8 @@ export default function ProductCustomizer({
   const basePrice = parseFloat(product?.price || 0)
   const frontExtraPrice = frontPrint?.extra_price ? Number(frontPrint.extra_price) : 0
   const backExtraPrice = backPrint ? (Number(backPrint.extra_price || 0) + backPrintBaseFee) : 0
-  const unitPrice = basePrice + frontExtraPrice + backExtraPrice
+  const largePrintFee = printSize === 'grande' ? largePrintBaseFee : 0
+  const unitPrice = basePrice + frontExtraPrice + backExtraPrice + largePrintFee
   const totalPrice = unitPrice * quantity
 
   const whatsappNumber = (settings?.whatsapp_number || settings?.phone || settings?.whatsapp || '').replace(/\D/g, '')
@@ -142,7 +149,7 @@ export default function ProductCustomizer({
   // Draw real-time canvas mockup preview
   useEffect(() => {
     drawMockupCanvas()
-  }, [selectedColor, frontPrint, backPrint, printScale, activePrintSide])
+  }, [selectedColor, frontPrint, backPrint, printScale, activePrintSide, printSize])
 
   const drawMockupCanvas = () => {
     const canvas = canvasRef.current
@@ -166,15 +173,21 @@ export default function ProductCustomizer({
         img.onload = () => {
           ctx.save()
 
-          let printWidth = 200 * printScale
+          const isGrande = printSize === 'grande'
+          let baseMaxW = isGrande ? 236 : 195
+          let baseMaxH = isGrande ? 320 : 255
+
+          let printWidth = baseMaxW * printScale
           let printHeight = (img.height / img.width) * printWidth
-          if (printHeight > 260 * printScale) {
-            printHeight = 260 * printScale
+          if (printHeight > baseMaxH * printScale) {
+            printHeight = baseMaxH * printScale
             printWidth = (img.width / img.height) * printHeight
           }
 
           let posX = 300 - printWidth / 2
-          let posY = isBack ? 220 - printHeight / 2 : 260 - printHeight / 2
+          let posY = isGrande
+            ? (isBack ? 235 - printHeight / 2 : 265 - printHeight / 2)
+            : (isBack ? 220 - printHeight / 2 : 255 - printHeight / 2)
 
           // Soft fabric blend drop shadow
           ctx.shadowColor = 'rgba(0,0,0,0.25)'
@@ -282,6 +295,8 @@ export default function ProductCustomizer({
       printSummary = `Sem estampa`
     }
 
+    const printSizeLabel = printSize === 'grande' ? 'Estampa Grande Panorâmica' : 'Estampa Normal'
+
     const customizationData = {
       colorName: selectedColor.name,
       colorHex: selectedColor.hex,
@@ -293,8 +308,10 @@ export default function ProductCustomizer({
       backPrintImageUrl: backPrint?.image_url,
       hasBackPrint: !!backPrint,
       backPrintFee: backPrint ? backPrintBaseFee : 0,
+      printSize: printSize,
+      largePrintFee: largePrintFee,
       printId: frontPrint?.id || backPrint?.id,
-      printTitle: printSummary,
+      printTitle: `${printSummary} [${printSizeLabel}]`,
       printImageUrl: frontPrint?.image_url || backPrint?.image_url,
       mockupPreviewUrl: mockupPreviewUrl
     }
@@ -698,7 +715,70 @@ export default function ProductCustomizer({
           </div>
         </div>
 
-        {/* Step 3: Tamanho & Quantidade */}
+        {/* Step 3: Tamanho/Dimensão da Aplicação da Estampa */}
+        <div>
+          <label style={{ fontSize: '0.95rem', fontWeight: 800, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.65rem' }}>
+            <Sparkles size={18} color="#ec4899" />
+            <span>3. Escolha o Tamanho da Estampa:</span>
+          </label>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+            <button
+              onClick={() => setPrintSize('normal')}
+              style={{
+                padding: '0.75rem 0.6rem',
+                borderRadius: '12px',
+                border: printSize === 'normal' ? `2px solid ${primaryColor}` : '1px solid #cbd5e1',
+                backgroundColor: printSize === 'normal' ? `${primaryColor}10` : '#fff',
+                color: printSize === 'normal' ? primaryColor : '#475569',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.25rem',
+                textAlign: 'center',
+                transition: 'all 0.2s ease',
+                boxShadow: printSize === 'normal' ? `0 4px 12px ${primaryColor}20` : 'none'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <span style={{ fontWeight: 800, fontSize: '0.88rem' }}>Estampa Normal</span>
+                {printSize === 'normal' && <Check size={14} />}
+              </div>
+              <small style={{ fontSize: '0.72rem', color: '#64748b' }}>Padrão (Sem acréscimo)</small>
+            </button>
+
+            <button
+              onClick={() => setPrintSize('grande')}
+              style={{
+                padding: '0.75rem 0.6rem',
+                borderRadius: '12px',
+                border: printSize === 'grande' ? `2px solid #ec4899` : '1px solid #cbd5e1',
+                backgroundColor: printSize === 'grande' ? 'rgba(236, 72, 153, 0.08)' : '#fff',
+                color: printSize === 'grande' ? '#db2777' : '#475569',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.25rem',
+                textAlign: 'center',
+                transition: 'all 0.2s ease',
+                boxShadow: printSize === 'grande' ? '0 4px 12px rgba(236, 72, 153, 0.2)' : 'none'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <Sparkles size={14} color="#ec4899" />
+                <span style={{ fontWeight: 800, fontSize: '0.88rem' }}>Estampa Grande</span>
+                {printSize === 'grande' && <Check size={14} color="#db2777" />}
+              </div>
+              <small style={{ fontSize: '0.72rem', fontWeight: 700, color: '#db2777' }}>
+                Max Panorâmica {largePrintBaseFee > 0 ? `(+R$ ${largePrintBaseFee.toFixed(2)})` : ''}
+              </small>
+            </button>
+          </div>
+        </div>
+
+        {/* Step 4: Tamanho da Camiseta & Quantidade */}
         <div className="customizer-size-qty-row" style={{ display: 'grid', gridTemplateColumns: '1fr 120px', gap: '1rem' }}>
           <div>
             <label style={{ fontSize: '0.85rem', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '0.5rem' }}>

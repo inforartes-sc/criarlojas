@@ -55,6 +55,7 @@ export default function AdminCustomizerPage() {
   const [saving, setSaving] = useState(false)
   const [customizerEnabled, setCustomizerEnabled] = useState(false)
   const [backPrintExtraPrice, setBackPrintExtraPrice] = useState<number>(15)
+  const [largePrintExtraPrice, setLargePrintExtraPrice] = useState<number>(10)
   const [baseColors, setBaseColors] = useState<BaseColor[]>(DEFAULT_BASE_COLORS)
   const [prints, setPrints] = useState<PrintItem[]>(DEFAULT_PRINTS)
 
@@ -90,6 +91,9 @@ export default function AdminCustomizerPage() {
       if (settings.customizer_back_print_extra_price !== undefined) {
         setBackPrintExtraPrice(Number(settings.customizer_back_print_extra_price) || 0)
       }
+      if (settings.customizer_large_print_extra_price !== undefined) {
+        setLargePrintExtraPrice(Number(settings.customizer_large_print_extra_price) || 0)
+      }
 
       if (settings.customizer_base_colors && Array.isArray(settings.customizer_base_colors)) {
         setBaseColors(settings.customizer_base_colors)
@@ -108,7 +112,8 @@ export default function AdminCustomizerPage() {
     updatedEnabled = customizerEnabled,
     updatedColors = baseColors,
     updatedPrints = prints,
-    updatedBackFee = backPrintExtraPrice
+    updatedBackFee = backPrintExtraPrice,
+    updatedLargeFee = largePrintExtraPrice
   ) => {
     if (!store?.id) return
     setSaving(true)
@@ -118,6 +123,7 @@ export default function AdminCustomizerPage() {
         ...existingSettings,
         customizer_enabled: updatedEnabled,
         customizer_back_print_extra_price: updatedBackFee,
+        customizer_large_print_extra_price: updatedLargeFee,
         customizer_base_colors: updatedColors,
         customizer_prints: updatedPrints
       }
@@ -366,7 +372,7 @@ export default function AdminCustomizerPage() {
       </div>
 
       {/* Card de Configuração do Valor Adicional da Estampa nas Costas */}
-      <div className="glass-card admin-customizer-card" style={{ padding: '1.5rem 2rem', borderRadius: '14px', border: '1px solid var(--border)', backgroundColor: 'var(--input-bg)', display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem', marginBottom: '1.5rem' }}>
+      <div className="glass-card admin-customizer-card" style={{ padding: '1.5rem 2rem', borderRadius: '14px', border: '1px solid var(--border)', backgroundColor: 'var(--input-bg)', display: 'flex', flexDirection: 'column', gap: '1rem', marginTop: '1.5rem', marginBottom: '1rem' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
             <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--foreground)' }}>
@@ -391,7 +397,7 @@ export default function AdminCustomizerPage() {
               />
             </div>
             <button
-              onClick={() => handleSaveSettings(customizerEnabled, baseColors, prints, backPrintExtraPrice)}
+              onClick={() => handleSaveSettings(customizerEnabled, baseColors, prints, backPrintExtraPrice, largePrintExtraPrice)}
               disabled={saving || !isAllowedPlan}
               style={{
                 padding: '0.75rem 1.4rem',
@@ -410,6 +416,56 @@ export default function AdminCustomizerPage() {
             >
               {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
               Salvar Taxa das Costas
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Card de Configuração do Valor Adicional para Estampa Grande / Panorâmica */}
+      <div className="glass-card admin-customizer-card" style={{ padding: '1.5rem 2rem', borderRadius: '14px', border: '1px solid var(--border)', backgroundColor: 'var(--input-bg)', display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '1rem' }}>
+          <div>
+            <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '0.6rem', color: 'var(--foreground)' }}>
+              <Sparkles size={22} color="#ec4899" />
+              Taxa Adicional para Estampa Grande / Panorâmica (R$)
+            </h3>
+            <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.88rem', color: 'var(--muted)' }}>
+              Defina o valor adicional cobrado quando o cliente optar por aplicar a estampa em tamanho grande (Max Panorâmica) na camiseta.
+            </p>
+          </div>
+
+          <div className="admin-taxa-actions" style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', backgroundColor: 'var(--background)', padding: '0.5rem 1rem', borderRadius: '10px', border: '1.5px solid #ec4899' }}>
+              <span style={{ fontWeight: 800, color: '#ec4899', fontSize: '1.1rem' }}>R$</span>
+              <input
+                type="number"
+                step="0.50"
+                min="0"
+                value={largePrintExtraPrice}
+                onChange={e => setLargePrintExtraPrice(Number(e.target.value) || 0)}
+                style={{ width: '100px', border: 'none', background: 'transparent', outline: 'none', fontWeight: 900, fontSize: '1.2rem', color: 'var(--foreground)' }}
+              />
+            </div>
+            <button
+              onClick={() => handleSaveSettings(customizerEnabled, baseColors, prints, backPrintExtraPrice, largePrintExtraPrice)}
+              disabled={saving || !isAllowedPlan}
+              style={{
+                padding: '0.75rem 1.4rem',
+                backgroundColor: '#ec4899',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '10px',
+                fontWeight: 800,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                boxShadow: '0 4px 14px rgba(236, 72, 153, 0.3)'
+              }}
+            >
+              {saving ? <Loader2 className="animate-spin" size={18} /> : <Save size={18} />}
+              Salvar Taxa Estampa Grande
             </button>
           </div>
         </div>

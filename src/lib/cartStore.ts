@@ -16,6 +16,9 @@ export interface ProductCustomization {
   backPrintImageUrl?: string;
   hasBackPrint?: boolean;
   backPrintFee?: number;
+  // Tamanho da estampa
+  printSize?: 'normal' | 'grande';
+  largePrintFee?: number;
   // Previews das Maquetes
   mockupPreviewUrl?: string;
   mockupBackPreviewUrl?: string;
