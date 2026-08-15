@@ -216,27 +216,41 @@ export default function AdminCustomizerPage() {
 
     setUploadingImage(true)
     try {
-      const formData = new FormData()
-      formData.append('file', file)
+      let finalUrl = ''
 
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      })
+      if (store?.id) {
+        const fileExt = file.name.split('.').pop() || 'png'
+        const fileName = `customizer-${targetField}-${Date.now()}.${fileExt}`
+        const filePath = `${store.id}/customizer/${fileName}`
 
-      if (!res.ok) throw new Error('Falha no upload')
+        const { error: uploadError } = await supabase.storage.from('store-assets').upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        })
 
-      const data = await res.json()
-      const url = data.url
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage.from('store-assets').getPublicUrl(filePath)
+          finalUrl = publicUrl
+        }
+      }
 
-      if (targetField === 'color_front') setNewColorImage(url)
-      if (targetField === 'color_back') setNewColorImageBack(url)
-      if (targetField === 'print') setNewPrintImage(url)
+      if (!finalUrl) {
+        finalUrl = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader()
+          reader.onload = () => resolve(reader.result as string)
+          reader.onerror = reject
+          reader.readAsDataURL(file)
+        })
+      }
+
+      if (targetField === 'color_front') setNewColorImage(finalUrl)
+      if (targetField === 'color_back') setNewColorImageBack(finalUrl)
+      if (targetField === 'print') setNewPrintImage(finalUrl)
 
       toast.success('Imagem enviada com sucesso!')
     } catch (err: any) {
-      console.error(err)
-      toast.error('Erro ao enviar imagem.')
+      console.error('Erro upload customizer:', err)
+      toast.error('Erro ao enviar imagem: ' + (err.message || 'Tente novamente.'))
     } finally {
       setUploadingImage(false)
     }
