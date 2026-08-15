@@ -274,9 +274,10 @@ export default function ProductCustomizer({
           }
 
           let posX = 300 - printWidth / 2
+          // Fixed TOP alignment so all prints start at the exact same chest position regardless of image aspect ratio/height
           let posY = isGrande
-            ? (isBack ? 265 - printHeight / 2 : 295 - printHeight / 2)
-            : (isBack ? 250 - printHeight / 2 : 280 - printHeight / 2)
+            ? (isBack ? 145 : 165)
+            : (isBack ? 160 : 180)
 
           // Soft fabric blend drop shadow
           ctx.shadowColor = 'rgba(0,0,0,0.25)'
