@@ -11,6 +11,21 @@ interface BaseColor {
   hex: string
   image_url?: string
   image_url_back?: string
+  model_type?: 'todos' | 'masculino' | 'feminino' | 'infantil' | string
+  model_types?: string[]
+}
+
+const getColorModels = (c: BaseColor): string[] => {
+  if (Array.isArray(c.model_types) && c.model_types.length > 0) {
+    return c.model_types
+  }
+  if (typeof c.model_type === 'string') {
+    if (c.model_type === 'todos' || !c.model_type) {
+      return ['masculino', 'feminino', 'infantil']
+    }
+    return [c.model_type]
+  }
+  return ['masculino', 'feminino', 'infantil']
 }
 
 interface PrintItem {
@@ -19,6 +34,8 @@ interface PrintItem {
   category: string
   image_url: string
   extra_price?: number
+  target_audience?: 'todos' | 'masculino' | 'feminino' | 'infantil' | string | string[]
+  target_audiences?: string[]
 }
 
 interface ProductCustomizerProps {
@@ -30,12 +47,12 @@ interface ProductCustomizerProps {
 }
 
 const DEFAULT_COLORS: BaseColor[] = [
-  { id: '1', name: 'Branca', hex: '#FFFFFF' },
-  { id: '2', name: 'Preta', hex: '#18181b' },
-  { id: '3', name: 'Cinza Mescla', hex: '#9ca3af' },
-  { id: '4', name: 'Vermelha', hex: '#ef4444' },
-  { id: '5', name: 'Azul Marinho', hex: '#1e3a8a' },
-  { id: '6', name: 'Verde Militar', hex: '#3f6212' }
+  { id: '1', name: 'Branca', hex: '#FFFFFF', model_type: 'todos' },
+  { id: '2', name: 'Preta', hex: '#18181b', model_type: 'todos' },
+  { id: '3', name: 'Cinza Mescla', hex: '#9ca3af', model_type: 'todos' },
+  { id: '4', name: 'Vermelha', hex: '#ef4444', model_type: 'todos' },
+  { id: '5', name: 'Azul Marinho', hex: '#1e3a8a', model_type: 'todos' },
+  { id: '6', name: 'Verde Militar', hex: '#3f6212', model_type: 'todos' }
 ]
 
 const DEFAULT_PRINTS: PrintItem[] = [
@@ -44,14 +61,16 @@ const DEFAULT_PRINTS: PrintItem[] = [
     title: 'Caveira Rock',
     category: 'Música',
     image_url: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=400&auto=format&fit=crop&q=80',
-    extra_price: 0
+    extra_price: 0,
+    target_audience: 'todos'
   },
   {
     id: 'p2',
     title: 'Astronauta Chill',
     category: 'Geek',
     image_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80',
-    extra_price: 0
+    extra_price: 0,
+    target_audience: 'todos'
   }
 ]
 
@@ -70,8 +89,10 @@ export default function ProductCustomizer({
     ? settings.customizer_prints
     : DEFAULT_PRINTS
 
-  // Dynamically extract sizes configured in product.variation_options (e.g. "Tamanho")
-  const availableSizes: string[] = useMemo(() => {
+  const [selectedGenderModel, setSelectedGenderModel] = useState<'masculino' | 'feminino' | 'infantil'>('masculino')
+
+  // Extract sizes explicitly registered on the product (if any)
+  const productRegisteredSizes: string[] = useMemo(() => {
     if (product?.has_variations && Array.isArray(product?.variation_options)) {
       const sizeOpt = product.variation_options.find((opt: any) => 
         opt.name && (
@@ -81,33 +102,92 @@ export default function ProductCustomizer({
         )
       )
       if (sizeOpt && Array.isArray(sizeOpt.values) && sizeOpt.values.length > 0) {
-        return sizeOpt.values
+        return sizeOpt.values.map((v: any) => String(v).trim())
       }
       const firstOpt = product.variation_options[0]
       if (firstOpt && Array.isArray(firstOpt.values) && firstOpt.values.length > 0) {
-        return firstOpt.values
+        return firstOpt.values.map((v: any) => String(v).trim())
       }
     }
-    return ['P', 'M', 'G', 'GG', 'XG']
+    if (product?.has_variations && Array.isArray(product?.variation_skus)) {
+      const sizesFromSkus = new Set<string>()
+      product.variation_skus.forEach((sku: any) => {
+        if (sku.combination) {
+          Object.entries(sku.combination).forEach(([k, v]) => {
+            if (k.toLowerCase().includes('tamanho') || k.toLowerCase().includes('size') || k.toLowerCase().includes('medida')) {
+              sizesFromSkus.add(String(v).trim())
+            }
+          })
+        }
+      })
+      if (sizesFromSkus.size > 0) {
+        return Array.from(sizesFromSkus)
+      }
+    }
+    return []
   }, [product])
 
-  const [selectedColor, setSelectedColor] = useState<BaseColor>(baseColors[0] || DEFAULT_COLORS[0])
+  const baseModelSizes: string[] = useMemo(() => {
+    if (selectedGenderModel === 'infantil') {
+      return ['2', '4', '6', '8', '10', '12', '14', '16']
+    }
+    if (selectedGenderModel === 'feminino') {
+      return ['P', 'M', 'G', 'GG']
+    }
+    return ['P', 'M', 'G', 'GG', 'XGG', 'EXG']
+  }, [selectedGenderModel])
+
+  const displaySizes: string[] = useMemo(() => {
+    const list = [...baseModelSizes]
+    if (productRegisteredSizes.length > 0) {
+      productRegisteredSizes.forEach(regSz => {
+        if (!list.some(s => s.toLowerCase() === regSz.toLowerCase())) {
+          list.push(regSz)
+        }
+      })
+    }
+    return list
+  }, [baseModelSizes, productRegisteredSizes])
+
+  const isSizeAvailable = (sz: string) => {
+    if (!productRegisteredSizes || productRegisteredSizes.length === 0) {
+      return true
+    }
+    return productRegisteredSizes.some(regSz => regSz.toLowerCase() === sz.toLowerCase())
+  }
+
+  const filteredColors = useMemo(() => {
+    return baseColors.filter(c => {
+      const models = getColorModels(c)
+      return models.includes(selectedGenderModel)
+    })
+  }, [baseColors, selectedGenderModel])
+
+  const [selectedColor, setSelectedColor] = useState<BaseColor>(filteredColors[0] || baseColors[0] || DEFAULT_COLORS[0])
   const [frontPrint, setFrontPrint] = useState<PrintItem | null>(prints[0] || null)
   const [backPrint, setBackPrint] = useState<PrintItem | null>(null)
   const [activePrintSide, setActivePrintSide] = useState<'front' | 'back'>('front')
   const [printSize, setPrintSize] = useState<'normal' | 'grande'>('normal')
-  const [selectedSize, setSelectedSize] = useState<string>(availableSizes[0] || 'M')
+  const [selectedSize, setSelectedSize] = useState<string>('M')
   const [quantity, setQuantity] = useState<number>(1)
   const [selectedCategory, setSelectedCategory] = useState<string>('Todas')
   const [printScale, setPrintScale] = useState<number>(1.0)
   const [generatingMockup, setGeneratingMockup] = useState<boolean>(false)
 
-  // Ensure selectedSize is updated if availableSizes changes
+  // Ensure selectedColor is valid when model changes
   useEffect(() => {
-    if (availableSizes.length > 0 && !availableSizes.includes(selectedSize)) {
-      setSelectedSize(availableSizes[0])
+    if (filteredColors.length > 0 && !filteredColors.some(c => c.id === selectedColor.id)) {
+      setSelectedColor(filteredColors[0])
     }
-  }, [availableSizes])
+  }, [filteredColors])
+
+  // Ensure selectedSize defaults to first available size
+  useEffect(() => {
+    const available = displaySizes.filter(isSizeAvailable)
+    if (available.length > 0 && (!isSizeAvailable(selectedSize) || !displaySizes.includes(selectedSize))) {
+      setSelectedSize(available[0])
+    }
+  }, [displaySizes, productRegisteredSizes, selectedGenderModel])
 
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
@@ -126,9 +206,18 @@ export default function ProductCustomizer({
   // Categories list
   const categories = ['Todas', ...Array.from(new Set(prints.map(p => p.category)))]
 
-  const filteredPrints = selectedCategory === 'Todas'
-    ? prints
-    : prints.filter(p => p.category === selectedCategory)
+  const filteredPrints = prints.filter(p => {
+    let matchesAudience = true
+    if (p.target_audiences && Array.isArray(p.target_audiences) && p.target_audiences.length > 0) {
+      matchesAudience = p.target_audiences.includes('todos') || p.target_audiences.includes(selectedGenderModel)
+    } else if (Array.isArray(p.target_audience)) {
+      matchesAudience = (p.target_audience as string[]).includes('todos') || (p.target_audience as string[]).includes(selectedGenderModel)
+    } else if (p.target_audience && p.target_audience !== 'todos') {
+      matchesAudience = p.target_audience === selectedGenderModel
+    }
+    const matchesCategory = selectedCategory === 'Todas' || p.category === selectedCategory
+    return matchesAudience && matchesCategory
+  })
 
   const basePrice = parseFloat(product?.price || 0)
   const frontExtraPrice = frontPrint?.extra_price ? Number(frontPrint.extra_price) : 0
@@ -186,8 +275,8 @@ export default function ProductCustomizer({
 
           let posX = 300 - printWidth / 2
           let posY = isGrande
-            ? (isBack ? 235 - printHeight / 2 : 265 - printHeight / 2)
-            : (isBack ? 220 - printHeight / 2 : 255 - printHeight / 2)
+            ? (isBack ? 265 - printHeight / 2 : 295 - printHeight / 2)
+            : (isBack ? 250 - printHeight / 2 : 280 - printHeight / 2)
 
           // Soft fabric blend drop shadow
           ctx.shadowColor = 'rgba(0,0,0,0.25)'
@@ -296,8 +385,13 @@ export default function ProductCustomizer({
     }
 
     const printSizeLabel = printSize === 'grande' ? 'Estampa Grande Panorâmica' : 'Estampa Normal'
+    const genderModelLabel = selectedGenderModel === 'infantil'
+      ? 'Infantil'
+      : (selectedGenderModel === 'feminino' ? 'Feminino (Baby Look)' : 'Masculino (Unissex)')
 
     const customizationData = {
+      genderModel: selectedGenderModel,
+      genderModelLabel: genderModelLabel,
       colorName: selectedColor.name,
       colorHex: selectedColor.hex,
       frontPrintId: frontPrint?.id,
@@ -311,14 +405,14 @@ export default function ProductCustomizer({
       printSize: printSize,
       largePrintFee: largePrintFee,
       printId: frontPrint?.id || backPrint?.id,
-      printTitle: `${printSummary} [${printSizeLabel}]`,
+      printTitle: `[${genderModelLabel}] ${printSummary} [${printSizeLabel}]`,
       printImageUrl: frontPrint?.image_url || backPrint?.image_url,
       mockupPreviewUrl: mockupPreviewUrl
     }
 
     const item = {
       productId: product.id,
-      name: `${product.name} - ${printSummary}`,
+      name: `${product.name} (${genderModelLabel}) - ${printSummary}`,
       price: unitPrice,
       quantity: quantity,
       image: mockupPreviewUrl || product.images?.[0] || '',
@@ -501,6 +595,88 @@ export default function ProductCustomizer({
       {/* Customizer Controls Panel */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '1.75rem' }}>
         
+        {/* Seleção do Modelo / Gênero (Masculino, Feminino, Infantil) */}
+        <div>
+          <label style={{ fontSize: '0.95rem', fontWeight: 800, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+            <Shirt size={18} color={primaryColor} />
+            <span>Escolha o Modelo da Camisa:</span>
+          </label>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.5rem', backgroundColor: '#f1f5f9', padding: '0.3rem', borderRadius: '12px' }}>
+            <button
+              onClick={() => setSelectedGenderModel('masculino')}
+              style={{
+                padding: '0.65rem 0.4rem',
+                borderRadius: '9px',
+                border: 'none',
+                backgroundColor: selectedGenderModel === 'masculino' ? '#ffffff' : 'transparent',
+                color: selectedGenderModel === 'masculino' ? primaryColor : '#64748b',
+                fontWeight: 800,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                boxShadow: selectedGenderModel === 'masculino' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.2rem',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <span style={{ fontSize: '1rem' }}>👨</span>
+              <span>Masculino</span>
+              <small style={{ fontSize: '0.68rem', fontWeight: 600, opacity: 0.8 }}>Unissex</small>
+            </button>
+
+            <button
+              onClick={() => setSelectedGenderModel('feminino')}
+              style={{
+                padding: '0.65rem 0.4rem',
+                borderRadius: '9px',
+                border: 'none',
+                backgroundColor: selectedGenderModel === 'feminino' ? '#ffffff' : 'transparent',
+                color: selectedGenderModel === 'feminino' ? primaryColor : '#64748b',
+                fontWeight: 800,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                boxShadow: selectedGenderModel === 'feminino' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.2rem',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <span style={{ fontSize: '1rem' }}>👩</span>
+              <span>Feminino</span>
+              <small style={{ fontSize: '0.68rem', fontWeight: 600, opacity: 0.8 }}>Baby Look</small>
+            </button>
+
+            <button
+              onClick={() => setSelectedGenderModel('infantil')}
+              style={{
+                padding: '0.65rem 0.4rem',
+                borderRadius: '9px',
+                border: 'none',
+                backgroundColor: selectedGenderModel === 'infantil' ? '#ffffff' : 'transparent',
+                color: selectedGenderModel === 'infantil' ? primaryColor : '#64748b',
+                fontWeight: 800,
+                fontSize: '0.8rem',
+                cursor: 'pointer',
+                boxShadow: selectedGenderModel === 'infantil' ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '0.2rem',
+                transition: 'all 0.2s ease'
+              }}
+            >
+              <span style={{ fontSize: '1rem' }}>🧒</span>
+              <span>Infantil</span>
+              <small style={{ fontSize: '0.68rem', fontWeight: 600, opacity: 0.8 }}>Tamanhos 2 a 16</small>
+            </button>
+          </div>
+        </div>
+
         {/* Step 1: Cor da Camiseta */}
         <div>
           <label style={{ fontSize: '0.95rem', fontWeight: 800, color: '#1e293b', display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
@@ -509,7 +685,7 @@ export default function ProductCustomizer({
             <strong style={{ color: primaryColor, marginLeft: 'auto', fontSize: '0.85rem' }}>{selectedColor.name}</strong>
           </label>
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-            {baseColors.map(color => {
+            {filteredColors.map(color => {
               const isSelected = selectedColor.id === color.id
               return (
                 <button
@@ -785,26 +961,46 @@ export default function ProductCustomizer({
               Tamanho:
             </label>
             <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-              {availableSizes.map(sz => (
-                <button
-                  key={sz}
-                  onClick={() => setSelectedSize(sz)}
-                  style={{
-                    flex: 1,
-                    minWidth: '40px',
-                    padding: '0.5rem 0.25rem',
-                    border: selectedSize === sz ? `2px solid ${primaryColor}` : '1px solid #cbd5e1',
-                    backgroundColor: selectedSize === sz ? `${primaryColor}10` : '#fff',
-                    color: selectedSize === sz ? primaryColor : '#475569',
-                    borderRadius: buttonRadius,
-                    fontWeight: 800,
-                    fontSize: '0.85rem',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {sz}
-                </button>
-              ))}
+              {displaySizes.map(sz => {
+                const available = isSizeAvailable(sz)
+                const isSelected = selectedSize === sz
+                return (
+                  <button
+                    key={sz}
+                    disabled={!available}
+                    onClick={() => available && setSelectedSize(sz)}
+                    title={available ? `Tamanho ${sz}` : `Tamanho ${sz} indisponível para este produto`}
+                    style={{
+                      flex: 1,
+                      minWidth: '40px',
+                      padding: '0.5rem 0.25rem',
+                      border: isSelected
+                        ? `2px solid ${primaryColor}`
+                        : available
+                        ? '1px solid #cbd5e1'
+                        : '1px dashed #e2e8f0',
+                      backgroundColor: isSelected
+                        ? `${primaryColor}10`
+                        : available
+                        ? '#fff'
+                        : '#f8fafc',
+                      color: isSelected
+                        ? primaryColor
+                        : available
+                        ? '#475569'
+                        : '#cbd5e1',
+                      borderRadius: buttonRadius,
+                      fontWeight: 800,
+                      fontSize: '0.85rem',
+                      cursor: available ? 'pointer' : 'not-allowed',
+                      opacity: available ? 1 : 0.45,
+                      textDecoration: available ? 'none' : 'line-through'
+                    }}
+                  >
+                    {sz}
+                  </button>
+                )
+              })}
             </div>
           </div>
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Shirt, Palette, Layers, Plus, Trash2, Save, Loader2, Sparkles, CheckCircle2, Lock, Crown, ArrowRight, Upload, Tag } from 'lucide-react'
+import { Shirt, Palette, Layers, Plus, Trash2, Save, Loader2, Sparkles, CheckCircle2, Lock, Crown, ArrowRight, Upload, Tag, Pencil, X } from 'lucide-react'
 import { useAdminAuth } from '@/context/AdminAuthContext'
 import { supabase } from '@/lib/supabase'
 import toast from 'react-hot-toast'
@@ -13,6 +13,21 @@ interface BaseColor {
   hex: string
   image_url?: string
   image_url_back?: string
+  model_type?: 'todos' | 'masculino' | 'feminino' | 'infantil' | string
+  model_types?: string[]
+}
+
+const getColorModels = (c: BaseColor): string[] => {
+  if (Array.isArray(c.model_types) && c.model_types.length > 0) {
+    return c.model_types
+  }
+  if (typeof c.model_type === 'string') {
+    if (c.model_type === 'todos' || !c.model_type) {
+      return ['masculino', 'feminino', 'infantil']
+    }
+    return [c.model_type]
+  }
+  return ['masculino', 'feminino', 'infantil']
 }
 
 interface PrintItem {
@@ -21,15 +36,33 @@ interface PrintItem {
   category: string
   image_url: string
   extra_price?: number
+  target_audience?: 'todos' | 'masculino' | 'feminino' | 'infantil' | string | string[]
+  target_audiences?: string[]
+}
+
+const getPrintAudiences = (p: PrintItem): string[] => {
+  if (Array.isArray(p.target_audiences) && p.target_audiences.length > 0) {
+    return p.target_audiences
+  }
+  if (Array.isArray(p.target_audience)) {
+    return p.target_audience as string[]
+  }
+  if (typeof p.target_audience === 'string') {
+    if (p.target_audience === 'todos' || !p.target_audience) {
+      return ['masculino', 'feminino', 'infantil']
+    }
+    return [p.target_audience]
+  }
+  return ['masculino', 'feminino', 'infantil']
 }
 
 const DEFAULT_BASE_COLORS: BaseColor[] = [
-  { id: '1', name: 'Branca Tradicional', hex: '#ffffff', image_url: '', image_url_back: '' },
-  { id: '2', name: 'Preta Premium', hex: '#18181b', image_url: '', image_url_back: '' },
-  { id: '3', name: 'Cinza Mescla', hex: '#9ca3af', image_url: '', image_url_back: '' },
-  { id: '4', name: 'Vermelha', hex: '#ef4444', image_url: '', image_url_back: '' },
-  { id: '5', name: 'Azul Marinho', hex: '#1e3a8a', image_url: '', image_url_back: '' },
-  { id: '6', name: 'Verde Militar', hex: '#3f6212', image_url: '', image_url_back: '' },
+  { id: '1', name: 'Branca Tradicional', hex: '#ffffff', image_url: '', image_url_back: '', model_type: 'todos' },
+  { id: '2', name: 'Preta Premium', hex: '#18181b', image_url: '', image_url_back: '', model_type: 'todos' },
+  { id: '3', name: 'Cinza Mescla', hex: '#9ca3af', image_url: '', image_url_back: '', model_type: 'todos' },
+  { id: '4', name: 'Vermelha', hex: '#ef4444', image_url: '', image_url_back: '', model_type: 'todos' },
+  { id: '5', name: 'Azul Marinho', hex: '#1e3a8a', image_url: '', image_url_back: '', model_type: 'todos' },
+  { id: '6', name: 'Verde Militar', hex: '#3f6212', image_url: '', image_url_back: '', model_type: 'todos' },
 ]
 
 const DEFAULT_PRINTS: PrintItem[] = [
@@ -38,14 +71,16 @@ const DEFAULT_PRINTS: PrintItem[] = [
     title: 'Caveira Rock',
     category: 'Música & Rock',
     image_url: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=400&auto=format&fit=crop&q=80',
-    extra_price: 0
+    extra_price: 0,
+    target_audience: 'todos'
   },
   {
     id: 'p2',
     title: 'Astronauta Chill',
     category: 'Geek & Arte',
     image_url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=400&auto=format&fit=crop&q=80',
-    extra_price: 0
+    extra_price: 0,
+    target_audience: 'todos'
   }
 ]
 
@@ -64,12 +99,42 @@ export default function AdminCustomizerPage() {
   const [newColorHex, setNewColorHex] = useState('#6366f1')
   const [newColorImage, setNewColorImage] = useState('')
   const [newColorImageBack, setNewColorImageBack] = useState('')
+  const [newColorModelTypes, setNewColorModelTypes] = useState<string[]>(['masculino', 'feminino', 'infantil'])
+
+  const toggleNewColorModelType = (aud: string) => {
+    setNewColorModelTypes(prev => {
+      if (prev.includes(aud)) {
+        if (prev.length === 1) {
+          toast.error('Selecione ao menos um modelo!')
+          return prev
+        }
+        return prev.filter(a => a !== aud)
+      } else {
+        return [...prev, aud]
+      }
+    })
+  }
 
   // New print form state
   const [newPrintTitle, setNewPrintTitle] = useState('')
   const [newPrintCategory, setNewPrintCategory] = useState('Geral')
   const [newPrintImage, setNewPrintImage] = useState('')
   const [newPrintExtraPrice, setNewPrintExtraPrice] = useState(0)
+  const [newPrintTargetAudiences, setNewPrintTargetAudiences] = useState<string[]>(['masculino', 'feminino', 'infantil'])
+
+  const toggleNewPrintAudience = (aud: string) => {
+    setNewPrintTargetAudiences(prev => {
+      if (prev.includes(aud)) {
+        if (prev.length === 1) {
+          toast.error('Selecione ao menos um público-alvo!')
+          return prev
+        }
+        return prev.filter(a => a !== aud)
+      } else {
+        return [...prev, aud]
+      }
+    })
+  }
 
   const [uploadingImage, setUploadingImage] = useState(false)
 
@@ -168,7 +233,9 @@ export default function AdminCustomizerPage() {
       name: newColorName.trim(),
       hex: newColorHex,
       image_url: newColorImage.trim() || undefined,
-      image_url_back: newColorImageBack.trim() || undefined
+      image_url_back: newColorImageBack.trim() || undefined,
+      model_types: newColorModelTypes,
+      model_type: newColorModelTypes.length === 3 ? 'todos' : (newColorModelTypes[0] as any)
     }
 
     const nextColors = [...baseColors, newItem]
@@ -176,6 +243,7 @@ export default function AdminCustomizerPage() {
     setNewColorName('')
     setNewColorImage('')
     setNewColorImageBack('')
+    setNewColorModelTypes(['masculino', 'feminino', 'infantil'])
 
     await handleSaveSettings(customizerEnabled, nextColors, prints)
   }
@@ -197,7 +265,9 @@ export default function AdminCustomizerPage() {
       title: newPrintTitle.trim(),
       category: newPrintCategory.trim() || 'Geral',
       image_url: newPrintImage.trim(),
-      extra_price: Number(newPrintExtraPrice) || 0
+      extra_price: Number(newPrintExtraPrice) || 0,
+      target_audiences: newPrintTargetAudiences,
+      target_audience: newPrintTargetAudiences.length === 3 ? 'todos' : (newPrintTargetAudiences[0] as any)
     }
 
     const nextPrints = [...prints, newItem]
@@ -206,6 +276,7 @@ export default function AdminCustomizerPage() {
     setNewPrintCategory('Geral')
     setNewPrintImage('')
     setNewPrintExtraPrice(0)
+    setNewPrintTargetAudiences(['masculino', 'feminino', 'infantil'])
 
     await handleSaveSettings(customizerEnabled, baseColors, nextPrints)
   }
@@ -216,7 +287,42 @@ export default function AdminCustomizerPage() {
     await handleSaveSettings(customizerEnabled, baseColors, nextPrints)
   }
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, targetField: 'color_front' | 'color_back' | 'print') => {
+  // Edit state
+  const [editingColor, setEditingColor] = useState<BaseColor | null>(null)
+  const [editingPrint, setEditingPrint] = useState<PrintItem | null>(null)
+
+  const handleUpdateColor = async () => {
+    if (!editingColor) return
+    if (!editingColor.name.trim()) {
+      toast.error('Informe o nome da cor!')
+      return
+    }
+
+    const nextColors = baseColors.map(c => c.id === editingColor.id ? editingColor : c)
+    setBaseColors(nextColors)
+    setEditingColor(null)
+    await handleSaveSettings(customizerEnabled, nextColors, prints)
+    toast.success('Cor atualizada com sucesso!')
+  }
+
+  const handleUpdatePrint = async () => {
+    if (!editingPrint) return
+    if (!editingPrint.title.trim() || !editingPrint.image_url.trim()) {
+      toast.error('Preencha o título e a imagem da estampa!')
+      return
+    }
+
+    const nextPrints = prints.map(p => p.id === editingPrint.id ? editingPrint : p)
+    setPrints(nextPrints)
+    setEditingPrint(null)
+    await handleSaveSettings(customizerEnabled, baseColors, nextPrints)
+    toast.success('Estampa atualizada com sucesso!')
+  }
+
+  const handleFileUpload = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    targetField: 'color_front' | 'color_back' | 'print' | 'edit_color_front' | 'edit_color_back' | 'edit_print'
+  ) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -252,6 +358,16 @@ export default function AdminCustomizerPage() {
       if (targetField === 'color_front') setNewColorImage(finalUrl)
       if (targetField === 'color_back') setNewColorImageBack(finalUrl)
       if (targetField === 'print') setNewPrintImage(finalUrl)
+
+      if (targetField === 'edit_color_front') {
+        setEditingColor(prev => prev ? { ...prev, image_url: finalUrl } : null)
+      }
+      if (targetField === 'edit_color_back') {
+        setEditingColor(prev => prev ? { ...prev, image_url_back: finalUrl } : null)
+      }
+      if (targetField === 'edit_print') {
+        setEditingPrint(prev => prev ? { ...prev, image_url: finalUrl } : null)
+      }
 
       toast.success('Imagem enviada com sucesso!')
     } catch (err: any) {
@@ -555,7 +671,7 @@ export default function AdminCustomizerPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.25rem', backgroundColor: 'var(--input-bg)', borderRadius: '10px', border: '1px solid var(--border)' }}>
             <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>Nova Cor Base de Camisa</h4>
             
-            <div className="admin-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 120px', gap: '1rem' }}>
+            <div className="admin-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 140px', gap: '1rem' }}>
               <div>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: '0.35rem' }}>Nome da Cor</label>
                 <input
@@ -578,6 +694,43 @@ export default function AdminCustomizerPage() {
                   />
                   <span style={{ fontSize: '0.8rem', fontWeight: 600 }}>{newColorHex}</span>
                 </div>
+              </div>
+            </div>
+
+            <div>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: '0.35rem' }}>Modelo / Público (Selecione um ou mais)</label>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {[
+                  { id: 'masculino', label: 'Masculino' },
+                  { id: 'feminino', label: 'Feminino' },
+                  { id: 'infantil', label: 'Infantil' }
+                ].map(item => {
+                  const isSelected = newColorModelTypes.includes(item.id)
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => toggleNewColorModelType(item.id)}
+                      style={{
+                        padding: '0.45rem 0.85rem',
+                        borderRadius: '20px',
+                        border: isSelected ? '1.5px solid #6366f1' : '1px solid var(--border)',
+                        backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.12)' : 'var(--background)',
+                        color: isSelected ? '#6366f1' : 'var(--muted)',
+                        fontSize: '0.8rem',
+                        fontWeight: isSelected ? 800 : 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.3rem',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <span>{isSelected ? '✓' : '+'}</span>
+                      <span>{item.label}</span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
@@ -659,13 +812,22 @@ export default function AdminCustomizerPage() {
                   position: 'relative'
                 }}
               >
-                <button
-                  onClick={() => handleRemoveColor(color.id)}
-                  title="Remover cor"
-                  style={{ position: 'absolute', top: '6px', right: '6px', background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', zIndex: 2 }}
-                >
-                  <Trash2 size={16} />
-                </button>
+                <div style={{ position: 'absolute', top: '6px', right: '6px', display: 'flex', gap: '4px', zIndex: 2 }}>
+                  <button
+                    onClick={() => setEditingColor(color)}
+                    title="Editar cor"
+                    style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid var(--border)', borderRadius: '4px', padding: '4px', color: '#6366f1', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={() => handleRemoveColor(color.id)}
+                    title="Remover cor"
+                    style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid var(--border)', borderRadius: '4px', padding: '4px', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
 
                 <div style={{ display: 'flex', gap: '0.3rem' }}>
                   {color.image_url ? (
@@ -714,6 +876,35 @@ export default function AdminCustomizerPage() {
                 </div>
 
                 <span style={{ fontWeight: 700, fontSize: '0.85rem', textAlign: 'center' }}>{color.name}</span>
+                <div style={{ display: 'flex', gap: '0.2rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                  {getColorModels(color).length === 3 ? (
+                    <span style={{
+                      fontSize: '0.65rem',
+                      fontWeight: 800,
+                      padding: '0.12rem 0.35rem',
+                      borderRadius: '4px',
+                      backgroundColor: '#6366f115',
+                      color: '#6366f1',
+                      textTransform: 'uppercase'
+                    }}>
+                      TODOS OS MODELOS
+                    </span>
+                  ) : (
+                    getColorModels(color).map(aud => (
+                      <span key={aud} style={{
+                        fontSize: '0.65rem',
+                        fontWeight: 800,
+                        padding: '0.12rem 0.35rem',
+                        borderRadius: '4px',
+                        backgroundColor: '#6366f115',
+                        color: '#6366f1',
+                        textTransform: 'uppercase'
+                      }}>
+                        {aud}
+                      </span>
+                    ))
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -734,7 +925,7 @@ export default function AdminCustomizerPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', padding: '1.25rem', backgroundColor: 'var(--input-bg)', borderRadius: '10px', border: '1px solid var(--border)' }}>
             <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>Nova Estampa</h4>
 
-            <div className="admin-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 140px', gap: '1rem' }}>
+            <div className="admin-form-row" style={{ display: 'grid', gridTemplateColumns: '1fr 160px', gap: '1rem' }}>
               <div>
                 <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: '0.35rem' }}>Título da Estampa</label>
                 <input
@@ -755,6 +946,43 @@ export default function AdminCustomizerPage() {
                   onChange={e => setNewPrintCategory(e.target.value)}
                   style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)' }}
                 />
+              </div>
+            </div>
+
+            <div>
+              <label style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--muted)', display: 'block', marginBottom: '0.35rem' }}>Público-Alvo (Selecione um ou mais)</label>
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                {[
+                  { id: 'masculino', label: 'Masculino' },
+                  { id: 'feminino', label: 'Feminino' },
+                  { id: 'infantil', label: 'Infantil' }
+                ].map(item => {
+                  const isSelected = newPrintTargetAudiences.includes(item.id)
+                  return (
+                    <button
+                      key={item.id}
+                      type="button"
+                      onClick={() => toggleNewPrintAudience(item.id)}
+                      style={{
+                        padding: '0.45rem 0.85rem',
+                        borderRadius: '20px',
+                        border: isSelected ? '1.5px solid #6366f1' : '1px solid var(--border)',
+                        backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.12)' : 'var(--background)',
+                        color: isSelected ? '#6366f1' : 'var(--muted)',
+                        fontSize: '0.8rem',
+                        fontWeight: isSelected ? 800 : 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.3rem',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <span>{isSelected ? '✓' : '+'}</span>
+                      <span>{item.label}</span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
 
@@ -816,13 +1044,22 @@ export default function AdminCustomizerPage() {
                   position: 'relative'
                 }}
               >
-                <button
-                  onClick={() => handleRemovePrint(p.id)}
-                  title="Remover estampa"
-                  style={{ position: 'absolute', top: '6px', right: '6px', background: 'transparent', border: 'none', color: '#ef4444', cursor: 'pointer', zIndex: 2 }}
-                >
-                  <Trash2 size={16} />
-                </button>
+                <div style={{ position: 'absolute', top: '6px', right: '6px', display: 'flex', gap: '4px', zIndex: 2 }}>
+                  <button
+                    onClick={() => setEditingPrint(p)}
+                    title="Editar estampa"
+                    style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid var(--border)', borderRadius: '4px', padding: '4px', color: '#6366f1', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  >
+                    <Pencil size={14} />
+                  </button>
+                  <button
+                    onClick={() => handleRemovePrint(p.id)}
+                    title="Remover estampa"
+                    style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid var(--border)', borderRadius: '4px', padding: '4px', color: '#ef4444', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                </div>
 
                 <div style={{
                   width: '100%',
@@ -836,9 +1073,38 @@ export default function AdminCustomizerPage() {
                   border: '1px solid var(--border)'
                 }} />
 
-                <div style={{ textAlign: 'center', width: '100%' }}>
+                <div style={{ textAlign: 'center', width: '100%', display: 'flex', flexDirection: 'column', gap: '0.2rem', alignItems: 'center' }}>
                   <p style={{ fontWeight: 700, fontSize: '0.85rem', margin: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</p>
                   <span style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>{p.category}</span>
+                  <div style={{ display: 'flex', gap: '0.2rem', flexWrap: 'wrap', justifyContent: 'center' }}>
+                    {getPrintAudiences(p).length === 3 ? (
+                      <span style={{
+                        fontSize: '0.68rem',
+                        fontWeight: 800,
+                        padding: '0.15rem 0.4rem',
+                        borderRadius: '4px',
+                        backgroundColor: '#6366f115',
+                        color: '#6366f1',
+                        textTransform: 'uppercase'
+                      }}>
+                        TODOS OS PÚBLICOS
+                      </span>
+                    ) : (
+                      getPrintAudiences(p).map(aud => (
+                        <span key={aud} style={{
+                          fontSize: '0.65rem',
+                          fontWeight: 800,
+                          padding: '0.12rem 0.35rem',
+                          borderRadius: '4px',
+                          backgroundColor: '#6366f115',
+                          color: '#6366f1',
+                          textTransform: 'uppercase'
+                        }}>
+                          {aud}
+                        </span>
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -847,6 +1113,329 @@ export default function AdminCustomizerPage() {
 
       </div>
       </div>
+
+      {/* MODAL DE EDIÇÃO DE COR */}
+      {editingColor && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.55)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <div className="glass-card" style={{
+            width: '100%',
+            maxWidth: '520px',
+            backgroundColor: 'var(--background, #ffffff)',
+            borderRadius: '14px',
+            border: '1px solid var(--border)',
+            padding: '1.5rem',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.25rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Palette size={20} color="#6366f1" />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Editar Cor da Camisa</h3>
+              </div>
+              <button onClick={() => setEditingColor(null)} style={{ background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: '0.35rem' }}>Nome da Cor</label>
+                <input
+                  type="text"
+                  value={editingColor.name}
+                  onChange={e => setEditingColor({ ...editingColor, name: e.target.value })}
+                  style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)' }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: '0.35rem' }}>Cor Hex (#)</label>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                    <input
+                      type="color"
+                      value={editingColor.hex || '#ffffff'}
+                      onChange={e => setEditingColor({ ...editingColor, hex: e.target.value })}
+                      style={{ width: '38px', height: '38px', padding: '2px', borderRadius: '6px', border: '1px solid var(--border)', cursor: 'pointer' }}
+                    />
+                    <input
+                      type="text"
+                      value={editingColor.hex}
+                      onChange={e => setEditingColor({ ...editingColor, hex: e.target.value })}
+                      style={{ flex: 1, padding: '0.6rem 0.8rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)' }}
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: '0.35rem' }}>Modelo / Público (Selecione um ou mais)</label>
+                  <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    {[
+                      { id: 'masculino', label: 'Masculino' },
+                      { id: 'feminino', label: 'Feminino' },
+                      { id: 'infantil', label: 'Infantil' }
+                    ].map(item => {
+                      const currentModels = getColorModels(editingColor)
+                      const isSelected = currentModels.includes(item.id)
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            let nextModels: string[]
+                            if (isSelected) {
+                              if (currentModels.length === 1) {
+                                toast.error('Selecione ao menos um modelo!')
+                                return
+                              }
+                              nextModels = currentModels.filter(a => a !== item.id)
+                            } else {
+                              nextModels = [...currentModels, item.id]
+                            }
+                            setEditingColor({
+                              ...editingColor,
+                              model_types: nextModels,
+                              model_type: nextModels.length === 3 ? 'todos' : (nextModels[0] as any)
+                            })
+                          }}
+                          style={{
+                            padding: '0.4rem 0.75rem',
+                            borderRadius: '16px',
+                            border: isSelected ? '1.5px solid #6366f1' : '1px solid var(--border)',
+                            backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.12)' : 'var(--background)',
+                            color: isSelected ? '#6366f1' : 'var(--muted)',
+                            fontSize: '0.78rem',
+                            fontWeight: isSelected ? 800 : 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.3rem'
+                          }}
+                        >
+                          <span>{isSelected ? '✓' : '+'}</span>
+                          <span>{item.label}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: '0.35rem' }}>Foto da Frente (Camisa)</label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    type="text"
+                    value={editingColor.image_url || ''}
+                    onChange={e => setEditingColor({ ...editingColor, image_url: e.target.value })}
+                    style={{ flex: 1, padding: '0.6rem 0.8rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)', fontSize: '0.85rem' }}
+                  />
+                  <label style={{ padding: '0.6rem 0.9rem', backgroundColor: 'var(--primary)', color: '#fff', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}>
+                    {uploadingImage ? <Loader2 className="animate-spin" size={14} /> : <Upload size={14} />}
+                    <span>Upload</span>
+                    <input type="file" accept="image/*" onChange={e => handleFileUpload(e, 'edit_color_front')} style={{ display: 'none' }} />
+                  </label>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: '0.35rem' }}>Foto das Costas (Camisa)</label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    type="text"
+                    value={editingColor.image_url_back || ''}
+                    onChange={e => setEditingColor({ ...editingColor, image_url_back: e.target.value })}
+                    style={{ flex: 1, padding: '0.6rem 0.8rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)', fontSize: '0.85rem' }}
+                  />
+                  <label style={{ padding: '0.6rem 0.9rem', backgroundColor: 'var(--primary)', color: '#fff', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}>
+                    {uploadingImage ? <Loader2 className="animate-spin" size={14} /> : <Upload size={14} />}
+                    <span>Upload</span>
+                    <input type="file" accept="image/*" onChange={e => handleFileUpload(e, 'edit_color_back')} style={{ display: 'none' }} />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <button
+                onClick={() => setEditingColor(null)}
+                style={{ padding: '0.65rem 1.25rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'transparent', color: 'var(--foreground)', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleUpdateColor}
+                disabled={saving}
+                style={{ padding: '0.65rem 1.5rem', borderRadius: '6px', border: 'none', background: 'var(--primary)', color: '#fff', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
+                Salvar Alterações
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL DE EDIÇÃO DE ESTAMPA */}
+      {editingPrint && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.55)',
+          backdropFilter: 'blur(4px)',
+          zIndex: 999,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '1rem'
+        }}>
+          <div className="glass-card" style={{
+            width: '100%',
+            maxWidth: '520px',
+            backgroundColor: 'var(--background, #ffffff)',
+            borderRadius: '14px',
+            border: '1px solid var(--border)',
+            padding: '1.5rem',
+            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.2)',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.25rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Layers size={20} color="#6366f1" />
+                <h3 style={{ fontSize: '1.1rem', fontWeight: 800 }}>Editar Estampa da Galeria</h3>
+              </div>
+              <button onClick={() => setEditingPrint(null)} style={{ background: 'transparent', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: '0.35rem' }}>Título da Estampa</label>
+                <input
+                  type="text"
+                  value={editingPrint.title}
+                  onChange={e => setEditingPrint({ ...editingPrint, title: e.target.value })}
+                  style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)' }}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: '0.35rem' }}>Categoria / Tag</label>
+                  <input
+                    type="text"
+                    value={editingPrint.category}
+                    onChange={e => setEditingPrint({ ...editingPrint, category: e.target.value })}
+                    style={{ width: '100%', padding: '0.6rem 0.8rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)' }}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: '0.35rem' }}>Público-Alvo (Múltipla Seleção)</label>
+                  <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                    {[
+                      { id: 'masculino', label: 'Masculino' },
+                      { id: 'feminino', label: 'Feminino' },
+                      { id: 'infantil', label: 'Infantil' }
+                    ].map(item => {
+                      const currentAudiences = getPrintAudiences(editingPrint)
+                      const isSelected = currentAudiences.includes(item.id)
+                      return (
+                        <button
+                          key={item.id}
+                          type="button"
+                          onClick={() => {
+                            let updated: string[]
+                            if (isSelected) {
+                              if (currentAudiences.length === 1) {
+                                toast.error('Selecione ao menos um público-alvo!')
+                                return
+                              }
+                              updated = currentAudiences.filter(a => a !== item.id)
+                            } else {
+                              updated = [...currentAudiences, item.id]
+                            }
+                            setEditingPrint({
+                              ...editingPrint,
+                              target_audiences: updated,
+                              target_audience: updated.length === 3 ? 'todos' : (updated[0] as any)
+                            })
+                          }}
+                          style={{
+                            padding: '0.4rem 0.75rem',
+                            borderRadius: '20px',
+                            border: isSelected ? '1.5px solid #6366f1' : '1px solid var(--border)',
+                            backgroundColor: isSelected ? 'rgba(99, 102, 241, 0.12)' : 'var(--background)',
+                            color: isSelected ? '#6366f1' : 'var(--muted)',
+                            fontSize: '0.78rem',
+                            fontWeight: isSelected ? 800 : 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.3rem'
+                          }}
+                        >
+                          <span>{isSelected ? '✓' : '+'}</span>
+                          <span>{item.label}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label style={{ fontSize: '0.8rem', fontWeight: 700, color: 'var(--muted)', display: 'block', marginBottom: '0.35rem' }}>Imagem da Estampa (PNG Transparente)</label>
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <input
+                    type="text"
+                    value={editingPrint.image_url}
+                    onChange={e => setEditingPrint({ ...editingPrint, image_url: e.target.value })}
+                    style={{ flex: 1, padding: '0.6rem 0.8rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'var(--background)', color: 'var(--foreground)', fontSize: '0.85rem' }}
+                  />
+                  <label style={{ padding: '0.6rem 0.9rem', backgroundColor: 'var(--primary)', color: '#fff', borderRadius: '6px', cursor: 'pointer', fontSize: '0.8rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: '0.35rem', whiteSpace: 'nowrap' }}>
+                    {uploadingImage ? <Loader2 className="animate-spin" size={14} /> : <Upload size={14} />}
+                    <span>Upload</span>
+                    <input type="file" accept="image/*" onChange={e => handleFileUpload(e, 'edit_print')} style={{ display: 'none' }} />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '0.75rem', marginTop: '0.5rem' }}>
+              <button
+                onClick={() => setEditingPrint(null)}
+                style={{ padding: '0.65rem 1.25rem', borderRadius: '6px', border: '1px solid var(--border)', background: 'transparent', color: 'var(--foreground)', fontWeight: 600, cursor: 'pointer' }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleUpdatePrint}
+                disabled={saving}
+                style={{ padding: '0.65rem 1.5rem', borderRadius: '6px', border: 'none', background: 'var(--primary)', color: '#fff', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                {saving ? <Loader2 className="animate-spin" size={16} /> : <Save size={16} />}
+                Salvar Alterações
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style>{`
         .animate-spin { animation: spin 1s linear infinite; }
