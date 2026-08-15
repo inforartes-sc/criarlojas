@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { LayoutDashboard, ShoppingBag, Settings, Users, LogOut, Package, CreditCard, Truck, Tag, Link2, Star, Menu, X, DollarSign, Crown, Lock } from 'lucide-react'
+import { LayoutDashboard, ShoppingBag, Settings, Users, LogOut, Package, CreditCard, Truck, Tag, Link2, Star, Menu, X, DollarSign, Crown, Lock, Shirt } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAdminAuth } from '@/context/AdminAuthContext'
 
@@ -13,13 +13,19 @@ export default function AdminSidebar() {
   const [showMobileMenu, setShowMobileMenu] = useState(false)
 
   const isItemLocked = (label: string) => {
-    const currentPlan = store?.settings?.plan || 'free'
+    const currentPlan = (store?.plan || store?.settings?.plan || 'pro').toLowerCase()
+
+    if (label === 'Estampas / Mockups') {
+      const allowedPlans = ['pro', 'premium', 'master', 'enterprise']
+      return !allowedPlans.includes(currentPlan)
+    }
+
     if (currentPlan === 'free') {
-      const freeBlocked = ['Pedidos', 'Carrinhos Abandonados', 'Avaliações', 'Pagamentos', 'Envio / Frete', 'Promoções']
+      const freeBlocked = ['Pedidos', 'Carrinhos Abandonados', 'Avaliações', 'Pagamentos', 'Envio / Frete', 'Promoções', 'Estampas / Mockups']
       return freeBlocked.includes(label)
     }
-    if (currentPlan === 'basic') {
-      const basicBlocked = ['Avaliações', 'Pagamentos', 'Envio / Frete', 'Promoções', 'Carrinhos Abandonados']
+    if (currentPlan === 'basic' || currentPlan === 'basico') {
+      const basicBlocked = ['Avaliações', 'Pagamentos', 'Envio / Frete', 'Promoções', 'Carrinhos Abandonados', 'Estampas / Mockups']
       return basicBlocked.includes(label)
     }
     if (currentPlan === 'pro') {
@@ -43,6 +49,7 @@ export default function AdminSidebar() {
       { icon: Package, label: (isLawyerLayout || isElectricianLayout) ? 'Serviços' : 'Produtos', href: '/admin/products' },
     ]),
     { icon: LayoutDashboard, label: 'Categorias', href: '/admin/categories' },
+    { icon: Shirt, label: 'Estampas / Mockups', href: '/admin/customizer' },
     { icon: ShoppingBag, label: 'Pedidos', href: '/admin/orders' },
     { icon: ShoppingBag, label: 'Carrinhos Abandonados', href: '/admin/abandoned-carts' },
     { icon: Users, label: 'Clientes', href: '/admin/customers' },

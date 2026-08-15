@@ -1,11 +1,34 @@
+export interface ProductCustomization {
+  colorName?: string;
+  colorHex?: string;
+  baseImageUrl?: string;
+  printId?: string;
+  printTitle?: string;
+  printImageUrl?: string;
+  // Estampa da Frente
+  frontPrintId?: string;
+  frontPrintTitle?: string;
+  frontPrintImageUrl?: string;
+  // Estampa das Costas
+  backPrintId?: string;
+  backPrintTitle?: string;
+  backPrintImageUrl?: string;
+  hasBackPrint?: boolean;
+  backPrintFee?: number;
+  // Previews das Maquetes
+  mockupPreviewUrl?: string;
+  mockupBackPreviewUrl?: string;
+}
+
 export interface CartItem {
-  id: string; // unique cart item id (product.id + variation string)
+  id: string; // unique cart item id (product.id + variation string + customization string)
   productId: string;
   name: string;
   price: number;
   quantity: number;
   image: string;
   variations?: { [key: string]: string };
+  customization?: ProductCustomization;
   storeId: string;
   sku?: string;
 }
@@ -29,7 +52,8 @@ export const saveCart = (cart: CartItem[]) => {
 export const addToCart = (item: Omit<CartItem, 'id'>) => {
   const cart = getCart();
   const variationKey = item.variations ? JSON.stringify(item.variations) : '';
-  const itemId = `${item.productId}_${variationKey}`;
+  const customizationKey = item.customization ? JSON.stringify(item.customization) : '';
+  const itemId = `${item.productId}_${variationKey}_${customizationKey}`;
 
   const existingIndex = cart.findIndex(i => i.id === itemId);
   if (existingIndex > -1) {

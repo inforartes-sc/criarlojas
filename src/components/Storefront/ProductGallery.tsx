@@ -35,6 +35,18 @@ export default function ProductGallery({ images, hasSale, salePriceColor }: { im
 
   return (
     <div style={{ display: 'grid', gap: '1rem' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .product-gallery-offer-badge {
+            top: 8px !important;
+            left: 8px !important;
+            padding: 3px 8px !important;
+            font-size: 0.6rem !important;
+            letter-spacing: 0.5px !important;
+            border-radius: 3px !important;
+          }
+        }
+      `}</style>
       <div style={{ 
         aspectRatio: '1/1', 
         backgroundColor: '#f9fafb', 
@@ -46,7 +58,7 @@ export default function ProductGallery({ images, hasSale, salePriceColor }: { im
       }}>
         {mainImage && <img src={mainImage} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />}
         {hasSale && (
-          <div style={{ position: 'absolute', top: '20px', left: '20px', backgroundColor: salePriceColor || '#ef4444', color: '#fff', padding: '6px 14px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 900, letterSpacing: '1px', zIndex: 10 }}>
+          <div className="product-gallery-offer-badge" style={{ position: 'absolute', top: '20px', left: '20px', backgroundColor: salePriceColor || '#ef4444', color: '#fff', padding: '6px 14px', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 900, letterSpacing: '1px', zIndex: 10 }}>
             OFERTA
           </div>
         )}

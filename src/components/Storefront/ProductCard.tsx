@@ -224,6 +224,14 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
             gap: 0.35rem !important;
             margin-bottom: 0.75rem !important;
           }
+          .product-card-wrapper .product-offer-badge {
+            top: 8px !important;
+            left: 8px !important;
+            padding: 3px 8px !important;
+            font-size: 0.55rem !important;
+            letter-spacing: 0.5px !important;
+            border-radius: 3px !important;
+          }
         }
       `}</style>
       <div className="product-card-wrapper" style={{ display: 'flex', flexDirection: 'column', textAlign: 'center', height: '100%' }}>
@@ -266,7 +274,7 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
                 opacity: isCardHovered ? 1 : 0
               }} />
             )}
-            {displaySalePrice && <div style={{ position: 'absolute', top: '20px', left: '20px', backgroundColor: salePriceColor, color: '#fff', padding: '6px 14px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 900, letterSpacing: '1px', zIndex: 2 }}>OFERTA</div>}
+            {displaySalePrice && <div className="product-offer-badge" style={{ position: 'absolute', top: '20px', left: '20px', backgroundColor: salePriceColor, color: '#fff', padding: '6px 14px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 900, letterSpacing: '1px', zIndex: 2 }}>OFERTA</div>}
           </div>
           {/* Linha da Categoria com Ícones nas Extremidades */}
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', margin: '0.25rem 0', padding: '0 0.25rem' }}>

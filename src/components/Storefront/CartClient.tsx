@@ -43,6 +43,10 @@ export default function CartClient({ store, categories }: CartClientProps) {
           .join(', ')
         message += `   Variações: ${variationsStr}\n`
       }
+      if (item.customization) {
+        if (item.customization.colorName) message += `   Cor da Camisa: ${item.customization.colorName}\n`
+        if (item.customization.printTitle) message += `   Estampa: ${item.customization.printTitle}\n`
+      }
       if (item.sku) {
         message += `   SKU: ${item.sku}\n`
       }
@@ -230,11 +234,25 @@ export default function CartClient({ store, categories }: CartClientProps) {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.15rem', fontWeight: 800, color: '#0f172a' }}>{item.name}</h3>
                   {item.variations && Object.entries(item.variations).length > 0 && (
-                    <p style={{ margin: '0 0 1rem 0', fontSize: '0.85rem', color: '#64748b', display: 'flex', gap: '1rem' }}>
+                    <p style={{ margin: '0 0 0.5rem 0', fontSize: '0.85rem', color: '#64748b', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                       {Object.entries(item.variations).map(([k, v]) => (
                         <span key={k} style={{ backgroundColor: '#f1f5f9', padding: '0.2rem 0.6rem', borderRadius: '6px', fontWeight: 600 }}>{k}: {v}</span>
                       ))}
                     </p>
+                  )}
+                  {item.customization && (
+                    <div style={{ margin: '0 0 1rem 0', display: 'flex', gap: '0.5rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                      {item.customization.colorName && (
+                        <span style={{ fontSize: '0.75rem', backgroundColor: '#e0e7ff', color: '#3730a3', padding: '0.2rem 0.6rem', borderRadius: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}>
+                          Cor: {item.customization.colorName}
+                        </span>
+                      )}
+                      {item.customization.printTitle && (
+                        <span style={{ fontSize: '0.75rem', backgroundColor: '#fef3c7', color: '#92400e', padding: '0.2rem 0.6rem', borderRadius: '12px', fontWeight: 700 }}>
+                          Estampa: {item.customization.printTitle}
+                        </span>
+                      )}
+                    </div>
                   )}
                   
                   <div style={{ display: 'flex', alignItems: 'center', gap: '2rem' }}>

@@ -9,6 +9,8 @@ interface AdminAuthContextType {
   loading: boolean
   logout: () => void
   refresh: () => Promise<void>
+  refreshStore: () => Promise<void>
+  setStore: React.Dispatch<React.SetStateAction<any | null>>
 }
 
 const AdminAuthContext = createContext<AdminAuthContextType | undefined>(undefined)
@@ -52,7 +54,7 @@ export function AdminAuthProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <AdminAuthContext.Provider value={{ store, loading, logout, refresh: checkAuth }}>
+    <AdminAuthContext.Provider value={{ store, loading, logout, refresh: checkAuth, refreshStore: checkAuth, setStore }}>
       {children}
     </AdminAuthContext.Provider>
   )
