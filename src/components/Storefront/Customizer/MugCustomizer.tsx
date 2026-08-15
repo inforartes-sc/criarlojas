@@ -434,7 +434,7 @@ export default function MugCustomizer({
           padding: '1.25rem 1.75rem',
           borderBottom: '1px solid var(--border, #e4e4e7)',
           display: 'flex',
-          justify: 'space-between',
+          justifyContent: 'space-between',
           alignItems: 'center',
           backgroundColor: 'rgba(99, 102, 241, 0.05)'
         }}>
