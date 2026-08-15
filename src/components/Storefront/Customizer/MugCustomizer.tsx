@@ -374,7 +374,7 @@ export default function MugCustomizer({
       const previewDataUrl = combinedCanvas.toDataURL('image/png')
 
       addToCart({
-        id: product.id,
+        productId: product.id,
         name: `${product.name} (Caneca Personalizada - Frente & Verso)`,
         price: calculatedPrice,
         image: previewDataUrl || selectedColor.image_url || product.image_url,
