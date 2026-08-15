@@ -386,6 +386,9 @@ export default function MugCustomizer({
         },
         customization: {
           color: selectedColor.name,
+          colorName: selectedColor.name,
+          colorHex: selectedColor.hex,
+          baseImageUrl: selectedColor.image_url,
           printId: selectedPrint?.id || 'custom',
           printTitle: selectedPrint?.title || 'Estampa Personalizada',
           mockupPreviewUrl: previewDataUrl

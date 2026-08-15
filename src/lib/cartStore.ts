@@ -1,4 +1,5 @@
 export interface ProductCustomization {
+  color?: string;
   colorName?: string;
   colorHex?: string;
   baseImageUrl?: string;
