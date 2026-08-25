@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Menu, Search, ShoppingCart, X, ShoppingBag, Phone, MapPin, User, Heart, Plus, Minus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import Script from 'next/script'
+import StoreFontInjector from './StoreFontInjector'
 import { getCart, removeFromCart, updateQuantity, CartItem } from '@/lib/cartStore'
 import { getFavorites, FavoriteItem } from '@/lib/favoriteStore'
 import { setStoreSubdomain } from '@/lib/getStoreSubdomain'
@@ -348,6 +349,7 @@ export default function StoreHeader({ store, settings, primaryColor, categories,
 
   const TrackingScripts = () => (
     <>
+      <StoreFontInjector fontFamily={settings?.font_family} />
       {/* GTM */}
       {settings.gtm_id && (
         <Script id="gtm-script" strategy="afterInteractive">

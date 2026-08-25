@@ -1146,6 +1146,7 @@ export default function SettingsPage() {
             { id: 'topo', label: 'Cabeçalho e Topo', icon: Layout },
             ...(formData.layout_model === 'lawyer' || formData.layout_model === 'advocacia' || formData.layout_model === 'advocacy' ? [{ id: 'advocacia', label: 'Modelo Advocacia', icon: Scale }] : []),
             ...(formData.layout_model === 'services' || formData.layout_model === 'electrician' ? [{ id: 'services_tab', label: 'Modelo Serviços', icon: Wrench }] : []),
+            { id: 'portfolio_tab', label: 'Portfólio / Galeria', icon: ImageIcon },
             { id: 'banner', label: 'Banner Hero', icon: ImageIcon },
             { id: 'secoes', label: 'Seções da Home', icon: Layout },
             { id: 'rodape', label: 'Rodapé', icon: Layout },
@@ -2125,13 +2126,35 @@ export default function SettingsPage() {
               </div>
 
               <div className="form-group" style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-                <label>Família de Fontes</label>
-                <select value={formData.font_family} onChange={e => setFormData({...formData, font_family: e.target.value})} style={{ padding: '0.75rem', borderRadius: '8px', backgroundColor: 'var(--input-bg)', border: '1px solid var(--border)', color: 'var(--foreground)', outline: 'none' }}>
-                  <option value="Inter" style={{color:'#000'}}>Moderna (Inter)</option>
-                  <option value="Montserrat" style={{color:'#000'}}>Impacto (Montserrat)</option>
-                  <option value="Playfair Display" style={{color:'#000'}}>Clássica (Playfair)</option>
-                  <option value="system-ui" style={{color:'#000'}}>Sistema (Minimalista)</option>
+                <label style={{ fontWeight: 700, display: 'block', marginBottom: '0.5rem' }}>Família de Fontes Principal</label>
+                <select 
+                  value={formData.font_family || 'Inter'} 
+                  onChange={e => setFormData({...formData, font_family: e.target.value})} 
+                  style={{ width: '100%', padding: '0.85rem', borderRadius: '8px', backgroundColor: 'var(--card)', border: '1px solid var(--border)', color: 'var(--foreground)', outline: 'none', fontSize: '0.95rem' }}
+                >
+                  <option value="Inter" style={{color:'#000'}}>Moderna — Inter</option>
+                  <option value="Montserrat" style={{color:'#000'}}>Impacto & Destaque — Montserrat</option>
+                  <option value="Poppins" style={{color:'#000'}}>Elegante — Poppins</option>
+                  <option value="Roboto" style={{color:'#000'}}>Clean — Roboto</option>
+                  <option value="Outfit" style={{color:'#000'}}>Moderna Premium — Outfit</option>
+                  <option value="Plus Jakarta Sans" style={{color:'#000'}}>Corporativa — Plus Jakarta Sans</option>
+                  <option value="Playfair Display" style={{color:'#000'}}>Clássica & Luxo — Playfair Display</option>
+                  <option value="Lora" style={{color:'#000'}}>Editorial — Lora</option>
+                  <option value="Cinzel" style={{color:'#000'}}>Sofisticada — Cinzel</option>
+                  <option value="DM Sans" style={{color:'#000'}}>Minimalista — DM Sans</option>
+                  <option value="Raleway" style={{color:'#000'}}>Leve & Fina — Raleway</option>
+                  <option value="Nunito" style={{color:'#000'}}>Amigável — Nunito</option>
+                  <option value="Work Sans" style={{color:'#000'}}>Técnica — Work Sans</option>
+                  <option value="Syne" style={{color:'#000'}}>Design & Artística — Syne</option>
+                  <option value="system-ui" style={{color:'#000'}}>Sistema Nativo (Sem fontes externas)</option>
                 </select>
+
+                <div style={{ marginTop: '1.25rem', padding: '1.25rem', border: '1px dashed var(--border)', borderRadius: '12px', background: 'rgba(255,255,255,0.02)' }}>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--muted)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Pré-visualização da Fonte Escolhida:</span>
+                  <p style={{ fontFamily: `'${formData.font_family || 'Inter'}', sans-serif`, fontSize: '1.25rem', fontWeight: 700, margin: '0.5rem 0 0 0', color: 'var(--foreground)', lineHeight: 1.4 }}>
+                    Sua loja com design profissional e tipografia de alto impacto. 1234567890
+                  </p>
+                </div>
               </div>
             </div>
           )}
@@ -2440,6 +2463,61 @@ export default function SettingsPage() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {activeTab === 'portfolio_tab' && (
+            <div className="glass-card" style={{ padding: '2.5rem', display: 'grid', gap: '2rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>Portfólio & Galeria de Serviços</h3>
+                  <p style={{ color: 'var(--muted)', fontSize: '0.85rem', marginTop: '0.25rem' }}>
+                    Exiba fotos dos trabalhos que a sua empresa já realizou organizadas por categoria na página principal.
+                  </p>
+                </div>
+                <Link 
+                  href="/admin/portfolio"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '0.5rem',
+                    padding: '0.75rem 1.5rem',
+                    borderRadius: '10px',
+                    backgroundColor: '#6366f1',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    textDecoration: 'none',
+                    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)'
+                  }}
+                >
+                  <ImageIcon size={18} />
+                  <span>Gerenciar Fotos e Categorias</span>
+                </Link>
+              </div>
+
+              <div style={{ padding: '1.5rem', border: '1px solid var(--border)', borderRadius: '12px', display: 'grid', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <h4 style={{ fontWeight: 700 }}>Exibir Seção de Portfólio no Site</h4>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Mostra a grade de 4 cards com a galeria de serviços executados na página inicial.</p>
+                  </div>
+                  <label className="switch">
+                    <input type="checkbox" checked={formData.show_portfolio_section !== undefined ? formData.show_portfolio_section : true} onChange={e => setFormData({...formData, show_portfolio_section: e.target.checked})} />
+                    <span className="slider round"></span>
+                  </label>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                  <div className="form-group">
+                    <label>Título da Seção de Portfólio</label>
+                    <input type="text" placeholder="Trabalhos Realizados" value={formData.portfolio_title || ''} onChange={e => setFormData({...formData, portfolio_title: e.target.value})} />
+                  </div>
+                  <div className="form-group">
+                    <label>Tag / Subtítulo da Seção</label>
+                    <input type="text" placeholder="Confira a qualidade dos nossos serviços" value={formData.portfolio_subtitle || ''} onChange={e => setFormData({...formData, portfolio_subtitle: e.target.value})} />
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

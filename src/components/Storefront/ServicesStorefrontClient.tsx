@@ -1,15 +1,13 @@
 'use client'
 
 import React, { useState, useEffect, useRef } from 'react'
-import { ArrowRight, Sparkles, Shield, Cpu, Star, MessageSquare, Send, X, Wrench, Menu, ShoppingBag, ShieldCheck, Zap, ChevronLeft, ChevronRight } from 'lucide-react'
+import { ArrowRight, Sparkles, Shield, Cpu, Star, MessageSquare, Send, X, Wrench, Menu, ShoppingBag, ShieldCheck, Zap, ChevronLeft, ChevronRight, Eye, Camera, Image as LucideImage } from 'lucide-react'
 import BenefitIcon from '@/components/BenefitIcon'
 import StoreHeader from './StoreHeader'
 import StoreFooter from './StoreFooter'
 import ProductCard from './ProductCard'
 import WhatsAppFloatingButton from './WhatsAppFloatingButton'
 import OfferPopup from './OfferPopup'
-
-
 
 interface ServicesStorefrontClientProps {
   store: any
@@ -102,6 +100,61 @@ export default function ServicesStorefrontClient({
   const [activeService, setActiveService] = useState<any>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [showAllProducts, setShowAllProducts] = useState(false)
+
+  // Portfolio State
+  const portfolioList = (settings.portfolio && Array.isArray(settings.portfolio) && settings.portfolio.length > 0)
+    ? settings.portfolio
+    : [
+        {
+          id: 'port-1',
+          title: 'Manutenção & Reparos Elétricos',
+          description: 'Quadros de distribuição, manutenção preventiva e reparos elétricos de alta precisão em residências e empresas.',
+          cover_image: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800&q=80',
+          images: [
+            'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1200&q=80',
+            'https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80',
+            'https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=1200&q=80',
+            'https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1200&q=80'
+          ]
+        },
+        {
+          id: 'port-2',
+          title: 'Instalação de Ar Condicionado & Climatização',
+          description: 'Instalações de aparelhos Split, VRF e dutos de climatização para salas comerciais e residências.',
+          cover_image: 'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=800&q=80',
+          images: [
+            'https://images.unsplash.com/photo-1621905252507-b35492cc74b4?auto=format&fit=crop&w=1200&q=80',
+            'https://images.unsplash.com/photo-1581094794329-c8112a89af12?auto=format&fit=crop&w=1200&q=80',
+            'https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1200&q=80'
+          ]
+        },
+        {
+          id: 'port-3',
+          title: 'Projetos de Iluminação & LED',
+          description: 'Projetos luminotécnicos com fitas LED, perfis de alumínio e iluminação de destaque para ambientes modernos.',
+          cover_image: 'https://images.unsplash.com/photo-1565814636199-ae8133055c1c?auto=format&fit=crop&w=800&q=80',
+          images: [
+            'https://images.unsplash.com/photo-1565814636199-ae8133055c1c?auto=format&fit=crop&w=1200&q=80',
+            'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1200&q=80',
+            'https://images.unsplash.com/photo-1540932239986-30128078f3c5?auto=format&fit=crop&w=1200&q=80'
+          ]
+        },
+        {
+          id: 'port-4',
+          title: 'Reformas & Infraestrutura Comercial',
+          description: 'Projetos completos de infraestrutura técnica, cabeamento estruturado e adequação para novos negócios.',
+          cover_image: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=800&q=80',
+          images: [
+            'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=1200&q=80',
+            'https://images.unsplash.com/photo-1541888946425-d0fbb186a5b3?auto=format&fit=crop&w=1200&q=80',
+            'https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80'
+          ]
+        }
+      ]
+
+  const [activePortfolioCategory, setActivePortfolioCategory] = useState<any>(null)
+  const [activeImageIndex, setActiveImageIndex] = useState(0)
+  const showPortfolioSection = settings.show_portfolio_section !== false
 
   // Read category filter from URL
   const urlCategoryFilter = (resolvedSearchParams?.category as string) || ''
@@ -468,6 +521,123 @@ export default function ServicesStorefrontClient({
             grid-template-columns: repeat(2, 1fr);
             gap: 1.25rem;
           }
+        }
+        .portfolio-grid-4col {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 1.75rem;
+          margin-top: 2rem;
+        }
+        @media (max-width: 1024px) {
+          .portfolio-grid-4col {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        @media (max-width: 576px) {
+          .portfolio-grid-4col {
+            grid-template-columns: 1fr;
+          }
+        }
+        .portfolio-card {
+          background-color: var(--bg-card, ${isDark ? 'rgba(255,255,255,0.03)' : '#ffffff'});
+          border: 1px solid var(--border-glass, ${isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)'});
+          border-radius: var(--radius-lg, 16px);
+          overflow: hidden;
+          transition: transform 0.3s ease, box-shadow 0.3s ease;
+          display: flex;
+          flex-direction: column;
+        }
+        .portfolio-card:hover {
+          transform: translateY(-6px);
+          box-shadow: ${isDark ? '0 20px 40px rgba(0,0,0,0.6)' : '0 20px 40px rgba(0,0,0,0.08)'};
+        }
+        .portfolio-img-container {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 4 / 3;
+          overflow: hidden;
+          background-color: #0f172a;
+        }
+        .portfolio-img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          transition: transform 0.5s ease;
+        }
+        .portfolio-card:hover .portfolio-img {
+          transform: scale(1.08);
+        }
+        .portfolio-overlay {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(to top, rgba(15, 23, 42, 0.85) 0%, transparent 60%);
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          padding: 1rem;
+        }
+        .portfolio-badge {
+          align-self: flex-end;
+          padding: 0.35rem 0.75rem;
+          border-radius: 100px;
+          background-color: rgba(15, 23, 42, 0.75);
+          backdrop-filter: blur(6px);
+          color: #ffffff;
+          font-size: 0.75rem;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          gap: 0.35rem;
+          border: 1px solid rgba(255,255,255,0.15);
+        }
+        .portfolio-overlay-center {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+        .portfolio-view-btn-floating {
+          padding: 0.65rem 1.25rem;
+          border-radius: 100px;
+          background-color: ${primaryColor};
+          color: #ffffff;
+          border: none;
+          font-weight: 700;
+          font-size: 0.85rem;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          cursor: pointer;
+          opacity: 0.9;
+          transform: translateY(4px);
+          transition: all 0.3s ease;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .portfolio-card:hover .portfolio-view-btn-floating {
+          opacity: 1;
+          transform: translateY(0);
+        }
+        .portfolio-body {
+          padding: 1.25rem;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+        }
+        .portfolio-card-title {
+          font-size: 1.1rem;
+          font-weight: 800;
+          margin: 0 0 0.5rem 0;
+          color: var(--text-primary);
+        }
+        .portfolio-card-desc {
+          font-size: 0.85rem;
+          color: var(--text-secondary);
+          line-height: 1.5;
+          margin: 0;
+          flex: 1;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
         @media (max-width: 768px) {
           #home {
@@ -932,6 +1102,84 @@ export default function ServicesStorefrontClient({
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* 4.5 PORTFOLIO / GALERIA DE SERVIÇOS */}
+      {showPortfolioSection && portfolioList.length > 0 && (
+        <section id="portfolio" className="section" style={{ borderTop: '1px solid var(--border-glass)', background: isDark ? 'rgba(255,255,255,0.01)' : '#f8fafc' }}>
+          <div className="container">
+            <div className="section-header reveal active" style={{ marginBottom: '3rem', textAlign: 'center' }}>
+              <span className="section-tag" style={{ color: primaryColor }}>
+                {settings.portfolio_subtitle || 'Nossos Trabalhos Realizados'}
+              </span>
+              <h2 className="section-title">
+                {settings.portfolio_title || 'Galeria de Serviços & Projetos'}
+              </h2>
+              <p className="section-subtitle">
+                Confira a qualidade técnica e o acabamento dos serviços executados por nossa equipe em nossos clientes.
+              </p>
+            </div>
+
+            <div className="portfolio-grid-4col">
+              {portfolioList.slice(0, 4).map((item: any, index: number) => {
+                const imageCount = item.images?.length || 1
+                return (
+                  <div key={item.id || index} className="portfolio-card reveal active">
+                    <div 
+                      className="portfolio-img-container"
+                      onClick={() => {
+                        setActivePortfolioCategory(item)
+                        setActiveImageIndex(0)
+                      }}
+                      style={{ cursor: 'pointer' }}
+                      title={`Ver galeria de ${item.title}`}
+                    >
+                      <img 
+                        src={item.cover_image || item.images?.[0]} 
+                        alt={item.title} 
+                        className="portfolio-img" 
+                      />
+                    </div>
+
+                    <div className="portfolio-body">
+                      <h3 className="portfolio-card-title">{item.title}</h3>
+                      {item.description && (
+                        <p className="portfolio-card-desc">{item.description}</p>
+                      )}
+                      
+                      <button
+                        onClick={() => {
+                          setActivePortfolioCategory(item)
+                          setActiveImageIndex(0)
+                        }}
+                        className="btn btn-full portfolio-action-btn"
+                        style={{
+                          borderRadius: buttonRadius,
+                          backgroundColor: 'transparent',
+                          color: primaryColor,
+                          border: `1.5px solid ${primaryColor}`,
+                          padding: '0.75rem 1.25rem',
+                          fontWeight: 700,
+                          fontSize: '0.9rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          gap: '0.5rem',
+                          cursor: 'pointer',
+                          marginTop: '1rem',
+                          transition: 'all 0.3s ease'
+                        }}
+                      >
+                        <Eye size={16} />
+                        <span>Ver ({imageCount} fotos)</span>
+                      </button>
+                    </div>
+                  </div>
+                )
+              })}
             </div>
           </div>
         </section>
@@ -1471,6 +1719,261 @@ export default function ServicesStorefrontClient({
                   <span>Enviar Solicitação no WhatsApp</span>
                 </button>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* PORTFOLIO CATEGORY GALLERY MODAL */}
+      {activePortfolioCategory && (
+        <div 
+          className="portfolio-modal-backdrop"
+          onClick={() => setActivePortfolioCategory(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            backgroundColor: 'rgba(0, 0, 0, 0.88)',
+            backdropFilter: 'blur(12px)',
+            zIndex: 99999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.5rem'
+          }}
+        >
+          <div 
+            className="portfolio-modal-container"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              backgroundColor: '#0f172a',
+              color: '#ffffff',
+              borderRadius: '24px',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              maxWidth: '1000px',
+              width: '100%',
+              maxHeight: '92vh',
+              display: 'flex',
+              flexDirection: 'column',
+              overflow: 'hidden',
+              boxShadow: '0 25px 60px rgba(0, 0, 0, 0.7)'
+            }}
+          >
+            {/* Header */}
+            <div style={{ 
+              padding: '1.25rem 1.75rem', 
+              borderBottom: '1px solid rgba(255, 255, 255, 0.1)', 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              backgroundColor: 'rgba(15, 23, 42, 0.95)'
+            }}>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.25rem' }}>
+                  <span style={{ 
+                    padding: '0.25rem 0.75rem', 
+                    borderRadius: '100px', 
+                    background: `${primaryColor}33`, 
+                    color: primaryColor, 
+                    fontSize: '0.75rem', 
+                    fontWeight: 700 
+                  }}>
+                    Galeria do Serviço
+                  </span>
+                  <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                    Foto {activeImageIndex + 1} de {activePortfolioCategory.images?.length || 1}
+                  </span>
+                </div>
+                <h2 style={{ fontSize: '1.35rem', fontWeight: 800, margin: 0, color: '#ffffff' }}>
+                  {activePortfolioCategory.title}
+                </h2>
+              </div>
+
+              <button 
+                onClick={() => setActivePortfolioCategory(null)}
+                style={{
+                  width: '38px',
+                  height: '38px',
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                  border: 'none',
+                  color: '#ffffff',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  transition: '0.2s'
+                }}
+                aria-label="Fechar galeria"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Content Body */}
+            <div style={{ 
+              flex: 1, 
+              overflowY: 'auto', 
+              padding: '1.5rem', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '1.25rem' 
+            }}>
+              {activePortfolioCategory.description && (
+                <p style={{ color: '#cbd5e1', fontSize: '0.95rem', lineHeight: 1.6, margin: 0 }}>
+                  {activePortfolioCategory.description}
+                </p>
+              )}
+
+              {/* Main Image Viewport */}
+              <div style={{ 
+                position: 'relative', 
+                width: '100%', 
+                height: '440px', 
+                borderRadius: '16px', 
+                overflow: 'hidden', 
+                backgroundColor: '#020617',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                border: '1px solid rgba(255, 255, 255, 0.05)'
+              }}>
+                <img 
+                  src={activePortfolioCategory.images?.[activeImageIndex] || activePortfolioCategory.cover_image} 
+                  alt={activePortfolioCategory.title} 
+                  style={{ 
+                    maxWidth: '100%', 
+                    maxHeight: '100%', 
+                    objectFit: 'contain' 
+                  }} 
+                />
+
+                {/* Left / Right Nav Arrows */}
+                {activePortfolioCategory.images?.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setActiveImageIndex(prev => prev > 0 ? prev - 1 : activePortfolioCategory.images.length - 1)}
+                      style={{
+                        position: 'absolute',
+                        left: '1rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                        backdropFilter: 'blur(4px)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        color: '#ffffff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer'
+                      }}
+                      aria-label="Foto anterior"
+                    >
+                      <ChevronLeft size={24} />
+                    </button>
+
+                    <button
+                      onClick={() => setActiveImageIndex(prev => prev < activePortfolioCategory.images.length - 1 ? prev + 1 : 0)}
+                      style={{
+                        position: 'absolute',
+                        right: '1rem',
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        width: '44px',
+                        height: '44px',
+                        borderRadius: '50%',
+                        backgroundColor: 'rgba(0, 0, 0, 0.65)',
+                        backdropFilter: 'blur(4px)',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        color: '#ffffff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        cursor: 'pointer'
+                      }}
+                      aria-label="Próxima foto"
+                    >
+                      <ChevronRight size={24} />
+                    </button>
+                  </>
+                )}
+              </div>
+
+              {/* Thumbnails Strip */}
+              {activePortfolioCategory.images?.length > 1 && (
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '0.75rem', 
+                  overflowX: 'auto', 
+                  paddingBottom: '0.5rem' 
+                }}>
+                  {activePortfolioCategory.images.map((imgUrl: string, idx: number) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveImageIndex(idx)}
+                      style={{
+                        width: '76px',
+                        height: '76px',
+                        borderRadius: '10px',
+                        overflow: 'hidden',
+                        border: activeImageIndex === idx ? `3px solid ${primaryColor}` : '2px solid transparent',
+                        opacity: activeImageIndex === idx ? 1 : 0.5,
+                        cursor: 'pointer',
+                        padding: 0,
+                        backgroundColor: '#000',
+                        flexShrink: 0,
+                        transition: 'all 0.2s ease'
+                      }}
+                    >
+                      <img 
+                        src={imgUrl} 
+                        alt={`Miniatura ${idx + 1}`} 
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div style={{ 
+              padding: '1.25rem 1.75rem', 
+              borderTop: '1px solid rgba(255, 255, 255, 0.1)', 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'center',
+              backgroundColor: 'rgba(15, 23, 42, 0.95)'
+            }}>
+              <span style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
+                Gostou do resultado? Solicite um orçamento similar.
+              </span>
+
+              <button
+                onClick={() => {
+                  const formattedWhatsapp = storeWhatsapp.replace(/\D/g, '') || '5511999999999'
+                  const message = encodeURIComponent(`Olá! Vi as fotos do serviço *${activePortfolioCategory.title}* no site e gostaria de solicitar um orçamento para o meu projeto!`)
+                  window.open(`https://wa.me/${formattedWhatsapp}?text=${message}`, '_blank')
+                }}
+                style={{
+                  padding: '0.75rem 1.5rem',
+                  borderRadius: buttonRadius,
+                  backgroundColor: '#25D366',
+                  color: '#ffffff',
+                  fontWeight: 700,
+                  border: 'none',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(37, 211, 102, 0.4)'
+                }}
+              >
+                <MessageSquare size={16} />
+                <span>Solicitar Orçamento deste Serviço</span>
+              </button>
             </div>
           </div>
         </div>

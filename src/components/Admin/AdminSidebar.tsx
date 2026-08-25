@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { LayoutDashboard, ShoppingBag, Settings, Users, LogOut, Package, CreditCard, Truck, Tag, Link2, Star, Menu, X, DollarSign, Crown, Lock, Shirt } from 'lucide-react'
+import { LayoutDashboard, ShoppingBag, Settings, Users, LogOut, Package, CreditCard, Truck, Tag, Link2, Star, Menu, X, DollarSign, Crown, Lock, Shirt, Image as ImageIcon } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAdminAuth } from '@/context/AdminAuthContext'
 
@@ -48,6 +48,7 @@ export default function AdminSidebar() {
     ] : [
       { icon: Package, label: (isLawyerLayout || isElectricianLayout) ? 'Serviços' : 'Produtos', href: '/admin/products' },
     ]),
+    { icon: ImageIcon, label: 'Galeria / Portfólio', href: '/admin/portfolio' },
     { icon: LayoutDashboard, label: 'Categorias', href: '/admin/categories' },
     { icon: Shirt, label: 'Estampas / Mockups', href: '/admin/customizer' },
     { icon: ShoppingBag, label: 'Pedidos', href: '/admin/orders' },
