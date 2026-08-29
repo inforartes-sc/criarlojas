@@ -79,6 +79,7 @@ export default function NewProduct() {
   const [previews, setPreviews] = useState<string[]>([])
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [categories, setCategories] = useState<any[]>([])
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
   const [hasVariations, setHasVariations] = useState(false)
   const [variationOptions, setVariationOptions] = useState<{ name: string, valuesString: string }[]>([
     { name: isServicesOnly ? 'Duração' : 'Tamanho', valuesString: isServicesOnly ? '1 hora, 2 horas' : 'P, M, G' }
@@ -198,7 +199,9 @@ export default function NewProduct() {
       
       if (error) throw error
       
-      setFormData({...formData, category: newCategory.name})
+      const catName = newCategory.name
+      setSelectedCategories(prev => [...prev, catName])
+      setFormData({...formData, category: catName})
       setShowCategoryModal(false)
       setNewCategory({ name: '', image_url: '' })
       fetchCategories()
@@ -331,31 +334,38 @@ export default function NewProduct() {
 
       const allImages = [...existingImages, ...newUrls]
 
-      const { error } = await supabase.from('products').insert([
-        {
-          store_id: store.id,
-          name: formData.name,
-          slug: formData.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
-          price: formData.price ? parseFloat(formData.price) : 0,
-          short_description: formData.short_description,
-          description: formData.description,
-          stock_quantity: isServicesOnly ? 9999 : (hasVariations ? variationSkus.reduce((sum, v) => sum + (parseInt(v.stock_quantity) || 0), 0) : parseInt(formData.stock_quantity)),
-          sku: !formData.show_stock ? `${formData.sku || ''}#hide_stock` : (formData.sku || ''),
-          category: formData.category,
-          sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
-          weight: formData.weight ? parseFloat(formData.weight) : null,
-          length: formData.length ? parseFloat(formData.length) : null,
-          width: formData.width ? parseFloat(formData.width) : null,
-          height: formData.height ? parseFloat(formData.height) : null,
-          is_active: formData.is_active,
-          is_featured: formData.is_featured,
-          is_service: isServiceType,
-          images: allImages,
-          has_variations: hasVariations,
-          variation_options: hasVariations ? variationOptions.map(o => ({ name: o.name.trim(), values: o.valuesString.split(',').map(v => v.trim()).filter(Boolean) })) : [],
-          variation_skus: hasVariations ? variationSkus : []
-        }
-      ])
+      const insertPayload: any = {
+        store_id: store.id,
+        name: formData.name,
+        slug: formData.name.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, ""),
+        price: formData.price ? parseFloat(formData.price) : 0,
+        short_description: formData.short_description,
+        description: formData.description,
+        stock_quantity: isServicesOnly ? 9999 : (hasVariations ? variationSkus.reduce((sum, v) => sum + (parseInt(v.stock_quantity) || 0), 0) : parseInt(formData.stock_quantity)),
+        sku: !formData.show_stock ? `${formData.sku || ''}#hide_stock` : (formData.sku || ''),
+        category: selectedCategories.join(', '),
+        categories: selectedCategories,
+        sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
+        weight: formData.weight ? parseFloat(formData.weight) : null,
+        length: formData.length ? parseFloat(formData.length) : null,
+        width: formData.width ? parseFloat(formData.width) : null,
+        height: formData.height ? parseFloat(formData.height) : null,
+        is_active: formData.is_active,
+        is_featured: formData.is_featured,
+        is_service: isServiceType,
+        images: allImages,
+        has_variations: hasVariations,
+        variation_options: hasVariations ? variationOptions.map(o => ({ name: o.name.trim(), values: o.valuesString.split(',').map(v => v.trim()).filter(Boolean) })) : [],
+        variation_skus: hasVariations ? variationSkus : []
+      }
+
+      let { error } = await supabase.from('products').insert([insertPayload])
+
+      if (error && (error.message.includes('categories') || error.message.includes('schema cache'))) {
+        const { categories, ...fallbackPayload } = insertPayload
+        const res = await supabase.from('products').insert([fallbackPayload])
+        error = res.error
+      }
 
       if (error) throw error
 
@@ -414,27 +424,67 @@ export default function NewProduct() {
                     />
                   </div>
                 )}
-                <div className="form-group">
-                  <label>{L.categoryLabel}</label>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    <select
-                      value={formData.category}
-                      onChange={(e) => setFormData({...formData, category: e.target.value})}
-                      style={{ flex: 1 }}
-                    >
-                      <option value="" disabled>{L.categoryPlaceholder}</option>
-                      {categories.map(cat => (
-                        <option key={cat.id} value={cat.name}>{cat.name}</option>
-                      ))}
-                    </select>
+                <div className="form-group" style={{ gridColumn: isServicesOnly ? 'span 1' : 'span 2' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <label style={{ margin: 0 }}>{L.categoryLabel} <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 400 }}>(Selecione uma ou mais)</span></label>
                     <button
                       type="button"
                       onClick={() => setShowCategoryModal(true)}
-                      style={{ padding: '0.75rem', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap' }}
+                      style={{ padding: '0.35rem 0.75rem', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
                     >
                       + Nova
                     </button>
                   </div>
+
+                  {categories.length === 0 ? (
+                    <div style={{ padding: '0.75rem', background: 'var(--input-bg)', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '0.875rem', color: 'var(--muted)' }}>
+                      Nenhuma categoria cadastrada. Clique em "+ Nova" para adicionar.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.25rem' }}>
+                      {categories.map(cat => {
+                        const isSelected = selectedCategories.includes(cat.name)
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => {
+                              let updated: string[]
+                              if (isSelected) {
+                                updated = selectedCategories.filter(c => c !== cat.name)
+                              } else {
+                                updated = [...selectedCategories, cat.name]
+                              }
+                              setSelectedCategories(updated)
+                              setFormData({ ...formData, category: updated[0] || '' })
+                            }}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              padding: '0.45rem 0.85rem',
+                              borderRadius: '20px',
+                              fontSize: '0.85rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                              border: isSelected ? '1px solid var(--primary)' : '1px solid var(--border)',
+                              backgroundColor: isSelected ? 'var(--primary)' : 'var(--input-bg)',
+                              color: isSelected ? '#ffffff' : 'var(--foreground)'
+                            }}
+                          >
+                            {isSelected ? <CheckCircle2 size={14} /> : <Circle size={14} style={{ opacity: 0.5 }} />}
+                            <span>{cat.name}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                  {selectedCategories.length > 0 && (
+                    <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.45rem' }}>
+                      {selectedCategories.length} {selectedCategories.length === 1 ? 'categoria selecionada' : 'categorias selecionadas'}: <strong style={{ color: 'var(--foreground)' }}>{selectedCategories.join(', ')}</strong>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>

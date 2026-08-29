@@ -166,7 +166,10 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
   const searchFilter = resolvedSearchParams.search as string | undefined
 
   let allProducts = categoryFilter 
-    ? allProductsRaw.filter(p => p.category === categoryFilter) 
+    ? allProductsRaw.filter(p => 
+        p.category === categoryFilter ||
+        (Array.isArray(p.categories) && p.categories.includes(categoryFilter))
+      ) 
     : allProductsRaw
 
   if (searchFilter) {

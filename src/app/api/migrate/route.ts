@@ -67,6 +67,7 @@ const migrations: { label: string; sql: string }[] = [
   { label: 'products.has_variations', sql: `ALTER TABLE products ADD COLUMN IF NOT EXISTS has_variations BOOLEAN DEFAULT false` },
   { label: 'products.variation_options', sql: `ALTER TABLE products ADD COLUMN IF NOT EXISTS variation_options JSONB DEFAULT '[]'::jsonb` },
   { label: 'products.variation_skus', sql: `ALTER TABLE products ADD COLUMN IF NOT EXISTS variation_skus JSONB DEFAULT '[]'::jsonb` },
+  { label: 'products.categories', sql: `ALTER TABLE products ADD COLUMN IF NOT EXISTS categories JSONB DEFAULT '[]'::jsonb` },
   { label: 'customers.address_street', sql: `ALTER TABLE customers ADD COLUMN IF NOT EXISTS address_street TEXT` },
   { label: 'customers.address_number', sql: `ALTER TABLE customers ADD COLUMN IF NOT EXISTS address_number TEXT` },
   { label: 'customers.address_complement', sql: `ALTER TABLE customers ADD COLUMN IF NOT EXISTS address_complement TEXT` },

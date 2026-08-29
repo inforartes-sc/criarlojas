@@ -82,6 +82,9 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
   const [previews, setPreviews] = useState<string[]>([])
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null)
   const [categories, setCategories] = useState<any[]>([])
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([])
+  const [showCategoryModal, setShowCategoryModal] = useState(false)
+  const [newCategory, setNewCategory] = useState({ name: '', image_url: '' })
   const [hasVariations, setHasVariations] = useState(false)
 
   const [hidePrice, setHidePrice] = useState(false)
@@ -207,6 +210,14 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         is_featured: data.is_featured ?? false,
         show_stock: !data.sku?.includes('#hide_stock')
       })
+      let loadedCategories: string[] = []
+      if (Array.isArray(data.categories) && data.categories.length > 0) {
+        loadedCategories = data.categories
+      } else if (data.category) {
+        loadedCategories = data.category.split(',').map((c: string) => c.trim()).filter(Boolean)
+      }
+      setSelectedCategories(loadedCategories)
+
       setHidePrice(data.hide_price === true || data.hide_price === 'true' || data.sku?.includes('#hide_price'))
       setHasVariations(data.has_variations ?? false)
       const loadedOpts = data.variation_options || []
@@ -227,6 +238,40 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
       router.push('/admin/products')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const fetchCategories = async () => {
+    if (!store) return
+    try {
+      const { data: catData, error } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('store_id', store.id)
+        .order('name')
+      if (error) throw error
+      setCategories(catData || [])
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  const handleCreateCategory = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!store || !newCategory.name) return
+    try {
+      const { error } = await supabase
+        .from('categories')
+        .insert([{ name: newCategory.name, image_url: newCategory.image_url, store_id: store.id }])
+      if (error) throw error
+      const catName = newCategory.name
+      setSelectedCategories(prev => [...prev, catName])
+      setFormData(prev => ({ ...prev, category: catName }))
+      setShowCategoryModal(false)
+      setNewCategory({ name: '', image_url: '' })
+      fetchCategories()
+    } catch (error: any) {
+      toast.error('Erro ao criar categoria: ' + error.message)
     }
   }
 
@@ -361,7 +406,8 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         description: formData.description,
         stock_quantity: hasVariations ? 0 : (parseInt(formData.stock_quantity) || 0),
         sku: `${(formData.sku || '').replace('#hide_stock', '').replace('#hide_price', '')}${!formData.show_stock ? '#hide_stock' : ''}`,
-        category: formData.category,
+        category: selectedCategories.join(', '),
+        categories: selectedCategories,
         sale_price: formData.sale_price ? parseFloat(formData.sale_price) : null,
         weight: formData.weight ? parseFloat(formData.weight) : null,
         length: formData.length ? parseFloat(formData.length) : null,
@@ -375,11 +421,21 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         variation_skus: variationSkus,
       }
 
-      const { error } = await supabase
+      let { error } = await supabase
         .from('products')
         .update(updatePayload)
         .eq('id', productId)
         .eq('store_id', store.id)
+
+      if (error && (error.message.includes('categories') || error.message.includes('schema cache'))) {
+        const { categories, ...fallbackPayload } = updatePayload
+        const res = await supabase
+          .from('products')
+          .update(fallbackPayload)
+          .eq('id', productId)
+          .eq('store_id', store.id)
+        error = res.error
+      }
 
       if (error) throw error
 
@@ -450,17 +506,67 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                     />
                   </div>
                 )}
-                <div className="form-group">
-                  <label>{L.categoryLabel}</label>
-                  <select
-                    value={formData.category}
-                    onChange={(e) => setFormData({...formData, category: e.target.value})}
-                  >
-                    <option value="" disabled>{L.categoryPlaceholder}</option>
-                    {categories.map(cat => (
-                      <option key={cat.id} value={cat.name}>{cat.name}</option>
-                    ))}
-                  </select>
+                <div className="form-group" style={{ gridColumn: isServicesOnly ? 'span 1' : 'span 2' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                    <label style={{ margin: 0 }}>{L.categoryLabel} <span style={{ fontSize: '0.8rem', color: 'var(--muted)', fontWeight: 400 }}>(Selecione uma ou mais)</span></label>
+                    <button
+                      type="button"
+                      onClick={() => setShowCategoryModal(true)}
+                      style={{ padding: '0.35rem 0.75rem', background: 'rgba(99, 102, 241, 0.1)', color: 'var(--primary)', border: 'none', borderRadius: '8px', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.3rem' }}
+                    >
+                      + Nova
+                    </button>
+                  </div>
+
+                  {categories.length === 0 ? (
+                    <div style={{ padding: '0.75rem', background: 'var(--input-bg)', borderRadius: '8px', border: '1px solid var(--border)', fontSize: '0.875rem', color: 'var(--muted)' }}>
+                      Nenhuma categoria cadastrada. Clique em "+ Nova" para adicionar.
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginTop: '0.25rem' }}>
+                      {categories.map(cat => {
+                        const isSelected = selectedCategories.includes(cat.name)
+                        return (
+                          <button
+                            key={cat.id}
+                            type="button"
+                            onClick={() => {
+                              let updated: string[]
+                              if (isSelected) {
+                                updated = selectedCategories.filter(c => c !== cat.name)
+                              } else {
+                                updated = [...selectedCategories, cat.name]
+                              }
+                              setSelectedCategories(updated)
+                              setFormData({ ...formData, category: updated[0] || '' })
+                            }}
+                            style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '0.35rem',
+                              padding: '0.45rem 0.85rem',
+                              borderRadius: '20px',
+                              fontSize: '0.85rem',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              transition: 'all 0.15s ease',
+                              border: isSelected ? '1px solid var(--primary)' : '1px solid var(--border)',
+                              backgroundColor: isSelected ? 'var(--primary)' : 'var(--input-bg)',
+                              color: isSelected ? '#ffffff' : 'var(--foreground)'
+                            }}
+                          >
+                            {isSelected ? <CheckCircle2 size={14} /> : <Circle size={14} style={{ opacity: 0.5 }} />}
+                            <span>{cat.name}</span>
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
+                  {selectedCategories.length > 0 && (
+                    <div style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.45rem' }}>
+                      {selectedCategories.length} {selectedCategories.length === 1 ? 'categoria selecionada' : 'categorias selecionadas'}: <strong style={{ color: 'var(--foreground)' }}>{selectedCategories.join(', ')}</strong>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1061,6 +1167,52 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 Excluir
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal para Adicionar Categoria */}
+      {showCategoryModal && (
+        <div style={{
+          position: 'fixed', inset: 0, backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1000,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem'
+        }}>
+          <div className="glass-card" style={{ width: '100%', maxWidth: '400px', padding: '2rem', background: 'var(--card)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, margin: 0 }}>Nova Categoria</h3>
+              <button type="button" onClick={() => setShowCategoryModal(false)} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer' }}>
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleCreateCategory} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+              <div className="form-group">
+                <label>Nome da Categoria</label>
+                <input
+                  type="text"
+                  required
+                  value={newCategory.name}
+                  onChange={(e) => setNewCategory({ ...newCategory, name: e.target.value })}
+                  placeholder="Ex: Camisetas"
+                />
+              </div>
+              <div className="form-group">
+                <label>URL da Imagem (Opcional)</label>
+                <input
+                  type="url"
+                  value={newCategory.image_url}
+                  onChange={(e) => setNewCategory({ ...newCategory, image_url: e.target.value })}
+                  placeholder="https://exemplo.com/imagem.jpg"
+                />
+              </div>
+              <div style={{ display: 'flex', gap: '1rem', marginTop: '0.5rem' }}>
+                <button type="button" onClick={() => setShowCategoryModal(false)} className="btn-secondary" style={{ flex: 1 }}>
+                  Cancelar
+                </button>
+                <button type="submit" className="btn-primary" style={{ flex: 1 }}>
+                  Salvar
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

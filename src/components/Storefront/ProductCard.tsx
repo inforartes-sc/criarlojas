@@ -314,9 +314,8 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
               <Heart size={16} fill={isFavorited ? (isCampaign && isDarkBg ? '#ffffff' : '#fff') : 'none'} />
             </button>
 
-            {/* Centro: Categoria */}
-            <span className="product-category-label" style={{ fontSize: featured ? '0.9rem' : '0.75rem', color: categoryColor, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 800, textAlign: 'center', flex: 1, padding: '0 0.5rem' }}>
-              {product.category || 'NOVIDADE'}
+            <span className="product-category-label" style={{ fontSize: featured ? '0.9rem' : '0.75rem', color: categoryColor, textTransform: 'uppercase', letterSpacing: '2px', fontWeight: 800, textAlign: 'center', flex: 1, padding: '0 0.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {Array.isArray(product.categories) && product.categories.length > 0 ? product.categories.join(', ') : (product.category || 'NOVIDADE')}
             </span>
 
             {/* Direita: Carrinho (ou div vazia no modo catálogo para manter o centro perfeito) */}

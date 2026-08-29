@@ -113,7 +113,10 @@ export default async function ProdutosPage({
   })
 
   let filteredProducts = categoryFilter
-    ? physicalProducts.filter((p: any) => p.category === categoryFilter)
+    ? physicalProducts.filter((p: any) =>
+        p.category === categoryFilter ||
+        (Array.isArray(p.categories) && p.categories.includes(categoryFilter))
+      )
     : physicalProducts
 
   if (searchFilter) {
@@ -124,7 +127,15 @@ export default async function ProdutosPage({
     )
   }
 
-  const uniqueCategories = Array.from(new Set(physicalProducts.map((p: any) => p.category).filter(Boolean)))
+  const catSet = new Set<string>()
+  physicalProducts.forEach((p: any) => {
+    if (Array.isArray(p.categories) && p.categories.length > 0) {
+      p.categories.forEach((c: string) => { if (c) catSet.add(c) })
+    } else if (p.category) {
+      catSet.add(p.category)
+    }
+  })
+  const uniqueCategories = Array.from(catSet)
 
   return (
     <div style={{ backgroundColor: '#f8fafc', minHeight: '100vh', fontFamily: 'var(--font-body, "Plus Jakarta Sans", Inter, system-ui, sans-serif)' }}>
