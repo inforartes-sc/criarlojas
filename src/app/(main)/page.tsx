@@ -316,6 +316,12 @@ export default function SaaSCommercialPortal() {
   const [showDomainModal, setShowDomainModal] = useState(false)
   const [isCheckingDomain, setIsCheckingDomain] = useState(false)
   const [isSubmittingDomain, setIsSubmittingDomain] = useState(false)
+  const [domainStatus, setDomainStatus] = useState<{
+    checked: boolean
+    available: boolean | null
+    domain: string
+    message: string
+  } | null>(null)
   const [domainData, setDomainData] = useState({
     desiredDomain: '',
     fullName: '',
@@ -324,25 +330,91 @@ export default function SaaSCommercialPortal() {
     notes: ''
   })
 
-  const handleVerifyDomain = (e: React.MouseEvent) => {
-    e.preventDefault()
-    if (!domainData.desiredDomain) {
+  const handleVerifyDomain = async (e?: React.MouseEvent | React.FormEvent) => {
+    if (e) e.preventDefault()
+    const rawDomain = domainData.desiredDomain.trim()
+    if (!rawDomain) {
       toast.error('Digite o domínio desejado para verificar.')
+      setDomainStatus(null)
       return
     }
+
     setIsCheckingDomain(true)
-    setTimeout(() => {
+    setDomainStatus(null)
+
+    try {
+      const res = await fetch(`/api/domain/check?domain=${encodeURIComponent(rawDomain)}`)
+      const data = await res.json()
+
+      if (!res.ok) {
+        const errorMsg = data.error || 'Erro ao consultar a disponibilidade do domínio.'
+        setDomainStatus({
+          checked: true,
+          available: null,
+          domain: rawDomain,
+          message: errorMsg
+        })
+        toast.error(errorMsg)
+      } else {
+        if (data.domain && data.domain !== domainData.desiredDomain) {
+          setDomainData(prev => ({ ...prev, desiredDomain: data.domain }))
+        }
+        setDomainStatus({
+          checked: true,
+          available: data.available,
+          domain: data.domain || rawDomain,
+          message: data.message || (data.available ? 'Domínio disponível para registro!' : 'Domínio já está registrado.')
+        })
+        if (data.available) {
+          toast.success(`O domínio "${data.domain}" está disponível para registro!`)
+        } else {
+          toast.error(`O domínio "${data.domain}" já está registrado.`)
+        }
+      }
+    } catch (err: any) {
+      console.error('Erro na checagem de domínio:', err)
+      const errorMsg = 'Falha ao se conectar com o servidor de checagem.'
+      setDomainStatus({
+        checked: true,
+        available: null,
+        domain: rawDomain,
+        message: errorMsg
+      })
+      toast.error(errorMsg)
+    } finally {
       setIsCheckingDomain(false)
-      toast.success('Domínio disponível para registro!')
-    }, 1200)
+    }
   }
 
   const handleDomainSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (!domainData.desiredDomain.trim() || !domainData.fullName.trim() || !domainData.whatsapp.trim() || !domainData.email.trim()) {
+      toast.error('Por favor, preencha todos os campos obrigatórios.')
+      return
+    }
+
     setIsSubmittingDomain(true)
+
+    const statusLabel = domainStatus?.checked
+      ? (domainStatus.available === true ? '✅ Disponível para Registro' : domainStatus.available === false ? 'ℹ️ Já Registrado (Solicito Apontamento DNS)' : '❓ Não Verificado')
+      : '❓ Não Verificado'
+
+    const text = `Olá equipe Criar Lojas! Gostaria de solicitar a configuração de um domínio próprio para a minha loja:%0A%0A` +
+      `🌐 *Domínio Desejado:* ${encodeURIComponent(domainData.desiredDomain.trim())}%0A` +
+      `📊 *Status de Disponibilidade:* ${encodeURIComponent(statusLabel)}%0A%0A` +
+      `👤 *Nome:* ${encodeURIComponent(domainData.fullName.trim())}%0A` +
+      `📱 *WhatsApp:* ${encodeURIComponent(domainData.whatsapp.trim())}%0A` +
+      `✉️ *E-mail:* ${encodeURIComponent(domainData.email.trim())}` +
+      (domainData.notes.trim() ? `%0A%0A📝 *Observações:* ${encodeURIComponent(domainData.notes.trim())}` : '')
+
+    const targetNum = formatWhatsappNumber(platformSettings.whatsappSupport) || '5511999998888'
+    const waUrl = `https://wa.me/${targetNum}?text=${text}`
+
     setTimeout(() => {
       setIsSubmittingDomain(false)
       setShowDomainModal(false)
+      toast.success('Solicitação enviada com sucesso! Redirecionando para o WhatsApp...')
+      window.open(waUrl, '_blank')
       setDomainData({
         desiredDomain: '',
         fullName: '',
@@ -350,8 +422,8 @@ export default function SaaSCommercialPortal() {
         email: '',
         notes: ''
       })
-      toast.success('Solicitação enviada! Entraremos em contato via WhatsApp com as opções.')
-    }, 1500)
+      setDomainStatus(null)
+    }, 800)
   }
 
   // Estado para o Modal de Solicitação / Contratação de Loja
@@ -2394,7 +2466,16 @@ export default function SaaSCommercialPortal() {
                     <input 
                       type="text" 
                       value={domainData.desiredDomain}
-                      onChange={e => setDomainData({...domainData, desiredDomain: e.target.value})}
+                      onChange={e => {
+                        setDomainData({...domainData, desiredDomain: e.target.value})
+                        if (domainStatus) setDomainStatus(null)
+                      }}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault()
+                          handleVerifyDomain()
+                        }
+                      }}
                       placeholder="Ex: minhamarca.com.br"
                       style={{ flex: 1, padding: '1rem 0', background: 'transparent', border: 'none', color: '#0f172a', outline: 'none', fontSize: '1rem', fontWeight: 500 }}
                       required
@@ -2404,11 +2485,85 @@ export default function SaaSCommercialPortal() {
                     type="button"
                     onClick={handleVerifyDomain}
                     disabled={isCheckingDomain}
-                    style={{ padding: '1rem 2rem', background: '#e0f2fe', color: '#0ea5e9', border: 'none', borderRadius: '12px', fontWeight: 800, fontSize: '0.95rem', cursor: 'pointer', transition: '0.2s', height: '54px', minWidth: '110px' }}
+                    style={{ 
+                      padding: '1rem 1.75rem', 
+                      background: isCheckingDomain ? '#93c5fd' : '#0ea5e9', 
+                      color: '#ffffff', 
+                      border: 'none', 
+                      borderRadius: '12px', 
+                      fontWeight: 800, 
+                      fontSize: '0.95rem', 
+                      cursor: isCheckingDomain ? 'not-allowed' : 'pointer', 
+                      transition: '0.2s', 
+                      height: '54px', 
+                      minWidth: '130px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      boxShadow: '0 4px 12px rgba(14, 165, 233, 0.2)'
+                    }}
                   >
-                    {isCheckingDomain ? 'Verificando...' : 'Verificar'}
+                    {isCheckingDomain ? (
+                      <>
+                        <Loader2 className="animate-spin" size={18} />
+                        <span>Verificando</span>
+                      </>
+                    ) : (
+                      'Verificar'
+                    )}
                   </button>
                 </div>
+
+                {/* Box de Resposta / Feedback de Disponibilidade */}
+                {isCheckingDomain && (
+                  <div style={{ marginTop: '0.75rem', padding: '0.85rem 1.25rem', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#0369a1', fontSize: '0.9rem', fontWeight: 600 }}>
+                    <Loader2 className="animate-spin" size={18} />
+                    <span>Consultando disponibilidade no Registro.br e bases mundiais...</span>
+                  </div>
+                )}
+
+                {!isCheckingDomain && domainStatus?.checked && (
+                  <div style={{ marginTop: '0.75rem' }}>
+                    {domainStatus.available === true && (
+                      <div style={{ padding: '1rem 1.25rem', background: '#f0fdf4', border: '1px solid #86efac', borderRadius: '12px', display: 'flex', alignItems: 'flex-start', gap: '0.85rem' }}>
+                        <div style={{ background: '#22c55e', color: '#ffffff', borderRadius: '50%', padding: '4px', display: 'flex', flexShrink: 0, marginTop: '2px' }}>
+                          <CheckCircle size={16} />
+                        </div>
+                        <div>
+                          <h4 style={{ margin: 0, color: '#15803d', fontSize: '0.95rem', fontWeight: 800 }}>
+                            {domainStatus.domain} está DISPONÍVEL!
+                          </h4>
+                          <p style={{ margin: '0.25rem 0 0 0', color: '#166534', fontSize: '0.85rem', fontWeight: 500, lineHeight: 1.4 }}>
+                            {domainStatus.message} Preencha seus dados abaixo para solicitar o registro e a configuração da sua loja.
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {domainStatus.available === false && (
+                      <div style={{ padding: '1rem 1.25rem', background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '12px', display: 'flex', alignItems: 'flex-start', gap: '0.85rem' }}>
+                        <div style={{ background: '#f59e0b', color: '#ffffff', borderRadius: '50%', padding: '4px', display: 'flex', flexShrink: 0, marginTop: '2px' }}>
+                          <Globe size={16} />
+                        </div>
+                        <div>
+                          <h4 style={{ margin: 0, color: '#b45309', fontSize: '0.95rem', fontWeight: 800 }}>
+                            {domainStatus.domain} já está REGISTRADO
+                          </h4>
+                          <p style={{ margin: '0.25rem 0 0 0', color: '#92400e', fontSize: '0.85rem', fontWeight: 500, lineHeight: 1.4 }}>
+                            Se este domínio pertence a você, preencha seus dados abaixo para solicitarmos o <strong>apontamento DNS</strong> para a sua nova loja virtual!
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {domainStatus.available === null && (
+                      <div style={{ padding: '0.85rem 1.25rem', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '12px', color: '#991b1b', fontSize: '0.88rem', fontWeight: 600 }}>
+                        {domainStatus.message}
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Seu Nome Completo */}
