@@ -15,13 +15,15 @@ export default function CategoriesCarousel({
   layoutModel,
   buttonRadius = '50%',
   isDark = false,
-  primaryColor = '#0284c7'
+  primaryColor = '#0284c7',
+  thumbnailShape = 'circle'
 }: {
   categories: Category[]
   layoutModel?: string
   buttonRadius?: string
   isDark?: boolean
   primaryColor?: string
+  thumbnailShape?: 'circle' | 'square' | string
 }) {
   const scrollRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
@@ -59,8 +61,9 @@ export default function CategoriesCarousel({
 
   if (!categories || categories.length === 0) return null
 
-  // Imagem redonda por padrão quando o layout é modern ou fashion
-  const imgRadius = buttonRadius === '50%' || layoutModel !== 'tech' ? '50%' : buttonRadius
+  // Formato da imagem: Redonda (50%) ou Quadrada com cantos suaves (16px)
+  const isSquare = thumbnailShape === 'square'
+  const imgRadius = isSquare ? '16px' : '50%'
   const imgSize = layoutModel === 'fashion' ? '125px' : '110px'
 
   return (
@@ -175,6 +178,7 @@ export default function CategoriesCarousel({
             .category-circle-img {
               width: 82px !important;
               height: 82px !important;
+              border-radius: ${isSquare ? '12px' : '50%'} !important;
               margin-bottom: 0.6rem !important;
             }
             .category-carousel-name {

@@ -4,14 +4,17 @@ import { useState, useEffect } from 'react'
 import { Plus, Search, Loader2, Image as ImageIcon, Trash2, X, Upload } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { useAdminAuth } from '@/context/AdminAuthContext'
+import toast from 'react-hot-toast'
 
 export default function CategoriesPage() {
-  const { store } = useAdminAuth()
+  const { store, setStore } = useAdminAuth()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [savingShape, setSavingShape] = useState(false)
   const [showForm, setShowForm] = useState(false)
   const [categories, setCategories] = useState<any[]>([])
   const [deleteId, setDeleteId] = useState<string | null>(null)
+  const [thumbnailShape, setThumbnailShape] = useState<'circle' | 'square'>('circle')
   
   const [formData, setFormData] = useState({
     id: null,
@@ -21,9 +24,36 @@ export default function CategoriesPage() {
 
   useEffect(() => {
     if (store) {
+      setThumbnailShape(store.settings?.category_thumbnail_shape || 'circle')
       fetchData()
     }
   }, [store])
+
+  const handleUpdateThumbnailShape = async (shape: 'circle' | 'square') => {
+    if (!store) return
+    setSavingShape(true)
+    try {
+      const updatedSettings = {
+        ...(store.settings || {}),
+        category_thumbnail_shape: shape
+      }
+      const { error } = await supabase
+        .from('stores')
+        .update({ settings: updatedSettings })
+        .eq('id', store.id)
+
+      if (error) throw error
+      if (setStore) {
+        setStore({ ...store, settings: updatedSettings })
+      }
+      setThumbnailShape(shape)
+      toast.success(`Formato atualizado para ${shape === 'circle' ? 'Redondo' : 'Quadrado'}!`)
+    } catch (err: any) {
+      toast.error('Erro ao atualizar formato: ' + err.message)
+    } finally {
+      setSavingShape(false)
+    }
+  }
 
   const fetchData = async () => {
     if (!store) return
@@ -123,10 +153,66 @@ export default function CategoriesPage() {
         </button>
       </header>
 
+      {/* Seletor de Formato das Miniaturas */}
+      <div className="glass-card" style={{ padding: '1rem 1.5rem', marginBottom: '2rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+          <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Formato das Miniaturas na Loja:</span>
+          <span style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>(Define como o carrossel exibe as categorias aos clientes)</span>
+        </div>
+
+        <div style={{ display: 'flex', gap: '0.5rem', backgroundColor: 'var(--background)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border)' }}>
+          <button
+            type="button"
+            onClick={() => handleUpdateThumbnailShape('circle')}
+            disabled={savingShape}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.5rem 1.1rem',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: savingShape ? 'not-allowed' : 'pointer',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              backgroundColor: thumbnailShape !== 'square' ? 'var(--primary)' : 'transparent',
+              color: thumbnailShape !== 'square' ? '#ffffff' : 'var(--muted)',
+              transition: 'all 0.2s ease',
+              opacity: savingShape ? 0.6 : 1
+            }}
+          >
+            <span>⚪ Redonda</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => handleUpdateThumbnailShape('square')}
+            disabled={savingShape}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              padding: '0.5rem 1.1rem',
+              borderRadius: '8px',
+              border: 'none',
+              cursor: savingShape ? 'not-allowed' : 'pointer',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              backgroundColor: thumbnailShape === 'square' ? 'var(--primary)' : 'transparent',
+              color: thumbnailShape === 'square' ? '#ffffff' : 'var(--muted)',
+              transition: 'all 0.2s ease',
+              opacity: savingShape ? 0.6 : 1
+            }}
+          >
+            <span>⏹️ Quadrada</span>
+          </button>
+        </div>
+      </div>
+
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: '1.5rem' }}>
         {categories.map((cat: any) => (
           <div key={cat.id} className="glass-card" style={{ padding: '1.5rem', textAlign: 'center', position: 'relative' }}>
-            <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: 'var(--background)', margin: '0 auto 1rem auto', overflow: 'hidden', border: '1px solid var(--border)' }}>
+            <div style={{ width: '80px', height: '80px', borderRadius: thumbnailShape === 'square' ? '14px' : '50%', backgroundColor: 'var(--background)', margin: '0 auto 1rem auto', overflow: 'hidden', border: '1px solid var(--border)', transition: 'border-radius 0.3s ease' }}>
               {cat.image_url ? <img src={cat.image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <ImageIcon size={24} color="var(--muted)" />}
             </div>
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>{cat.name}</h3>

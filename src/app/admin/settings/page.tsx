@@ -72,6 +72,7 @@ export default function SettingsPage() {
     hero_subtitle: 'Descubra peças selecionadas que unem conforto e sofisticação.',
     font_family: 'Inter',
     button_style: 'rounded',
+    category_thumbnail_shape: 'circle', // circle, square
     button_variant: 'filled',
     button_hover_variant: 'filled',
     header_style: 'modern',
@@ -308,6 +309,7 @@ export default function SettingsPage() {
         hero_subtitle: s.hero_subtitle || 'Descubra peças selecionadas que unem conforto e sofisticação.',
         font_family: s.font_family || 'Inter',
         button_style: s.button_style || 'rounded',
+        category_thumbnail_shape: s.category_thumbnail_shape || 'circle',
         button_variant: s.button_variant || 'filled',
         button_hover_variant: s.button_hover_variant || 'filled',
         header_style: s.header_style || 'modern',
@@ -3116,6 +3118,69 @@ export default function SettingsPage() {
                     <div>
                       <div style={{ fontWeight: 700 }}>Clássico</div>
                       <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Menu simples que fica fixo no topo da página.</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div className="form-group" style={{ marginTop: '2rem' }}>
+                <label style={{ fontSize: '1.05rem', fontWeight: 700, marginBottom: '0.75rem', display: 'block' }}>
+                  Formato da Miniatura das Categorias
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    padding: '1.25rem',
+                    border: formData.category_thumbnail_shape !== 'square' ? '2px solid var(--primary)' : '1px solid var(--border)',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    backgroundColor: formData.category_thumbnail_shape !== 'square' ? 'rgba(99, 102, 241, 0.05)' : 'transparent',
+                    transition: 'all 0.2s'
+                  }}>
+                    <input 
+                      type="radio" 
+                      name="category_thumbnail_shape"
+                      checked={formData.category_thumbnail_shape !== 'square'} 
+                      onChange={() => setFormData({...formData, category_thumbnail_shape: 'circle'})} 
+                    />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <div style={{ width: '42px', height: '42px', borderRadius: '50%', backgroundColor: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.1rem', flexShrink: 0 }}>
+                        ⚪
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 700, color: 'var(--foreground)' }}>Redonda (Circular)</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Miniaturas redondas no estilo carrossel.</div>
+                      </div>
+                    </div>
+                  </label>
+
+                  <label style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    padding: '1.25rem',
+                    border: formData.category_thumbnail_shape === 'square' ? '2px solid var(--primary)' : '1px solid var(--border)',
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    backgroundColor: formData.category_thumbnail_shape === 'square' ? 'rgba(99, 102, 241, 0.05)' : 'transparent',
+                    transition: 'all 0.2s'
+                  }}>
+                    <input 
+                      type="radio" 
+                      name="category_thumbnail_shape"
+                      checked={formData.category_thumbnail_shape === 'square'} 
+                      onChange={() => setFormData({...formData, category_thumbnail_shape: 'square'})} 
+                    />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                      <div style={{ width: '42px', height: '42px', borderRadius: '12px', backgroundColor: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: '1.1rem', flexShrink: 0 }}>
+                        ⏹️
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 700, color: 'var(--foreground)' }}>Quadrada (Cantos Suaves)</div>
+                        <div style={{ fontSize: '0.8rem', color: 'var(--muted)' }}>Miniaturas quadradas modernas com cantos arredondados.</div>
+                      </div>
                     </div>
                   </label>
                 </div>

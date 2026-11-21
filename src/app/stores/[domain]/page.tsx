@@ -615,6 +615,7 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
               buttonRadius={buttonRadius}
               isDark={isDark}
               primaryColor={buttonColor}
+              thumbnailShape={settings.category_thumbnail_shape || 'circle'}
             />
           </section>
         )}
