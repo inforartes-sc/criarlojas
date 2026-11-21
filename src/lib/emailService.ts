@@ -1,6 +1,9 @@
 import nodemailer from 'nodemailer'
 
-interface SmtpConfig {
+export interface EmailConfig {
+  provider?: 'resend' | 'smtp'
+  resend_api_key?: string
+  resend_from?: string
   host?: string
   port?: number | string
   user?: string
@@ -9,7 +12,7 @@ interface SmtpConfig {
   secure?: boolean
 }
 
-export function getTransporter(customConfig?: SmtpConfig) {
+export function getTransporter(customConfig?: EmailConfig) {
   const host = customConfig?.host || process.env.SMTP_HOST
   const port = Number(customConfig?.port || process.env.SMTP_PORT || 587)
   const user = customConfig?.user || process.env.SMTP_USER
@@ -43,15 +46,45 @@ export async function sendEmail({
   to: string
   subject: string
   html: string
-  customConfig?: SmtpConfig
+  customConfig?: EmailConfig
 }): Promise<{ success: boolean; message: string }> {
   try {
+    const resendKey = (customConfig?.resend_api_key || process.env.RESEND_API_KEY || '').trim()
+
+    // 1. Se configurado para usar Resend ou se forneceu a chave da Resend
+    if (resendKey && (customConfig?.provider === 'resend' || !customConfig?.host)) {
+      const fromAddress = customConfig?.resend_from?.trim() || customConfig?.from?.trim() || process.env.RESEND_FROM || 'Notificações de Pedidos <onboarding@resend.dev>'
+
+      const res = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: fromAddress,
+          to: [to.trim()],
+          subject,
+          html
+        })
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        const errorMsg = data?.message || data?.error || JSON.stringify(data)
+        throw new Error(errorMsg)
+      }
+
+      return { success: true, message: 'E-mail enviado com sucesso via Resend API!' }
+    }
+
+    // 2. Provedor SMTP Tradicional
     const transporter = getTransporter(customConfig)
     if (!transporter) {
-      console.warn('[EmailService] SMTP não configurado. Defina SMTP_HOST, SMTP_USER e SMTP_PASS no .env ou nas configurações da loja.')
+      console.warn('[EmailService] Nenhum serviço de e-mail configurado (Resend API Key ou SMTP).')
       return { 
         success: false, 
-        message: 'Servidor SMTP não configurado. Preencha as configurações de e-mail no painel ou no arquivo .env.' 
+        message: 'Nenhum servidor de e-mail configurado. Cole a Chave de API da Resend ou preencha os dados de Host SMTP no painel.' 
       }
     }
 
@@ -59,12 +92,12 @@ export async function sendEmail({
 
     await transporter.sendMail({
       from: `"Notificações da Loja" <${fromAddress}>`,
-      to,
+      to: to.trim(),
       subject,
       html
     })
 
-    return { success: true, message: 'E-mail enviado com sucesso!' }
+    return { success: true, message: 'E-mail enviado com sucesso via SMTP!' }
   } catch (error: any) {
     console.error('[EmailService] Erro ao enviar e-mail:', error)
     return { success: false, message: error?.message || 'Erro ao enviar e-mail.' }
@@ -101,8 +134,11 @@ export async function sendOrderNotificationToAdmin({
       return
     }
 
-    // Configurações SMTP personalizadas da loja se houver
-    const customConfig: SmtpConfig = {
+    // Configurações personalizadas de e-mail da loja (Resend ou SMTP)
+    const customConfig: EmailConfig = {
+      provider: settings.email_provider || (settings.resend_api_key ? 'resend' : 'smtp'),
+      resend_api_key: settings.resend_api_key,
+      resend_from: settings.resend_from,
       host: settings.smtp_host,
       port: settings.smtp_port,
       user: settings.smtp_user,

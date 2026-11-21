@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Save, Loader2, Palette, Globe, Store, Type, Layout, Image as ImageIcon, Upload, X, Lock, ShoppingBag, Scale, Truck, ShieldCheck, RefreshCw, CreditCard, Heart, Star, Zap, Package, Headphones, Award, Shield, Clock, ThumbsUp, CheckCircle, Smile, TrendingUp, DollarSign, Phone, MessageSquare, Users, ShoppingCart, Gift, Tag, Percent, Wallet, Banknote, PiggyBank, Gem, Leaf, Box, Sparkles, Wrench, Bell, Mail, Send } from 'lucide-react'
+import { Save, Loader2, Palette, Globe, Store, Type, Layout, Image as ImageIcon, Upload, X, Lock, ShoppingBag, Scale, Truck, ShieldCheck, RefreshCw, CreditCard, Heart, Star, Zap, Package, Headphones, Award, Shield, Clock, ThumbsUp, CheckCircle, Smile, TrendingUp, DollarSign, Phone, MessageSquare, Users, ShoppingCart, Gift, Tag, Percent, Wallet, Banknote, PiggyBank, Gem, Leaf, Box, Sparkles, Wrench, Bell, Mail, Send, Key, ExternalLink } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
 import { useAdminAuth } from '@/context/AdminAuthContext'
@@ -131,6 +131,9 @@ export default function SettingsPage() {
     cpf: '',
     order_notifications_enabled: true,
     order_notification_email: '',
+    email_provider: 'resend',
+    resend_api_key: '',
+    resend_from: '',
     smtp_host: '',
     smtp_port: '587',
     smtp_user: '',
@@ -373,6 +376,9 @@ export default function SettingsPage() {
         cpf: s.cpf || '',
         order_notifications_enabled: s.order_notifications_enabled !== undefined ? s.order_notifications_enabled : true,
         order_notification_email: s.order_notification_email || s.email || data.email || '',
+        email_provider: s.email_provider || (s.resend_api_key ? 'resend' : (s.smtp_host ? 'smtp' : 'resend')),
+        resend_api_key: s.resend_api_key || '',
+        resend_from: s.resend_from || '',
         smtp_host: s.smtp_host || '',
         smtp_port: s.smtp_port || '587',
         smtp_user: s.smtp_user || '',
@@ -801,6 +807,9 @@ export default function SettingsPage() {
           storeId,
           email: targetEmail,
           customConfig: {
+            provider: formData.email_provider || (formData.resend_api_key ? 'resend' : 'smtp'),
+            resend_api_key: formData.resend_api_key,
+            resend_from: formData.resend_from,
             host: formData.smtp_host,
             port: formData.smtp_port,
             user: formData.smtp_user,
@@ -1408,15 +1417,121 @@ export default function SettingsPage() {
                 </button>
               </div>
 
-              {/* Servidor SMTP Personalizado (Opcional) */}
-              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
-                <details style={{ cursor: 'pointer' }}>
-                  <summary style={{ fontWeight: 700, color: 'var(--foreground)', fontSize: '0.95rem', padding: '0.5rem 0' }}>
-                    ⚙️ Configurações Avançadas de Servidor SMTP (Opcional)
-                  </summary>
-                  <div style={{ marginTop: '1rem', display: 'grid', gap: '1.25rem', background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+              {/* Método de Envio de E-mail (Provedor) */}
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem', display: 'grid', gap: '1.25rem' }}>
+                <div>
+                  <h4 style={{ margin: 0, fontWeight: 700, fontSize: '1rem', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <Zap size={18} color="#eab308" />
+                    Método de Envio do E-mail
+                  </h4>
+                  <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--muted)' }}>
+                    Escolha como a loja enviará as notificações. Recomendamos a <strong>Resend API (Opção 3)</strong> por ser 100% gratuita (3.000 e-mails/mês) e não sofrer com bloqueio de portas em VPS.
+                  </p>
+                </div>
+
+                {/* Seletor de Provedor */}
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+                  <div
+                    onClick={() => setFormData({ ...formData, email_provider: 'resend' })}
+                    style={{
+                      border: (formData.email_provider || 'resend') === 'resend' ? '2px solid var(--primary)' : '1px solid var(--border)',
+                      backgroundColor: (formData.email_provider || 'resend') === 'resend' ? 'rgba(99, 102, 241, 0.08)' : 'transparent',
+                      padding: '1.25rem',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      position: 'relative'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        ⚡ Resend API (Opção 3)
+                      </span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '20px', backgroundColor: '#22c55e', color: '#ffffff' }}>
+                        Recomendado • Grátis
+                      </span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--muted)', lineHeight: 1.4 }}>
+                      3.000 e-mails gratuitos todo mês. Envio via HTTPS sem risco de bloqueio de portas na VPS.
+                    </p>
+                  </div>
+
+                  <div
+                    onClick={() => setFormData({ ...formData, email_provider: 'smtp' })}
+                    style={{
+                      border: formData.email_provider === 'smtp' ? '2px solid var(--primary)' : '1px solid var(--border)',
+                      backgroundColor: formData.email_provider === 'smtp' ? 'rgba(99, 102, 241, 0.08)' : 'transparent',
+                      padding: '1.25rem',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        ✉️ Servidor SMTP
+                      </span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 600, padding: '0.2rem 0.6rem', borderRadius: '20px', backgroundColor: 'var(--border)', color: 'var(--foreground)' }}>
+                        Hostinger / Gmail / cPanel
+                      </span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--muted)', lineHeight: 1.4 }}>
+                      Conexão direta com servidor SMTP próprio ou conta de e-mail personalizada.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Bloco 1: Configuração Resend API */}
+                {(formData.email_provider || 'resend') === 'resend' && (
+                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)', display: 'grid', gap: '1.25rem' }}>
+                    <div style={{ background: 'rgba(99, 102, 241, 0.06)', border: '1px solid rgba(99, 102, 241, 0.2)', padding: '1rem', borderRadius: '8px', fontSize: '0.85rem', lineHeight: 1.6 }}>
+                      <p style={{ margin: 0, fontWeight: 700, color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        🚀 Como ativar a Resend em 1 minuto:
+                      </p>
+                      <ol style={{ margin: '0.5rem 0 0 1.25rem', padding: 0, color: 'var(--foreground)' }}>
+                        <li>Crie uma conta grátis em <a href="https://resend.com/signup" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--primary)', textDecoration: 'underline', fontWeight: 600 }}>resend.com <ExternalLink size={12} style={{ display: 'inline' }} /></a>.</li>
+                        <li>No painel da Resend, acesse o menu <strong>API Keys</strong> e clique em <strong>Create API Key</strong>.</li>
+                        <li>Cole a chave gerada (inicia com <code>re_...</code>) no campo abaixo e clique em <strong>Salvar Alterações</strong>!</li>
+                      </ol>
+                    </div>
+
+                    <div className="form-group">
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Key size={16} color="var(--primary)" />
+                        Chave de API Resend (API Key):
+                      </label>
+                      <input
+                        type="password"
+                        value={formData.resend_api_key || ''}
+                        onChange={(e) => setFormData({ ...formData, resend_api_key: e.target.value })}
+                        placeholder="Ex: re_123456789_abcdefghijklmnopqrstuvwxyz"
+                        style={{ fontFamily: 'monospace', letterSpacing: '0.5px' }}
+                      />
+                      <span style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
+                        A chave de API fica armazenada de forma segura nas configurações da sua loja.
+                      </span>
+                    </div>
+
+                    <div className="form-group">
+                      <label>Remetente Personalizado (Opcional):</label>
+                      <input
+                        type="text"
+                        value={formData.resend_from || ''}
+                        onChange={(e) => setFormData({ ...formData, resend_from: e.target.value })}
+                        placeholder="Ex: Notificações <onboarding@resend.dev> ou pedidos@seusite.com.br"
+                      />
+                      <span style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
+                        Deixe em branco para usar o remetente oficial gratuito da Resend (<code>Notificações &lt;onboarding@resend.dev&gt;</code>). Caso adicione e valide seu domínio no painel da Resend, você poderá colocar seu próprio e-mail aqui.
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Bloco 2: Configuração SMTP Tradicional */}
+                {formData.email_provider === 'smtp' && (
+                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)', display: 'grid', gap: '1.25rem' }}>
                     <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>
-                      Caso deseje utilizar o servidor de e-mail do seu próprio domínio ou uma conta Gmail com <em>Senha de Aplicativo</em>, configure as credenciais abaixo. Se deixar em branco, o sistema usará as configurações padrão do servidor.
+                      Caso deseje utilizar o servidor de e-mail do seu próprio domínio ou uma conta Gmail com <em>Senha de Aplicativo</em>, configure as credenciais abaixo. Se deixar em branco, o sistema usará as configurações padrão do arquivo .env.
                     </p>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
@@ -1471,7 +1586,7 @@ export default function SettingsPage() {
                       />
                     </div>
                   </div>
-                </details>
+                )}
               </div>
             </div>
           )}
