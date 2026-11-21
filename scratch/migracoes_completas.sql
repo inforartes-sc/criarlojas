@@ -42,3 +42,7 @@ NOTIFY pgrst, 'reload schema';
 -- FIM DA MIGRAÇÃO
 -- Após executar, atualize a página do painel admin.
 -- =====================================================
+
+-- Adicionar suporte para link de checkout de afiliado / externo
+ALTER TABLE products ADD COLUMN IF NOT EXISTS external_checkout_url TEXT;
+NOTIFY pgrst, 'reload schema';

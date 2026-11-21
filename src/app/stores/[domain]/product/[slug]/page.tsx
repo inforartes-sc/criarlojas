@@ -364,8 +364,8 @@ export default async function ProductPage({
               settings={settings}
             />
 
-            {/* Calcular Frete e Cupom de Desconto */}
-            {storeMode !== 'catalogo' && layoutModel !== 'lawyer' && layoutModel !== 'advocacia' && layoutModel !== 'advocacy' && (
+            {/* Calcular Frete e Cupom de Desconto (apenas para produtos com checkout interno da loja) */}
+            {storeMode !== 'catalogo' && !product.external_checkout_url && layoutModel !== 'lawyer' && layoutModel !== 'advocacia' && layoutModel !== 'advocacy' && (
               <div className="product-extra-widgets-grid" style={{ marginTop: '1.5rem', marginBottom: '0.5rem', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
                 {/* Calcular Frete */}
                 <ProductShippingCalculator 

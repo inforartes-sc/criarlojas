@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Heart, ShoppingCart } from 'lucide-react'
+import { Heart, ShoppingCart, ExternalLink } from 'lucide-react'
 import { addToCart } from '@/lib/cartStore'
 import { toggleFavorite, isFavorited as checkFavorited } from '@/lib/favoriteStore'
 import toast from 'react-hot-toast'
@@ -116,6 +116,10 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
   const handleQuickAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+    if (product.external_checkout_url) {
+      window.open(product.external_checkout_url, '_blank')
+      return
+    }
     if (totalStock <= 0) {
       toast.error('Produto esgotado!')
       return
@@ -318,11 +322,11 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
               {Array.isArray(product.categories) && product.categories.length > 0 ? product.categories.join(', ') : (product.category || 'NOVIDADE')}
             </span>
 
-            {/* Direita: Carrinho (ou div vazia no modo catálogo para manter o centro perfeito) */}
+            {/* Direita: Carrinho ou Link de Afiliado */}
             <button
               onClick={handleQuickAddToCart}
-              title={totalStock <= 0 ? 'Esgotado' : 'Adicionar ao Carrinho'}
-              disabled={totalStock <= 0}
+              title={product.external_checkout_url ? 'Comprar no Checkout Oficial' : (totalStock <= 0 ? 'Esgotado' : 'Adicionar ao Carrinho')}
+              disabled={totalStock <= 0 && !product.external_checkout_url}
               className="product-fav-cart-btn"
               style={{
                 width: '36px',
@@ -333,26 +337,26 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                cursor: totalStock <= 0 ? 'not-allowed' : 'pointer',
+                cursor: (totalStock <= 0 && !product.external_checkout_url) ? 'not-allowed' : 'pointer',
                 transition: 'all 0.2s ease',
                 color: cartBtnTextColor
               }}
               onMouseEnter={(e) => {
-                if (totalStock > 0) {
+                if (totalStock > 0 || product.external_checkout_url) {
                   e.currentTarget.style.backgroundColor = isCampaign && isDarkBg ? '#ffffff' : primaryColor
                   e.currentTarget.style.color = isCampaign && isDarkBg ? (campaignBgColor || '#ef4444') : '#fff'
                   e.currentTarget.style.transform = 'scale(1.12)'
                 }
               }}
               onMouseLeave={(e) => {
-                if (totalStock > 0) {
+                if (totalStock > 0 || product.external_checkout_url) {
                   e.currentTarget.style.backgroundColor = cartBtnBgColor
                   e.currentTarget.style.color = cartBtnTextColor
                   e.currentTarget.style.transform = 'scale(1)'
                 }
               }}
             >
-              <ShoppingCart size={16} />
+              {product.external_checkout_url ? <ExternalLink size={16} /> : <ShoppingCart size={16} />}
             </button>
           </div>
           <h4 className="product-name" style={{ fontSize: featured ? '2rem' : '1.1rem', margin: '0.6rem 0', fontWeight: 900, color: titleColor, letterSpacing: '-0.5px', minHeight: featured ? '4rem' : '3rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', whiteSpace: 'normal', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{product.name}</h4>
@@ -430,19 +434,19 @@ export default function ProductCard({ product, buttonRadius, salePriceColor, nor
         ) : (
           <button 
             onClick={handleQuickAddToCart}
-            className={`product-buy-btn ${isCampaign ? "" : (totalStock <= 0 ? "" : "btn-buy-dynamic")}`} 
+            className={`product-buy-btn ${isCampaign ? "" : ((totalStock <= 0 && !product.external_checkout_url) ? "" : "btn-buy-dynamic")}`} 
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
-            disabled={totalStock <= 0}
+            disabled={totalStock <= 0 && !product.external_checkout_url}
             style={{ 
-              width: featured ? 'auto' : '100%', alignSelf: featured ? 'center' : 'stretch', padding: featured ? '1.2rem 4rem' : '0.8rem 1rem', borderRadius: buttonRadius, fontWeight: 800, fontSize: featured ? '1rem' : '0.75rem', cursor: totalStock <= 0 ? 'not-allowed' : 'pointer', marginTop: '1rem', letterSpacing: '1px', textTransform: 'uppercase', transition: 'all 0.2s ease', border: 'none',
-              backgroundColor: totalStock <= 0 ? '#cbd5e1' : (isCampaign ? campaignBtnBg : undefined),
-              color: totalStock <= 0 ? '#64748b' : (isCampaign ? campaignBtnText : undefined),
-              transform: isHovered && totalStock > 0 ? 'translateY(-2px)' : 'translateY(0)',
-              boxShadow: isHovered && totalStock > 0 ? '0 10px 20px rgba(0,0,0,0.15)' : 'none'
+              width: featured ? 'auto' : '100%', alignSelf: featured ? 'center' : 'stretch', padding: featured ? '1.2rem 4rem' : '0.8rem 1rem', borderRadius: buttonRadius, fontWeight: 800, fontSize: featured ? '1rem' : '0.75rem', cursor: (totalStock <= 0 && !product.external_checkout_url) ? 'not-allowed' : 'pointer', marginTop: '1rem', letterSpacing: '1px', textTransform: 'uppercase', transition: 'all 0.2s ease', border: 'none',
+              backgroundColor: (totalStock <= 0 && !product.external_checkout_url) ? '#cbd5e1' : (isCampaign ? campaignBtnBg : undefined),
+              color: (totalStock <= 0 && !product.external_checkout_url) ? '#64748b' : (isCampaign ? campaignBtnText : undefined),
+              transform: isHovered && (totalStock > 0 || product.external_checkout_url) ? 'translateY(-2px)' : 'translateY(0)',
+              boxShadow: isHovered && (totalStock > 0 || product.external_checkout_url) ? '0 10px 20px rgba(0,0,0,0.15)' : 'none'
             }}
           >
-            {totalStock <= 0 ? 'Esgotado' : 'Comprar Agora'}
+            {(totalStock <= 0 && !product.external_checkout_url) ? 'Esgotado' : (product.external_checkout_url ? 'Comprar Agora ↗' : 'Comprar Agora')}
           </button>
         )}
       </div>

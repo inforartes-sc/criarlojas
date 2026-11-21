@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
-import { ArrowLeft, Save, Upload, Loader2, X, Trash2, CheckCircle2, Circle, Copy, Layers } from 'lucide-react'
+import { ArrowLeft, Save, Upload, Loader2, X, Trash2, CheckCircle2, Circle, Copy, Layers, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
@@ -124,7 +124,8 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
     height: '',
     is_active: true,
     is_featured: false,
-    show_stock: true
+    show_stock: true,
+    external_checkout_url: ''
   })
 
   const [showBulkModal, setShowBulkModal] = useState(false)
@@ -208,7 +209,8 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         height: data.height?.toString() || '',
         is_active: data.is_active ?? true,
         is_featured: data.is_featured ?? false,
-        show_stock: !data.sku?.includes('#hide_stock')
+        show_stock: !data.sku?.includes('#hide_stock'),
+        external_checkout_url: data.external_checkout_url || ''
       })
       let loadedCategories: string[] = []
       if (Array.isArray(data.categories) && data.categories.length > 0) {
@@ -416,6 +418,7 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         is_active: formData.is_active,
         is_featured: formData.is_featured,
         images: allImages,
+        external_checkout_url: formData.external_checkout_url?.trim() || null,
         has_variations: hasVariations,
         variation_options: parsedVariationOptions,
         variation_skus: variationSkus,
@@ -427,8 +430,8 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
         .eq('id', productId)
         .eq('store_id', store.id)
 
-      if (error && (error.message.includes('categories') || error.message.includes('schema cache'))) {
-        const { categories, ...fallbackPayload } = updatePayload
+      if (error && (error.message.includes('categories') || error.message.includes('external_checkout_url') || error.message.includes('schema cache'))) {
+        const { categories, external_checkout_url, ...fallbackPayload } = updatePayload
         const res = await supabase
           .from('products')
           .update(fallbackPayload)
@@ -719,6 +722,51 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                     </button>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Card: Checkout Externo / Link de Afiliado */}
+            <div className="glass-card">
+              <div style={{ padding: '2rem', display: 'grid', gap: '1.25rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border)', paddingBottom: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <ExternalLink size={20} color="var(--primary)" />
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 700, margin: 0 }}>
+                      Link de Checkout / Afiliado
+                    </h3>
+                  </div>
+                  <span style={{ 
+                    fontSize: '0.75rem', 
+                    padding: '0.25rem 0.65rem', 
+                    borderRadius: '20px', 
+                    fontWeight: 800,
+                    backgroundColor: formData.external_checkout_url?.trim() ? 'rgba(34, 197, 94, 0.15)' : 'rgba(100, 116, 139, 0.1)',
+                    color: formData.external_checkout_url?.trim() ? '#22c55e' : 'var(--muted)',
+                    border: `1px solid ${formData.external_checkout_url?.trim() ? 'rgba(34, 197, 94, 0.3)' : 'var(--border)'}`
+                  }}>
+                    {formData.external_checkout_url?.trim() ? '✓ CHECKOUT EXTERNO ATIVO' : 'CHECKOUT PADRÃO DA LOJA'}
+                  </span>
+                </div>
+
+                <p style={{ fontSize: '0.875rem', color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>
+                  Deseja vender este produto como <strong>afiliado</strong> ou direcionar para um link de pagamento externo (Hotmart, Kiwify, Eduzz, Braip, Monetizze, Mercado Pago, etc.)?
+                </p>
+
+                <div className="form-group">
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontWeight: 600 }}>
+                    Link de Checkout Externo (Opcional):
+                  </label>
+                  <input
+                    type="url"
+                    value={formData.external_checkout_url}
+                    onChange={(e) => setFormData({ ...formData, external_checkout_url: e.target.value })}
+                    placeholder="https://pay.hotmart.com/... ou https://kiwify.app/..."
+                    style={{ width: '100%', fontSize: '0.9rem' }}
+                  />
+                  <div style={{ marginTop: '0.5rem', padding: '0.75rem 1rem', borderRadius: '8px', backgroundColor: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.15)', fontSize: '0.8rem', color: 'var(--muted)', lineHeight: 1.4 }}>
+                    📌 <strong>Como funciona:</strong> Ao preencher este link, quando o cliente clicar no botão <strong>"Comprar Agora"</strong> na loja, ele será direcionado diretamente para esta página de checkout externa para concluir o pagamento. Se deixar em branco, o produto funcionará normalmente com o carrinho e checkout interno da loja.
+                  </div>
+                </div>
               </div>
             </div>
 

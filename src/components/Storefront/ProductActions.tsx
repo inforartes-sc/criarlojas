@@ -1,6 +1,6 @@
 "use client"
 import { useState, useEffect, useMemo } from 'react'
-import { ShoppingCart, Minus, Plus, MessageCircle, Heart, Shirt, Sparkles, X, Coffee } from 'lucide-react'
+import { ShoppingCart, Minus, Plus, MessageCircle, Heart, Shirt, Sparkles, X, Coffee, ExternalLink } from 'lucide-react'
 import Link from 'next/link'
 import { addToCart } from '@/lib/cartStore'
 import { toggleFavorite, isFavorited as checkFavorited } from '@/lib/favoriteStore'
@@ -295,7 +295,90 @@ export default function ProductActions({
         }
       `}</style>
 
-      {storeMode === 'catalogo' ? (
+      {product?.external_checkout_url ? (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+            <button
+              onClick={handleFavoriteClick}
+              title={isFavorited ? 'Remover dos Favoritos' : 'Adicionar aos Favoritos'}
+              style={{
+                width: '3.5rem',
+                height: '3.5rem',
+                borderRadius: buttonRadius,
+                border: '2px solid #eaeaea',
+                backgroundColor: isFavorited ? '#ef444415' : '#fff',
+                color: isFavorited ? '#ef4444' : '#666',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                flexShrink: 0
+              }}
+            >
+              <Heart size={22} fill={isFavorited ? '#ef4444' : 'none'} />
+            </button>
+
+            <a
+              href={product.external_checkout_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn-buy-dynamic"
+              style={{
+                flex: 1,
+                height: '3.5rem',
+                padding: '0 1.5rem',
+                borderRadius: buttonRadius,
+                fontSize: '1rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.75rem',
+                letterSpacing: '1px',
+                textTransform: 'uppercase',
+                textDecoration: 'none',
+                color: '#fff',
+                backgroundColor: primaryColor,
+                boxShadow: '0 4px 15px rgba(0,0,0,0.12)'
+              }}
+            >
+              <ExternalLink size={20} />
+              <span>COMPRAR AGORA</span>
+            </a>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem', color: '#16a34a', fontSize: '0.85rem', fontWeight: 600 }}>
+            <span>🔒 Pagamento e entrega processados com segurança no checkout oficial</span>
+          </div>
+
+          {storeWhatsapp && (
+            <Link 
+              href={`https://wa.me/${storeWhatsapp.replace(/\D/g,'')}?text=${whatsappText}`}
+              target="_blank"
+              style={{ 
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.75rem',
+                padding: '0.9rem',
+                backgroundColor: '#25D366',
+                color: '#fff',
+                textDecoration: 'none',
+                borderRadius: buttonRadius,
+                fontWeight: 800,
+                fontSize: '0.95rem',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}
+            >
+              <MessageCircle size={20} />
+              Dúvidas sobre o produto? Fale no WhatsApp
+            </Link>
+          )}
+        </div>
+      ) : storeMode === 'catalogo' ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           <div className="product-actions-grid product-actions-store-grid">
             <button

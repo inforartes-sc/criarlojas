@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { Database, CheckCircle2, AlertCircle, ExternalLink, Copy, Loader2 } from 'lucide-react'
 
 const SQL_MIGRATION = `-- Migrações necessárias para o banco de dados
+ALTER TABLE products ADD COLUMN IF NOT EXISTS external_checkout_url TEXT;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS is_service BOOLEAN DEFAULT false;
 ALTER TABLE products ADD COLUMN IF NOT EXISTS weight NUMERIC(10,3);
 ALTER TABLE products ADD COLUMN IF NOT EXISTS length NUMERIC(10,2);
