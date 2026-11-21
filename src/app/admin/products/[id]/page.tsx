@@ -597,21 +597,11 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                   </div>
                 )}
 
-                <div style={{ display: 'grid', gridTemplateColumns: (!isServicesOnly && !hasVariations) ? '1fr 1fr' : '1fr', gap: '1rem' }}>
+                {/* Linha 1: Preços */}
+                <div style={{ display: 'grid', gridTemplateColumns: (!isServicesOnly && !hasVariations) ? '1fr 1fr' : '1fr', gap: '1rem', alignItems: 'flex-start' }}>
                   <div className="form-group">
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
                       <label style={{ margin: 0 }}>{L.priceLabel}</label>
-                      {!isServicesOnly && (
-                        <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--text-muted)' }}>
-                          <input
-                            type="checkbox"
-                            checked={formData.show_stock}
-                            onChange={(e) => setFormData({...formData, show_stock: e.target.checked})}
-                            style={{ margin: 0, cursor: 'pointer', accentColor: 'var(--primary)' }}
-                          />
-                          Exibir estoque no site
-                        </label>
-                      )}
                       {isServicesOnly && (
                         <label style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.85rem', cursor: 'pointer', color: 'var(--text-muted)' }}>
                           <input
@@ -630,10 +620,29 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                       required={!isServicesOnly}
                       value={formData.price}
                       onChange={(e) => setFormData({...formData, price: e.target.value})}
+                      placeholder="0,00"
                       style={{ width: '100%' }}
                     />
                   </div>
-                  {!isServicesOnly && !hasVariations && (
+
+                  {!hasVariations && !isServicesOnly && (
+                    <div className="form-group">
+                      <label style={{ marginBottom: '0.5rem', display: 'block' }}>Preço Promocional (R$)</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.sale_price}
+                        onChange={(e) => setFormData({...formData, sale_price: e.target.value})}
+                        placeholder="Deixe em branco se não houver promoção"
+                        style={{ width: '100%' }}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Linha 2: Estoque (se não for serviços e não tiver variações) */}
+                {!isServicesOnly && !hasVariations && (
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', alignItems: 'flex-start' }}>
                     <div className="form-group">
                       <label style={{ marginBottom: '0.5rem', display: 'block' }}>Qtd. em Estoque</label>
                       <input
@@ -641,23 +650,73 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                         required
                         value={formData.stock_quantity}
                         onChange={(e) => setFormData({...formData, stock_quantity: e.target.value})}
+                        placeholder="0"
                         style={{ width: '100%' }}
                       />
                     </div>
-                  )}
-                </div>
 
-                {!hasVariations && (
-                  <div className="form-group">
-                    <label>Preço Promocional (R$)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={formData.sale_price}
-                      onChange={(e) => setFormData({...formData, sale_price: e.target.value})}
-                      placeholder="Deixe em branco se não houver promoção"
-                      style={{ width: '100%' }}
-                    />
+                    <div className="form-group">
+                      <label style={{ marginBottom: '0.5rem', display: 'block' }}>Visibilidade do Estoque</label>
+                      <label
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.6rem',
+                          padding: '0.75rem 1rem',
+                          minHeight: '44px',
+                          borderRadius: '8px',
+                          border: formData.show_stock ? '1.5px solid var(--primary)' : '1px solid var(--border)',
+                          backgroundColor: formData.show_stock ? 'rgba(99, 102, 241, 0.08)' : 'var(--input-bg, rgba(255, 255, 255, 0.02))',
+                          cursor: 'pointer',
+                          boxSizing: 'border-box',
+                          transition: 'all 0.2s ease',
+                          userSelect: 'none'
+                        }}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={formData.show_stock}
+                          onChange={(e) => setFormData({...formData, show_stock: e.target.checked})}
+                          style={{ margin: 0, cursor: 'pointer', accentColor: 'var(--primary)', transform: 'scale(1.15)' }}
+                        />
+                        <span style={{ fontSize: '0.85rem', fontWeight: 600, color: formData.show_stock ? 'var(--primary)' : 'var(--foreground)' }}>
+                          Exibir estoque no site
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                )}
+
+                {/* Se tiver variações: opção de exibir estoque em linha dedicada */}
+                {!isServicesOnly && hasVariations && (
+                  <div className="form-group" style={{ maxWidth: '300px' }}>
+                    <label style={{ marginBottom: '0.5rem', display: 'block' }}>Visibilidade do Estoque</label>
+                    <label
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.6rem',
+                        padding: '0.75rem 1rem',
+                        minHeight: '44px',
+                        borderRadius: '8px',
+                        border: formData.show_stock ? '1.5px solid var(--primary)' : '1px solid var(--border)',
+                        backgroundColor: formData.show_stock ? 'rgba(99, 102, 241, 0.08)' : 'var(--input-bg, rgba(255, 255, 255, 0.02))',
+                        cursor: 'pointer',
+                        boxSizing: 'border-box',
+                        transition: 'all 0.2s ease',
+                        userSelect: 'none'
+                      }}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={formData.show_stock}
+                        onChange={(e) => setFormData({...formData, show_stock: e.target.checked})}
+                        style={{ margin: 0, cursor: 'pointer', accentColor: 'var(--primary)', transform: 'scale(1.15)' }}
+                      />
+                      <span style={{ fontSize: '0.85rem', fontWeight: 600, color: formData.show_stock ? 'var(--primary)' : 'var(--foreground)' }}>
+                        Exibir estoque no site
+                      </span>
+                    </label>
                   </div>
                 )}
 
