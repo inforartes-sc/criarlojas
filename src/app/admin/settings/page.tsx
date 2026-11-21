@@ -131,7 +131,10 @@ export default function SettingsPage() {
     cpf: '',
     order_notifications_enabled: true,
     order_notification_email: '',
-    email_provider: 'resend',
+    email_provider: 'brevo',
+    brevo_api_key: '',
+    brevo_sender_email: '',
+    brevo_sender_name: '',
     resend_api_key: '',
     resend_from: '',
     smtp_host: '',
@@ -376,7 +379,10 @@ export default function SettingsPage() {
         cpf: s.cpf || '',
         order_notifications_enabled: s.order_notifications_enabled !== undefined ? s.order_notifications_enabled : true,
         order_notification_email: s.order_notification_email || s.email || data.email || '',
-        email_provider: s.email_provider || (s.resend_api_key ? 'resend' : (s.smtp_host ? 'smtp' : 'resend')),
+        email_provider: s.email_provider || (s.brevo_api_key ? 'brevo' : (s.resend_api_key ? 'resend' : (s.smtp_host ? 'smtp' : 'brevo'))),
+        brevo_api_key: s.brevo_api_key || '',
+        brevo_sender_email: s.brevo_sender_email || s.order_notification_email || s.email || data.email || '',
+        brevo_sender_name: s.brevo_sender_name || '',
         resend_api_key: s.resend_api_key || '',
         resend_from: s.resend_from || '',
         smtp_host: s.smtp_host || '',
@@ -807,7 +813,10 @@ export default function SettingsPage() {
           storeId,
           email: targetEmail,
           customConfig: {
-            provider: formData.email_provider || (formData.resend_api_key ? 'resend' : 'smtp'),
+            provider: formData.email_provider || (formData.brevo_api_key ? 'brevo' : (formData.resend_api_key ? 'resend' : 'smtp')),
+            brevo_api_key: formData.brevo_api_key,
+            brevo_sender_email: formData.brevo_sender_email,
+            brevo_sender_name: formData.brevo_sender_name || formData.name,
             resend_api_key: formData.resend_api_key,
             resend_from: formData.resend_from,
             host: formData.smtp_host,
@@ -1425,17 +1434,18 @@ export default function SettingsPage() {
                     Método de Envio do E-mail
                   </h4>
                   <p style={{ margin: '0.25rem 0 0 0', fontSize: '0.85rem', color: 'var(--muted)' }}>
-                    Escolha como a loja enviará as notificações. Recomendamos a <strong>Resend API (Opção 3)</strong> por ser 100% gratuita (3.000 e-mails/mês) e não sofrer com bloqueio de portas em VPS.
+                    Escolha como a loja enviará as notificações. Recomendamos a <strong>Brevo API</strong> (300 e-mails/dia) ou <strong>Resend API</strong> (3.000 e-mails/mês) pois funcionam via HTTPS sem risco de bloqueio de portas na VPS.
                   </p>
                 </div>
 
                 {/* Seletor de Provedor */}
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
+                  {/* Card Brevo */}
                   <div
-                    onClick={() => setFormData({ ...formData, email_provider: 'resend' })}
+                    onClick={() => setFormData({ ...formData, email_provider: 'brevo' })}
                     style={{
-                      border: (formData.email_provider || 'resend') === 'resend' ? '2px solid var(--primary)' : '1px solid var(--border)',
-                      backgroundColor: (formData.email_provider || 'resend') === 'resend' ? 'rgba(99, 102, 241, 0.08)' : 'transparent',
+                      border: (formData.email_provider || 'brevo') === 'brevo' ? '2px solid #0ea5e9' : '1px solid var(--border)',
+                      backgroundColor: (formData.email_provider || 'brevo') === 'brevo' ? 'rgba(14, 165, 233, 0.08)' : 'transparent',
                       padding: '1.25rem',
                       borderRadius: '12px',
                       cursor: 'pointer',
@@ -1445,17 +1455,44 @@ export default function SettingsPage() {
                   >
                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                       <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        ⚡ Resend API (Opção 3)
+                        💙 Brevo API (Sendinblue)
                       </span>
-                      <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '20px', backgroundColor: '#22c55e', color: '#ffffff' }}>
-                        Recomendado • Grátis
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '20px', backgroundColor: '#0ea5e9', color: '#ffffff' }}>
+                        300/dia Grátis
                       </span>
                     </div>
                     <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--muted)', lineHeight: 1.4 }}>
-                      3.000 e-mails gratuitos todo mês. Envio via HTTPS sem risco de bloqueio de portas na VPS.
+                      Até 9.000 e-mails/mês. Envio direto via API HTTPS sem bloqueio de portas na VPS.
                     </p>
                   </div>
 
+                  {/* Card Resend */}
+                  <div
+                    onClick={() => setFormData({ ...formData, email_provider: 'resend' })}
+                    style={{
+                      border: formData.email_provider === 'resend' ? '2px solid var(--primary)' : '1px solid var(--border)',
+                      backgroundColor: formData.email_provider === 'resend' ? 'rgba(99, 102, 241, 0.08)' : 'transparent',
+                      padding: '1.25rem',
+                      borderRadius: '12px',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease',
+                      position: 'relative'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                      <span style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--foreground)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        ⚡ Resend API
+                      </span>
+                      <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '20px', backgroundColor: '#22c55e', color: '#ffffff' }}>
+                        3.000/mês Grátis
+                      </span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--muted)', lineHeight: 1.4 }}>
+                      3.000 e-mails/mês. Envio rápido e moderno via API HTTPS.
+                    </p>
+                  </div>
+
+                  {/* Card SMTP */}
                   <div
                     onClick={() => setFormData({ ...formData, email_provider: 'smtp' })}
                     style={{
@@ -1472,17 +1509,79 @@ export default function SettingsPage() {
                         ✉️ Servidor SMTP
                       </span>
                       <span style={{ fontSize: '0.75rem', fontWeight: 600, padding: '0.2rem 0.6rem', borderRadius: '20px', backgroundColor: 'var(--border)', color: 'var(--foreground)' }}>
-                        Hostinger / Gmail / cPanel
+                        Hostinger / cPanel / Gmail
                       </span>
                     </div>
                     <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--muted)', lineHeight: 1.4 }}>
-                      Conexão direta com servidor SMTP próprio ou conta de e-mail personalizada.
+                      Conexão direta com servidor de e-mail tradicional via portas 587 ou 465.
                     </p>
                   </div>
                 </div>
 
-                {/* Bloco 1: Configuração Resend API */}
-                {(formData.email_provider || 'resend') === 'resend' && (
+                {/* Bloco 1: Configuração Brevo API */}
+                {(formData.email_provider || 'brevo') === 'brevo' && (
+                  <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)', display: 'grid', gap: '1.25rem' }}>
+                    <div style={{ background: 'rgba(14, 165, 233, 0.06)', border: '1px solid rgba(14, 165, 233, 0.25)', padding: '1rem', borderRadius: '8px', fontSize: '0.85rem', lineHeight: 1.6 }}>
+                      <p style={{ margin: 0, fontWeight: 700, color: '#0284c7', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        💙 Como conectar sua conta Brevo (Sendinblue):
+                      </p>
+                      <ol style={{ margin: '0.5rem 0 0 1.25rem', padding: 0, color: 'var(--foreground)' }}>
+                        <li>Acesse o painel do Brevo em <a href="https://app.brevo.com" target="_blank" rel="noopener noreferrer" style={{ color: '#0284c7', textDecoration: 'underline', fontWeight: 600 }}>app.brevo.com <ExternalLink size={12} style={{ display: 'inline' }} /></a>.</li>
+                        <li>No menu do topo direito (seu nome), clique em <strong>SMTP & API</strong> e vá para a aba <strong>Chaves de API</strong>.</li>
+                        <li>Clique em <strong>Gerar uma nova chave de API</strong>, dê um nome (ex: <em>Loja Virtual</em>) e copie a chave gerada (inicia com <code>xkeysib-...</code>).</li>
+                        <li>Cole a chave no campo abaixo e informe o <strong>E-mail de Remetente</strong> (o e-mail que você cadastrou ou validou no Brevo).</li>
+                      </ol>
+                    </div>
+
+                    <div className="form-group">
+                      <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Key size={16} color="#0ea5e9" />
+                        Chave de API Brevo (API Key):
+                      </label>
+                      <input
+                        type="password"
+                        value={formData.brevo_api_key || ''}
+                        onChange={(e) => setFormData({ ...formData, brevo_api_key: e.target.value })}
+                        placeholder="Ex: xkeysib-123456789abcdef..."
+                        style={{ fontFamily: 'monospace', letterSpacing: '0.5px' }}
+                      />
+                      <span style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
+                        Sua chave fica protegida com segurança no banco de dados.
+                      </span>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
+                      <div className="form-group">
+                        <label>E-mail Remetente Autorizado no Brevo (Obrigatório):</label>
+                        <input
+                          type="email"
+                          value={formData.brevo_sender_email || ''}
+                          onChange={(e) => setFormData({ ...formData, brevo_sender_email: e.target.value })}
+                          placeholder="Ex: seuemail@dominio.com ou contato@nailashopmix.com.br"
+                        />
+                        <span style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
+                          Deve ser o e-mail cadastrado ou um remetente validado na sua conta Brevo.
+                        </span>
+                      </div>
+
+                      <div className="form-group">
+                        <label>Nome do Remetente (Opcional):</label>
+                        <input
+                          type="text"
+                          value={formData.brevo_sender_name || ''}
+                          onChange={(e) => setFormData({ ...formData, brevo_sender_name: e.target.value })}
+                          placeholder="Ex: Naila Shop Mix ou Pedidos da Loja"
+                        />
+                        <span style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
+                          Nome que aparecerá para o destinatário como remetente do e-mail.
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Bloco 2: Configuração Resend API */}
+                {formData.email_provider === 'resend' && (
                   <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)', display: 'grid', gap: '1.25rem' }}>
                     <div style={{ background: 'rgba(99, 102, 241, 0.06)', border: '1px solid rgba(99, 102, 241, 0.2)', padding: '1rem', borderRadius: '8px', fontSize: '0.85rem', lineHeight: 1.6 }}>
                       <p style={{ margin: 0, fontWeight: 700, color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
@@ -1521,13 +1620,13 @@ export default function SettingsPage() {
                         placeholder="Ex: Notificações <onboarding@resend.dev> ou pedidos@seusite.com.br"
                       />
                       <span style={{ fontSize: '0.78rem', color: 'var(--muted)', marginTop: '0.25rem' }}>
-                        Deixe em branco para usar o remetente oficial gratuito da Resend (<code>Notificações &lt;onboarding@resend.dev&gt;</code>). Caso adicione e valide seu domínio no painel da Resend, você poderá colocar seu próprio e-mail aqui.
+                        Deixe em branco para usar o remetente oficial gratuito da Resend (<code>Notificações &lt;onboarding@resend.dev&gt;</code>).
                       </span>
                     </div>
                   </div>
                 )}
 
-                {/* Bloco 2: Configuração SMTP Tradicional */}
+                {/* Bloco 3: Configuração SMTP Tradicional */}
                 {formData.email_provider === 'smtp' && (
                   <div style={{ background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)', display: 'grid', gap: '1.25rem' }}>
                     <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>

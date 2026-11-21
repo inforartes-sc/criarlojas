@@ -1,9 +1,12 @@
 import nodemailer from 'nodemailer'
 
 export interface EmailConfig {
-  provider?: 'resend' | 'smtp'
+  provider?: 'resend' | 'brevo' | 'smtp'
   resend_api_key?: string
   resend_from?: string
+  brevo_api_key?: string
+  brevo_sender_email?: string
+  brevo_sender_name?: string
   host?: string
   port?: number | string
   user?: string
@@ -49,10 +52,58 @@ export async function sendEmail({
   customConfig?: EmailConfig
 }): Promise<{ success: boolean; message: string }> {
   try {
-    const resendKey = (customConfig?.resend_api_key || process.env.RESEND_API_KEY || '').trim()
+    const provider = customConfig?.provider || 
+      (customConfig?.brevo_api_key ? 'brevo' : (customConfig?.resend_api_key ? 'resend' : 'smtp'))
 
-    // 1. Se configurado para usar Resend ou se forneceu a chave da Resend
-    if (resendKey && (customConfig?.provider === 'resend' || !customConfig?.host)) {
+    // 1. Provedor Brevo API (Sendinblue - 300 e-mails/dia grátis)
+    const brevoKey = (customConfig?.brevo_api_key || process.env.BREVO_API_KEY || '').trim()
+    if (provider === 'brevo' || (brevoKey && !customConfig?.resend_api_key && !customConfig?.host)) {
+      if (!brevoKey) {
+        return { success: false, message: 'Chave de API do Brevo não configurada. Cole sua chave xkeysib-... no painel.' }
+      }
+
+      const senderEmail = (customConfig?.brevo_sender_email || process.env.BREVO_SENDER_EMAIL || customConfig?.from || '').trim()
+      if (!senderEmail) {
+        return { 
+          success: false, 
+          message: 'E-mail remetente do Brevo não informado. Insira o e-mail cadastrado ou domínio validado na sua conta Brevo.' 
+        }
+      }
+
+      const senderName = customConfig?.brevo_sender_name?.trim() || 'Notificações da Loja'
+
+      const res = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: {
+          'accept': 'application/json',
+          'api-key': brevoKey,
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          sender: {
+            name: senderName,
+            email: senderEmail
+          },
+          to: [
+            { email: to.trim() }
+          ],
+          subject,
+          htmlContent: html
+        })
+      })
+
+      const data = await res.json()
+      if (!res.ok) {
+        const errorMsg = data?.message || data?.error || JSON.stringify(data)
+        throw new Error(errorMsg)
+      }
+
+      return { success: true, message: 'E-mail enviado com sucesso via Brevo API!' }
+    }
+
+    // 2. Provedor Resend API (3.000 e-mails/mês grátis)
+    const resendKey = (customConfig?.resend_api_key || process.env.RESEND_API_KEY || '').trim()
+    if (provider === 'resend' || (resendKey && !customConfig?.host)) {
       const fromAddress = customConfig?.resend_from?.trim() || customConfig?.from?.trim() || process.env.RESEND_FROM || 'Notificações de Pedidos <onboarding@resend.dev>'
 
       const res = await fetch('https://api.resend.com/emails', {
@@ -78,13 +129,13 @@ export async function sendEmail({
       return { success: true, message: 'E-mail enviado com sucesso via Resend API!' }
     }
 
-    // 2. Provedor SMTP Tradicional
+    // 3. Provedor SMTP Tradicional
     const transporter = getTransporter(customConfig)
     if (!transporter) {
-      console.warn('[EmailService] Nenhum serviço de e-mail configurado (Resend API Key ou SMTP).')
+      console.warn('[EmailService] Nenhum serviço de e-mail configurado (Brevo, Resend API Key ou SMTP).')
       return { 
         success: false, 
-        message: 'Nenhum servidor de e-mail configurado. Cole a Chave de API da Resend ou preencha os dados de Host SMTP no painel.' 
+        message: 'Nenhum servidor de e-mail configurado. Selecione Brevo, Resend ou preencha os dados de Host SMTP no painel.' 
       }
     }
 
@@ -134,9 +185,12 @@ export async function sendOrderNotificationToAdmin({
       return
     }
 
-    // Configurações personalizadas de e-mail da loja (Resend ou SMTP)
+    // Configurações personalizadas de e-mail da loja (Brevo, Resend ou SMTP)
     const customConfig: EmailConfig = {
-      provider: settings.email_provider || (settings.resend_api_key ? 'resend' : 'smtp'),
+      provider: settings.email_provider || (settings.brevo_api_key ? 'brevo' : (settings.resend_api_key ? 'resend' : 'smtp')),
+      brevo_api_key: settings.brevo_api_key,
+      brevo_sender_email: settings.brevo_sender_email,
+      brevo_sender_name: settings.brevo_sender_name || store?.name,
       resend_api_key: settings.resend_api_key,
       resend_from: settings.resend_from,
       host: settings.smtp_host,
