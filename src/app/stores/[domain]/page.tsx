@@ -6,6 +6,7 @@ import StoreHeader from '@/components/Storefront/StoreHeader'
 export const dynamic = 'force-dynamic'
 import ProductCard from '@/components/Storefront/ProductCard'
 import FeaturedCarousel from '@/components/Storefront/FeaturedCarousel'
+import CategoriesCarousel from '@/components/Storefront/CategoriesCarousel'
 import StoreFooter from '@/components/Storefront/StoreFooter'
 import { supabase } from '@/lib/supabase'
 import ServicesStorefrontClient from '@/components/Storefront/ServicesStorefrontClient'
@@ -388,16 +389,6 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
         .premium-title { font-size: 4rem; }
         .campaign-title { font-size: 3.5rem; }
 
-        /* Category scroll row on mobile */
-        .categories-row {
-          display: flex;
-          justify-content: center;
-          gap: 4rem;
-          overflow-x: auto;
-          padding-bottom: 1rem;
-          flex-wrap: wrap;
-        }
-
         @media (max-width: 768px) {
           .hero-title-lg, .hero-title-md, .hero-title, h1.hero-title, h2.hero-title {
             font-size: clamp(1.5rem, 6.5vw, 2.2rem) !important;
@@ -488,57 +479,6 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
             font-size: clamp(1.25rem, 5.5vw, 1.45rem) !important; 
             line-height: 1.25 !important;
             letter-spacing: -0.5px !important; 
-          }
-
-          /* Categorias no Mobile como na imagem (cards de 2 colunas, ícone e texto abaixo) */
-          .categories-row {
-            display: grid !important;
-            grid-template-columns: repeat(2, 1fr) !important;
-            gap: 0.75rem !important;
-            padding: 0 0.5rem !important;
-          }
-          .category-card {
-            width: 100% !important;
-            min-width: 0 !important;
-            background-color: ${isDark ? 'rgba(255,255,255,0.03)' : '#f8fafc'} !important;
-            border: 1px solid ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.03)'} !important;
-            border-radius: 16px !important;
-            padding: 1.5rem 1rem !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 0.75rem !important;
-            transition: all 0.2s ease !important;
-          }
-          .category-card:active {
-            transform: scale(0.97) !important;
-            background-color: ${isDark ? 'rgba(255,255,255,0.06)' : '#f1f5f9'} !important;
-          }
-          .category-img-container {
-            width: 40px !important;
-            height: 40px !important;
-            margin-bottom: 0 !important;
-            background-color: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-            border-radius: 0 !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-          }
-          .category-img-container img {
-            width: 100% !important;
-            height: 100% !important;
-            object-fit: cover !important;
-            border-radius: 8px !important;
-          }
-          .category-title {
-            font-size: 0.95rem !important;
-            font-weight: 600 !important;
-            text-transform: none !important;
-            letter-spacing: 0 !important;
-            color: ${isDark ? '#e2e8f0' : '#1e293b'} !important;
           }
 
           /* Seção de novidades e all products: padding menor */
@@ -666,21 +606,16 @@ export default async function StoreFront({ params, searchParams }: { params: Pro
           </section>
         )}
 
-        {/* 3. CATEGORIES */}
+        {/* 3. CATEGORIES (CARROSSEL EM LINHA ÚNICA) */}
         {!isCatalogo && categories.length > 0 && (
-          <section style={{ padding: '3rem 1.5rem 2rem 1.5rem' }}>
-            <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
-              <div className="categories-row">
-                {categories.map(cat => (
-                  <Link key={cat.id} href={`?category=${cat.name}#produtos`} className="category-card" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textDecoration: 'none', textAlign: 'center', cursor: 'pointer', minWidth: '110px' }}>
-                    <div className="category-img-container" style={{ width: layoutModel === 'fashion' ? '140px' : '110px', height: layoutModel === 'fashion' ? '140px' : '110px', borderRadius: buttonRadius, backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : '#fff', border: '1px solid rgba(0,0,0,0.05)', marginBottom: '1.25rem', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', position: 'relative' }}>
-                      {cat.image_url ? <img src={cat.image_url} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <ShoppingBag size={28} color="#999" />}
-                    </div>
-                    <span className="category-title" style={{ fontSize: '0.8rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '1px', color: isDark ? '#cbd5e1' : '#333' }}>{cat.name}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
+          <section style={{ padding: '3.5rem 1.5rem 2.5rem 1.5rem' }}>
+            <CategoriesCarousel
+              categories={categories}
+              layoutModel={layoutModel}
+              buttonRadius={buttonRadius}
+              isDark={isDark}
+              primaryColor={buttonColor}
+            />
           </section>
         )}
 
