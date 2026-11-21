@@ -651,22 +651,22 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                         value={formData.stock_quantity}
                         onChange={(e) => setFormData({...formData, stock_quantity: e.target.value})}
                         placeholder="0"
-                        style={{ width: '100%' }}
+                        style={{ width: '100%', height: '51px' }}
                       />
                     </div>
 
                     <div className="form-group">
-                      <label style={{ marginBottom: '0.5rem', display: 'block' }}>Visibilidade do Estoque</label>
+                      <label style={{ marginBottom: '0.5rem', display: 'block', whiteSpace: 'nowrap' }}>Exibir estoque no site</label>
                       <label
                         style={{
                           display: 'flex',
                           alignItems: 'center',
-                          gap: '0.6rem',
-                          padding: '0.75rem 1rem',
-                          minHeight: '44px',
+                          gap: '0.65rem',
+                          padding: '0 1rem',
+                          height: '51px',
                           borderRadius: '8px',
                           border: formData.show_stock ? '1.5px solid var(--primary)' : '1px solid var(--border)',
-                          backgroundColor: formData.show_stock ? 'rgba(99, 102, 241, 0.08)' : 'var(--input-bg, rgba(255, 255, 255, 0.02))',
+                          backgroundColor: 'var(--input-bg)',
                           cursor: 'pointer',
                           boxSizing: 'border-box',
                           transition: 'all 0.2s ease',
@@ -677,10 +677,10 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                           type="checkbox"
                           checked={formData.show_stock}
                           onChange={(e) => setFormData({...formData, show_stock: e.target.checked})}
-                          style={{ margin: 0, cursor: 'pointer', accentColor: 'var(--primary)', transform: 'scale(1.15)' }}
+                          style={{ width: '18px', height: '18px', margin: 0, cursor: 'pointer', accentColor: 'var(--primary)', flexShrink: 0 }}
                         />
-                        <span style={{ fontSize: '0.85rem', fontWeight: 600, color: formData.show_stock ? 'var(--primary)' : 'var(--foreground)' }}>
-                          Exibir estoque no site
+                        <span style={{ fontSize: '0.9rem', fontWeight: 600, color: formData.show_stock ? 'var(--primary)' : 'var(--muted)', whiteSpace: 'nowrap' }}>
+                          {formData.show_stock ? 'Sim, exibir' : 'Não exibir'}
                         </span>
                       </label>
                     </div>
@@ -690,17 +690,17 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                 {/* Se tiver variações: opção de exibir estoque em linha dedicada */}
                 {!isServicesOnly && hasVariations && (
                   <div className="form-group" style={{ maxWidth: '300px' }}>
-                    <label style={{ marginBottom: '0.5rem', display: 'block' }}>Visibilidade do Estoque</label>
+                    <label style={{ marginBottom: '0.5rem', display: 'block', whiteSpace: 'nowrap' }}>Exibir estoque no site</label>
                     <label
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '0.6rem',
-                        padding: '0.75rem 1rem',
-                        minHeight: '44px',
+                        gap: '0.65rem',
+                        padding: '0 1rem',
+                        height: '51px',
                         borderRadius: '8px',
                         border: formData.show_stock ? '1.5px solid var(--primary)' : '1px solid var(--border)',
-                        backgroundColor: formData.show_stock ? 'rgba(99, 102, 241, 0.08)' : 'var(--input-bg, rgba(255, 255, 255, 0.02))',
+                        backgroundColor: 'var(--input-bg)',
                         cursor: 'pointer',
                         boxSizing: 'border-box',
                         transition: 'all 0.2s ease',
@@ -711,10 +711,10 @@ export default function EditProduct({ params }: { params: Promise<{ id: string }
                         type="checkbox"
                         checked={formData.show_stock}
                         onChange={(e) => setFormData({...formData, show_stock: e.target.checked})}
-                        style={{ margin: 0, cursor: 'pointer', accentColor: 'var(--primary)', transform: 'scale(1.15)' }}
+                        style={{ width: '18px', height: '18px', margin: 0, cursor: 'pointer', accentColor: 'var(--primary)', flexShrink: 0 }}
                       />
-                      <span style={{ fontSize: '0.85rem', fontWeight: 600, color: formData.show_stock ? 'var(--primary)' : 'var(--foreground)' }}>
-                        Exibir estoque no site
+                      <span style={{ fontSize: '0.9rem', fontWeight: 600, color: formData.show_stock ? 'var(--primary)' : 'var(--muted)', whiteSpace: 'nowrap' }}>
+                        {formData.show_stock ? 'Sim, exibir' : 'Não exibir'}
                       </span>
                     </label>
                   </div>
