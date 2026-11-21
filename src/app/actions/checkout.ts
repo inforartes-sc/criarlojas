@@ -1,6 +1,7 @@
 "use server"
 
 import { getAdminSupabase } from '@/lib/supabase'
+import { sendOrderNotificationToAdmin } from '@/lib/emailService'
 
 export async function processCheckoutAction({
   storeId,
@@ -137,6 +138,23 @@ export async function processCheckoutAction({
     // 5. Mark abandoned cart as recovered if applicable
     if (abandonedCartId) {
       await supabase.from('abandoned_carts').update({ recovered: true }).eq('id', abandonedCartId)
+    }
+
+    // 6. Notificar o administrador por e-mail em background
+    try {
+      const { data: storeObj } = await supabase.from('stores').select('*').eq('id', storeId).single()
+      if (storeObj) {
+        sendOrderNotificationToAdmin({
+          store: storeObj,
+          order: orderObj,
+          customer: { name, email, phone },
+          items: cartItems,
+          paymentMethod,
+          address
+        }).catch(e => console.error('[Checkout Action] Erro async ao enviar e-mail:', e))
+      }
+    } catch (e) {
+      console.error('[Checkout Action] Falha ao disparar e-mail:', e)
     }
 
     return { success: true, order: orderObj }

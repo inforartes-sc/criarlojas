@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Save, Loader2, Palette, Globe, Store, Type, Layout, Image as ImageIcon, Upload, X, Lock, ShoppingBag, Scale, Truck, ShieldCheck, RefreshCw, CreditCard, Heart, Star, Zap, Package, Headphones, Award, Shield, Clock, ThumbsUp, CheckCircle, Smile, TrendingUp, DollarSign, Phone, MessageSquare, Users, ShoppingCart, Gift, Tag, Percent, Wallet, Banknote, PiggyBank, Gem, Leaf, Box, Sparkles, Wrench } from 'lucide-react'
+import { Save, Loader2, Palette, Globe, Store, Type, Layout, Image as ImageIcon, Upload, X, Lock, ShoppingBag, Scale, Truck, ShieldCheck, RefreshCw, CreditCard, Heart, Star, Zap, Package, Headphones, Award, Shield, Clock, ThumbsUp, CheckCircle, Smile, TrendingUp, DollarSign, Phone, MessageSquare, Users, ShoppingCart, Gift, Tag, Percent, Wallet, Banknote, PiggyBank, Gem, Leaf, Box, Sparkles, Wrench, Bell, Mail, Send } from 'lucide-react'
 import { supabase } from '@/lib/supabase'
 import { toast } from 'react-hot-toast'
 import { useAdminAuth } from '@/context/AdminAuthContext'
@@ -19,6 +19,7 @@ export default function SettingsPage() {
   const [domainSuffix, setDomainSuffix] = useState('.localhost:3000')
   const [initialCustomDomain, setInitialCustomDomain] = useState('')
   const [newReview, setNewReview] = useState({ author_name: '', rating: 5, relative_time_description: 'há uma semana', text: '' })
+  const [testingEmail, setTestingEmail] = useState(false)
 
 
   useEffect(() => {
@@ -128,6 +129,13 @@ export default function SettingsPage() {
     address: '',
     cnpj: '',
     cpf: '',
+    order_notifications_enabled: true,
+    order_notification_email: '',
+    smtp_host: '',
+    smtp_port: '587',
+    smtp_user: '',
+    smtp_pass: '',
+    smtp_from: '',
     show_doc_in_footer: false,
     admin_user: '',
     admin_password: '',
@@ -363,6 +371,13 @@ export default function SettingsPage() {
         address: s.address || '',
         cnpj: s.cnpj || '',
         cpf: s.cpf || '',
+        order_notifications_enabled: s.order_notifications_enabled !== undefined ? s.order_notifications_enabled : true,
+        order_notification_email: s.order_notification_email || s.email || data.email || '',
+        smtp_host: s.smtp_host || '',
+        smtp_port: s.smtp_port || '587',
+        smtp_user: s.smtp_user || '',
+        smtp_pass: s.smtp_pass || '',
+        smtp_from: s.smtp_from || '',
         show_doc_in_footer: s.show_doc_in_footer !== undefined ? s.show_doc_in_footer : false,
         admin_user: s.admin_user || data.email || '',
         admin_password: s.admin_password || 'senha123',
@@ -770,6 +785,44 @@ export default function SettingsPage() {
     setFormData(prev => ({ ...prev, testimonials: updated }))
   }
 
+  const handleSendTestEmail = async () => {
+    const targetEmail = formData.order_notification_email?.trim() || formData.email?.trim()
+    if (!targetEmail || !targetEmail.includes('@')) {
+      toast.error('Informe um e-mail válido no campo abaixo para receber o teste.')
+      return
+    }
+
+    setTestingEmail(true)
+    try {
+      const res = await fetch('/api/email/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          storeId,
+          email: targetEmail,
+          customConfig: {
+            host: formData.smtp_host,
+            port: formData.smtp_port,
+            user: formData.smtp_user,
+            pass: formData.smtp_pass,
+            from: formData.smtp_from
+          }
+        })
+      })
+
+      const data = await res.json()
+      if (res.ok && data.success) {
+        toast.success(`E-mail de teste enviado com sucesso para ${targetEmail}! Verifique sua caixa de entrada.`)
+      } else {
+        toast.error('Erro no envio: ' + (data.message || 'Falha ao conectar ao servidor SMTP.'))
+      }
+    } catch (err: any) {
+      toast.error('Erro ao conectar: ' + err.message)
+    } finally {
+      setTestingEmail(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setSaving(true)
@@ -1143,6 +1196,7 @@ export default function SettingsPage() {
         <nav className="settings-nav-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {[
             { id: 'identidade', label: 'Identidade', icon: Store },
+            { id: 'notificacoes', label: 'Notificações de Pedidos', icon: Bell },
             { id: 'visual', label: 'Cores e Fontes', icon: Palette },
             { id: 'nicho', label: 'Nicho da Loja', icon: Globe },
             { id: 'topo', label: 'Cabeçalho e Topo', icon: Layout },
@@ -1270,6 +1324,155 @@ export default function SettingsPage() {
               </div>
               </>
               )}
+            </div>
+          )}
+
+          {activeTab === 'notificacoes' && (
+            <div className="glass-card" style={{ padding: '2.5rem', display: 'grid', gap: '2rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', borderBottom: '1px solid var(--border)', paddingBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.4rem', fontWeight: 800, margin: 0, display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                    <Bell size={24} color="var(--primary)" />
+                    Notificações de Novos Pedidos
+                  </h3>
+                  <p style={{ color: 'var(--muted)', marginTop: '0.5rem', fontSize: '0.9rem' }}>
+                    Receba um alerta instantâneo por e-mail com todos os detalhes sempre que um novo pedido for realizado.
+                  </p>
+                </div>
+
+                <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer', padding: '0.75rem 1.25rem', borderRadius: '12px', border: formData.order_notifications_enabled !== false ? '2px solid #22c55e' : '1px solid var(--border)', backgroundColor: formData.order_notifications_enabled !== false ? 'rgba(34, 197, 94, 0.08)' : 'transparent', transition: 'all 0.2s' }}>
+                  <input
+                    type="checkbox"
+                    checked={formData.order_notifications_enabled !== false}
+                    onChange={(e) => setFormData({ ...formData, order_notifications_enabled: e.target.checked })}
+                    style={{ accentColor: '#22c55e', cursor: 'pointer', transform: 'scale(1.2)' }}
+                  />
+                  <span style={{ fontWeight: 700, fontSize: '0.9rem', color: formData.order_notifications_enabled !== false ? '#16a34a' : 'var(--muted)' }}>
+                    {formData.order_notifications_enabled !== false ? '✓ Notificações Ativas' : 'Desativado'}
+                  </span>
+                </label>
+              </div>
+
+              {/* Campo do E-mail de Destino */}
+              <div className="form-group">
+                <label style={{ fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                  <Mail size={18} color="var(--primary)" />
+                  E-mail do Administrador (para receber os pedidos):
+                </label>
+                <input
+                  type="email"
+                  value={formData.order_notification_email || ''}
+                  onChange={(e) => setFormData({ ...formData, order_notification_email: e.target.value })}
+                  placeholder="Ex: seuemail@gmail.com ou pedidos@minhaloja.com.br"
+                  style={{ width: '100%', fontSize: '1rem', padding: '0.875rem 1.25rem' }}
+                />
+                <div style={{ marginTop: '0.5rem', fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.5 }}>
+                  💡 <strong>Dica:</strong> É para este e-mail que o sistema enviará a notificação de nova venda com os produtos comprados, nome, telefone e endereço do cliente. Se deixar em branco, usará o e-mail cadastrado na loja.
+                </div>
+              </div>
+
+              {/* Card de Teste de Envio */}
+              <div style={{ background: 'rgba(99, 102, 241, 0.05)', border: '1px solid rgba(99, 102, 241, 0.2)', borderRadius: '14px', padding: '1.5rem', display: 'flex', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: '1.25rem' }}>
+                <div style={{ maxWidth: '500px' }}>
+                  <h4 style={{ margin: 0, fontWeight: 700, fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span>🧪</span> Testar Envio de Notificação
+                  </h4>
+                  <p style={{ margin: '0.35rem 0 0 0', fontSize: '0.85rem', color: 'var(--muted)', lineHeight: 1.4 }}>
+                    Clique no botão ao lado para enviar um e-mail de teste agora mesmo para <strong>{formData.order_notification_email || 'o seu e-mail'}</strong> e confirmar o funcionamento.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleSendTestEmail}
+                  disabled={testingEmail}
+                  style={{
+                    padding: '0.85rem 1.75rem',
+                    backgroundColor: 'var(--primary)',
+                    color: '#ffffff',
+                    border: 'none',
+                    borderRadius: '10px',
+                    fontWeight: 700,
+                    cursor: testingEmail ? 'not-allowed' : 'pointer',
+                    opacity: testingEmail ? 0.7 : 1,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.6rem',
+                    fontSize: '0.9rem',
+                    boxShadow: '0 4px 12px rgba(99, 102, 241, 0.25)',
+                    transition: 'all 0.2s ease'
+                  }}
+                >
+                  {testingEmail ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
+                  <span>{testingEmail ? 'Enviando...' : 'Enviar E-mail de Teste'}</span>
+                </button>
+              </div>
+
+              {/* Servidor SMTP Personalizado (Opcional) */}
+              <div style={{ borderTop: '1px solid var(--border)', paddingTop: '1.5rem' }}>
+                <details style={{ cursor: 'pointer' }}>
+                  <summary style={{ fontWeight: 700, color: 'var(--foreground)', fontSize: '0.95rem', padding: '0.5rem 0' }}>
+                    ⚙️ Configurações Avançadas de Servidor SMTP (Opcional)
+                  </summary>
+                  <div style={{ marginTop: '1rem', display: 'grid', gap: '1.25rem', background: 'rgba(255,255,255,0.02)', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--muted)', margin: 0, lineHeight: 1.5 }}>
+                      Caso deseje utilizar o servidor de e-mail do seu próprio domínio ou uma conta Gmail com <em>Senha de Aplicativo</em>, configure as credenciais abaixo. Se deixar em branco, o sistema usará as configurações padrão do servidor.
+                    </p>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '1rem' }}>
+                      <div className="form-group">
+                        <label>Host SMTP</label>
+                        <input
+                          type="text"
+                          value={formData.smtp_host || ''}
+                          onChange={(e) => setFormData({ ...formData, smtp_host: e.target.value })}
+                          placeholder="Ex: smtp.gmail.com ou mail.seusite.com.br"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Porta SMTP</label>
+                        <input
+                          type="text"
+                          value={formData.smtp_port || ''}
+                          onChange={(e) => setFormData({ ...formData, smtp_port: e.target.value })}
+                          placeholder="587 ou 465"
+                        />
+                      </div>
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                      <div className="form-group">
+                        <label>Usuário / E-mail de Envio</label>
+                        <input
+                          type="text"
+                          value={formData.smtp_user || ''}
+                          onChange={(e) => setFormData({ ...formData, smtp_user: e.target.value })}
+                          placeholder="Ex: notificacoes@seusite.com.br"
+                        />
+                      </div>
+                      <div className="form-group">
+                        <label>Senha / Senha de App</label>
+                        <input
+                          type="password"
+                          value={formData.smtp_pass || ''}
+                          onChange={(e) => setFormData({ ...formData, smtp_pass: e.target.value })}
+                          placeholder="••••••••••••"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="form-group">
+                      <label>Remetente Personalizado (Opcional)</label>
+                      <input
+                        type="text"
+                        value={formData.smtp_from || ''}
+                        onChange={(e) => setFormData({ ...formData, smtp_from: e.target.value })}
+                        placeholder="Ex: Pedidos Loja <pedidos@seusite.com.br>"
+                      />
+                    </div>
+                  </div>
+                </details>
+              </div>
             </div>
           )}
 

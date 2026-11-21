@@ -1,6 +1,7 @@
 "use server"
 
 import { getAdminSupabase } from '@/lib/supabase'
+import { sendOrderNotificationToAdmin } from '@/lib/emailService'
 
 export async function processMercadoPagoPaymentAction({
   storeId,
@@ -227,6 +228,20 @@ export async function processMercadoPagoPaymentAction({
     // 9. Abandoned cart
     if (abandonedCartId) {
       await supabase.from('abandoned_carts').update({ recovered: true }).eq('id', abandonedCartId)
+    }
+
+    // 10. Notificar o administrador por e-mail em background
+    try {
+      sendOrderNotificationToAdmin({
+        store,
+        order: orderObj,
+        customer: { name: rawName, email: payerEmail, phone: customerData?.phone },
+        items: cartItems,
+        paymentMethod: formData?.payment_method_id || 'Mercado Pago',
+        address: customerData?.address
+      }).catch(e => console.error('[MercadoPago Action] Erro async ao enviar e-mail:', e))
+    } catch (e) {
+      console.error('[MercadoPago Action] Falha ao disparar e-mail:', e)
     }
 
     // Extract Pix / Ticket details if present
